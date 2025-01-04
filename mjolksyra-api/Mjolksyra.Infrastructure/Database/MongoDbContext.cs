@@ -11,8 +11,6 @@ public interface IMongoDbContext
 
     IMongoCollection<UserInvitation> UserInvitations { get; }
 
-    IMongoCollection<ExerciseCategory> ExerciseGroups { get; }
-
     IMongoCollection<Exercise> Exercises { get; }
 
     IMongoCollection<Trainee> Trainees { get; }
@@ -31,8 +29,6 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<User> Users => Database.GetCollection<User>("users");
 
     public IMongoCollection<UserInvitation> UserInvitations => Database.GetCollection<UserInvitation>("user-invitations");
-
-    public IMongoCollection<ExerciseCategory> ExerciseGroups => Database.GetCollection<ExerciseCategory>("exercise-groups");
 
     public IMongoCollection<Exercise> Exercises => Database.GetCollection<Exercise>("exercises");
 

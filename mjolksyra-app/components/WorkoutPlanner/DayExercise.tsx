@@ -88,7 +88,7 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
                 />
                 <CopyIcon
                   {...clone.listeners}
-                  className="h-3 cursor-move hover:text-zinc-400"
+                  className="h-3 cursor-copy hover:text-zinc-400"
                 />
                 <TrashIcon
                   onClick={() => {
@@ -103,7 +103,7 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
               document.body
             )}
           </Tooltip>
-          <div> {exercise.name}</div>
+          <div style={{ fontSize: "0.75rem" }}> {exercise.name}</div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="pl-2">

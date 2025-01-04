@@ -5,6 +5,7 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { Accordion } from "../ui/accordion";
 import { DayExercise } from "./DayExercise";
+import { useMemo } from "react";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
@@ -27,6 +28,10 @@ export function Day({ date }: Props) {
     },
   });
 
+  const isToday = useMemo(() => {
+    return dayjs().format(DATE_FORMAT) === date?.format(DATE_FORMAT);
+  }, [date]);
+
   const contentClass = cn({
     flex: true,
     "pr-2": true,
@@ -35,14 +40,21 @@ export function Day({ date }: Props) {
     "bg-zinc-900": isOver,
   });
 
+  const dateClass = cn({
+    "py-1": true,
+    "px-2": true,
+    "bg-red-800": isToday,
+    "rounded-full": true,
+  });
+
   if (!date) {
     return <div />;
   }
 
   return (
     <div className="border" ref={setNodeRef}>
-      <div className={"font-bold text-xs pt-1 pl-2 pr-2 px-2"}>
-        {date?.date()}
+      <div className="font-bold text-xs p-2 border-b flex items-start">
+        <div className={dateClass}>{date?.date()}</div>
       </div>
       <div className={contentClass}>
         <Accordion type="multiple" className="w-full ">

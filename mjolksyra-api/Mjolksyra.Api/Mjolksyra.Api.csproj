@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Mjolksyra.Infrastructure\Mjolksyra.Infrastructure.csproj" />
+      <ProjectReference Include="..\Mjolksyra.UseCases\Mjolksyra.UseCases.csproj" />
     </ItemGroup>
 
 </Project>

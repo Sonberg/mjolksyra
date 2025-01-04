@@ -12,7 +12,7 @@ export function Week({ weekNumber, days }: Props) {
 
   return (
     <div>
-      <div className="bg-zinc-900 p-2">v{weekNumber}</div>
+      <div className="bg-zinc-900 p-1 px-2 text-sm">v{weekNumber}</div>
       <div className="grid grid-cols-7 ">
         <Day date={groupByName["Mon"]?.[0]} />
         <Day date={groupByName["Tue"]?.[0]} />

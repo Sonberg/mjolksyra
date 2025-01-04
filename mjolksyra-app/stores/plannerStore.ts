@@ -36,14 +36,14 @@ type DeleteExercise = {
   exerciseId: string;
 };
 
-interface PlannerState {
+type PlannerState = {
   workouts: PlannedWorkout[];
   load: (userId: string) => Promise<void>;
   upsert: (workout: PlannedWorkout) => void;
   addExercise: (data: AddExercise) => void;
   moveExercise: (data: MoveExercise) => void;
   deleteExercise: (data: DeleteExercise) => void;
-}
+};
 
 export const usePlannerStore = create<PlannerState>((set) => ({
   workouts: [],

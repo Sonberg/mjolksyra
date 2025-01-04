@@ -7,6 +7,9 @@ import { parse } from "./parse";
 import { useMemo } from "react";
 import { SortableContext } from "@dnd-kit/sortable";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export default function Page() {
   const store = usePlannerStore();
@@ -44,13 +47,15 @@ export default function Page() {
 
   return (
     <>
-      <TooltipProvider>
-        <DndContext onDragEnd={handleDragEnd}>
-          <SortableContext items={exerciseIds}>
-            <WorkoutPlanner />
-          </SortableContext>
-        </DndContext>
-      </TooltipProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <DndContext onDragEnd={handleDragEnd}>
+            <SortableContext items={exerciseIds}>
+              <WorkoutPlanner />
+            </SortableContext>
+          </DndContext>
+        </TooltipProvider>
+      </QueryClientProvider>
     </>
   );
 }

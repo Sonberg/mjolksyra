@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
+using Mjolksyra.Api.Migration;
+using Mjolksyra.Infrastructure;
+using Mjolksyra.UseCases;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -42,6 +45,12 @@ builder.Services
 builder.Services
     .AddMassTransit(opt => { opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context)); });
 
+
+builder.Services.AddHostedService<ExerciseSeeder>();
+builder.Services.AddHostedService<IndexBuilder>();
+
+builder.Services.AddUseCases();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

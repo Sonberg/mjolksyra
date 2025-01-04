@@ -1,4 +1,4 @@
-const weekdayClass = "font-bold bg-border p-1";
+const weekdayClass = "text-sm  p-1";
 
 export function WeekDayNames() {
   return (

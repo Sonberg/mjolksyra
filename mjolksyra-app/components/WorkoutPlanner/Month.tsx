@@ -36,13 +36,18 @@ export function Month({ month, year }: MonthProps) {
   );
 
   const groupedByWeek = useMemo(() => groupBy(days, (x) => x.week()), [days]);
-
   const monthName = useMemo(() => startDate.format("MMMM YYYY"), [startDate]);
 
   return (
     <>
       <div>
-        <div className="text-3xl font-bold mb-8">{monthName}</div>
+        <div
+          className="text-3xl font-bold mb-8"
+          data-month={month}
+          data-year={year}
+        >
+          {monthName}
+        </div>
         <WeekDayNames />
         <div className="flex flex-col gap-8 ">
           {Object.keys(groupedByWeek).map((key) => (
