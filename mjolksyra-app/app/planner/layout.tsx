@@ -17,7 +17,7 @@ type Props = {
 export default function Layout({ children }: Props) {
   return (
     <>
-      <div className="p-6">
+      <div className="p-6 border-b">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>

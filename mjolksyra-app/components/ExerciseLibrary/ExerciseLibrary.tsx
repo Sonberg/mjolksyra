@@ -15,11 +15,11 @@ export function ExerciseLibrary() {
   };
 
   return (
-    <div>
+    <div className="h-full">
       <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/6 mb-4">
         {searchMode ? (
           <div className="mb-6 flex justify-between items-center">
-            Search
+            <div className="font-bold">Search</div>
             <button
               style={{ fontSize: "0.75rem" }}
               className="py-1 px-3 bg-zinc-900  hover:bg-zinc-800 rounded-full"
@@ -29,7 +29,7 @@ export function ExerciseLibrary() {
             </button>
           </div>
         ) : null}
-        <div className="relative mb-8">
+        <div className="relative mb-4">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={searchMode ? "Type anything..." : "Search"}
@@ -40,10 +40,7 @@ export function ExerciseLibrary() {
           />
         </div>
       </div>
-      <div
-        className="flex flex-col gap-4 overflow-y-scroll"
-        style={{ height: "75rem" }}
-      >
+      <div className="flex flex-col gap-4 overflow-y-scroll h-full">
         {searchMode ? (
           <>
             <ExerciseSearch freeText={freeText} />

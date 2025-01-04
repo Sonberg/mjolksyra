@@ -103,7 +103,7 @@ export function WorkoutPlanner() {
           maxSize={30}
           className="overflow-visible"
         >
-          <div className="p-6">
+          <div className="p-4 h-full">
             <ExerciseLibrary />
           </div>
         </ResizablePanel>
