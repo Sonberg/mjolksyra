@@ -8,6 +8,9 @@ import {
 } from "../ui/hover-card";
 import { Star } from "lucide-react";
 import { Exercise } from "@/api/exercises/type";
+import { useStarredExercises } from "./hooks/useStarredExercises";
+import { useCallback, useMemo } from "react";
+import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 
 type Props = {
   exercise: Exercise;
@@ -24,17 +27,53 @@ export function ExerciseRow({ exercise }: Props) {
     },
   });
 
+  const starred = useStarredExercises();
+  const isStarred = useMemo(
+    () => starred.data?.find((x) => x.id == exercise.id),
+    [exercise, starred.data]
+  );
+
+  const hoverCard = useCallback((title: string, value: string | null) => {
+    if (!value) {
+      return null;
+    }
+
+    return (
+      <div className="border p-2">
+        <div className="font-bold text-xs mb-1">{title}</div>
+        <div className="text-xs">{capitalizeFirstLetter(value)}</div>
+      </div>
+    );
+  }, []);
+
   const element = (
     <div className="text-sm">
-      <HoverCard>
-        <HoverCardTrigger className="hover:underline hover:bg-zinc-900 py-1 px-2 text-sm flex justify-between items-center">
-          <div ref={setNodeRef} {...listeners} {...attributes}>
-            {exercise.name}
-          </div>
-          <Star className="h-4 hover:text-zinc-700 text-zinc-800" />
-        </HoverCardTrigger>
+      <HoverCard openDelay={300}>
+        <div className="hover:underline py-2 text-sm flex justify-between items-center">
+          <HoverCardTrigger className="">
+            <div ref={setNodeRef} {...listeners} {...attributes}>
+              {exercise.name}
+            </div>
+          </HoverCardTrigger>
+          <Star
+            fill={isStarred ? "#FFF" : undefined}
+            onClick={() =>
+              isStarred
+                ? starred.unstar(exercise.id)
+                : starred.star(exercise.id)
+            }
+            className="h-5 hover:text-zinc-700 text-zinc-800 cursor-pointer"
+          />
+        </div>
         <HoverCardContent className="z-30">
-          The React Framework – created and maintained by @vercel.
+          <div className="font-bold mb-4">{exercise.name}</div>
+          <div className="grid gap-2 grid-cols-2">
+            {hoverCard("Category", exercise.category)}
+            {hoverCard("Equipment", exercise.equipment)}
+            {hoverCard("Force", exercise.force)}
+            {hoverCard("Level", exercise.level)}
+            {hoverCard("Mechanic", exercise.mechanic)}
+          </div>
         </HoverCardContent>
       </HoverCard>
     </div>

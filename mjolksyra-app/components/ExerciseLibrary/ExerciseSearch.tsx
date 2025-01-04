@@ -6,11 +6,11 @@ type Props = {
 };
 
 export function ExerciseSearch({ freeText }: Props) {
-  const search = useSearchExercises({ freeText });
+  const { data } = useSearchExercises({ freeText });
 
   return (
     <>
-      {search.data?.map((x) => (
+      {data?.data.map((x) => (
         <ExerciseRow key={x.id} exercise={x} />
       ))}
     </>

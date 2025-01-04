@@ -26,7 +26,7 @@ public class Exercise : IDocument
 
     public Guid? CreatedByUserId { get; set; }
 
-    public ICollection<Guid> LinkedBy { get; set; } = Array.Empty<Guid>();
+    public ICollection<Guid> StarredBy { get; set; } = Array.Empty<Guid>();
 
     public double Score { get; set; }
 

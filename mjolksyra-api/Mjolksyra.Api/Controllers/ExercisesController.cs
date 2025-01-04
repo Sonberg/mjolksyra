@@ -1,6 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.UseCases.Common.Models;
+using Mjolksyra.UseCases.Exercises;
 using Mjolksyra.UseCases.Exercises.SearchExercises;
+using Mjolksyra.UseCases.Exercises.StarExercise;
+using Mjolksyra.UseCases.Exercises.StarredExercises;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -16,21 +20,26 @@ public class ExercisesController : Controller
     }
 
     [HttpPost("search")]
-    public async Task<ActionResult<ICollection<ExerciseResponse>>> Search([FromBody] SearchExercisesRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<PaginatedResponse<ExerciseResponse>>> Search([FromBody] SearchExercisesRequest request, CancellationToken cancellationToken)
     {
         return Ok(await _mediator.Send(request, cancellationToken));
     }
 
-    [HttpGet("liked")]
-    public async Task<ActionResult<ICollection<ExerciseResponse>>> Liked([FromBody] SearchExercisesRequest request, CancellationToken cancellationToken)
+    [HttpGet("starred")]
+    public async Task<ActionResult<PaginatedResponse<ExerciseResponse>>> Starred(CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(request, cancellationToken));
+        return Ok(await _mediator.Send(new StarredExercisesRequest(), cancellationToken));
     }
 
-    [HttpGet("{id}/like")]
-    public async Task<ActionResult> PutLike(SearchExercisesRequest request, CancellationToken cancellationToken)
+    [HttpPut("{exerciseId:guid}/star")]
+    public async Task<ActionResult> Star(Guid exerciseId, StarExerciseRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(request, cancellationToken));
+        return await _mediator
+            .Send(request.ToCommand(exerciseId), cancellationToken)
+            .ContinueWith(t => t.Result.Match<ActionResult>(
+                _ => NoContent(),
+                _ => BadRequest()
+            ), cancellationToken);
     }
 
 

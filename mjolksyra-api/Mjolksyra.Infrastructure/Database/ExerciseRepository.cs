@@ -1,4 +1,5 @@
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
 
@@ -13,7 +14,7 @@ public class ExerciseRepository : IExerciseRepository
         _mongoDbContext = mongoDbContext;
     }
 
-    public async Task<ICollection<Exercise>> SearchAsync(string freeText, CancellationToken cancellationToken = default)
+    public async Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default)
     {
         var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
         var filter = Builders<Exercise>.Filter.Text(freeText, new TextSearchOptions
@@ -31,23 +32,47 @@ public class ExerciseRepository : IExerciseRepository
         return result;
     }
 
-    public Task<ICollection<Exercise>> GetAsync(CancellationToken cancellationToken = default)
+    public Task<Paginated<Exercise>> All(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ICollection<Exercise>> GetLikedAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<Paginated<Exercise>> Starred(Guid userId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var filter = Builders<Exercise>.Filter.AnyIn(x => x.StarredBy, [userId]);
+        var result = await _mongoDbContext.Exercises
+            .Find(filter)
+            .SortBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+
+        return new Paginated<Exercise>
+        {
+            Data = result,
+            Cursor = null
+        };
     }
 
-    public Task<Exercise> LikeAsync(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<bool> Star(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var update = Builders<Exercise>.Update.AddToSet(x => x.StarredBy, userId);
+        var result = await _mongoDbContext.Exercises
+            .UpdateOneAsync(x => x.Id == exerciseId, update, new UpdateOptions
+            {
+                IsUpsert = true
+            }, cancellationToken);
+
+        return result.IsAcknowledged;
     }
 
-    public Task<Exercise> UnlikeAsync(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<bool> Unstar(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var update = Builders<Exercise>.Update.Pull(x => x.StarredBy, userId);
+        var result = await _mongoDbContext.Exercises
+            .UpdateOneAsync(x => x.Id == exerciseId, update, new UpdateOptions
+            {
+                IsUpsert = true
+            }, cancellationToken);
+
+        return result.IsAcknowledged;
     }
 }
