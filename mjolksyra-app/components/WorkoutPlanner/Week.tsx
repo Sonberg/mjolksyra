@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import { Day } from "./Day";
 import { groupBy } from "@/lib/groupBy.";
+import { useMemo } from "react";
+
+const FORMAT = "YYYY MM DD";
 
 type Props = {
   weekNumber: number;
@@ -8,10 +11,20 @@ type Props = {
 };
 
 export function Week({ weekNumber, days }: Props) {
-  const groupByName = groupBy(days, (x) => x.format("ddd"));
+  const groupByName = useMemo(
+    () => groupBy(days, (x) => x.format("ddd")),
+    [days]
+  );
+
+  const isToday = useMemo(() => {
+    const now = dayjs().format(FORMAT);
+    const today = days.find((x) => x.format(FORMAT) === now);
+
+    return today ? true : false;
+  }, [days]);
 
   return (
-    <div>
+    <div data-today={isToday}>
       <div className="bg-zinc-900 p-1 px-2 text-sm">v{weekNumber}</div>
       <div className="grid grid-cols-7 ">
         <Day date={groupByName["Mon"]?.[0]} />

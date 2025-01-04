@@ -71,7 +71,7 @@ export function ExerciseRow({ exercise }: Props) {
           />
         </div>
         <HoverCardContent className="z-30">
-          <div className="font-bold mb-2">{exercise.name}</div>
+          <div className="font-bold mb-4">{exercise.name}</div>
           <div className="grid gap-2 grid-cols-2">
             {hoverCard("Category", exercise.category)}
             {hoverCard("Equipment", exercise.equipment)}
