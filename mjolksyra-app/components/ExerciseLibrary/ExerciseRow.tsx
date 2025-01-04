@@ -39,7 +39,7 @@ export function ExerciseRow({ exercise }: Props) {
     }
 
     return (
-      <div className="border p-2">
+      <div className="border py-1 px-2 rounded">
         <div className="font-bold text-xs mb-1">{title}</div>
         <div className="text-xs">{capitalizeFirstLetter(value)}</div>
       </div>
@@ -47,11 +47,16 @@ export function ExerciseRow({ exercise }: Props) {
   }, []);
 
   const element = (
-    <div className="text-sm">
+    <div className="text-sm border-b">
       <HoverCard openDelay={300}>
         <div className="hover:underline py-2 text-sm flex justify-between items-center">
-          <HoverCardTrigger className="">
-            <div ref={setNodeRef} {...listeners} {...attributes}>
+          <HoverCardTrigger>
+            <div
+              ref={setNodeRef}
+              {...listeners}
+              {...attributes}
+              className="cursor-move"
+            >
               {exercise.name}
             </div>
           </HoverCardTrigger>
@@ -66,7 +71,7 @@ export function ExerciseRow({ exercise }: Props) {
           />
         </div>
         <HoverCardContent className="z-30">
-          <div className="font-bold mb-4">{exercise.name}</div>
+          <div className="font-bold mb-2">{exercise.name}</div>
           <div className="grid gap-2 grid-cols-2">
             {hoverCard("Category", exercise.category)}
             {hoverCard("Equipment", exercise.equipment)}

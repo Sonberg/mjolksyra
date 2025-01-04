@@ -79,10 +79,10 @@ export function WorkoutPlanner() {
   }, [previousHeight]);
   return (
     <>
-      <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+      <ResizablePanelGroup direction="horizontal" className="">
         <ResizablePanel defaultSize={80} minSize={50}>
           <div
-            className="px-4 py-2 flex flex-col gap-8 overflow-y-scroll h-[calc(100vh-134px)]"
+            className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-scroll"
             ref={containerRef}
           >
             <div className="w-full h-8" ref={start.measureRef} />

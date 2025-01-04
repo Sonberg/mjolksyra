@@ -34,7 +34,6 @@ export function Day({ date }: Props) {
 
   const contentClass = cn({
     flex: true,
-    "pr-2": true,
     "min-h-32": true,
     "flex-col": true,
     "bg-zinc-900": isOver,

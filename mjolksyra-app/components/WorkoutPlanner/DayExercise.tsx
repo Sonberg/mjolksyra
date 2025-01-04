@@ -75,13 +75,17 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
       {...move.attributes}
     >
       <AccordionTrigger className="text-sm py-2">
-        <div className="flex gap-1 items-center">
-          <Tooltip delayDuration={100}>
-            <TooltipTrigger asChild>
+        <div className="flex  items-center">
+          <Tooltip delayDuration={50}>
+            <TooltipTrigger asChild onClick={(ev) => ev.preventDefault()}>
               <EllipsisVertical className="h-3" />
             </TooltipTrigger>
+
             {createPortal(
-              <TooltipContent className="flex gap-2 px-1">
+              <TooltipContent
+                onClick={(ev) => ev.preventDefault()}
+                className="flex gap-2 px-1"
+              >
                 <MoveIcon
                   {...move.listeners}
                   className="h-3 cursor-move  hover:text-zinc-400"
@@ -103,11 +107,11 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
               document.body
             )}
           </Tooltip>
-          <div style={{ fontSize: "0.75rem" }}> {exercise.name}</div>
+          <div className="text-sm"> {exercise.name}</div>
         </div>
       </AccordionTrigger>
-      <AccordionContent className="pl-2">
-        <Textarea placeholder="hh" />
+      <AccordionContent className="px-2 pb-3">
+        <Textarea className=" pt-0" placeholder="Sets, reps, tempo etc" />
       </AccordionContent>
     </AccordionItem>
   );

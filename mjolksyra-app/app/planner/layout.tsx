@@ -34,7 +34,7 @@ export default function Layout({ children }: Props) {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="flex h-full flex-col">{children}</div>
+      {children}
     </>
   );
 }
