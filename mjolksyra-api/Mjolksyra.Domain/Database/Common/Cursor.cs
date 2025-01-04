@@ -4,9 +4,9 @@ namespace Mjolksyra.Domain.Database.Common;
 
 public record Cursor
 {
-    public required Guid LastId { get; init; }
+    public required int Size { get; init; }
 
-    public required int Limit { get; init; }
+    public required int Page { get; init; }
 
     public static implicit operator string?(Cursor? cursor)
     {
@@ -40,22 +40,16 @@ public record Cursor
         return res ?? throw new Exception("Conversion to Cursor failed");
     }
 
-    public static Cursor? From<T>(List<T> response, int limit) where T : IDocument
+    public static Cursor? From<T>(List<T> response, Cursor lastCursor) where T : IDocument
     {
-        if (response.Count < limit)
+        if (response.Count is 0)
         {
             return null;
         }
 
-        if (response.LastOrDefault() is not { } last)
+        return lastCursor with
         {
-            return null;
-        }
-
-        return new Cursor
-        {
-            Limit = limit,
-            LastId = last.Id
+            Page = lastCursor.Page + 1
         };
     }
 }

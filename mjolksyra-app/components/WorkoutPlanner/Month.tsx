@@ -9,6 +9,7 @@ import weekOfYear from "dayjs/plugin/weekOfYear";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { groupBy } from "@/lib/groupBy.";
+import { usePlannerStore } from "@/stores/plannerStore";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -37,6 +38,7 @@ export function Month({ month, year }: MonthProps) {
 
   const groupedByWeek = useMemo(() => groupBy(days, (x) => x.week()), [days]);
   const monthName = useMemo(() => startDate.format("MMMM YYYY"), [startDate]);
+  const store = usePlannerStore();
 
   return useMemo(
     () => (
@@ -62,6 +64,6 @@ export function Month({ month, year }: MonthProps) {
         </div>
       </>
     ),
-    [monthName, groupedByWeek]
+    [monthName, groupedByWeek, store]
   );
 }

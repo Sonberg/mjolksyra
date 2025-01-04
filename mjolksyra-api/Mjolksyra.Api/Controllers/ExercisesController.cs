@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.Exercises;
+using Mjolksyra.UseCases.Exercises.GetExercises;
 using Mjolksyra.UseCases.Exercises.SearchExercises;
 using Mjolksyra.UseCases.Exercises.StarExercise;
 using Mjolksyra.UseCases.Exercises.StarredExercises;
@@ -23,6 +25,16 @@ public class ExercisesController : Controller
     public async Task<ActionResult<PaginatedResponse<ExerciseResponse>>> Search([FromBody] SearchExercisesRequest request, CancellationToken cancellationToken)
     {
         return Ok(await _mediator.Send(request, cancellationToken));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<PaginatedResponse<ExerciseResponse>>> Get([FromQuery] string? cursor, CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(new GetExercisesRequest
+        {
+            Cursor = cursor != null ? Cursor.Parse(cursor) : null,
+            Limit = 20
+        }, cancellationToken));
     }
 
     [HttpGet("starred")]

@@ -1,6 +1,8 @@
 "use client";
 
+import { CalendarHeartIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function TodayButton() {
   const [isVisible, setVisible] = useState(true);
@@ -20,24 +22,29 @@ export function TodayButton() {
     return () => elements.forEach((el) => observer.unobserve(el));
   }, []);
 
-  console.log(isVisible);
-
   if (isVisible) {
     return;
   }
 
   return (
-    <div
-      onClick={() => {
-        document
-          .querySelectorAll('[data-today="true"]')
-          .forEach((el) =>
-            el.scrollIntoView({ behavior: "smooth", block: "center" })
-          );
-      }}
-      className="absolute text-sm right-8 bottom-8 bg-red-800 hover:bg-red-700  rounded-full font-bold px-4 py-2 cursor-pointer"
-    >
-      Today
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          onClick={() => {
+            document
+              .querySelectorAll('[data-today="true"]')
+              .forEach((el) =>
+                el.scrollIntoView({ behavior: "smooth", block: "center" })
+              );
+          }}
+          className="absolute text-sm right-8 bottom-8 bg-red-800 hover:bg-red-700  rounded-full font-bold h-10 w-10 grid place-items-center cursor-pointer"
+        >
+          <CalendarHeartIcon className="h-4" />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Back to current week</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

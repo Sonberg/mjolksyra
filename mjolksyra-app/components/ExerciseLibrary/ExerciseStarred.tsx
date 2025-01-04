@@ -5,7 +5,7 @@ export function ExerciseStarred() {
   const { data } = useStarredExercises();
 
   return (
-    <div className="mb-8">
+    <div className="mb-4">
       <div className="font-bold">Starred</div>
       {data?.map((x) => (
         <ExerciseRow key={x.id} exercise={x} />

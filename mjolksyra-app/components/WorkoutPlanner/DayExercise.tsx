@@ -107,7 +107,9 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
               document.body
             )}
           </Tooltip>
-          <div className="text-sm"> {exercise.name}</div>
+          <div className="text-sm">
+            {exercise.name}
+          </div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-2 pb-3">

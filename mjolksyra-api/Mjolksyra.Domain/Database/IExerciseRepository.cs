@@ -7,7 +7,9 @@ public interface IExerciseRepository
 {
     Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default);
 
-    Task<Paginated<Exercise>> All(CancellationToken cancellationToken = default);
+    Task<Paginated<Exercise>> Get(int limit, CancellationToken cancellationToken = default);
+    
+    Task<Paginated<Exercise>> Get(Cursor cursor, CancellationToken cancellationToken = default);
 
     Task<Paginated<Exercise>> Starred(Guid userId, CancellationToken cancellationToken = default);
 

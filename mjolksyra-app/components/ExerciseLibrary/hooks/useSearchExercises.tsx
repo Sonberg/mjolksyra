@@ -1,7 +1,6 @@
 import { searchExercises } from "@/api/exercises/searchExercises";
 import { Exercise } from "@/api/exercises/type";
 import { useQuery } from "@tanstack/react-query";
-import next from "next";
 
 type Args = {
   freeText: string;

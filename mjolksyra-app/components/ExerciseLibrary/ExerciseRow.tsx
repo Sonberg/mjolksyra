@@ -8,9 +8,9 @@ import {
 } from "../ui/hover-card";
 import { Star } from "lucide-react";
 import { Exercise } from "@/api/exercises/type";
-import { useStarredExercises } from "./hooks/useStarredExercises";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
+import { ExerciseRowStar } from "./ExerciseRowStar";
 
 type Props = {
   exercise: Exercise;
@@ -27,12 +27,6 @@ export function ExerciseRow({ exercise }: Props) {
     },
   });
 
-  const starred = useStarredExercises();
-  const isStarred = useMemo(
-    () => starred.data?.find((x) => x.id == exercise.id),
-    [exercise, starred.data]
-  );
-
   const hoverCard = useCallback((title: string, value: string | null) => {
     if (!value) {
       return null;
@@ -48,7 +42,7 @@ export function ExerciseRow({ exercise }: Props) {
 
   const element = (
     <div className="text-sm border-b">
-      <HoverCard openDelay={300}>
+      <HoverCard openDelay={500}>
         <div className="hover:underline py-2 text-sm flex justify-between items-center">
           <HoverCardTrigger>
             <div
@@ -60,15 +54,7 @@ export function ExerciseRow({ exercise }: Props) {
               {exercise.name}
             </div>
           </HoverCardTrigger>
-          <Star
-            fill={isStarred ? "#FFF" : undefined}
-            onClick={() =>
-              isStarred
-                ? starred.unstar(exercise.id)
-                : starred.star(exercise.id)
-            }
-            className="h-5 hover:text-zinc-700 text-zinc-800 cursor-pointer"
-          />
+          <ExerciseRowStar exercise={exercise} />
         </div>
         <HoverCardContent className="z-30">
           <div className="font-bold mb-4">{exercise.name}</div>
