@@ -29,7 +29,7 @@ export function ExerciseBrowser() {
       <div ref={end.measureRef} className="text-background">
         end
       </div>
-      {browser.isFetchingNextPage ? (
+      {browser.hasNextPage ? (
         <div className="grid place-items-center py-4">
           <Spinner />
         </div>

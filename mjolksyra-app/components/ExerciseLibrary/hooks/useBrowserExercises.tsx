@@ -22,15 +22,15 @@ export function useBrowseExercises() {
         : { data: [], next: null };
     },
     getNextPageParam: (lastPage, _) => lastPage.next,
-    initialPageParam: initial.data!.next,
-    enabled: !!initial.data!.next,
+    initialPageParam: initial.data?.next,
+    enabled: !!initial.data?.next,
   });
 
   return useMemo(
     () => ({
       data: uniqBy(
         [
-          ...initial.data!.data,
+          ...(initial.data?.data ?? []),
           ...flatten(infinit.data?.pages ?? [], (x) => x.data),
         ],
         (x) => x.id

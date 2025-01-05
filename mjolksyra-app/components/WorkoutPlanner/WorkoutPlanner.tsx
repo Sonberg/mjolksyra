@@ -62,47 +62,48 @@ export function WorkoutPlanner() {
     containerRef.current!.scroll({ top: scrollTop });
   }, [previousHeight]);
 
-  return (
-    <>
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={80} minSize={50} className="relative">
-          <div
-            className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-scroll relative"
-            ref={containerRef}
-          >
+  return useMemo(
+    () => (
+      <>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={80} minSize={50} className="relative">
             <div
-              className="w-full h-8 text-background"
-              ref={start.measureRef}
-              children="d"
-            />
-            {months.map((x) => (
-              <Month
-                key={`${x.year}-${x.month}`}
-                month={x.month}
-                year={x.year}
+              className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-scroll relative"
+              ref={containerRef}
+            >
+              <div
+                className="w-full h-8 text-background"
+                ref={start.measureRef}
+                children="d"
               />
-            ))}
+              {months.map((x) => (
+                <Month
+                  key={`${x.year}-${x.month}`}
+                  month={x.month}
+                  year={x.year}
+                />
+              ))}
 
-            <div
-              className="w-full h-8 text-background"
-              ref={end.measureRef}
-              children="d"
-            />
-          </div>
-          <TodayButton />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel
-          defaultSize={20}
-          minSize={0}
-          maxSize={30}
-          className="overflow-visible"
-        >
-          <div className="p-4 h-full">
+              <div
+                className="w-full h-8 text-background"
+                ref={end.measureRef}
+                children="d"
+              />
+            </div>
+            <TodayButton />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel
+            defaultSize={20}
+            minSize={0}
+            maxSize={30}
+            className="overflow-visible"
+          >
             <ExerciseLibrary />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </>
+    ),
+    [start, end, months]
   );
 }

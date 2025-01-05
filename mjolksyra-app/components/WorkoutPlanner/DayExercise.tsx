@@ -15,10 +15,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CopyIcon, EllipsisVertical, MoveIcon, TrashIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { DragOverlay } from "@dnd-kit/core";
-import { DraggingExercise } from "../DraggingExercise";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { DraggingExercise } from "../DraggingExercise";
 
 type Props = {
   exercise: PlannedExercise;
@@ -88,11 +88,11 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
               >
                 <MoveIcon
                   {...move.listeners}
-                  className="h-3 cursor-move  hover:text-zinc-400"
+                  className="h-4 cursor-move  hover:text-zinc-400"
                 />
                 <CopyIcon
                   {...clone.listeners}
-                  className="h-3 cursor-copy hover:text-zinc-400"
+                  className="h-4 cursor-copy hover:text-zinc-400"
                 />
                 <TrashIcon
                   onClick={() => {
@@ -101,13 +101,13 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
                       exerciseId: exercise.id,
                     });
                   }}
-                  className="h-3 cursor-pointer text-red-500 hover:text-red-800"
+                  className="h-4 cursor-pointer text-red-500 hover:text-red-800"
                 />
               </TooltipContent>,
               document.body
             )}
           </Tooltip>
-          <div className="text-sm">
+          <div className="text-sm select-none">
             {exercise.name}
           </div>
         </div>

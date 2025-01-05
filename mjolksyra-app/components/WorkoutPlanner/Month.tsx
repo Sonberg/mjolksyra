@@ -45,7 +45,7 @@ export function Month({ month, year }: MonthProps) {
       <>
         <div>
           <div
-            className="text-3xl font-bold mb-8"
+            className="text-3xl font-bold mb-8 select-none"
             data-month={month}
             data-year={year}
           >
@@ -64,6 +64,6 @@ export function Month({ month, year }: MonthProps) {
         </div>
       </>
     ),
-    [monthName, groupedByWeek, store]
+    [monthName, groupedByWeek, store.workouts]
   );
 }

@@ -8,7 +8,7 @@ import {
 } from "../ui/hover-card";
 import { Star } from "lucide-react";
 import { Exercise } from "@/api/exercises/type";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { ExerciseRowStar } from "./ExerciseRowStar";
 
@@ -40,47 +40,46 @@ export function ExerciseRow({ exercise }: Props) {
     );
   }, []);
 
-  const element = (
-    <div className="text-sm border-b">
-      <HoverCard openDelay={500}>
-        <div className="hover:underline py-2 text-sm flex justify-between items-center">
-          <HoverCardTrigger>
-            <div
-              ref={setNodeRef}
-              {...listeners}
-              {...attributes}
-              className="cursor-move"
-            >
-              {exercise.name}
+  return useMemo(
+    () => (
+      <>
+        <div className="text-sm border-b">
+          <HoverCard openDelay={500}>
+            <div className="hover:underline py-2 text-sm flex justify-between items-center">
+              <HoverCardTrigger>
+                <div
+                  ref={setNodeRef}
+                  {...listeners}
+                  {...attributes}
+                  className="cursor-move select-none"
+                >
+                  {exercise.name}
+                </div>
+              </HoverCardTrigger>
+              <ExerciseRowStar exercise={exercise} />
             </div>
-          </HoverCardTrigger>
-          <ExerciseRowStar exercise={exercise} />
+            <HoverCardContent className="z-30">
+              <div className="font-bold mb-4">{exercise.name}</div>
+              <div className="grid gap-2 grid-cols-2">
+                {hoverCard("Category", exercise.category)}
+                {hoverCard("Equipment", exercise.equipment)}
+                {hoverCard("Force", exercise.force)}
+                {hoverCard("Level", exercise.level)}
+                {hoverCard("Mechanic", exercise.mechanic)}
+              </div>
+            </HoverCardContent>
+          </HoverCard>
         </div>
-        <HoverCardContent className="z-30">
-          <div className="font-bold mb-4">{exercise.name}</div>
-          <div className="grid gap-2 grid-cols-2">
-            {hoverCard("Category", exercise.category)}
-            {hoverCard("Equipment", exercise.equipment)}
-            {hoverCard("Force", exercise.force)}
-            {hoverCard("Level", exercise.level)}
-            {hoverCard("Mechanic", exercise.mechanic)}
-          </div>
-        </HoverCardContent>
-      </HoverCard>
-    </div>
-  );
-
-  return (
-    <>
-      {element}
-      {isDragging
-        ? createPortal(
-            <DragOverlay>
-              <DraggingExercise name={exercise.name} />
-            </DragOverlay>,
-            document.body
-          )
-        : null}
-    </>
+        {isDragging
+          ? createPortal(
+              <DragOverlay>
+                <DraggingExercise name={exercise.name} />
+              </DragOverlay>,
+              document.body
+            )
+          : null}
+      </>
+    ),
+    [isDragging, exercise, listeners, attributes]
   );
 }

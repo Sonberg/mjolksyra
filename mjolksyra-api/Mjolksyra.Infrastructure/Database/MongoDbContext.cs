@@ -7,6 +7,8 @@ namespace Mjolksyra.Infrastructure.Database;
 
 public interface IMongoDbContext
 {
+    IMongoCollection<RefreshToken> RefreshTokens { get; }
+
     IMongoCollection<User> Users { get; }
 
     IMongoCollection<UserInvitation> UserInvitations { get; }
@@ -25,6 +27,8 @@ public class MongoDbContext : IMongoDbContext
     private readonly MongoClient _mongoClient;
 
     private IMongoDatabase Database => _mongoClient.GetDatabase("mjolksyra");
+
+    public IMongoCollection<RefreshToken> RefreshTokens => Database.GetCollection<RefreshToken>("refresh-tokens");
 
     public IMongoCollection<User> Users => Database.GetCollection<User>("users");
 

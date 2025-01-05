@@ -36,14 +36,16 @@ export function Day({ date }: Props) {
     flex: true,
     "min-h-32": true,
     "flex-col": true,
-    "bg-zinc-900": isOver,
+    "bg-accent": isOver,
   });
 
   const dateClass = cn({
     "py-1": true,
     "px-2": true,
     "bg-red-800": isToday,
+    "text-white": isToday,
     "rounded-full": true,
+    "select-none": true,
   });
 
   if (!date) {
@@ -56,17 +58,25 @@ export function Day({ date }: Props) {
         <div className={dateClass}>{date?.date()}</div>
       </div>
       <div className={contentClass}>
-        <Accordion type="multiple" className="w-full ">
-          {workout?.exercises.map((x, index) => (
-            <DayExercise
-              key={x.id}
-              exercise={x}
-              index={index}
-              workout={workout}
-              isLast={index === workout.exercises.length - 1}
-            />
-          ))}{" "}
-        </Accordion>
+        {workout?.exercises.length ? (
+          <Accordion type="multiple" className="w-full ">
+            {workout.exercises.map((x, index) => (
+              <DayExercise
+                key={x.id}
+                exercise={x}
+                index={index}
+                workout={workout}
+                isLast={index === workout.exercises.length - 1}
+              />
+            ))}
+          </Accordion>
+        ) : (
+          <div className="text-muted-foreground text-sm  place-items-center grid transition-all min-h-32 px-4 text-center opacity-0 hover:opacity-100">
+            <div className="select-none">
+              Drag & drop exercises to start planning
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

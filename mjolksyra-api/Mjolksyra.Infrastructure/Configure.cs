@@ -24,6 +24,8 @@ public static class Configure
         
         services.AddSingleton<IMongoDbContext, MongoDbContext>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

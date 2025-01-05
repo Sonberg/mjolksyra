@@ -164,6 +164,7 @@ export const usePlannerStore = create<PlannerState>((set) => ({
 
       return {
         ...state,
+        workouts: [...state.workouts],
       };
     });
   },

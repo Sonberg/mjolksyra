@@ -3,6 +3,7 @@ using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
 using Mjolksyra.Api.Migration;
+using Mjolksyra.Domain;
 using Mjolksyra.Infrastructure;
 using Mjolksyra.UseCases;
 using OpenTelemetry.Logs;
@@ -50,6 +51,7 @@ builder.Services.AddHostedService<ExerciseSeeder>();
 builder.Services.AddHostedService<IndexBuilder>();
 
 builder.Services.AddUseCases();
+builder.Services.AddDomain(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();

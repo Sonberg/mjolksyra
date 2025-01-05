@@ -12,5 +12,7 @@ public class User
 
     public required string Password { get; set; }
 
+    public required string PasswordSalt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 }
