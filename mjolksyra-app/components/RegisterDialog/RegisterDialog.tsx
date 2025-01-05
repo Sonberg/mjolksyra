@@ -14,6 +14,8 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { z } from "zod";
+import { register } from "@/api/auth/register";
+import { useAuth } from "@/context/Auth";
 
 const passwordSchema = z
   .string()
@@ -66,6 +68,7 @@ export function RegisterDialog({ trigger }: Props) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const auth = useAuth();
   const parsed = useMemo(
     () =>
       schema.safeParse({
@@ -77,8 +80,6 @@ export function RegisterDialog({ trigger }: Props) {
       }),
     [givenName, familyName, email, password, confirmPassword]
   );
-
-  console.log(parsed);
 
   const renderField = useCallback(
     ({
@@ -107,6 +108,19 @@ export function RegisterDialog({ trigger }: Props) {
     ),
     []
   );
+
+  const onSubmit = useCallback(async () => {
+    if (!parsed.success) {
+      return; // Show all errors
+    }
+
+    const response = await register(parsed.data);
+    if (!response?.isSuccessful) {
+      return;
+    }
+
+    auth.login(response);
+  }, [parsed]);
 
   return (
     <Dialog>
@@ -168,7 +182,7 @@ export function RegisterDialog({ trigger }: Props) {
           </div>
         </form>
         <DialogFooter>
-          <Button type="submit">Register</Button>
+          <Button onClick={onSubmit}>Register</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

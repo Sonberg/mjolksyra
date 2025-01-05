@@ -6,10 +6,12 @@ import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import { LoginDialog } from "../LoginDialog";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/context/Auth";
 
 export function Navigation() {
   const path = usePathname();
   const theme = useTheme();
+  const auth = useAuth();
 
   return (
     <div className=" flex-col flex">
@@ -32,16 +34,21 @@ export function Navigation() {
             </div>
           </Link>
           <nav className={"flex items-center space-x-4 lg:space-x-6 mx-6"}>
-            <Link
-              href="/planner"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              Planner
-            </Link>
+            {auth.isAuthenticated ? (
+              <Link
+                href="/trainees"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              >
+                Trainees
+              </Link>
+            ) : null}
           </nav>
           <div className="ml-auto flex items-center space-x-4">
-            <LoginDialog trigger={<Button variant="ghost">Login</Button>} />
-            <NavigationUser />
+            {auth.isAuthenticated ? (
+              <NavigationUser />
+            ) : (
+              <LoginDialog trigger={<Button variant="ghost">Login</Button>} />
+            )}
           </div>
         </div>
       </div>

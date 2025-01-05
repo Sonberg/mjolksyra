@@ -2,7 +2,7 @@ namespace Mjolksyra.Domain.Database.Models;
 
 public record RefreshToken
 {
-    public static TimeSpan DefaultExpiration = TimeSpan.FromDays(2);
+    public static TimeSpan DefaultExpiration = TimeSpan.FromDays(31);
 
     public Guid Id { get; set; }
 

@@ -29,9 +29,9 @@ public class JwtGenerator : IJwtGenerator
     {
         var claims = new List<Claim>
         {
-            new("givenName", user.FirstName ?? ""),
-            new("surName", user.LastName ?? ""),
-            new("name", $"{user.FirstName} {user.LastName}"),
+            new("givenName", user.GivenName ?? ""),
+            new("familyName", user.FamilyName ?? ""),
+            new("name", $"{user.GivenName} {user.FamilyName}"),
             new("userId", user.Id.ToString()),
             new("email", user.Email),
             new(ClaimTypes.Role, "user")

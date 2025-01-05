@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Navigation } from "@/components/Navigation";
 
+import { ThemeProvider } from "@/context/ThemeProvider";
+import { AuthProvider } from "@/context/Auth";
+import { CookiesProvider } from "next-client-cookies/server";
+
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,10 +34,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden h-[100vh]`}
       >
-        <ThemeProvider>
-          <Navigation />
-          <div className="flex flex-col flex-1 overflow-hidden">{children}</div>
-        </ThemeProvider>
+        <CookiesProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <Navigation />
+              <div className="flex flex-col flex-1 overflow-hidden">
+                {children}
+              </div>
+            </AuthProvider>
+          </ThemeProvider>
+        </CookiesProvider>
       </body>
     </html>
   );

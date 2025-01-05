@@ -1,6 +1,8 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.UseCases.Auth.Login;
+using Mjolksyra.UseCases.Auth.Refresh;
 using Mjolksyra.UseCases.Auth.Register;
 
 namespace Mjolksyra.Api.Controllers;
@@ -17,16 +19,20 @@ public class AuthController : Controller
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponse>> Login(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginCommand request, CancellationToken cancellationToken)
     {
         return Ok(await _mediator.Send(request, cancellationToken));
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<RegisterResponse>> Register(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterCommand request, CancellationToken cancellationToken)
     {
         return Ok(await _mediator.Send(request, cancellationToken));
     }
 
-    // [HttpPost("refresh")]
+    [HttpPost("refresh")]
+    public async Task<ActionResult<RefreshResponse>> Register([FromBody] RefreshRequest request, CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(request, cancellationToken));
+    }
 }

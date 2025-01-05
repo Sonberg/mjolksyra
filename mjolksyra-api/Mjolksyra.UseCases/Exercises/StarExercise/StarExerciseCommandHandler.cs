@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.UserContext;
 using OneOf;
 using OneOf.Types;
 
@@ -9,16 +10,24 @@ public class StarExerciseCommandHandler : IRequestHandler<StarExerciseCommand, O
 {
     private readonly IExerciseRepository _exerciseRepository;
 
-    public StarExerciseCommandHandler(IExerciseRepository exerciseRepository)
+    private readonly IUserContext _userContext;
+
+    public StarExerciseCommandHandler(IExerciseRepository exerciseRepository, IUserContext userContext)
     {
         _exerciseRepository = exerciseRepository;
+        _userContext = userContext;
     }
 
     public async Task<OneOf<Success, Error>> Handle(StarExerciseCommand request, CancellationToken cancellationToken)
     {
+        if (_userContext.UserId is not { } userId)
+        {
+            return new Error();
+        }
+
         var success = request.State
-            ? await _exerciseRepository.Star(request.ExerciseId, Guid.Empty, cancellationToken)
-            : await _exerciseRepository.Unstar(request.ExerciseId, Guid.Empty, cancellationToken);
+            ? await _exerciseRepository.Star(request.ExerciseId, userId, cancellationToken)
+            : await _exerciseRepository.Unstar(request.ExerciseId, userId, cancellationToken);
 
         return success ? new Success() : new Error();
     }

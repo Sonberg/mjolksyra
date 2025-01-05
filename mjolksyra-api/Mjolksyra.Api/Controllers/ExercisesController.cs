@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.UseCases.Common.Models;
@@ -10,6 +11,7 @@ using Mjolksyra.UseCases.Exercises.StarredExercises;
 
 namespace Mjolksyra.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/exercises")]
 public class ExercisesController : Controller

@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/Auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import {
@@ -12,13 +13,16 @@ import {
 } from "../ui/dropdown-menu";
 
 export function NavigationUser() {
+  const auth = useAuth();
+  const initial = (auth.givenName?.[0] ?? "") + (auth.familyName?.[0] ?? "");
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-            <AvatarFallback>SC</AvatarFallback>
+            <AvatarFallback>{initial.toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

@@ -52,8 +52,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         var password = _passwordHasher.Hash(request.Password);
         var newUser = await _userRepository.Create(new User
         {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            GivenName = request.GivenName,
+            FamilyName = request.FamilyName,
             Email = request.Email,
             Password = password.HashedPassword,
             PasswordSalt = password.Salt,
