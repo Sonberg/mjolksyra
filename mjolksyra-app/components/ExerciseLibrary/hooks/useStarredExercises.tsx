@@ -31,6 +31,7 @@ export function useStarredExercises() {
   });
 
   return {
+    isFetched: starred.isFetched,
     data: starred.data?.data,
     star: star.mutateAsync,
     unstar: unstar.mutateAsync,

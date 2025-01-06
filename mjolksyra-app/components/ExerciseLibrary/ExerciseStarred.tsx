@@ -2,7 +2,11 @@ import { ExerciseRow } from "./ExerciseRow";
 import { useStarredExercises } from "./hooks/useStarredExercises";
 
 export function ExerciseStarred() {
-  const { data } = useStarredExercises();
+  const { data, isFetched } = useStarredExercises();
+
+  if (!isFetched) {
+    return null;
+  }
 
   return (
     <div className="mb-4">

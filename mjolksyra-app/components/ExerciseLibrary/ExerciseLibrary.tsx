@@ -1,9 +1,11 @@
-import { Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { useMemo, useState } from "react";
 import { ExerciseStarred } from "./ExerciseStarred";
 import { ExerciseBrowser } from "./ExerciseBrowser";
 import { ExerciseSearch } from "./ExerciseSearch";
+import { Button } from "../ui/button";
+import { CreateExerciseDialog } from "@/dialogs/CreateExerciseDialog";
 
 export function ExerciseLibrary() {
   const [searchMode, setSearchMode] = useState(false);
@@ -11,7 +13,7 @@ export function ExerciseLibrary() {
 
   return useMemo(
     () => (
-      <div className="h-full">
+      <div className="h-full relative">
         <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/6 m-4">
           {searchMode ? (
             <div className="mb-6 flex justify-between items-center">
@@ -39,7 +41,7 @@ export function ExerciseLibrary() {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-4 overflow-y-scroll h-full p-4">
+        <div className="flex flex-col gap-4 overflow-y-scroll h-full p-4 pb-16">
           {searchMode ? (
             <>
               <ExerciseSearch freeText={freeText} />
@@ -50,6 +52,15 @@ export function ExerciseLibrary() {
               <ExerciseBrowser />
             </>
           )}
+        </div>
+        <div className="absolute bottom-4 left-0 right-0 grid place-items-end pb-6 pt-2 px-6 bg-gradient-to-b from-transparent to-background via-background/70">
+          <CreateExerciseDialog
+            trigger={
+              <Button className="rounded-full h-9 w-9 p-0">
+                <PlusIcon />
+              </Button>
+            }
+          />
         </div>
       </div>
     ),

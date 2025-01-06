@@ -14,6 +14,13 @@ public class ExerciseRepository : IExerciseRepository
         _mongoDbContext = mongoDbContext;
     }
 
+    public async Task<Exercise> Create(Exercise exercise, CancellationToken cancellationToken = default)
+    {
+        await _mongoDbContext.Exercises.InsertOneAsync(exercise, new InsertOneOptions(), cancellationToken);
+
+        return exercise;
+    }
+
     public async Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default)
     {
         var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
@@ -103,7 +110,7 @@ public class ExerciseRepository : IExerciseRepository
             {
                 IsUpsert = true
             }, cancellationToken);
-        
+
         return result.IsAcknowledged;
     }
 }

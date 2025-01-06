@@ -1,0 +1,44 @@
+using MediatR;
+using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.UserContext;
+
+namespace Mjolksyra.UseCases.Exercises.CreateExercise;
+
+public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseCommand, ExerciseResponse>
+{
+    private readonly IExerciseRepository _exerciseRepository;
+
+    private readonly IUserContext _userContext;
+
+    public CreateExerciseCommandHandler(IExerciseRepository exerciseRepository, IUserContext userContext)
+    {
+        _exerciseRepository = exerciseRepository;
+        _userContext = userContext;
+    }
+
+    public async Task<ExerciseResponse> Handle(CreateExerciseCommand request, CancellationToken cancellationToken)
+    {
+        if (_userContext.UserId is not { } userId)
+        {
+            throw new Exception(); // TODO: Add return OneOf Error
+        }
+
+        var exercise = new Exercise
+        {
+            Name = request.Name,
+            Force = request.Force,
+            Level = request.Level,
+            Mechanic = request.Mechanic,
+            Equipment = request.Equipment,
+            Category = request.Category,
+            CreatedByUserId = userId,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+
+        // TODO: Add validation for exercise properties aginst the database constraints
+
+        return ExerciseResponse.From(await _exerciseRepository.Create(exercise, cancellationToken));
+    }
+}

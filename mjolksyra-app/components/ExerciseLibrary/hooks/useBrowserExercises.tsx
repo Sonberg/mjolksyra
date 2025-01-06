@@ -28,6 +28,7 @@ export function useBrowseExercises() {
 
   return useMemo(
     () => ({
+      isFetched: initial.isFetched,
       data: uniqBy(
         [
           ...(initial.data?.data ?? []),

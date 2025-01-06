@@ -1,6 +1,6 @@
 "use client";
 
-import { InviteTraineeDialog } from "@/components/InviteTraineeDialog";
+import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,

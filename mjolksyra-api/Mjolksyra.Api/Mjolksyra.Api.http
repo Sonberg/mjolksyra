@@ -4,3 +4,59 @@ GET {{Mjolksyra.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+GET /api/trainee-invitations
+
+###
+
+PUT /api/trainee-invitations/{traineeInvitationId}/accept
+
+###
+PUT /api/trainee-invitations/{traineeInvitationId}/decline
+
+###
+GET /api/trainees
+
+### 
+GET /api/trainees/{traineeId}
+
+###
+PUT /api/trainees/{traineeId}
+
+###
+POST /api/trainees/Invite
+
+###
+GET /api/trainees/{traineeId}/planned-workouts
+
+###
+POST /api/trainees/{traineeId}/planned-workouts
+
+###
+PUT /api/trainees/{traineeId}/planned-workouts/{plannedWorkoutId}
+
+###
+DELETE /api/trainees/{traineeId}/planned-workouts/{plannedWorkoutId}
+
+###
+GET /api/trainees/{traineeId}/planned-workouts/{plannedWorkoutId}
+
+###
+GET /api/trainees/{traineeId}/planned-workouts?fromDate={fromDate}&toDate={toDate}
+
+###
+POST /api/trainees/{traineeId}/completed-workouts
+
+###
+GET /api/trainees/{traineeId}/completed-workouts?fromDate={fromDate}&toDate={toDate}
+
+###
+PUT /api/trainees/{traineeId}/completed-workouts/{completedWorkoutId}
+
+###
+DELETE/api/ trainees/{traineeId}/completed-workouts/{completedWorkoutId}
+
+###
+ GET /api/trainees/{traineeId}/completed-workouts/{completedWorkoutId}
+
+###
+

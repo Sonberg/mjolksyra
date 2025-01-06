@@ -8,10 +8,10 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
-} from "../ui/dialog";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useValidation } from "@/hooks/useValidation";
 
 const schema = z.object({
