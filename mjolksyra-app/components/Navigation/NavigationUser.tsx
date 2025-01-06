@@ -12,10 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { Check, Moon, MoonIcon, Sun, SunIcon } from "lucide-react";
 
 export function NavigationUser() {
   const router = useRouter();
   const auth = useAuth();
+  const theme = useTheme();
   const initial = (auth.givenName?.[0] ?? "") + (auth.familyName?.[0] ?? "");
 
   return (
@@ -39,19 +42,23 @@ export function NavigationUser() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+          <DropdownMenuLabel className="flex items-center justify-between">
+            Mode
+            {theme.resolvedTheme === "light" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4 " />
+            )}
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => theme.setTheme("light")}>
+            {theme.theme === "light" ? <Check /> : null} Light
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            Billing
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+          <DropdownMenuItem onClick={() => theme.setTheme("dark")}>
+            {theme.theme === "dark" ? <Check /> : null} Dark
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+          <DropdownMenuItem onClick={() => theme.setTheme("system")}>
+            {theme.theme === "system" ? <Check /> : null} System
           </DropdownMenuItem>
-          <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

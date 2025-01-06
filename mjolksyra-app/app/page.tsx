@@ -12,8 +12,9 @@ export default function Home() {
               for everyone.
             </h1>
             <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
-              Get started with our coaching journey. Create and sell workout
-              schedulates.
+              Get started with our coaching journey, create and sell workout
+              today. Side-hustle for PT's, Powerlifters, Crossfitters or
+              Weightlifters.
             </p>
             <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
               <RegisterDialog

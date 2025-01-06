@@ -1,5 +1,6 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,18 +12,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/Auth";
+import { useGravatar } from "@/hooks/use-gravatar";
 import { DumbbellIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function TraineeCard() {
   const router = useRouter();
   const auth = useAuth();
+  const url = useGravatar("per.sonberg@gmail.com");
 
   return (
     <Card id={auth.userId ?? ""}>
       <CardHeader>
-        <CardTitle className=" flex justify-between items-center">
-          <div>Per Sonberg</div> <Badge>Active</Badge>
+        <CardTitle className="flex justify-between items-center">
+          <div className="flex gap-4 items-center">
+            <Avatar>
+              <AvatarImage src={url} />
+              <AvatarFallback>PS</AvatarFallback>
+            </Avatar>
+            <div>Per Sonberg</div>
+          </div>
+          <Badge>Active</Badge>
         </CardTitle>
         <CardDescription></CardDescription>
       </CardHeader>

@@ -1,5 +1,6 @@
 "use client";
 
+import { InviteTraineeDialog } from "@/components/InviteTraineeDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,10 +28,14 @@ export default function Layout({ children }: Props) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Button variant="default" size={"sm"}>
-          <Plus />
-          Invite
-        </Button>
+        <InviteTraineeDialog
+          trigger={
+            <Button variant="default" size={"sm"}>
+              <Plus />
+              Invite
+            </Button>
+          }
+        />
       </div>
       {children}
     </>
