@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
-import useOnScreen from "@/lib/hooks/useOnScreen";
+import useOnScreen from "@/hooks/useOnScreen";
 import { PlusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getDatesBetween } from "@/lib/getDatesBetween";

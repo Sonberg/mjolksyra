@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ExerciseRow } from "./ExerciseRow";
 import { useBrowseExercises } from "./hooks/useBrowserExercises";
-import useOnScreen from "@/lib/hooks/useOnScreen";
+import useOnScreen from "@/hooks/useOnScreen";
 import { cn } from "@/lib/utils";
 
 export function ExerciseBrowser() {

@@ -3,7 +3,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { JwtPayload, verify } from "jsonwebtoken";
-import { refresh } from "@/api/auth/refresh";
 
 type Args = {
   redirect: boolean | string;
@@ -72,48 +71,19 @@ export async function getAuth(args?: Args) {
     return empty();
   }
 
-  const verify1 = await tryVerify(accessToken);
+  const [success, payload] = await tryVerify(accessToken);
 
-  if (verify1[0]) {
-    ensureScope(verify1[1]);
+  if (success) {
+    ensureScope(payload);
 
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
-      userId: verify1[1].userId ? `${verify1[1].userId}` : null,
-      name: verify1[1].name ? `${verify1[1].name}` : null,
-      email: verify1[1].email ? `${verify1[1].email}` : null,
+      userId: payload.userId ? `${payload.userId}` : null,
+      name: payload.name ? `${payload.name}` : null,
+      email: payload.email ? `${payload.email}` : null,
     };
   }
 
-  const refreshed = refreshToken
-    ? await refresh({ refreshToken: refreshToken })
-    : null;
-
-  if (!refreshed) {
-    console.log("Refresh unsuccessful");
-    return empty();
-  }
-
-  if (refreshed.accessToken === accessToken) {
-    console.log("Get same accessToken");
-  }
-
-  const verify2 = await tryVerify(refreshed.accessToken);
-
-  if (verify2[0]) {
-    ensureScope(verify2[1]);
-
-    return {
-      accessToken: refreshed.accessToken,
-      refreshToken: refreshed.refreshToken,
-      refreshTokenExpiresAt: refreshed.refreshTokenExpiresAt,
-      userId: verify2[1].userId ? `${verify2[1].userId}` : null,
-      name: verify2[1].name ? `${verify2[1].name}` : null,
-      email: verify2[1].email ? `${verify2[1].email}` : null,
-    };
-  }
-
-  console.log("Verify 2 was unsuccessful");
   return empty();
 }

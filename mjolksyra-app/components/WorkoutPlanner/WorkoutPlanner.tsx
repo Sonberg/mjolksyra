@@ -9,7 +9,7 @@ import {
 } from "../ui/resizable";
 import { Month } from "./Month";
 import dayjs from "dayjs";
-import useOnScreen from "@/lib/hooks/useOnScreen";
+import useOnScreen from "@/hooks/useOnScreen";
 import { decrementMonth, incrementMonth } from "@/lib/month";
 import { TodayButton } from "./TodayButton";
 

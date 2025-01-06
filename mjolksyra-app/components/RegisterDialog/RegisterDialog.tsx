@@ -16,6 +16,7 @@ import { Input } from "../ui/input";
 import { z } from "zod";
 import { register } from "@/api/auth/register";
 import { useAuth } from "@/context/Auth";
+import { useRouter } from "next/navigation";
 
 const passwordSchema = z
   .string()
@@ -68,6 +69,7 @@ export function RegisterDialog({ trigger }: Props) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const router = useRouter();
   const auth = useAuth();
   const parsed = useMemo(
     () =>
@@ -120,6 +122,7 @@ export function RegisterDialog({ trigger }: Props) {
     }
 
     auth.login(response);
+    router.push("/planner");
   }, [parsed]);
 
   return (

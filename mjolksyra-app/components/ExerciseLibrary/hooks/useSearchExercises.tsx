@@ -9,8 +9,8 @@ type Args = {
 export function useSearchExercises({ freeText }: Args) {
   return useQuery({
     queryKey: [`exercises/search/${freeText}`],
-    queryFn: async () => {
-      return await searchExercises({ freeText });
+    queryFn: async ({ signal }) => {
+      return await searchExercises({ freeText, signal });
     },
     placeholderData: {
       data: [] as Exercise[],

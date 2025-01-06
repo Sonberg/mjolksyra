@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useAuth } from "@/context/Auth";
 
 import { ReactNode } from "react";
 
@@ -15,21 +16,25 @@ type Props = {
   children: ReactNode;
 };
 export default function Layout({ children }: Props) {
+  const auth = useAuth();
+
   return (
     <>
-      <div className="p-6 border-b">
+      <div className="px-6 h-16 border-b flex items-center">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Trainees</BreadcrumbLink>
+              <BreadcrumbLink href="/trainees">Trainees</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Per Sonberg</BreadcrumbLink>
+              <BreadcrumbLink href={`/trainees#${auth.userId}`}>
+                Per Sonberg
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Planner</BreadcrumbPage>
+              <BreadcrumbPage>Plan workout</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

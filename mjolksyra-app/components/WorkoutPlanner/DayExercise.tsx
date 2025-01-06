@@ -107,13 +107,22 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
               document.body
             )}
           </Tooltip>
-          <div className="text-sm select-none">
-            {exercise.name}
-          </div>
+          <div className="text-sm select-none">{exercise.name}</div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-2 pb-3">
-        <Textarea className=" pt-0" placeholder="Sets, reps, tempo etc" />
+        <Textarea
+          value={exercise.note ?? ""}
+          className=" pt-0"
+          placeholder="Sets, reps, tempo etc"
+          onChange={(ev) => {
+            store.updateExercise({
+              exerciseId: exercise.id,
+              workoutId: workout.id,
+              note: ev.target.value,
+            });
+          }}
+        />
       </AccordionContent>
     </AccordionItem>
   );

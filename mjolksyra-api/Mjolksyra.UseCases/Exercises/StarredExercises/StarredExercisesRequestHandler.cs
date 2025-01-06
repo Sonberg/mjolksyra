@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Common.Models;
 
 namespace Mjolksyra.UseCases.Exercises.StarredExercises;
@@ -8,15 +9,18 @@ public class StarredExercisesRequestHandler : IRequestHandler<StarredExercisesRe
 {
     private readonly IExerciseRepository _exerciseRepository;
 
-    public StarredExercisesRequestHandler(IExerciseRepository exerciseRepository)
+    private readonly IUserContext _userContext;
+    
+    public StarredExercisesRequestHandler(IExerciseRepository exerciseRepository, IUserContext userContext)
     {
         _exerciseRepository = exerciseRepository;
+        _userContext = userContext;
     }
 
     public async Task<PaginatedResponse<ExerciseResponse>> Handle(StarredExercisesRequest request, CancellationToken cancellationToken)
     {
         return await _exerciseRepository
-            .Starred(Guid.Empty, cancellationToken)
+            .Starred(_userContext.UserId!.Value, cancellationToken)
             .ContinueWith(t => new PaginatedResponse<ExerciseResponse>
             {
                 Next = t.Result.Cursor,

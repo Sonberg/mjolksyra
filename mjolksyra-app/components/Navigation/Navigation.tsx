@@ -23,17 +23,17 @@ export function Navigation() {
           >
             <div className="font-bold text-xl mr-4 flex items-center">
               <img
-                className="h-12 w-12"
+                className="h-8 w-8 mr-2"
                 src={
                   theme.resolvedTheme === "dark"
-                    ? "/images/milk-dark.svg"
-                    : "/images/milk-light.svg"
+                    ? "/images/logo-dark.png"
+                    : "/images/logo-light.png"
                 }
               />
               <div>mjölksyra</div>
             </div>
           </Link>
-          <nav className={"flex items-center space-x-4 lg:space-x-6 mx-6"}>
+          <nav className={"flex items-center space-x-4 lg:space-x-6 mx-4"}>
             {auth.isAuthenticated ? (
               <Link
                 href="/trainees"

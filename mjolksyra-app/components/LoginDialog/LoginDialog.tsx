@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +11,34 @@ import {
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { login } from "@/api/auth/login";
+import { useAuth } from "@/context/Auth";
+import { useRouter } from "next/navigation";
 
 type Props = {
   trigger: ReactNode;
 };
 export function LoginDialog({ trigger }: Props) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const auth = useAuth();
+  const router = useRouter();
+
+  const onSubmit = useCallback(async () => {
+    const response = await login({
+      email,
+      password,
+    });
+
+    if (!response?.isSuccessful) {
+      return;
+    }
+
+    auth.login(response);
+    router.push("/planner");
+  }, [email, password]);
+
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -33,7 +56,8 @@ export function LoginDialog({ trigger }: Props) {
             </Label>
             <Input
               id="email"
-              defaultValue="per.sonberg@gmail.com"
+              value={email}
+              onChange={(ev) => setEmail(ev.target.value)}
               className="col-span-3"
             />
           </div>
@@ -43,7 +67,8 @@ export function LoginDialog({ trigger }: Props) {
             </Label>
             <Input
               id="password"
-              defaultValue="Pedro Duarte"
+              value={password}
+              onChange={(ev) => setPassword(ev.target.value)}
               type="password"
               className="col-span-3"
             />
@@ -51,7 +76,7 @@ export function LoginDialog({ trigger }: Props) {
         </div>
         <DialogFooter>
           <Button variant="ghost">Forgot password</Button>
-          <Button type="submit">Login</Button>
+          <Button onClick={onSubmit}>Login</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -36,6 +36,13 @@ type DeleteExercise = {
   exerciseId: string;
 };
 
+type UpdateExercise = {
+  workoutId: string;
+  exerciseId: string;
+  name?: string;
+  note?: string;
+};
+
 type PlannerState = {
   workouts: PlannedWorkout[];
   load: (userId: string) => Promise<void>;
@@ -43,6 +50,7 @@ type PlannerState = {
   addExercise: (data: AddExercise) => void;
   moveExercise: (data: MoveExercise) => void;
   deleteExercise: (data: DeleteExercise) => void;
+  updateExercise: (data: UpdateExercise) => void;
 };
 
 export const usePlannerStore = create<PlannerState>((set) => ({
@@ -161,6 +169,30 @@ export const usePlannerStore = create<PlannerState>((set) => ({
       workout.exercises = workout.exercises.filter(
         (x) => x.id !== data.exerciseId
       );
+
+      return {
+        ...state,
+        workouts: [...state.workouts],
+      };
+    });
+  },
+  updateExercise({ exerciseId, workoutId, ...data }: UpdateExercise) {
+    return set((state) => {
+      const workout = state.workouts.find((x) => x.id === workoutId);
+      const exercise = workout?.exercises.find((x) => x.id === exerciseId);
+
+      if (!workout || !exercise) {
+        return state;
+      }
+
+      workout!.exercises = [
+        ...workout!.exercises.filter((x) => x.id !== exerciseId),
+        {
+          ...exercise,
+          name: data.name === undefined ? exercise.name : data.name,
+          note: data.note === undefined ? exercise.note : data.note,
+        },
+      ];
 
       return {
         ...state,

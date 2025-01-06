@@ -11,8 +11,10 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export function NavigationUser() {
+  const router = useRouter();
   const auth = useAuth();
   const initial = (auth.givenName?.[0] ?? "") + (auth.familyName?.[0] ?? "");
 
@@ -29,9 +31,9 @@ export function NavigationUser() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">shadcn</p>
+            <p className="text-sm font-medium leading-none">{auth.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              m@example.com
+              {auth.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -52,7 +54,12 @@ export function NavigationUser() {
           <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            auth.logout();
+            router.push("/");
+          }}
+        >
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

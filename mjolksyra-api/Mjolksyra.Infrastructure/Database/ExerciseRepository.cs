@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Hybrid;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Models;
@@ -10,12 +9,9 @@ public class ExerciseRepository : IExerciseRepository
 {
     private readonly IMongoDbContext _mongoDbContext;
 
-    private readonly HybridCache _cache;
-
-    public ExerciseRepository(IMongoDbContext mongoDbContext, HybridCache cache)
+    public ExerciseRepository(IMongoDbContext mongoDbContext)
     {
         _mongoDbContext = mongoDbContext;
-        _cache = cache;
     }
 
     public async Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default)
@@ -38,61 +34,52 @@ public class ExerciseRepository : IExerciseRepository
 
     public async Task<Paginated<Exercise>> Get(int limit, CancellationToken cancellationToken = default)
     {
-        return await _cache.GetOrCreateAsync<Paginated<Exercise>>($"Exercises_Get_{limit}", async _ =>
-        {
-            var response = await _mongoDbContext.Exercises
-                .Find(Builders<Exercise>.Filter.Empty)
-                .SortBy(x => x.Name)
-                .Limit(limit)
-                .ToListAsync(cancellationToken);
+        var response = await _mongoDbContext.Exercises
+            .Find(Builders<Exercise>.Filter.Empty)
+            .SortBy(x => x.Name)
+            .Limit(limit)
+            .ToListAsync(cancellationToken);
 
-            return new Paginated<Exercise>
+        return new Paginated<Exercise>
+        {
+            Data = response,
+            Cursor = Cursor.From(response, new Cursor
             {
-                Data = response,
-                Cursor = Cursor.From(response, new Cursor
-                {
-                    Page = 0,
-                    Size = limit
-                })
-            };
-        }, cancellationToken: cancellationToken);
+                Page = 0,
+                Size = limit
+            })
+        };
     }
 
     public async Task<Paginated<Exercise>> Get(Cursor cursor, CancellationToken cancellationToken = default)
     {
-        return await _cache.GetOrCreateAsync<Paginated<Exercise>>($"Exercises_Get_{cursor}", async _ =>
-        {
-            var response = await _mongoDbContext.Exercises
-                .Find(Builders<Exercise>.Filter.Empty)
-                .SortBy(x => x.Name)
-                .Skip(cursor.Page * cursor.Size)
-                .Limit(cursor.Size)
-                .ToListAsync(cancellationToken);
+        var response = await _mongoDbContext.Exercises
+            .Find(Builders<Exercise>.Filter.Empty)
+            .SortBy(x => x.Name)
+            .Skip(cursor.Page * cursor.Size)
+            .Limit(cursor.Size)
+            .ToListAsync(cancellationToken);
 
-            return new Paginated<Exercise>
-            {
-                Data = response,
-                Cursor = Cursor.From(response, cursor)
-            };
-        }, cancellationToken: cancellationToken);
+        return new Paginated<Exercise>
+        {
+            Data = response,
+            Cursor = Cursor.From(response, cursor)
+        };
     }
 
     public async Task<Paginated<Exercise>> Starred(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _cache.GetOrCreateAsync<Paginated<Exercise>>($"Exercises_Starred_{userId}", async _ =>
-        {
-            var filter = Builders<Exercise>.Filter.AnyIn(x => x.StarredBy, [userId]);
-            var result = await _mongoDbContext.Exercises
-                .Find(filter)
-                .SortBy(x => x.Name)
-                .ToListAsync(cancellationToken);
+        var filter = Builders<Exercise>.Filter.AnyIn(x => x.StarredBy, [userId]);
+        var result = await _mongoDbContext.Exercises
+            .Find(filter)
+            .SortBy(x => x.Name)
+            .ToListAsync(cancellationToken);
 
-            return new Paginated<Exercise>
-            {
-                Data = result,
-                Cursor = null
-            };
-        }, cancellationToken: cancellationToken);
+        return new Paginated<Exercise>
+        {
+            Data = result,
+            Cursor = null
+        };
     }
 
 
@@ -105,8 +92,6 @@ public class ExerciseRepository : IExerciseRepository
                 IsUpsert = true
             }, cancellationToken);
 
-        await _cache.RemoveAsync($"Exercises_Starred_{userId}", cancellationToken);
-
         return result.IsAcknowledged;
     }
 
@@ -118,9 +103,7 @@ public class ExerciseRepository : IExerciseRepository
             {
                 IsUpsert = true
             }, cancellationToken);
-
-        await _cache.RemoveAsync($"Exercises_Starred_{userId}", cancellationToken);
-
+        
         return result.IsAcknowledged;
     }
 }

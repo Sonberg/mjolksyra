@@ -21,6 +21,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 async function Send(request: NextRequest) {
+  const token = request.cookies.get("accessToken");
   const url = new URL(request.url);
   const path = `${url.pathname}${url.search}`;
   const headers = new Headers(request.headers);
@@ -31,6 +32,10 @@ async function Send(request: NextRequest) {
 
   if (hasBody) {
     headers.set("Content-Type", "application/json");
+  }
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token.value}`);
   }
 
   const res = await fetch(`${process.env.API_URL}${path}`, {

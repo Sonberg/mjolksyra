@@ -5,9 +5,9 @@ type Args = { email: string; password: string };
 
 const schema = z.object({
   isSuccessful: z.boolean(),
-  accessToken: z.string(),
-  refreshToken: z.string(),
-  refreshTokenExpiresAt: z.coerce.date(),
+  accessToken: z.string().nullable(),
+  refreshToken: z.string().nullable(),
+  refreshTokenExpiresAt: z.coerce.date().nullable(),
 });
 
 export async function login({ email, password }: Args) {

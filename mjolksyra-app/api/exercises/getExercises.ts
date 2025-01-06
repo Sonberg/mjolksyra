@@ -4,11 +4,14 @@ import { schema } from "./schema";
 
 type Args = {
   cursor?: string | null;
+  signal: AbortSignal;
 };
 
-export async function getExercises({ cursor }: Args) {
+export async function getExercises({ cursor, signal }: Args) {
   const url = cursor ? `/api/exercises?cursor=${cursor}` : `/api/exercises`;
-  const response = await ApiClient.get(url);
+  const response = await ApiClient.get(url, {
+    signal,
+  });
   const parsed = await paginated(schema).safeParseAsync(response.data);
 
   if (!parsed.success) {

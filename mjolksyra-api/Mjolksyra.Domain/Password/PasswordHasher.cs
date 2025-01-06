@@ -12,14 +12,14 @@ public class PasswordHasher : IPasswordHasher
         var hashedPassword = Hash(password, saltBytes);
         var base64Salt = Convert.ToBase64String(saltBytes);
         var retrievedSaltBytes = Convert.FromBase64String(base64Salt);
-        var salt = Encoding.UTF8.GetString(retrievedSaltBytes, 0, retrievedSaltBytes.Length);
+        var salt = Convert.ToBase64String(retrievedSaltBytes, 0, retrievedSaltBytes.Length);
 
         return (hashedPassword, salt);
     }
 
     public bool Verify(User user, string password)
     {
-        var saltBytes = Encoding.UTF8.GetBytes(user.PasswordSalt);
+        var saltBytes = Convert.FromBase64String(user.PasswordSalt);
         var hashed = Hash(password, saltBytes);
 
         return hashed == user.Password;

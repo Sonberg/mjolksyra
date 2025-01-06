@@ -1,13 +1,16 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
+using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
 using Mjolksyra.Api.Migration;
 using Mjolksyra.Domain;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
 using Mjolksyra.UseCases;
+using Ndoors.Domain.Jwt;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -48,7 +51,27 @@ builder.Services
 builder.Services
     .AddMassTransit(opt => { opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context)); });
 
+builder.Services.AddAuthorization();
+builder.Services
+    .AddAuthentication()
+    .AddJwtBearer((opt) =>
+    {
+        var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
 
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = !string.IsNullOrEmpty(jwt.Issuer),
+            ValidateAudience = !string.IsNullOrEmpty(jwt.Audience),
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret))
+        };
+    });
+
+
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHostedService<ExerciseSeeder>();
 builder.Services.AddHostedService<IndexBuilder>();
 builder.Services.AddScoped<IUserContext, UserContext>();
@@ -66,5 +89,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 app.Run();

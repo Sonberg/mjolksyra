@@ -6,7 +6,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -15,16 +14,17 @@ import { refresh } from "@/api/auth/refresh";
 import { redirect } from "next/navigation";
 
 type LoginRequest = {
-  accessToken: string;
-  refreshToken: string;
-  refreshTokenExpiresAt: Date;
+  accessToken: string | null;
+  refreshToken: string | null;
+  refreshTokenExpiresAt: Date | null;
 };
 
 type AuthContextValue = {
-  userId?: string | null;
-  name?: string | null;
-  givenName?: string | null;
-  familyName?: string | null;
+  userId: string | null;
+  name: string | null;
+  email: string | null;
+  givenName: string | null;
+  familyName: string | null;
   isAuthenticated: boolean;
   login: (req: LoginRequest) => void;
   logout: () => void;
@@ -36,6 +36,11 @@ const AuthContext = createContext<AuthContextValue>({
   logout() {},
   getAccessToken: async () => Promise.any(""),
   isAuthenticated: false,
+  userId: null,
+  name: null,
+  email: null,
+  givenName: null,
+  familyName: null,
 });
 
 type AuthProviderProps = {
@@ -45,6 +50,7 @@ type AuthProviderProps = {
 type Jwt = JwtPayload & {
   userId: string | null;
   name: string | null;
+  email: string | null;
   givenName: string | null;
   familyName: string | null;
 };
@@ -73,6 +79,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = useCallback(
     (req: LoginRequest) => {
+      if (!req.accessToken) return;
+      if (!req.refreshToken) return;
+      if (!req.refreshTokenExpiresAt) return;
+
       setAccessToken(req.accessToken);
       setRefreshToken(req.refreshToken);
 
@@ -80,7 +90,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       cookies.set("accessToken", req.accessToken, {
         secure: location.hostname !== "localhost",
-        expires: new Date(jwtDecode(req.accessToken).exp! * 1000),
+        expires: req.refreshTokenExpiresAt,
       });
 
       cookies.set("refreshToken", req.refreshToken, {
@@ -126,10 +136,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         logout,
         getAccessToken,
-        userId: content?.userId,
-        name: content?.name,
-        givenName: content?.givenName,
-        familyName: content?.familyName,
+        userId: content?.userId ?? null,
+        name: content?.name ?? null,
+        email: content?.email ?? null,
+        givenName: content?.givenName ?? null,
+        familyName: content?.familyName ?? null,
         isAuthenticated: !!content?.userId,
       }}
       children={children}

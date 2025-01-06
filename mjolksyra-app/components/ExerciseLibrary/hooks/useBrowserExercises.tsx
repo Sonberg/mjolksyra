@@ -7,7 +7,7 @@ import { useMemo } from "react";
 export function useBrowseExercises() {
   const initial = useQuery({
     queryKey: ["exercises/inital"],
-    queryFn: async () => await getExercises({}),
+    queryFn: async ({ signal }) => await getExercises({ signal }),
     placeholderData: {
       data: [],
       next: null,
@@ -16,9 +16,9 @@ export function useBrowseExercises() {
 
   const infinit = useInfiniteQuery({
     queryKey: ["exercises"],
-    queryFn: async (arg) => {
-      return arg.pageParam
-        ? await getExercises({ cursor: arg.pageParam })
+    queryFn: async ({ pageParam, signal }) => {
+      return pageParam
+        ? await getExercises({ cursor: pageParam, signal: signal })
         : { data: [], next: null };
     },
     getNextPageParam: (lastPage, _) => lastPage.next,
