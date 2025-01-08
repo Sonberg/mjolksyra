@@ -24,7 +24,7 @@ public class StarredExercisesRequestHandler : IRequestHandler<StarredExercisesRe
             .ContinueWith(t => new PaginatedResponse<ExerciseResponse>
             {
                 Next = t.Result.Cursor,
-                Data = t.Result.Data.Select(ExerciseResponse.From).ToList()
+                Data = t.Result.Data.Select(x => ExerciseResponse.From(x, _userContext.UserId)).ToList()
             }, cancellationToken);
     }
 }

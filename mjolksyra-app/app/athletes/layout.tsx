@@ -4,10 +4,8 @@ import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -24,7 +22,7 @@ export default function Layout({ children }: Props) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbPage>Trainees</BreadcrumbPage>
+              <BreadcrumbPage>Athletes</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

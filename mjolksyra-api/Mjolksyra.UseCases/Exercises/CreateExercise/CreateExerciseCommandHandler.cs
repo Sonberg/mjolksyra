@@ -2,10 +2,12 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using OneOf;
+using OneOf.Types;
 
 namespace Mjolksyra.UseCases.Exercises.CreateExercise;
 
-public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseCommand, ExerciseResponse>
+public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseCommand, OneOf<ExerciseResponse, Error>>
 {
     private readonly IExerciseRepository _exerciseRepository;
 
@@ -17,11 +19,11 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
         _userContext = userContext;
     }
 
-    public async Task<ExerciseResponse> Handle(CreateExerciseCommand request, CancellationToken cancellationToken)
+    public async Task<OneOf<ExerciseResponse, Error>> Handle(CreateExerciseCommand request, CancellationToken cancellationToken)
     {
         if (_userContext.UserId is not { } userId)
         {
-            throw new Exception(); // TODO: Add return OneOf Error
+            return new Error();
         }
 
         var exercise = new Exercise
@@ -36,9 +38,8 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
             CreatedAt = DateTimeOffset.UtcNow
         };
 
-
-        // TODO: Add validation for exercise properties aginst the database constraints
-
-        return ExerciseResponse.From(await _exerciseRepository.Create(exercise, cancellationToken));
+        return ExerciseResponse.From(
+            await _exerciseRepository.Create(exercise, cancellationToken),
+            userId);
     }
 }

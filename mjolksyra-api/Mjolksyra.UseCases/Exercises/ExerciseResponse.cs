@@ -20,7 +20,9 @@ public class ExerciseResponse
 
     public bool Starred { get; set; }
 
-    public static ExerciseResponse From(Exercise exercise)
+    public bool CanDelete { get; set; }
+
+    public static ExerciseResponse From(Exercise exercise, Guid? userId)
     {
         return new ExerciseResponse
         {
@@ -30,7 +32,9 @@ public class ExerciseResponse
             Equipment = exercise.Equipment,
             Force = exercise.Force,
             Level = exercise.Level,
-            Mechanic = exercise.Mechanic
+            Mechanic = exercise.Mechanic,
+            Starred = userId != null && exercise.StarredBy.Contains(userId.Value),
+            CanDelete = userId != null && exercise.CreatedByUserId == userId
         };
     }
 }

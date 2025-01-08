@@ -1,10 +1,10 @@
 import { starExercises } from "@/api/exercises/starExercise";
 import { starredExercises } from "@/api/exercises/starredExercises";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useStarredExercises() {
+export function useStarredExercises(mutationOnly?: boolean) {
   const starred = useQuery({
-    queryKey: [`exercises/starred`],
+    queryKey: [`exercises`, "starred"],
     queryFn: async () => {
       return await starredExercises();
     },
@@ -12,10 +12,11 @@ export function useStarredExercises() {
       data: [],
       next: null,
     },
+    enabled: !mutationOnly,
   });
 
   const star = useMutation({
-    mutationKey: [`exercises/star`],
+    mutationKey: [`exercises`],
     mutationFn: async (exerciseId: string) => {
       await starExercises({ exerciseId, state: true });
     },
@@ -23,7 +24,7 @@ export function useStarredExercises() {
   });
 
   const unstar = useMutation({
-    mutationKey: [`exercises/unstar`],
+    mutationKey: [`exercises`],
     mutationFn: async (exerciseId: string) => {
       await starExercises({ exerciseId, state: false });
     },

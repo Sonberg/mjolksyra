@@ -26,6 +26,7 @@ public static class Configure
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ITraineeRepository, TraineeRepository>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

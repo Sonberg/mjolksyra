@@ -7,6 +7,10 @@ public interface IExerciseRepository
 {
     Task<Exercise> Create(Exercise exercise, CancellationToken cancellationToken = default);
 
+    Task Delete(Guid id, CancellationToken cancellationToken = default);
+
+    Task<Exercise> Get(Guid id, CancellationToken cancellationToken = default);
+
     Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default);
 
     Task<Paginated<Exercise>> Get(int limit, CancellationToken cancellationToken = default);
@@ -18,4 +22,6 @@ public interface IExerciseRepository
     Task<bool> Star(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default);
 
     Task<bool> Unstar(Guid exerciseId, Guid userId, CancellationToken cancellationToken = default);
+
+    Task<ExerciseOptions> Options(CancellationToken cancellationToken = default);
 }

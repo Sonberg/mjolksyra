@@ -24,17 +24,17 @@ export default function Layout({ children }: Props) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/trainees">Trainees</BreadcrumbLink>
+              <BreadcrumbLink href="/athletes">Athletes</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/trainees#${auth.userId}`}>
+              <BreadcrumbLink href={`/athletes#${auth.userId}`}>
                 Per Sonberg
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Plan workout</BreadcrumbPage>
+              <BreadcrumbPage>Planner</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Common.Models;
 
 namespace Mjolksyra.UseCases.Exercises.GetExercises;
@@ -8,9 +9,12 @@ public class GetExercisesRequestHandler : IRequestHandler<GetExercisesRequest, P
 {
     private readonly IExerciseRepository _exerciseRepository;
 
-    public GetExercisesRequestHandler(IExerciseRepository exerciseRepository)
+    private readonly IUserContext _userContext;
+
+    public GetExercisesRequestHandler(IExerciseRepository exerciseRepository, IUserContext userContext)
     {
         _exerciseRepository = exerciseRepository;
+        _userContext = userContext;
     }
 
     public async Task<PaginatedResponse<ExerciseResponse>> Handle(GetExercisesRequest request, CancellationToken cancellationToken)
@@ -22,7 +26,7 @@ public class GetExercisesRequestHandler : IRequestHandler<GetExercisesRequest, P
         return new PaginatedResponse<ExerciseResponse>
         {
             Next = result.Cursor,
-            Data = result.Data.Select(ExerciseResponse.From).ToList()
+            Data = result.Data.Select(x => ExerciseResponse.From(x, _userContext.UserId)).ToList()
         };
     }
 }

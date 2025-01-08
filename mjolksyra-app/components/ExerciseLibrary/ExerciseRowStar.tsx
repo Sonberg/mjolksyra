@@ -11,12 +11,11 @@ type Props = {
 
 export function ExerciseRowStar({ exercise }: Props) {
   const { resolvedTheme } = useTheme();
-  const starred = useStarredExercises();
+  const starred = useStarredExercises(true);
   const isStarred = useMemo(
     () => starred.data?.find((x) => x.id == exercise.id),
     [exercise, starred.data]
   );
-
   const className = cn({
     "h-4": true,
     "hover:text-accent-foreground": !isStarred,

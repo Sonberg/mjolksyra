@@ -8,7 +8,7 @@ type Args = {
 
 export function useSearchExercises({ freeText }: Args) {
   return useQuery({
-    queryKey: [`exercises/search/${freeText}`],
+    queryKey: [`exercises`, "search", freeText],
     queryFn: async ({ signal }) => {
       return await searchExercises({ freeText, signal });
     },

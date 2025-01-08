@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/context/Auth";
-import { BookHeartIcon, DumbbellIcon } from "lucide-react";
+import { BicepsFlexedIcon, DumbbellIcon } from "lucide-react";
 import { LoginDialog } from "@/dialogs/LoginDialog";
 
 export function Navigation() {
@@ -45,11 +45,11 @@ export function Navigation() {
                   Workouts
                 </Link>
                 <Link
-                  href="/trainees"
+                  href="/athletes"
                   className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex gap-1 items-center"
                 >
-                  <BookHeartIcon className="h-4" />
-                  Trainees
+                  <BicepsFlexedIcon className="h-4" />
+                  Athletes
                 </Link>
               </>
             ) : null}

@@ -1,5 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.UseCases.Trainees;
+using Mjolksyra.UseCases.Trainees.CreateTrainee;
+using Mjolksyra.UseCases.Trainees.GetTrainees;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -15,9 +18,9 @@ public class TraineesController : Controller
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<ActionResult<ICollection<TraineeResponse>>> GetAll(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Ok(await _mediator.Send(new GetTraineesRequest(), cancellationToken));
     }
 
     [HttpGet("{traineeId:guid}")]
@@ -36,5 +39,11 @@ public class TraineesController : Controller
     public IActionResult Invite()
     {
         throw new NotImplementedException();
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<TraineeResponse>> Create([FromBody] CreateTraineeCommand request, CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(request, cancellationToken));
     }
 }

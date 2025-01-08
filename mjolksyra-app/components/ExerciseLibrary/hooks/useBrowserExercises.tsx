@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 export function useBrowseExercises() {
   const initial = useQuery({
-    queryKey: ["exercises/inital"],
+    queryKey: ["exercises", "inital"],
     queryFn: async ({ signal }) => await getExercises({ signal }),
     placeholderData: {
       data: [],

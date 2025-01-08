@@ -8,4 +8,6 @@ export const schema = z.object({
   mechanic: z.string().nullable(),
   equipment: z.string().nullable(),
   category: z.string().nullable(),
+  starred: z.boolean(),
+  canDelete: z.boolean(),
 });

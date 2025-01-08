@@ -22,13 +22,13 @@ public class UserRepository : IUserRepository
             .ContinueWith(t => t.Result.FirstOrDefault(), ct);
     }
 
-    public async Task<User?> GetById(Guid id, CancellationToken ct)
+    public async Task<User> GetById(Guid id, CancellationToken ct)
     {
         return await _context.Users
             .Find(x => x.Id == id)
             .Limit(1)
             .ToListAsync(ct)
-            .ContinueWith(t => t.Result.FirstOrDefault(), ct);
+            .ContinueWith(t => t.Result.Single(), ct);
     }
 
     public async Task<User> Create(User user, CancellationToken ct)

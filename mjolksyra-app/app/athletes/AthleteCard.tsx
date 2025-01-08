@@ -1,5 +1,6 @@
 "use client";
 
+import { Trainee } from "@/api/trainees/type";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,13 +14,44 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/context/Auth";
 import { useGravatar } from "@/hooks/use-gravatar";
+import dayjs from "dayjs";
 import { DumbbellIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useMemo } from "react";
 
-export function TraineeCard() {
+type Props = {
+  trainee: Trainee;
+};
+
+export function AthleteCard({ trainee }: Props) {
   const router = useRouter();
   const auth = useAuth();
   const url = useGravatar("per.sonberg@gmail.com");
+
+  const format = useCallback((date: dayjs.Dayjs) => {
+    const today = dayjs();
+    const days = today.diff(date, "days");
+
+    switch (days) {
+      case -1:
+        return "Yesterday";
+      case 0:
+        return "Today";
+      case 1:
+        return "Tomorrow";
+
+      default:
+        return date.format("dddd, D MMM");
+    }
+  }, []);
+
+  const lastWorkoutAt = useMemo(() => {
+    return trainee.lastWorkoutAt ? format(dayjs(trainee.lastWorkoutAt)) : "-";
+  }, [trainee.lastWorkoutAt]);
+
+  const nextWorkoutAt = useMemo(() => {
+    return trainee.nextWorkoutAt ? format(dayjs(trainee.nextWorkoutAt)) : "-";
+  }, [trainee.nextWorkoutAt]);
 
   return (
     <Card id={auth.userId ?? ""}>
@@ -47,13 +79,13 @@ export function TraineeCard() {
           <Card className="hover:bg-accent">
             <CardContent className="p-4">
               <div className="text-sm  mb-2">Next workout</div>
-              <div className="text-xl font-bold">Today</div>
+              <div className="text-xl font-bold">{nextWorkoutAt}</div>
             </CardContent>
           </Card>
           <Card className="hover:bg-accent">
             <CardContent className="p-4">
               <div className="text-sm mb-2">Last workout</div>
-              <div className="text-xl font-bold">Tomorrow</div>
+              <div className="text-xl font-bold">{lastWorkoutAt}</div>
             </CardContent>
           </Card>
         </div>

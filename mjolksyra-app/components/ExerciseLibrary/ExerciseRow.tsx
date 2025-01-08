@@ -6,11 +6,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
-import { Star } from "lucide-react";
 import { Exercise } from "@/api/exercises/type";
 import { useCallback, useMemo } from "react";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { ExerciseRowStar } from "./ExerciseRowStar";
+import { ExerciseRowDelete } from "./ExerciseRowDelete";
 
 type Props = {
   exercise: Exercise;
@@ -34,7 +34,7 @@ export function ExerciseRow({ exercise }: Props) {
 
     return (
       <div className="border py-1 px-2 rounded">
-        <div className="font-bold text-xs mb-1">{title}</div>
+        <div className="font-bold text-sm mb-1">{title}</div>
         <div className="text-xs">{capitalizeFirstLetter(value)}</div>
       </div>
     );
@@ -56,7 +56,10 @@ export function ExerciseRow({ exercise }: Props) {
                   {exercise.name}
                 </div>
               </HoverCardTrigger>
-              <ExerciseRowStar exercise={exercise} />
+              <div className="flex gap-1">
+                <ExerciseRowDelete exercise={exercise} />
+                <ExerciseRowStar exercise={exercise} />
+              </div>
             </div>
             <HoverCardContent className="z-30">
               <div className="font-bold mb-4">{exercise.name}</div>

@@ -1,9 +1,10 @@
 import { ApiClient } from "@/api/client";
-import { useQuery } from "@tanstack/react-query";
-import { Fragment, ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ReactNode, useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -12,88 +13,123 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 
-type Options = Record<string, string[]>;
+import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
+import { SingleSelect } from "@/components/Select/SingleSelect";
+import { z } from "zod";
+import { useValidation } from "@/hooks/useValidation";
+import { createExercise } from "@/api/exercises/createExercise";
+
+const schema = z.object({
+  name: z.string(),
+  force: z.string().nullable(),
+  level: z.string().nullable(),
+  mechanic: z.string().nullable(),
+  equipment: z.string().nullable(),
+  category: z.string().nullable(),
+});
+
+type Values = z.infer<typeof schema>;
 
 type Props = {
   trigger: ReactNode;
 };
 
 export function CreateExerciseDialog({ trigger }: Props) {
+  const [isOpen, setOpen] = useState(false);
+  const [values, setValues] = useState<Record<string, unknown>>({});
+
+  const query = useQueryClient();
   const options = useQuery({
     queryKey: ["exercises/options"],
     queryFn: async () => {
-      const response = await ApiClient.get<Options>("/api/exercises/options");
+      const response = await ApiClient.get<Record<string, string[]>>(
+        "/api/exercises/options"
+      );
 
       return response.data!;
     },
     placeholderData: {},
   });
 
-  console.log(options.data);
+  const validation = useValidation<Values>({
+    schema,
+    values: {
+      name: "",
+      force: null,
+      level: null,
+      mechanic: null,
+      equipment: null,
+      category: null,
+      ...values,
+    },
+  });
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create exercise</DialogTitle>
+          <DialogDescription>
+            Exercises created by you, will only be visible for you and your
+            trainee's
+          </DialogDescription>
         </DialogHeader>
+
         <div className="grid gap-4 py-4">
-          <div className="grid items-center gap-4">
+          <div className="grid items-center gap-2">
             <Label htmlFor="name">Name *</Label>
             <Input
               id="name"
-              value={""}
-              onChange={(ev) => console.log(ev.target.value)}
+              value={`${values["name"] ?? ""}`}
+              onChange={(ev) =>
+                setValues((state) => ({ ...state, name: ev.target.value }))
+              }
               className="col-span-3"
             />
           </div>
         </div>
 
-        {Object.entries(options.data!).map(([key, values]) => (
-          <div key={key} className="grid items-center gap-4">
-            <Label>{capitalizeFirstLetter(key)}</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="-" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {values.map((x) => (
-                    <SelectItem key={x} value={x}>
-                      {capitalizeFirstLetter(x)}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectSeparator />
-                <Button
-                  className="w-full px-2"
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  Clear
-                </Button>
-              </SelectContent>
-            </Select>
-          </div>
-        ))}
+        {Object.entries(options.data!).map(([key, rawOptions]) => {
+          const options = rawOptions.map((value) => ({
+            label: capitalizeFirstLetter(value),
+            value,
+          }));
+
+          return (
+            <div key={key} className="grid items-center gap-2 mb-4">
+              <Label>{capitalizeFirstLetter(key)}</Label>
+              <SingleSelect
+                placeholder="-"
+                options={options}
+                value={values[key] ? `${values[key]}` : null}
+                setSelectedOption={(state) =>
+                  setValues((prev) => ({ ...prev, [key]: state }))
+                }
+              />
+            </div>
+          );
+        })}
 
         <DialogFooter>
-          <Button>Save</Button>
+          <Button
+            onClick={async () => {
+              if (!validation.success) {
+                return validation.showAllError();
+              }
+
+              await createExercise(validation.parsed!);
+              await query.refetchQueries({
+                queryKey: ["exercises"],
+              });
+
+              setOpen(false);
+              setValues({});
+            }}
+          >
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

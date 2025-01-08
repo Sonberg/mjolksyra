@@ -31,4 +31,6 @@ public class Exercise : IDocument
     public double Score { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    public DateTimeOffset? DeletedAt { get; set; }
 }
