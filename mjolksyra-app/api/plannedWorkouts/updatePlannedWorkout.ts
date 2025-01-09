@@ -6,7 +6,7 @@ type Args = {
 };
 
 export async function updatePlannedWorkout({ plannedWorkout }: Args) {
-  const url = `/api/trainees/${plannedWorkout.traineeId}/planned-workouts(${plannedWorkout.id}`;
+  const url = `/api/trainees/${plannedWorkout.traineeId}/planned-workouts/${plannedWorkout.id}`;
   const response = await ApiClient.put(url, plannedWorkout);
 
   if (response.status > 299) {

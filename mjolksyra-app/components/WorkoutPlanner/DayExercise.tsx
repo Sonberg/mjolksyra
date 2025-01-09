@@ -12,7 +12,7 @@ import { CopyIcon, EllipsisVertical, MoveIcon, TrashIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { DragOverlay } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { DraggingExercise } from "../DraggingExercise";
 import dayjs from "dayjs";
@@ -33,6 +33,7 @@ export function DayExercise({
   isLast,
   date,
 }: Props) {
+  const id = useId();
   const store = usePlannerStore();
   const data = useMemo(
     () => ({
@@ -47,7 +48,7 @@ export function DayExercise({
   );
 
   const move = useSortable({
-    id: `${plannedExercise.id}-move`,
+    id: `${plannedExercise.id}-${id}-move`,
     data: {
       ...data,
       clone: false,
@@ -55,7 +56,7 @@ export function DayExercise({
   });
 
   const clone = useSortable({
-    id: `${plannedExercise.id}-clone`,
+    id: `${plannedExercise.id}-${id}-clone`,
     data: {
       ...data,
       clone: true,

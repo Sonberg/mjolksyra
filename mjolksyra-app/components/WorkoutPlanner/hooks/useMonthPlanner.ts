@@ -1,4 +1,6 @@
 import { getPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
+import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { updatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useMemo } from "react";
@@ -31,13 +33,16 @@ export function useMonthPlanner({ traineeId, startOfMonth, endOfMonth }: Args) {
 
   const update = useMutation({
     mutationKey: ["workouts", "update"],
+    mutationFn: async (plannedWorkout: PlannedWorkout) => {
+      return await updatePlannedWorkout({ plannedWorkout });
+    },
   });
 
   return useMemo(
     () => ({
       workouts: workouts.data ?? [],
-      // updateExercise: (data: UpdateExercise) => void;
+      updateWorkout: update.mutateAsync,
     }),
-    [workouts.data]
+    [workouts.data, update.mutateAsync]
   );
 }

@@ -62,14 +62,17 @@ function move(traineeId: string, action: MoveExerciseAction): TransformResult {
 
   const exercise = {
     ...existingExercise,
-    id: action.clone ? v4() : existingExercise.id,
+    id: v4(),
   };
 
-  if (!action.clone) {
-    sourceWorkout.exercises = sourceWorkout.exercises.filter(
-      (x) => x.id !== action.plannedExercise.id
-    );
-  }
+  const updateWorkout = action.clone
+    ? sourceWorkout
+    : {
+        ...sourceWorkout,
+        exercises: sourceWorkout.exercises.filter(
+          (x) => x.id !== existingExercise.id
+        ),
+      };
 
   if (targetWorkout) {
     return {
@@ -79,6 +82,7 @@ function move(traineeId: string, action: MoveExerciseAction): TransformResult {
           ...targetWorkout,
           exercises: insertAt(targetWorkout.exercises, action.index, exercise),
         },
+        updateWorkout,
       ],
     };
   } else {
@@ -93,7 +97,7 @@ function move(traineeId: string, action: MoveExerciseAction): TransformResult {
           exercises: [exercise],
         },
       ],
-      update: [],
+      update: [updateWorkout],
     };
   }
 }

@@ -26,24 +26,24 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
     return today ? true : false;
   }, [days]);
 
-  const props = useCallback(
+  const day = useCallback(
     (dayName: string) => {
       const date = groupByName[dayName]?.[0];
 
       if (!date) {
-        return {
-          date: null,
-          plannedWorkout: null,
-        };
+        return <div />;
       }
 
-      return {
-        date,
-        plannedWorkout:
-          plannedWorkouts.find(
-            (x) => x.plannedAt == groupByName[dayName]?.[0].format(PLANNED_AT)
-          ) ?? null,
-      };
+      return (
+        <Day
+          date={date}
+          plannedWorkout={
+            plannedWorkouts.find(
+              (x) => x.plannedAt == groupByName[dayName]?.[0].format(PLANNED_AT)
+            ) ?? null
+          }
+        />
+      );
     },
     [plannedWorkouts, groupByName]
   );
@@ -55,16 +55,16 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
           v{weekNumber}
         </div>
         <div className="grid grid-cols-7 ">
-          <Day {...props("Mon")} />
-          <Day {...props("Tue")} />
-          <Day {...props("Wed")} />
-          <Day {...props("Thu")} />
-          <Day {...props("Fri")} />
-          <Day {...props("Sat")} />
-          <Day {...props("Sun")} />
+          {day("Mon")}
+          {day("Tue")}
+          {day("Wed")}
+          {day("Thu")}
+          {day("Fri")}
+          {day("Sat")}
+          {day("Sun")}
         </div>
       </div>
     ),
-    [isToday, weekNumber, props]
+    [isToday, weekNumber, day]
   );
 }

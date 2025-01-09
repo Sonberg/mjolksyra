@@ -4,19 +4,19 @@ namespace Mjolksyra.UseCases.PlannedWorkouts;
 
 public class PlannedWorkoutResponse
 {
-    public Guid Id { get; set; }
+    public required Guid Id { get; set; }
 
-    public Guid TraineeId { get; set; }
+    public required Guid TraineeId { get; set; }
 
-    public string? Name { get; set; }
+    public required string? Name { get; set; }
 
-    public string? Note { get; set; }
+    public required string? Note { get; set; }
 
     public required ICollection<PlannedExerciseResponse> Exercises { get; set; }
 
-    public DateOnly PlannedAt { get; set; }
+    public required DateOnly PlannedAt { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public required DateTimeOffset CreatedAt { get; set; }
 
     public static PlannedWorkoutResponse From(PlannedWorkout workout)
     {
@@ -35,13 +35,13 @@ public class PlannedWorkoutResponse
 
 public class PlannedExerciseResponse
 {
-    public Guid Id { get; set; }
+    public required Guid Id { get; set; }
 
-    public Guid? ExerciseId { get; set; }
+    public required Guid? ExerciseId { get; set; }
 
-    public string? Name { get; set; }
+    public required string? Name { get; set; }
 
-    public string? Note { get; set; }
+    public required string? Note { get; set; }
 
     public static PlannedExerciseResponse From(PlannedExercise exercise)
     {
