@@ -5,6 +5,7 @@ using MassTransit.Logging;
 using MassTransit.Monitoring;
 using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
+using Mjolksyra.Api.Converters;
 using Mjolksyra.Api.Migration;
 using Mjolksyra.Domain;
 using Mjolksyra.Domain.UserContext;
@@ -25,6 +26,7 @@ builder.Services
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         options.AllowInputFormatterExceptionMessages = true;
     });
 

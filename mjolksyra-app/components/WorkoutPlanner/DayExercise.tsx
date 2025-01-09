@@ -1,8 +1,4 @@
-import {
-  PlannedExercise,
-  PlannedWorkout,
-  usePlannerStore,
-} from "@/stores/plannerStore";
+import { usePlannerStore } from "@/stores/plannerStore";
 
 import {
   AccordionContent,
@@ -19,32 +15,39 @@ import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { DraggingExercise } from "../DraggingExercise";
+import dayjs from "dayjs";
+import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 
 type Props = {
-  exercise: PlannedExercise;
-  workout: PlannedWorkout;
+  plannedExercise: PlannedExercise;
+  plannedWorkout: PlannedWorkout;
   index: number;
   isLast: boolean;
+  date: dayjs.Dayjs;
 };
 
-export function DayExercise({ workout, exercise, index, isLast }: Props) {
+export function DayExercise({
+  plannedWorkout,
+  plannedExercise,
+  index,
+  isLast,
+  date,
+}: Props) {
   const store = usePlannerStore();
   const data = useMemo(
     () => ({
+      date,
       index,
-      workoutId: workout.id,
-      workoutDate: workout.date,
-      exerciseId: exercise.exerciseId,
-      plannedExerciseId: exercise.id,
-      name: exercise.name,
+      plannedWorkout,
+      plannedExercise,
       source: "workout",
       type: "plannedExercise",
     }),
-    [workout, exercise]
+    [plannedWorkout, plannedExercise]
   );
 
   const move = useSortable({
-    id: `${exercise.id}-move`,
+    id: `${plannedExercise.id}-move`,
     data: {
       ...data,
       clone: false,
@@ -52,7 +55,7 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
   });
 
   const clone = useSortable({
-    id: `${exercise.id}-clone`,
+    id: `${plannedExercise.id}-clone`,
     data: {
       ...data,
       clone: true,
@@ -66,7 +69,7 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
 
   const element = (
     <AccordionItem
-      value={exercise.id}
+      value={plannedExercise.id}
       className={className}
       ref={(el) => {
         move.setNodeRef(el);
@@ -97,8 +100,8 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
                 <TrashIcon
                   onClick={() => {
                     store.deleteExercise({
-                      workoutId: workout.id,
-                      exerciseId: exercise.id,
+                      workoutId: plannedWorkout.id,
+                      exerciseId: plannedExercise.id,
                     });
                   }}
                   className="h-4 cursor-pointer text-red-500 hover:text-red-800"
@@ -107,18 +110,18 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
               document.body
             )}
           </Tooltip>
-          <div className="text-sm select-none">{exercise.name}</div>
+          <div className="text-sm select-none">{plannedExercise.name}</div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-2 pb-3">
         <Textarea
-          value={exercise.note ?? ""}
+          value={plannedExercise.note ?? ""}
           className=" pt-0"
           placeholder="Sets, reps, tempo etc"
           onChange={(ev) => {
             store.updateExercise({
-              exerciseId: exercise.id,
-              workoutId: workout.id,
+              exerciseId: plannedExercise.id,
+              workoutId: plannedWorkout.id,
               note: ev.target.value,
             });
           }}
@@ -131,7 +134,7 @@ export function DayExercise({ workout, exercise, index, isLast }: Props) {
     move.isDragging || clone.isDragging
       ? createPortal(
           <DragOverlay>
-            <DraggingExercise name={exercise.name} />
+            <DraggingExercise name={plannedExercise.name} />
           </DragOverlay>,
           document.body
         )

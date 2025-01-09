@@ -27,18 +27,18 @@ export async function middleware(_: NextRequest) {
     const secure = process.env.NODE_ENV === "production";
     const refreshed = await refresh({ refreshToken: refreshToken });
 
-    if (!refreshed) {
+    if (!refreshed?.isSuccessful) {
       return response;
     }
 
-    store.set("accessToken", refreshed.accessToken, {
+    store.set("accessToken", refreshed.accessToken!, {
       secure: secure,
-      expires: refreshed.refreshTokenExpiresAt,
+      expires: refreshed.refreshTokenExpiresAt!,
     });
 
-    store.set("refreshToken", refreshed.refreshToken, {
+    store.set("refreshToken", refreshed.refreshToken!, {
       secure: secure,
-      expires: refreshed.refreshTokenExpiresAt,
+      expires: refreshed.refreshTokenExpiresAt!,
     });
   }
 

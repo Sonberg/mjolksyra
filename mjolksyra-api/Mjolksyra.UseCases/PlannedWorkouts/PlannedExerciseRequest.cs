@@ -1,6 +1,6 @@
-namespace Mjolksyra.Domain.Database.Models;
+namespace Mjolksyra.UseCases.PlannedWorkouts;
 
-public class PlannedExercise
+public class PlannedExerciseRequest
 {
     public Guid Id { get; set; }
 

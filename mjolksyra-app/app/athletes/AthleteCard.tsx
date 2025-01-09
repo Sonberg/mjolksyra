@@ -26,7 +26,7 @@ type Props = {
 export function AthleteCard({ trainee }: Props) {
   const router = useRouter();
   const auth = useAuth();
-  const url = useGravatar("per.sonberg@gmail.com");
+  const url = useGravatar(trainee.athlete.email);
 
   const format = useCallback((date: dayjs.Dayjs) => {
     const today = dayjs();
@@ -62,7 +62,7 @@ export function AthleteCard({ trainee }: Props) {
               <AvatarImage src={url} />
               <AvatarFallback>PS</AvatarFallback>
             </Avatar>
-            <div>Per Sonberg</div>
+            <div>{trainee.athlete.name}</div>
           </div>
           <Badge>Active</Badge>
         </CardTitle>
@@ -92,7 +92,7 @@ export function AthleteCard({ trainee }: Props) {
       </CardContent>
       <CardFooter className="grid place-items-end">
         <Button
-          onClick={() => router.push("/planner")}
+          onClick={() => router.push(`/athletes/${trainee.id}/planner`)}
           size="sm"
           variant="secondary"
         >

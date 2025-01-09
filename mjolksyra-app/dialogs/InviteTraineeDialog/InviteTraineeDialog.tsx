@@ -33,7 +33,10 @@ export function InviteTraineeDialog({ trigger }: Props) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Invite trainee</DialogTitle>
-          <DialogDescription>How would you like to coach?</DialogDescription>
+          <DialogDescription>
+            How would you like to coach? We will send a invitation link with
+            email
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid items-center gap-4">

@@ -1,10 +1,15 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.UseCases.PlannedWorkouts;
+using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
+using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 
 namespace Mjolksyra.Api.Controllers;
 
 [ApiController]
-[Route("api/trainees/{traineeId}/planned-workouts")]
+[Route("api/trainees/{traineeId:guid}/planned-workouts")]
 public class PlannedWorkoutsController : Controller
 {
     private readonly IMediator _mediator;
@@ -15,32 +20,46 @@ public class PlannedWorkoutsController : Controller
     }
 
     [HttpGet]
-    public IActionResult Get(Guid traineeId)
+    public async Task<ActionResult<ICollection<PlannedWorkoutResponse>>> Get(Guid traineeId, [FromQuery] DateOnly from, [FromQuery] DateOnly to)
     {
-        throw new NotImplementedException();
+        return Ok(await _mediator.Send(new GetPlannedWorkoutsRequest
+        {
+            TraineeId = traineeId,
+            From = from,
+            To = to
+        }));
     }
 
     [HttpPost]
-    public IActionResult Create(Guid traineeId)
+    public async Task<ActionResult<PlannedWorkoutResponse>> Create(Guid traineeId, [FromBody] PlannedWorkoutRequest request)
     {
-        throw new NotImplementedException();
-    }
-
-    [HttpGet("{plannedWorkoutId:guid}")]
-    public IActionResult Get(Guid traineeId, Guid plannedWorkoutId)
-    {
-        throw new NotImplementedException();
+        return Ok(await _mediator.Send(new CreatePlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            Workout = request
+        }));
     }
 
     [HttpPut("{plannedWorkoutId:guid}")]
-    public IActionResult Update(Guid traineeId, Guid plannedWorkoutId)
+    public async Task<ActionResult<PlannedWorkoutResponse>> Update(Guid traineeId, Guid plannedWorkoutId, [FromBody] PlannedWorkoutRequest request)
     {
-        throw new NotImplementedException();
+        return Ok(await _mediator.Send(new UpdatePlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+            Workout = request
+        }));
     }
 
     [HttpDelete("{plannedWorkoutId:guid}")]
-    public IActionResult Delete(Guid traineeId, Guid plannedWorkoutId)
+    public async Task<ActionResult> Delete(Guid traineeId, Guid plannedWorkoutId)
     {
-        throw new NotImplementedException();
+        await _mediator.Send(new DeletePlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId
+        });
+
+        return NoContent();
     }
 }

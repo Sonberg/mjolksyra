@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ExerciseLibrary } from "../ExerciseLibrary";
 import {
   ResizableHandle,
@@ -18,7 +18,11 @@ type Month = {
   month: number;
 };
 
-export function WorkoutPlanner() {
+type Props = {
+  traineeId: string;
+};
+
+export function WorkoutPlanner({ traineeId }: Props) {
   const today = useMemo(() => dayjs(), []);
   const [previousHeight, setPreviousHeight] = useState<number | null>(null);
   const [months, setMonths] = useState<Month[]>([
@@ -79,6 +83,7 @@ export function WorkoutPlanner() {
               {months.map((x) => (
                 <Month
                   key={`${x.year}-${x.month}`}
+                  traineeId={traineeId}
                   month={x.month}
                   year={x.year}
                 />

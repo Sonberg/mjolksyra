@@ -28,7 +28,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   login: (req: LoginRequest) => void;
   logout: () => void;
-  getAccessToken: () => Promise<string>;
+  getAccessToken: () => Promise<string | null>;
 };
 
 const AuthContext = createContext<AuthContextValue>({
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const getAccessToken = useCallback(async () => {
     if (!accessToken) {
-      redirect("/app");
+      redirect("/");
     }
 
     if (getDiff() > 5000) {
@@ -121,8 +121,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const res = await refresh({ refreshToken: refreshToken! });
 
-    if (!res) {
-      redirect("/app");
+    if (!res?.isSuccessful) {
+      redirect("/");
     }
 
     login(res);

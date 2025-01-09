@@ -1,29 +1,28 @@
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
-import { usePlannerStore } from "@/stores/plannerStore";
 import { useDroppable } from "@dnd-kit/core";
 
 import { Accordion } from "../ui/accordion";
 import { DayExercise } from "./DayExercise";
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
+import { PlannedWorkout } from "@/api/plannedWorkouts/type";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
 type Props = {
-  date: dayjs.Dayjs | undefined;
+  date: dayjs.Dayjs | null;
+  plannedWorkout: PlannedWorkout | null;
 };
 
-export function Day({ date }: Props) {
-  const id = date?.format(DATE_FORMAT) ?? "";
-  const workout = usePlannerStore((state) =>
-    state.workouts.find((x) => x.date === id)
-  );
+export function Day({ date, plannedWorkout }: Props) {
+  const id = useId();
+  const internalId = useMemo(() => date?.format(DATE_FORMAT) ?? id, [date]);
 
   const { setNodeRef, isOver } = useDroppable({
-    id: id,
+    id: internalId,
     data: {
-      workoutId: workout?.id,
-      workoutDate: id,
+      date,
+      plannedWorkout,
       type: "workout",
     },
   });
@@ -58,15 +57,16 @@ export function Day({ date }: Props) {
         <div className={dateClass}>{date?.date()}</div>
       </div>
       <div className={contentClass}>
-        {workout?.exercises.length ? (
+        {plannedWorkout?.exercises.length ? (
           <Accordion type="multiple" className="w-full ">
-            {workout.exercises.map((x, index) => (
+            {plannedWorkout.exercises.map((x, index) => (
               <DayExercise
                 key={x.id}
-                exercise={x}
                 index={index}
-                workout={workout}
-                isLast={index === workout.exercises.length - 1}
+                date={date}
+                plannedExercise={x}
+                plannedWorkout={plannedWorkout}
+                isLast={index === plannedWorkout.exercises.length - 1}
               />
             ))}
           </Accordion>

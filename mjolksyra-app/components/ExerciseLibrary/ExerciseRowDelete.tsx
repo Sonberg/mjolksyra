@@ -24,11 +24,11 @@ export function ExerciseRowDelete({ exercise }: Props) {
 
   return (
     <ConfirmDialog
-      title={`Sure you want to delete "${exercise.name}"`}
+      title={`Sure you want to delete "${exercise.name}"?`}
       description="This action cannot be reversed"
       continueButtonVariant="destructive"
       continueButton="Yes, delete"
-      cancelButton="Nevermind"
+      cancelButton="No, keep it"
       onConfirm={async () => {
         await deleteExercise({ id: exercise.id });
         await client.refetchQueries({

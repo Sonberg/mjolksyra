@@ -10,6 +10,9 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { groupBy } from "@/lib/groupBy.";
 import { usePlannerStore } from "@/stores/plannerStore";
+import { sortBy } from "@/lib/sortBy";
+import { useMonthPlanner } from "./hooks/useMonthPlanner";
+import useOnScreen from "@/hooks/useOnScreen";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -19,31 +22,50 @@ dayjs.extend(updateLocale);
 dayjs.updateLocale("en", { weekStart: 1 });
 
 type MonthProps = {
+  traineeId: string;
   month: number;
   year: number;
 };
 
-export function Month({ month, year }: MonthProps) {
-  const startDate = useMemo(
+export function Month({ traineeId, month, year }: MonthProps) {
+  const { measureRef, isIntersecting } = useOnScreen();
+
+  const startOfMonth = useMemo(
     () => dayjs().date(1).year(year).month(month).startOf("month"),
     [month, year]
   );
 
-  const endOfMonth = useMemo(() => startDate.endOf("month"), [startDate]);
+  const endOfMonth = useMemo(() => startOfMonth.endOf("month"), [startOfMonth]);
+  const planner = useMonthPlanner({
+    traineeId,
+    startOfMonth,
+    endOfMonth,
+    isVisible: isIntersecting,
+  });
 
   const days = useMemo(
-    () => getDatesBetween(startDate, endOfMonth),
-    [startDate, endOfMonth]
+    () => getDatesBetween(startOfMonth, endOfMonth),
+    [startOfMonth, endOfMonth]
   );
 
-  const groupedByWeek = useMemo(() => groupBy(days, (x) => x.week()), [days]);
-  const monthName = useMemo(() => startDate.format("MMMM YYYY"), [startDate]);
+  const groupedByWeek = useMemo(
+    () =>
+      sortBy(
+        Object.entries(groupBy(days, (x) => x.week())),
+        ([_, val]) => val[0]
+      ),
+    [days]
+  );
+  const monthName = useMemo(
+    () => startOfMonth.format("MMMM YYYY"),
+    [startOfMonth]
+  );
   const store = usePlannerStore();
 
   return useMemo(
     () => (
       <>
-        <div>
+        <div ref={measureRef}>
           <div
             className="text-3xl font-bold mb-8 select-none"
             data-month={month}
@@ -53,17 +75,18 @@ export function Month({ month, year }: MonthProps) {
           </div>
           <WeekDayNames />
           <div className="flex flex-col gap-8 ">
-            {Object.keys(groupedByWeek).map((key) => (
+            {groupedByWeek.map(([key, value]) => (
               <Week
                 key={key}
                 weekNumber={Number(key)}
-                days={groupedByWeek[Number(key)]}
+                days={value}
+                plannedWorkouts={planner.workouts}
               />
             ))}
           </div>
         </div>
       </>
     ),
-    [monthName, groupedByWeek, store.workouts]
+    [monthName, groupedByWeek, planner]
   );
 }

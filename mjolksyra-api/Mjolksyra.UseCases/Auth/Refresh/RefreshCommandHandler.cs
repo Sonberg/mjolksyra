@@ -59,14 +59,6 @@ public class RefreshCommandHandler : IRequestHandler<RefreshCommand, RefreshResp
         }
 
         var user = await _userRepository.GetById(userId, cancellationToken);
-        if (user is null)
-        {
-            return new RefreshResponse
-            {
-                IsSuccessful = false
-            };
-        }
-
         var updatedRefreshToken = await _refreshTokenRepository.Update(refreshToken with
         {
             ExpiresAt = DateTimeOffset.UtcNow.Add(RefreshToken.DefaultExpiration)

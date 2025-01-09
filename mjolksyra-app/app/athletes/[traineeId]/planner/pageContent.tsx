@@ -4,14 +4,19 @@ import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { usePlannerStore } from "@/stores/plannerStore";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { parse } from "./parse";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { SortableContext } from "@dnd-kit/sortable";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { execute } from "./execute";
 
 const queryClient = new QueryClient();
 
-export function PageContent() {
+type Props = {
+  traineeId: string;
+};
+
+export function PageContent({ traineeId }: Props) {
   const store = usePlannerStore();
   const exerciseIds = useMemo(
     () =>
@@ -25,25 +30,24 @@ export function PageContent() {
     []
   );
 
-  function handleDragEnd(event: DragEndEvent) {
-    const action = parse(event);
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const action = parse(event);
 
-    console.log(action);
+      await execute(traineeId, action);
 
-    if (!action) {
-      return;
-    }
-
-    if (action.type === "addExercise") {
-      store.addExercise(action);
-      return;
-    }
-
-    if (action.type === "moveExercise") {
-      store.moveExercise(action);
-      return;
-    }
-  }
+      if (action) {
+        await queryClient.refetchQueries({
+          queryKey: [
+            "workouts",
+            action.targetDate.year(),
+            action.targetDate.month(),
+          ],
+        });
+      }
+    },
+    [traineeId]
+  );
 
   return (
     <>
@@ -51,7 +55,7 @@ export function PageContent() {
         <TooltipProvider>
           <DndContext onDragEnd={handleDragEnd}>
             <SortableContext items={exerciseIds}>
-              <WorkoutPlanner />
+              <WorkoutPlanner traineeId={traineeId} />
             </SortableContext>
           </DndContext>
         </TooltipProvider>

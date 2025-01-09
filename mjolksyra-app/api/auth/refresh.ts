@@ -4,9 +4,10 @@ import { ApiClient } from "../client";
 type Args = { refreshToken: string };
 
 const schema = z.object({
-  accessToken: z.string(),
-  refreshToken: z.string(),
-  refreshTokenExpiresAt: z.coerce.date(),
+  isSuccessful: z.boolean(),
+  accessToken: z.string().nullable(),
+  refreshToken: z.string().nullable(),
+  refreshTokenExpiresAt: z.coerce.date().nullable(),
 });
 
 export async function refresh({ refreshToken }: Args) {

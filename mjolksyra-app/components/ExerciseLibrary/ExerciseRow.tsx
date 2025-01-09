@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "../ui/hover-card";
 import { Exercise } from "@/api/exercises/type";
-import { useCallback, useMemo } from "react";
+import { useCallback, useId, useMemo } from "react";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { ExerciseRowStar } from "./ExerciseRowStar";
 import { ExerciseRowDelete } from "./ExerciseRowDelete";
@@ -17,11 +17,11 @@ type Props = {
 };
 
 export function ExerciseRow({ exercise }: Props) {
+  const id = useId();
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: exercise.id,
+    id: exercise.id + id,
     data: {
-      exerciseId: exercise.id,
-      name: exercise.name,
+      exercise: exercise,
       source: "library",
       type: "exercise",
     },

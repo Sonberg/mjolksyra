@@ -6,10 +6,6 @@ public class PlannedWorkout
 
     public Guid TraineeId { get; set; }
 
-    public Guid CoachUserId { get; set; }
-
-    public Guid AthleteUserId { get; set; }
-
     public string? Name { get; set; }
 
     public string? Note { get; set; }
@@ -19,4 +15,6 @@ public class PlannedWorkout
     public DateOnly PlannedAt { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;
 }

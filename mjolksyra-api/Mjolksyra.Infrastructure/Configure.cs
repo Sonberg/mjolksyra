@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Infrastructure.Database;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -21,12 +22,13 @@ public static class Configure
 #pragma warning disable EXTEXP0018
         services.AddHybridCache();
 #pragma warning restore EXTEXP0018
-        
+
         services.AddSingleton<IMongoDbContext, MongoDbContext>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITraineeRepository, TraineeRepository>();
+        services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {
