@@ -13,20 +13,22 @@ import {
 } from "../ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Check, Moon, MoonIcon, Sun, SunIcon } from "lucide-react";
+import { Check, Moon, Sun } from "lucide-react";
+import { useGravatar } from "@/hooks/use-gravatar";
 
 export function NavigationUser() {
   const router = useRouter();
   const auth = useAuth();
   const theme = useTheme();
   const initial = (auth.givenName?.[0] ?? "") + (auth.familyName?.[0] ?? "");
+  const url = useGravatar(auth.email ?? "", 32);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt="@shadcn" />
+            <AvatarImage src={url} alt="@shadcn" />
             <AvatarFallback>{initial.toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
