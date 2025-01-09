@@ -12,7 +12,8 @@ import { CopyIcon, EllipsisVertical, MoveIcon, TrashIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { DragOverlay } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
-import { useId, useMemo } from "react";
+import { CSS } from "@dnd-kit/utilities";
+import { useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { DraggingExercise } from "../DraggingExercise";
 import dayjs from "dayjs";
@@ -33,7 +34,6 @@ export function DayExercise({
   isLast,
   date,
 }: Props) {
-  const id = useId();
   const store = usePlannerStore();
   const data = useMemo(
     () => ({
@@ -47,36 +47,32 @@ export function DayExercise({
     [plannedWorkout, plannedExercise]
   );
 
-  const move = useSortable({
-    id: `${plannedExercise.id}-${id}-move`,
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    isDragging,
+    transform,
+    transition,
+  } = useSortable({
+    id: `${plannedExercise.id}`,
     data: {
       ...data,
-      clone: false,
-    },
-  });
-
-  const clone = useSortable({
-    id: `${plannedExercise.id}-${id}-clone`,
-    data: {
-      ...data,
-      clone: true,
     },
   });
 
   const className = cn({
     "border-b-0": isLast,
-    "bg-zinc-900": move.isOver,
+    "opacity-40": isDragging,
   });
 
   const element = (
     <AccordionItem
       value={plannedExercise.id}
       className={className}
-      ref={(el) => {
-        move.setNodeRef(el);
-        clone.setNodeRef(el);
-      }}
-      {...move.attributes}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      ref={setNodeRef}
+      {...attributes}
     >
       <AccordionTrigger className="text-sm py-2">
         <div className="flex  items-center">
@@ -91,11 +87,13 @@ export function DayExercise({
                 className="flex gap-2 px-1"
               >
                 <MoveIcon
-                  {...move.listeners}
+                  {...listeners}
+                  data-action="move"
                   className="h-4 cursor-move  hover:text-zinc-400"
                 />
                 <CopyIcon
-                  {...clone.listeners}
+                  {...listeners}
+                  data-action="clone"
                   className="h-4 cursor-copy hover:text-zinc-400"
                 />
                 <TrashIcon
@@ -131,20 +129,16 @@ export function DayExercise({
     </AccordionItem>
   );
 
-  const draggingElement =
-    move.isDragging || clone.isDragging
-      ? createPortal(
-          <DragOverlay>
-            <DraggingExercise name={plannedExercise.name} />
-          </DragOverlay>,
-          document.body
-        )
-      : null;
-
+  const draggingElement = createPortal(
+    <DragOverlay>
+      <DraggingExercise name={plannedExercise.name} />
+    </DragOverlay>,
+    document.body
+  );
   return (
     <>
-      {draggingElement}
-      {move.isDragging ? null : element}
+      {isDragging ? draggingElement : null}
+      {element}
     </>
   );
 }

@@ -11,7 +11,6 @@ type Data = {
   exercise: Exercise;
   source: "workout" | "library";
   type: "workout" | "exercise" | "plannedExercise";
-  clone?: boolean;
 };
 
 export type AddExerciseAction = {
@@ -34,11 +33,11 @@ export type MoveExerciseAction = {
 
 export type Action = AddExerciseAction | MoveExerciseAction | null;
 
-export function parse({ active, over }: DragEndEvent): Action {
+export function parse({ activatorEvent, active, over }: DragEndEvent): Action {
   const activeData = over?.data.current as Data | undefined;
   const overData = active.data.current as Data | undefined;
-
-  console.log({ activeData, overData });
+  const target = activatorEvent.target as HTMLElement;
+  const clone = target?.getAttribute("data-action") === "clone";
 
   if (!activeData) {
     return null;
@@ -65,7 +64,7 @@ export function parse({ active, over }: DragEndEvent): Action {
       sourceWorkout: overData.plannedWorkout!,
       targetWorkout: activeData.plannedWorkout,
       targetDate: activeData.date ?? `${over?.id!}`,
-      clone: overData.clone,
+      clone: clone,
     };
   }
 
@@ -77,7 +76,7 @@ export function parse({ active, over }: DragEndEvent): Action {
       sourceWorkout: overData.plannedWorkout!,
       targetWorkout: activeData.plannedWorkout!,
       index: activeData.index,
-      clone: overData.clone,
+      clone: clone,
     };
   }
 

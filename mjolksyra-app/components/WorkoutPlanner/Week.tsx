@@ -5,8 +5,6 @@ import { useCallback, useMemo } from "react";
 import { PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { PLANNED_AT } from "@/constants/dateFormats";
 
-const FORMAT = "YYYY MM DD";
-
 type Props = {
   weekNumber: number;
   days: dayjs.Dayjs[];
@@ -18,13 +16,6 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
     () => groupBy(days, (x) => x.format("ddd")),
     [days]
   );
-
-  const isToday = useMemo(() => {
-    const now = dayjs().format(FORMAT);
-    const today = days.find((x) => x.format(FORMAT) === now);
-
-    return today ? true : false;
-  }, [days]);
 
   const day = useCallback(
     (dayName: string) => {
@@ -50,7 +41,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
 
   return useMemo(
     () => (
-      <div data-today={isToday}>
+      <div>
         <div className="bg-accent p-1 px-2 text-sm select-none">
           v{weekNumber}
         </div>
@@ -65,6 +56,6 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
         </div>
       </div>
     ),
-    [isToday, weekNumber, day]
+    [weekNumber, day]
   );
 }

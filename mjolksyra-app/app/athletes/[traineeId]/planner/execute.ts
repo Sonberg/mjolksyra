@@ -8,6 +8,8 @@ export async function execute(traineeId: string, action: Action) {
     return null;
   }
 
+  console.log(action);
+
   const result = transform(traineeId, action);
 
   const createTasks = result.create.map((plannedWorkout) =>
