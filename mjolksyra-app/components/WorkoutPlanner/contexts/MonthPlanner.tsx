@@ -52,9 +52,13 @@ export function MonthPlannerProvider({
         signal,
         fromDate: startOfMonth,
         toDate: endOfMonth,
+        limit: 31,
       });
     },
-    placeholderData: [],
+    placeholderData: {
+      data: [],
+      next: null,
+    },
   });
 
   const update = useMutation({
@@ -70,7 +74,7 @@ export function MonthPlannerProvider({
       startOfMonth,
       endOfMonth,
       isFetched: workouts.isFetched,
-      workouts: workouts.data ?? [],
+      workouts: workouts.data?.data ?? [],
       update: update.mutateAsync,
     }),
     [startOfMonth, endOfMonth, workouts, update]

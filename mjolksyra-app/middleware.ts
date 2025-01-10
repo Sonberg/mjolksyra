@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verify } from "jsonwebtoken";
+import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { refresh } from "./api/auth/refresh";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function middleware(_: NextRequest) {
   const response = NextResponse.next();
-  const jwtSecret = `${process.env.JWT_SECRET}`;
+  const secret = new TextEncoder().encode(`${process.env.JWT_SECRET}`);
 
   const store = await cookies();
   const accessToken = store.get("accessToken")?.value;
@@ -20,7 +21,9 @@ export async function middleware(_: NextRequest) {
       throw new Error();
     }
 
-    verify(accessToken, jwtSecret, {});
+    await jwtVerify(accessToken, secret, {
+      clockTolerance: 5,
+    });
 
     return response;
   } catch {

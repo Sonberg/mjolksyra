@@ -86,6 +86,6 @@ public class ExercisesController : Controller
     {
         return Ok(await _exerciseRepository.Options(cancellationToken));
     }
-    
+
     // Update exercise (only my exercises)
 }

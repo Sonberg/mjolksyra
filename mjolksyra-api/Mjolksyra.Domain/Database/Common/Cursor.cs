@@ -15,7 +15,7 @@ public record Cursor
 
     public static implicit operator Cursor?(string str)
     {
-        return Parse(str);
+        return Parse<Cursor>(str);
     }
 
     public override string ToString()
@@ -26,7 +26,12 @@ public record Cursor
         return Convert.ToBase64String(bytes);
     }
 
-    public static Cursor? Parse(string str)
+    public static Cursor? Parse(string? str)
+    {
+        return Parse<Cursor>(str);
+    }
+
+    public static T? Parse<T>(string? str) where T : Cursor
     {
         if (string.IsNullOrEmpty(str))
         {
@@ -35,12 +40,12 @@ public record Cursor
 
         var bytes = Convert.FromBase64String(str);
         var json = System.Text.Encoding.UTF8.GetString(bytes);
-        var res = JsonSerializer.Deserialize<Cursor>(json);
+        var res = JsonSerializer.Deserialize<T>(json);
 
         return res ?? throw new Exception("Conversion to Cursor failed");
     }
 
-    public static Cursor? From<T>(List<T> response, Cursor lastCursor) where T : IDocument
+    public static TCursor? From<T, TCursor>(List<T> response, TCursor lastCursor) where T : IDocument where TCursor : Cursor
     {
         if (response.Count is 0)
         {

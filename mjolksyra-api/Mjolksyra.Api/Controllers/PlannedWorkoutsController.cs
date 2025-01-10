@@ -1,5 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
@@ -20,13 +22,20 @@ public class PlannedWorkoutsController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult<ICollection<PlannedWorkoutResponse>>> Get(Guid traineeId, [FromQuery] DateOnly from, [FromQuery] DateOnly to)
+    public async Task<ActionResult<PaginatedResponse<PlannedWorkoutResponse>>> Get(
+        Guid traineeId,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to,
+        [FromQuery] string? cursor,
+        [FromQuery] int limit)
     {
         return Ok(await _mediator.Send(new GetPlannedWorkoutsRequest
         {
             TraineeId = traineeId,
             From = from,
-            To = to
+            To = to,
+            Limit = limit,
+            Cursor = Cursor.Parse<PlannedExerciseCursor>(cursor),
         }));
     }
 

@@ -6,7 +6,6 @@ import { parse } from "./parse";
 import { useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PlannerProvider } from "@/context/Planner/Planner";
 import { transform } from "./transformers";
 import { createPlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
 import { updatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
@@ -47,13 +46,11 @@ export function PageContent({ traineeId }: Props) {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <PlannerProvider traineeId={traineeId}>
-          <TooltipProvider>
-            <DndContext onDragEnd={handleDragEnd}>
-              <WorkoutPlanner traineeId={traineeId} />
-            </DndContext>
-          </TooltipProvider>
-        </PlannerProvider>
+        <TooltipProvider>
+          <DndContext onDragEnd={handleDragEnd}>
+            <WorkoutPlanner traineeId={traineeId} />
+          </DndContext>
+        </TooltipProvider>
       </QueryClientProvider>
     </>
   );

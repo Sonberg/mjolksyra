@@ -1,6 +1,8 @@
+using Mjolksyra.Domain.Database.Common;
+
 namespace Mjolksyra.Domain.Database.Models;
 
-public class PlannedWorkout
+public class PlannedWorkout : IDocument
 {
     public Guid Id { get; set; }
 

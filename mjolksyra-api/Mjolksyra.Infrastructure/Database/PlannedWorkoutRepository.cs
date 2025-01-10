@@ -1,4 +1,5 @@
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
 
@@ -13,7 +14,28 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
         _context = context;
     }
 
-    public async Task<ICollection<PlannedWorkout>> Get(Guid traineeId, DateOnly fromDate, DateOnly toDate, CancellationToken cancellationToken)
+    public async Task<Paginated<PlannedWorkout>> Get(PlannedExerciseCursor cursor, CancellationToken cancellationToken)
+    {
+        var filters = Builders<PlannedWorkout>.Filter.And([
+            Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, cursor.TraineeId),
+            Builders<PlannedWorkout>.Filter.Gte(x => x.PlannedAt, cursor.FromDate),
+            Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, cursor.ToDate),
+        ]);
+
+        var response = await _context.PlannedWorkout
+            .Find(filters)
+            .Skip(cursor.Page * cursor.Size)
+            .Limit(cursor.Size)
+            .ToListAsync(cancellationToken);
+
+        return new Paginated<PlannedWorkout>
+        {
+            Data = response,
+            Cursor = PlannedExerciseCursor.From(response, cursor)
+        };
+    }
+
+    public async Task<Paginated<PlannedWorkout>> Get(Guid traineeId, DateOnly? fromDate, DateOnly? toDate, int limit, CancellationToken cancellationToken)
     {
         var filters = Builders<PlannedWorkout>.Filter.And([
             Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, traineeId),
@@ -21,10 +43,23 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
             Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate),
         ]);
 
-        var cursor = await _context.PlannedWorkout.FindAsync(filters, cancellationToken: cancellationToken);
-        var result = await cursor.ToListAsync(cancellationToken);
+        var response = await _context.PlannedWorkout
+            .Find(filters)
+            .Limit(limit)
+            .ToListAsync(cancellationToken);
 
-        return result;
+        return new Paginated<PlannedWorkout>
+        {
+            Data = response,
+            Cursor = PlannedExerciseCursor.From(response, new PlannedExerciseCursor
+            {
+                Page = 0,
+                Size = limit,
+                TraineeId = traineeId,
+                FromDate = fromDate,
+                ToDate = toDate
+            })
+        };
     }
 
     public async Task<PlannedWorkout> Get(Guid plannedWorkoutId, CancellationToken cancellationToken)

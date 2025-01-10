@@ -16,7 +16,6 @@ public class ExerciseSeeder : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return;
         using var scope = _serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<IMongoDbContext>();

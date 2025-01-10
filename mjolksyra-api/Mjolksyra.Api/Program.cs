@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
 using Mjolksyra.Api.Converters;
 using Mjolksyra.Api.Migration;
+using Mjolksyra.Api.Options;
 using Mjolksyra.Domain;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
@@ -19,6 +20,27 @@ using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var otel = builder.Configuration
+    .GetSection(OtelOptions.SectionName)
+    .Get<OtelOptions>();
+
+foreach (var variable in otel!.EnvironmentVariables)
+{
+    Environment.SetEnvironmentVariable(variable.Name, variable.Value);
+}
+
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(otel.ServiceName));
+    logging.AddOtlpExporter(opt =>
+    {
+        opt.Endpoint = new Uri(otel.Endpoint);
+        opt.Headers = otel.Headers;
+    });
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+    logging.ParseStateValues = true;
+});
 
 builder.Services.AddOpenApi();
 builder.Services
@@ -32,14 +54,29 @@ builder.Services
 
 builder.Services
     .AddOpenTelemetry()
-    .ConfigureResource(opt => opt.AddService("mjolksyra-api"))
-    .WithLogging(opt => { opt.AddOtlpExporter(); })
+    .ConfigureResource(x =>
+    {
+        x.Clear();
+        x.AddService(otel.ServiceName);
+    })
+    .WithLogging(opt =>
+    {
+        opt.AddOtlpExporter(x =>
+        {
+            x.Endpoint = new Uri(otel.Endpoint);
+            x.Headers = otel.Headers;
+        });
+    })
     .WithMetrics(opt =>
     {
         opt.AddAspNetCoreInstrumentation();
         opt.AddHttpClientInstrumentation();
         opt.AddMeter(InstrumentationOptions.MeterName);
-        opt.AddOtlpExporter();
+        opt.AddOtlpExporter(x =>
+        {
+            x.Endpoint = new Uri(otel.Endpoint);
+            x.Headers = otel.Headers;
+        });
     })
     .WithTracing(opt =>
     {
@@ -47,7 +84,11 @@ builder.Services
         opt.AddSource(DiagnosticHeaders.DefaultListenerName);
         opt.AddAspNetCoreInstrumentation();
         opt.AddHttpClientInstrumentation();
-        opt.AddOtlpExporter();
+        opt.AddOtlpExporter(x =>
+        {
+            x.Endpoint = new Uri(otel.Endpoint);
+            x.Headers = otel.Headers;
+        });
     });
 
 builder.Services
@@ -74,8 +115,10 @@ builder.Services
 
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddHostedService<ExerciseSeeder>();
-builder.Services.AddHostedService<IndexBuilder>();
+// builder.Services.AddHostedService<ExerciseSeeder>();
+builder.Services.AddHostedService<SearchIndexBuilder>();
+builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
+builder.Services.AddHostedService<TraineeIndexBuilder>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddUseCases();
 builder.Services.AddDomain(builder.Configuration);
@@ -88,10 +131,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.Run();
