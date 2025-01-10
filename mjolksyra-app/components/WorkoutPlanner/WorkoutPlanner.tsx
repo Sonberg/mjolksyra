@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ViewportList, ViewportListRef } from "react-viewport-list";
+import dayjs from "dayjs";
+
 import { ExerciseLibrary } from "../ExerciseLibrary";
 import {
   ResizableHandle,
@@ -9,12 +11,12 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable";
 import { Month } from "./Month";
-import dayjs from "dayjs";
 import useOnScreen from "@/hooks/useOnScreen";
 import { TodayButton } from "./TodayButton";
-import { usePlanner } from "@/context/Planner/Planner";
+import { decrementMonth, incrementMonth } from "@/lib/month";
+import { MonthPlannerProvider } from "./contexts/MonthPlanner";
 
-type Month = {
+type YearMonth = {
   year: number;
   month: number;
 };
@@ -24,13 +26,41 @@ type Props = {
 };
 
 export function WorkoutPlanner({ traineeId }: Props) {
-  const { months, next, previous, workouts } = usePlanner();
   const today = useMemo(() => dayjs(), []);
   const [previousHeight, setPreviousHeight] = useState<number | null>(null);
+  const [months, setMonths] = useState<YearMonth[]>([
+    { year: today.year(), month: today.month() },
+  ]);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<ViewportListRef | null>(null);
   const start = useOnScreen();
   const end = useOnScreen();
+
+  const goToToday = useCallback(() => {
+    const year = today.year();
+    const month = today.month();
+    const index = months.findIndex((x) => x.year === year && x.month === month);
+
+    if (index === -1) {
+      return;
+    }
+
+    listRef.current?.scrollToIndex({ index });
+  }, [months, today]);
+
+  const renderMonth = useCallback(
+    (x: YearMonth) => (
+      <MonthPlannerProvider
+        key={`${x.year}-${x.month}`}
+        traineeId={traineeId}
+        month={x.month}
+        year={x.year}
+        children={<Month />}
+      />
+    ),
+    [traineeId]
+  );
 
   useEffect(() => {
     if (!start.isIntersecting) {
@@ -38,7 +68,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
     }
 
     setPreviousHeight(containerRef.current?.scrollHeight ?? null);
-    previous();
+    setMonths((state) => [decrementMonth(state[0]), ...state]);
   }, [start.isIntersecting]);
 
   useEffect(() => {
@@ -47,7 +77,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
     }
 
     setPreviousHeight(null);
-    next();
+    setMonths((state) => [...state, incrementMonth(state[state.length - 1])]);
   }, [end.isIntersecting]);
 
   useEffect(() => {
@@ -78,17 +108,8 @@ export function WorkoutPlanner({ traineeId }: Props) {
               viewportRef={containerRef}
               ref={listRef}
               items={months}
-            >
-              {(x) => (
-                <Month
-                  key={`${x.year}-${x.month}`}
-                  traineeId={traineeId}
-                  workouts={workouts}
-                  month={x.month}
-                  year={x.year}
-                />
-              )}
-            </ViewportList>
+              children={renderMonth}
+            />
 
             <div
               className="w-full h-8 text-background"
@@ -96,21 +117,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
               children="d"
             />
           </div>
-          <TodayButton
-            onClick={() => {
-              const year = today.year();
-              const month = today.month();
-              const index = months.findIndex(
-                (x) => x.year === year && x.month === month
-              );
-
-              if (index === -1) {
-                return;
-              }
-
-              listRef.current?.scrollToIndex({ index });
-            }}
-          />
+          <TodayButton onClick={goToToday} />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel

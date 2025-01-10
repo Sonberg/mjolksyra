@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Week } from "./Week";
 import { WeekDayNames } from "./WeekDayNames";
 import { getDatesBetween } from "@/lib/getDatesBetween";
@@ -10,7 +10,8 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { groupBy } from "@/lib/groupBy.";
 import { sortBy } from "@/lib/sortBy";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { useMonthPlanner } from "./contexts/MonthPlanner";
+import { cn } from "@/lib/utils";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -19,26 +20,8 @@ dayjs.extend(updateLocale);
 
 dayjs.updateLocale("en", { weekStart: 1 });
 
-type MonthProps = {
-  traineeId: string;
-  workouts: PlannedWorkout[];
-  month: number;
-  year: number;
-};
-
-export function Month({ workouts, month, year }: MonthProps) {
-  const startOfMonth = useMemo(
-    () => dayjs().date(1).year(year).month(month).startOf("month"),
-    [month, year]
-  );
-
-  const endOfMonth = useMemo(() => startOfMonth.endOf("month"), [startOfMonth]);
-  //   const planner = useMonthPlanner({
-  //     traineeId,
-  //     startOfMonth,
-  //     endOfMonth,
-  //     isVisible: isIntersecting,
-  //   });
+export function Month() {
+  const { startOfMonth, endOfMonth, workouts, isFetched } = useMonthPlanner();
 
   const days = useMemo(
     () => getDatesBetween(startOfMonth, endOfMonth),
@@ -58,31 +41,34 @@ export function Month({ workouts, month, year }: MonthProps) {
     [startOfMonth]
   );
 
+  const renderWeek = useCallback(
+    ([key, value]: [string, dayjs.Dayjs[]]) => (
+      <Week
+        key={key}
+        weekNumber={Number(key)}
+        days={value}
+        plannedWorkouts={workouts}
+      />
+    ),
+    [workouts]
+  );
+
   return useMemo(
     () => (
       <>
-        <div>
-          <div
-            className="text-3xl font-bold mb-8 select-none"
-            data-month={month}
-            data-year={year}
-          >
-            {monthName}
-          </div>
+        <div
+          className={cn({
+            "opacity-30": !isFetched,
+          })}
+        >
+          <div className="text-3xl font-bold mb-8 select-none">{monthName}</div>
           <WeekDayNames />
           <div className="flex flex-col gap-8 ">
-            {groupedByWeek.map(([key, value]) => (
-              <Week
-                key={key}
-                weekNumber={Number(key)}
-                days={value}
-                plannedWorkouts={workouts}
-              />
-            ))}
+            {groupedByWeek.map(renderWeek)}
           </div>
         </div>
       </>
     ),
-    [monthName, groupedByWeek, workouts]
+    [monthName, groupedByWeek, workouts, isFetched]
   );
 }
