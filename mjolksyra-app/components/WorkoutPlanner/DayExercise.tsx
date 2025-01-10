@@ -1,5 +1,3 @@
-import { usePlannerStore } from "@/stores/plannerStore";
-
 import {
   AccordionContent,
   AccordionItem,
@@ -13,11 +11,13 @@ import { createPortal } from "react-dom";
 import { DragOverlay } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import { CSS } from "@dnd-kit/utilities";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { DraggingExercise } from "../DraggingExercise";
 import dayjs from "dayjs";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { useMonthPlanner } from "./contexts/MonthPlanner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -34,7 +34,10 @@ export function DayExercise({
   isLast,
   date,
 }: Props) {
-  const store = usePlannerStore();
+  const { update } = useMonthPlanner();
+  const [note, setNote] = useState(plannedExercise.note ?? "");
+
+  const debouncedNote = useDebounce(note, 1000);
   const data = useMemo(
     () => ({
       date,
@@ -65,6 +68,21 @@ export function DayExercise({
     "border-b-0": isLast,
     "opacity-40": isDragging,
   });
+
+  useEffect(() => {
+    update({
+      ...plannedWorkout,
+      exercises: plannedWorkout.exercises.map((x) =>
+        x.id == plannedExercise.id
+          ? {
+              ...x,
+              note: debouncedNote,
+            }
+          : x
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedNote]);
 
   return useMemo(
     () => (
@@ -108,9 +126,11 @@ export function DayExercise({
                     />
                     <TrashIcon
                       onClick={() => {
-                        store.deleteExercise({
-                          workoutId: plannedWorkout.id,
-                          exerciseId: plannedExercise.id,
+                        update({
+                          ...plannedWorkout,
+                          exercises: plannedWorkout.exercises.filter(
+                            (x) => x.id !== plannedExercise.id
+                          ),
                         });
                       }}
                       className="h-4 cursor-pointer text-red-500 hover:text-red-800"
@@ -124,15 +144,11 @@ export function DayExercise({
           </AccordionTrigger>
           <AccordionContent className="px-2 pb-3">
             <Textarea
-              value={plannedExercise.note ?? ""}
+              value={note}
               className=" pt-0"
               placeholder="Sets, reps, tempo etc"
               onChange={(ev) => {
-                store.updateExercise({
-                  exerciseId: plannedExercise.id,
-                  workoutId: plannedWorkout.id,
-                  note: ev.target.value,
-                });
+                setNote(ev.target.value);
               }}
             />
           </AccordionContent>
@@ -140,18 +156,18 @@ export function DayExercise({
       </>
     ),
     [
-      attributes,
-      className,
       isDragging,
-      listeners,
-      plannedExercise.id,
       plannedExercise.name,
-      plannedExercise.note,
-      plannedWorkout.id,
-      setNodeRef,
-      store,
+      plannedExercise.id,
+      className,
       transform,
       transition,
+      setNodeRef,
+      attributes,
+      listeners,
+      note,
+      update,
+      plannedWorkout,
     ]
   );
 }

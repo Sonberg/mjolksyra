@@ -62,6 +62,7 @@ export function MonthPlannerProvider({
     mutationFn: async (plannedWorkout: PlannedWorkout) => {
       return await updatePlannedWorkout({ plannedWorkout });
     },
+    onSettled: () => workouts.refetch(),
   });
 
   const value = useMemo(
