@@ -16,8 +16,7 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
     public async Task<PlannedWorkoutResponse?> Handle(UpdatePlannedWorkoutCommand request, CancellationToken cancellationToken)
     {
         var plannedWorkout = await _plannedWorkoutRepository.Get(request.PlannedWorkoutId, cancellationToken);
-
-
+        
         plannedWorkout.Name = request.Workout.Name;
         plannedWorkout.Note = request.Workout.Note;
         plannedWorkout.Exercises = request.Workout.Exercises

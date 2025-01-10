@@ -6,8 +6,10 @@ import { parse } from "./parse";
 import { useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { execute } from "./execute";
 import { PlannerProvider } from "@/context/Planner/Planner";
+import { transform } from "./transformers";
+import { createPlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
+import { updatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
 
 const queryClient = new QueryClient();
 
@@ -19,12 +21,23 @@ export function PageContent({ traineeId }: Props) {
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
       const action = parse(event);
+      const result = transform(traineeId, action);
 
-      await execute(traineeId, action);
+      const createTasks = result.create.map((plannedWorkout) =>
+        createPlannedWorkout({ plannedWorkout })
+      );
 
-      if (action) {
+      const updateTasks = result.update.map((plannedWorkout) =>
+        updatePlannedWorkout({ plannedWorkout })
+      );
+
+      const updated = await Promise.all([...createTasks, ...updateTasks]);
+
+      for (const workout of updated) {
+        const [year, month] = workout.plannedAt.split("-");
+
         await queryClient.refetchQueries({
-          queryKey: ["workouts"],
+          queryKey: ["workouts", Number(year), Number(month) - 1],
         });
       }
     },

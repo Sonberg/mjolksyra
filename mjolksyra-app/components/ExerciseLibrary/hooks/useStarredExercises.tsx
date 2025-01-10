@@ -1,6 +1,6 @@
 import { starExercises } from "@/api/exercises/starExercise";
 import { starredExercises } from "@/api/exercises/starredExercises";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useStarredExercises(mutationOnly?: boolean) {
   const starred = useQuery({

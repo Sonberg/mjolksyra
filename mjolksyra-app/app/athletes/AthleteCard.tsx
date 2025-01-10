@@ -47,11 +47,11 @@ export function AthleteCard({ trainee }: Props) {
 
   const lastWorkoutAt = useMemo(() => {
     return trainee.lastWorkoutAt ? format(dayjs(trainee.lastWorkoutAt)) : "-";
-  }, [trainee.lastWorkoutAt]);
+  }, [format, trainee.lastWorkoutAt]);
 
   const nextWorkoutAt = useMemo(() => {
     return trainee.nextWorkoutAt ? format(dayjs(trainee.nextWorkoutAt)) : "-";
-  }, [trainee.nextWorkoutAt]);
+  }, [format, trainee.nextWorkoutAt]);
 
   return (
     <Card id={auth.userId ?? ""}>

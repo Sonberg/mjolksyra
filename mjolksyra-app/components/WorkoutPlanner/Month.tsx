@@ -32,7 +32,7 @@ export function Month() {
     () =>
       sortBy(
         Object.entries(groupBy(days, (x) => x.week())),
-        ([_, val]) => val[0]
+        ([, val]) => val[0]
       ),
     [days]
   );
@@ -69,6 +69,6 @@ export function Month() {
         </div>
       </>
     ),
-    [monthName, groupedByWeek, workouts, isFetched]
+    [isFetched, monthName, groupedByWeek, renderWeek]
   );
 }

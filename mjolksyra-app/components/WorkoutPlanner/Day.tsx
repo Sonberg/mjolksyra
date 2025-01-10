@@ -87,6 +87,6 @@ export function Day({ date, plannedWorkout }: Props) {
         </div>
       </SortableContext>
     ),
-    [date, plannedWorkout, dateClass, contentClass]
+    [plannedWorkout, setNodeRef, dateClass, date, contentClass]
   );
 }

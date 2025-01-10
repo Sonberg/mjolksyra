@@ -124,6 +124,7 @@ export function md5(input: string | number[]) {
   }
   let i;
   for (i = 64; i <= n; i += 64) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const q = s.slice(i - 64, i) as any,
       md5bulks = [];
     for (let j = 0; j < 64; j += 4)

@@ -21,7 +21,7 @@ export function useBrowseExercises() {
         ? await getExercises({ cursor: pageParam, signal: signal })
         : { data: [], next: null };
     },
-    getNextPageParam: (lastPage, _) => lastPage.next,
+    getNextPageParam: (lastPage) => lastPage.next,
     initialPageParam: initial.data?.next,
     enabled: !!initial.data?.next,
   });

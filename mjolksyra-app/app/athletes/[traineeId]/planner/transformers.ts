@@ -4,7 +4,7 @@ import { v4 } from "uuid";
 import { insertAt } from "@/lib/insertAt";
 import { PLANNED_AT } from "@/constants/dateFormats";
 
-type TransformResult = {
+export type TransformResult = {
   create: PlannedWorkout[];
   update: PlannedWorkout[];
 };
@@ -56,7 +56,7 @@ function move(traineeId: string, action: MoveExerciseAction): TransformResult {
   const sourceWorkout = action.sourceWorkout;
   const targetWorkout = action.targetWorkout;
 
-  const existingExercise = sourceWorkout?.exercises.find(
+  const existingExercise = sourceWorkout!.exercises.find(
     (x) => x.id === action.plannedExercise.id
   )!;
 

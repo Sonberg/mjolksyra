@@ -63,7 +63,7 @@ export function parse({ activatorEvent, active, over }: DragEndEvent): Action {
       plannedExercise: overData.plannedExercise!,
       sourceWorkout: overData.plannedWorkout!,
       targetWorkout: activeData.plannedWorkout,
-      targetDate: activeData.date ?? `${over?.id!}`,
+      targetDate: activeData.date ?? `${over!.id!}`,
       clone: clone,
     };
   }
@@ -71,7 +71,7 @@ export function parse({ activatorEvent, active, over }: DragEndEvent): Action {
   if (activeData.type === "plannedExercise" && overData.plannedWorkout?.id) {
     return {
       type: "moveExercise",
-      targetDate: activeData.date ?? `${over?.id!}`,
+      targetDate: activeData.date ?? `${over!.id!}`,
       plannedExercise: overData.plannedExercise!,
       sourceWorkout: overData.plannedWorkout!,
       targetWorkout: activeData.plannedWorkout!,

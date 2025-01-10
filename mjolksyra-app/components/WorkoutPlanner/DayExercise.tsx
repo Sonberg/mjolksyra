@@ -44,7 +44,7 @@ export function DayExercise({
       source: "workout",
       type: "plannedExercise",
     }),
-    [plannedWorkout, plannedExercise]
+    [date, index, plannedWorkout, plannedExercise]
   );
 
   const {
@@ -66,79 +66,92 @@ export function DayExercise({
     "opacity-40": isDragging,
   });
 
-  const element = (
-    <AccordionItem
-      value={plannedExercise.id}
-      className={className}
-      style={{ transform: CSS.Translate.toString(transform), transition }}
-      ref={setNodeRef}
-      {...attributes}
-    >
-      <AccordionTrigger className="text-sm py-2">
-        <div className="flex  items-center">
-          <Tooltip delayDuration={50}>
-            <TooltipTrigger asChild onClick={(ev) => ev.preventDefault()}>
-              <EllipsisVertical className="h-3" />
-            </TooltipTrigger>
-
-            {createPortal(
-              <TooltipContent
-                onClick={(ev) => ev.preventDefault()}
-                className="flex gap-2 px-1"
-              >
-                <MoveIcon
-                  {...listeners}
-                  data-action="move"
-                  className="h-4 cursor-move  hover:text-zinc-400"
-                />
-                <CopyIcon
-                  {...listeners}
-                  data-action="clone"
-                  className="h-4 cursor-copy hover:text-zinc-400"
-                />
-                <TrashIcon
-                  onClick={() => {
-                    store.deleteExercise({
-                      workoutId: plannedWorkout.id,
-                      exerciseId: plannedExercise.id,
-                    });
-                  }}
-                  className="h-4 cursor-pointer text-red-500 hover:text-red-800"
-                />
-              </TooltipContent>,
+  return useMemo(
+    () => (
+      <>
+        {isDragging
+          ? createPortal(
+              <DragOverlay>
+                <DraggingExercise name={plannedExercise.name} />
+              </DragOverlay>,
               document.body
-            )}
-          </Tooltip>
-          <div className="text-sm select-none">{plannedExercise.name}</div>
-        </div>
-      </AccordionTrigger>
-      <AccordionContent className="px-2 pb-3">
-        <Textarea
-          value={plannedExercise.note ?? ""}
-          className=" pt-0"
-          placeholder="Sets, reps, tempo etc"
-          onChange={(ev) => {
-            store.updateExercise({
-              exerciseId: plannedExercise.id,
-              workoutId: plannedWorkout.id,
-              note: ev.target.value,
-            });
-          }}
-        />
-      </AccordionContent>
-    </AccordionItem>
-  );
+            )
+          : null}
+        <AccordionItem
+          value={plannedExercise.id}
+          className={className}
+          style={{ transform: CSS.Translate.toString(transform), transition }}
+          ref={setNodeRef}
+          {...attributes}
+        >
+          <AccordionTrigger className="text-sm py-2">
+            <div className="flex  items-center">
+              <Tooltip delayDuration={50}>
+                <TooltipTrigger asChild onClick={(ev) => ev.preventDefault()}>
+                  <EllipsisVertical className="h-3" />
+                </TooltipTrigger>
 
-  const draggingElement = createPortal(
-    <DragOverlay>
-      <DraggingExercise name={plannedExercise.name} />
-    </DragOverlay>,
-    document.body
-  );
-  return (
-    <>
-      {isDragging ? draggingElement : null}
-      {element}
-    </>
+                {createPortal(
+                  <TooltipContent
+                    onClick={(ev) => ev.preventDefault()}
+                    className="flex gap-2 px-1"
+                  >
+                    <MoveIcon
+                      {...listeners}
+                      data-action="move"
+                      className="h-4 cursor-move  hover:text-zinc-400"
+                    />
+                    <CopyIcon
+                      {...listeners}
+                      data-action="clone"
+                      className="h-4 cursor-copy hover:text-zinc-400"
+                    />
+                    <TrashIcon
+                      onClick={() => {
+                        store.deleteExercise({
+                          workoutId: plannedWorkout.id,
+                          exerciseId: plannedExercise.id,
+                        });
+                      }}
+                      className="h-4 cursor-pointer text-red-500 hover:text-red-800"
+                    />
+                  </TooltipContent>,
+                  document.body
+                )}
+              </Tooltip>
+              <div className="text-sm select-none">{plannedExercise.name}</div>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-2 pb-3">
+            <Textarea
+              value={plannedExercise.note ?? ""}
+              className=" pt-0"
+              placeholder="Sets, reps, tempo etc"
+              onChange={(ev) => {
+                store.updateExercise({
+                  exerciseId: plannedExercise.id,
+                  workoutId: plannedWorkout.id,
+                  note: ev.target.value,
+                });
+              }}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      </>
+    ),
+    [
+      attributes,
+      className,
+      isDragging,
+      listeners,
+      plannedExercise.id,
+      plannedExercise.name,
+      plannedExercise.note,
+      plannedWorkout.id,
+      setNodeRef,
+      store,
+      transform,
+      transition,
+    ]
   );
 }

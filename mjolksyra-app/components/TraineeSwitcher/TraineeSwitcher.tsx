@@ -11,7 +11,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "../ui/command";
@@ -33,7 +32,7 @@ type Team = (typeof groups)[number]["teams"][number];
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-interface TeamSwitcherProps extends PopoverTriggerProps {}
+type TeamSwitcherProps = PopoverTriggerProps & {}
 
 export function TraineeSwitcher({ className }: TeamSwitcherProps) {
   const [open, setOpen] = React.useState(false);
