@@ -6,21 +6,31 @@ import dayjs from "dayjs";
 import { useMemo } from "react";
 
 type Args = {
+  id: string;
   traineeId: string;
   fromDate?: dayjs.Dayjs;
   toDate?: dayjs.Dayjs;
+  sortBy: string;
+  order: "asc" | "desc";
 };
 
-export function useWorkouts({ traineeId, fromDate, toDate }: Args) {
+export function useWorkouts({
+  id,
+  traineeId,
+  fromDate,
+  toDate,
+  ...args
+}: Args) {
   const initial = useQuery({
-    queryKey: ["planned-workouts", "inital"],
+    queryKey: ["planned-workouts", id, "inital"],
     queryFn: async ({ signal }) =>
       await getPlannedWorkouts({
         traineeId,
         signal,
         fromDate,
         toDate,
-        limit: 30,
+        limit: 10,
+        ...args,
       }),
     placeholderData: {
       data: [],
@@ -29,7 +39,7 @@ export function useWorkouts({ traineeId, fromDate, toDate }: Args) {
   });
 
   const infinit = useInfiniteQuery({
-    queryKey: ["planned-workouts", "infinit"],
+    queryKey: ["planned-workouts", id, "infinit"],
     queryFn: async ({ pageParam, signal }) => {
       return pageParam
         ? await getPlannedWorkouts({ traineeId, next: pageParam, signal })

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Mjolksyra.Domain.Database.Enum;
 
 namespace Mjolksyra.Domain.Database.Common;
 
@@ -14,6 +15,10 @@ public record PlannedWorkoutCursor : Cursor
     public required DateOnly? FromDate { get; set; }
 
     public required DateOnly? ToDate { get; set; }
+
+    public required string[]? SortBy { get; set; }
+
+    public required SortOrder Order { get; set; }
 
     public override string ToString()
     {

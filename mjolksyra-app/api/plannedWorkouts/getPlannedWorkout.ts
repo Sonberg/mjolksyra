@@ -11,6 +11,8 @@ type Args = {
   limit?: number;
   next?: string;
   signal?: AbortSignal;
+  sortBy?: string;
+  order?: "asc" | "desc";
 };
 
 export async function getPlannedWorkouts({
@@ -20,12 +22,32 @@ export async function getPlannedWorkouts({
   next,
   limit,
   signal,
+  sortBy,
+  order,
 }: Args) {
   const from = fromDate?.format(PLANNED_AT) ?? "";
   const to = toDate?.format(PLANNED_AT) ?? "";
-  const url = next
-    ? `/api/trainees/${traineeId}/planned-workouts?next=${next}`
-    : `/api/trainees/${traineeId}/planned-workouts?from=${from}&to=${to}&limit=${limit}`;
+  const query = {
+    next,
+    from,
+    to,
+    limit,
+    sortBy,
+    order,
+  };
+
+  const queryString = Object.entries(query)
+    .reduce<string[]>((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc.push(
+          `${encodeURIComponent(key)}=${encodeURIComponent(value.toString())}`
+        );
+      }
+      return acc;
+    }, [])
+    .join("&");
+
+  const url = `/api/trainees/${traineeId}/planned-workouts?${queryString}`;
   const response = await ApiClient.get(url, {
     signal,
   });

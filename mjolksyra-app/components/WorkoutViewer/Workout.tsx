@@ -37,16 +37,25 @@ export function Workout({ workout }: Props) {
   }, [date]);
 
   return (
-    <Card>
-      <CardHeader className=" font-bold bg-accent/50">{displayName}</CardHeader>
+    <Card data-today={displayName === "Today"}>
+      <CardHeader className="font-bold bg-accent/50 p-4">
+        <div className="flex items-center justify-between">
+          {displayName}
+          {displayName === "Today" ? (
+            <div className="h-3 w-3 rounded-full bg-red-700" />
+          ) : (
+            <div />
+          )}
+        </div>
+      </CardHeader>
       <CardDescription>{workout.note}</CardDescription>
-      <CardContent className="pt-8 grid gap-4">
+      <CardContent className="p-4 grid gap-4">
         {workout.exercises.map((exercise, index) => (
           <div key={exercise.id} className="flex gap-4 items-center">
-            <div className="bg-accent font-bold h-10 w-10 grid place-items-center rounded">
+            <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">
               {index + 1}
             </div>
-            <div>{exercise.name}</div>
+            <div className="font-bold text-sm">{exercise.name}</div>
           </div>
         ))}
       </CardContent>

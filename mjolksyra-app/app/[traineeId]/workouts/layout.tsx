@@ -1,14 +1,12 @@
 "use client";
 
-import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import { ReactNode } from "react";
 
@@ -18,7 +16,7 @@ type Props = {
 export default function Layout({ children }: Props) {
   return (
     <>
-      <div className="h-16 p-6 border-b flex justify-between items-center">
+      <div className="min-h-16 px-6 border-b flex justify-between items-center">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -26,14 +24,13 @@ export default function Layout({ children }: Props) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <InviteTraineeDialog
-          trigger={
-            <Button variant="default" size={"sm"}>
-              <Plus />
-              Invite
-            </Button>
-          }
-        />
+        <div className="flex items-center gap-3">
+          <ChevronDown className="h-5 w-5" />
+          <div className="">
+            <div className="text-muted-foreground text-xs">Coach</div>
+            <div className="text-sm">Natalie Sleiers</div>
+          </div>
+        </div>
       </div>
       {children}
     </>

@@ -57,7 +57,9 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
                 TraineeId = request.TraineeId,
                 FromDate = request.From,
                 ToDate = request.To,
-                Size = request.Limit
+                Size = request.Limit,
+                SortBy = request.SortBy,
+                Order = request.Order
             }, cancellationToken)
         };
 

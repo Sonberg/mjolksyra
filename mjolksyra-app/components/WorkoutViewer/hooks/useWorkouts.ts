@@ -7,9 +7,11 @@ type Args = {
   traineeId: string;
   fromDate: dayjs.Dayjs;
   toDate: dayjs.Dayjs;
+  sortBy: string;
+  order: "asc" | "desc";
 };
 
-export function useWorkouts({ traineeId, fromDate, toDate }: Args) {
+export function useWorkouts({ traineeId, fromDate, toDate, ...args }: Args) {
   const { isFetched, data } = useQuery({
     queryKey: ["workouts", fromDate.year(), fromDate.month()],
     queryFn: async ({ signal }) => {
@@ -19,6 +21,7 @@ export function useWorkouts({ traineeId, fromDate, toDate }: Args) {
         toDate,
         signal,
         limit: 32,
+        ...args,
       });
     },
     placeholderData: {

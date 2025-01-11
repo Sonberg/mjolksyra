@@ -1,5 +1,6 @@
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
 
@@ -16,6 +17,7 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
 
     public async Task<Paginated<PlannedWorkout>> Get(PlannedWorkoutCursor cursor, CancellationToken cancellationToken)
     {
+        var sort = new List<SortDefinition<PlannedWorkout>>();
         var filters = new List<FilterDefinition<PlannedWorkout>>
         {
             Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, cursor.TraineeId)
@@ -31,8 +33,16 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
             filters.Add(Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate));
         }
 
+        if (cursor.SortBy is { } sortBy)
+        {
+            sort.AddRange(sortBy.Select(field => cursor.Order == SortOrder.Desc
+                ? Builders<PlannedWorkout>.Sort.Descending(field)
+                : Builders<PlannedWorkout>.Sort.Ascending(field)));
+        }
+
         var response = await _context.PlannedWorkout
             .Find(Builders<PlannedWorkout>.Filter.And(filters))
+            .Sort(Builders<PlannedWorkout>.Sort.Combine(sort))
             .Skip(cursor.Page * cursor.Size)
             .Limit(cursor.Size)
             .ToListAsync(cancellationToken);

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
@@ -27,7 +28,10 @@ public class PlannedWorkoutsController : Controller
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to,
         [FromQuery] string? cursor,
-        [FromQuery] int limit)
+        [FromQuery] int limit,
+        [FromQuery] string[] sortBy,
+        [FromQuery] SortOrder order,
+        CancellationToken cancellationToken)
     {
         return Ok(await _mediator.Send(new GetPlannedWorkoutsRequest
         {
@@ -35,8 +39,10 @@ public class PlannedWorkoutsController : Controller
             From = from,
             To = to,
             Limit = limit,
+            SortBy = sortBy,
+            Order = order,
             Cursor = Cursor.Parse<PlannedWorkoutCursor>(cursor),
-        }));
+        }, cancellationToken));
     }
 
     [HttpPost]

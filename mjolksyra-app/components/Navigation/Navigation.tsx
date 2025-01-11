@@ -14,6 +14,8 @@ export function Navigation() {
   const theme = useTheme();
   const auth = useAuth();
 
+  console.log({ theme: theme.resolvedTheme });
+
   return (
     <div className=" flex-col flex">
       <div className={path === "/" ? "" : "border-b"}>
@@ -26,7 +28,7 @@ export function Navigation() {
               <img
                 className="h-8 w-8 mr-2"
                 src={
-                  theme.resolvedTheme === "dark"
+                  theme.resolvedTheme == "dark"
                     ? "/images/logo-dark.png"
                     : "/images/logo-light.png"
                 }
