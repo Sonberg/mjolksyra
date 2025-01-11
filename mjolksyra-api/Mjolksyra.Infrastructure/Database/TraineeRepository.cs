@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Hybrid;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
@@ -8,9 +9,12 @@ public class TraineeRepository : ITraineeRepository
 {
     private readonly IMongoDbContext _context;
 
-    public TraineeRepository(IMongoDbContext context)
+    private readonly HybridCache _cache;
+
+    public TraineeRepository(IMongoDbContext context, HybridCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public async Task<Trainee> Create(Trainee trainee, CancellationToken ct)
@@ -26,9 +30,21 @@ public class TraineeRepository : ITraineeRepository
             Builders<Trainee>.Filter.Eq(x => x.AthleteUserId, userId),
             Builders<Trainee>.Filter.Eq(x => x.CoachUserId, userId)
         ]);
-        
+
         return await _context.Trainees
             .Find(filters)
             .ToListAsync(ct);
+    }
+
+    public async Task<bool> HasAccess(Guid traineeId, Guid userId, CancellationToken cancellationToken)
+    {
+        return await _cache.GetOrCreateAsync($"HasAccess_{traineeId}_{userId}",
+            async _ =>
+            {
+                return await _context.Trainees
+                    .Find(x => x.Id == traineeId && (x.CoachUserId == userId || x.AthleteUserId == userId))
+                    .AnyAsync(cancellationToken: cancellationToken);
+            },
+            cancellationToken: cancellationToken);
     }
 }

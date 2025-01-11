@@ -2,9 +2,9 @@ using System.Text.Json;
 
 namespace Mjolksyra.Domain.Database.Common;
 
-public record PlannedExerciseCursor : Cursor
+public record PlannedWorkoutCursor : Cursor
 {
-    public static implicit operator string?(PlannedExerciseCursor? cursor)
+    public static implicit operator string?(PlannedWorkoutCursor? cursor)
     {
         return cursor?.ToString();
     }

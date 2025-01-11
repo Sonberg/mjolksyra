@@ -52,6 +52,11 @@ public record Cursor
             return null;
         }
 
+        if (response.Count != lastCursor.Size)
+        {
+            return null;
+        }
+
         return lastCursor with
         {
             Page = lastCursor.Page + 1

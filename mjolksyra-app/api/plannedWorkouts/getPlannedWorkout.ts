@@ -21,8 +21,8 @@ export async function getPlannedWorkouts({
   limit,
   signal,
 }: Args) {
-  const from = fromDate?.format(PLANNED_AT);
-  const to = toDate?.format(PLANNED_AT);
+  const from = fromDate?.format(PLANNED_AT) ?? "";
+  const to = toDate?.format(PLANNED_AT) ?? "";
   const url = next
     ? `/api/trainees/${traineeId}/planned-workouts?next=${next}`
     : `/api/trainees/${traineeId}/planned-workouts?from=${from}&to=${to}&limit=${limit}`;

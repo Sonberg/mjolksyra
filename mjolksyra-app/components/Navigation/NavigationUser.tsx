@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Check, Moon, Sun } from "lucide-react";
-import { useGravatar } from "@/hooks/use-gravatar";
+import { useGravatar } from "@/hooks/useGravatar";
 
 export function NavigationUser() {
   const router = useRouter();

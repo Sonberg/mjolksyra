@@ -5,7 +5,7 @@ namespace Mjolksyra.Domain.Database;
 
 public interface IPlannedWorkoutRepository
 {
-    Task<Paginated<PlannedWorkout>> Get(PlannedExerciseCursor cursor, CancellationToken cancellationToken);
+    Task<Paginated<PlannedWorkout>> Get(PlannedWorkoutCursor cursor, CancellationToken cancellationToken);
 
     Task<Paginated<PlannedWorkout>> Get(
         Guid traineeId,

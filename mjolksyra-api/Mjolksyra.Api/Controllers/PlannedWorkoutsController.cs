@@ -35,7 +35,7 @@ public class PlannedWorkoutsController : Controller
             From = from,
             To = to,
             Limit = limit,
-            Cursor = Cursor.Parse<PlannedExerciseCursor>(cursor),
+            Cursor = Cursor.Parse<PlannedWorkoutCursor>(cursor),
         }));
     }
 

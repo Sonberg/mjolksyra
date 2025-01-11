@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/Auth";
-import { useGravatar } from "@/hooks/use-gravatar";
+import { useGravatar } from "@/hooks/useGravatar";
 import dayjs from "dayjs";
 import { DumbbellIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

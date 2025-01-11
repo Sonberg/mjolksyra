@@ -12,7 +12,7 @@ public class GetPlannedWorkoutsRequest : IRequest<PaginatedResponse<PlannedWorko
 
     public DateOnly? To { get; set; }
 
-    public required PlannedExerciseCursor? Cursor { get; set; }
+    public required PlannedWorkoutCursor? Cursor { get; set; }
 
     public required int Limit { get; set; }
 }

@@ -18,7 +18,7 @@ public abstract class IndexBuilder : BackgroundService
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<IMongoDbContext>();
-
+        
         try
         {
             await Build(context, stoppingToken);

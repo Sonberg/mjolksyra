@@ -14,7 +14,7 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
         _context = context;
     }
 
-    public async Task<Paginated<PlannedWorkout>> Get(PlannedExerciseCursor cursor, CancellationToken cancellationToken)
+    public async Task<Paginated<PlannedWorkout>> Get(PlannedWorkoutCursor cursor, CancellationToken cancellationToken)
     {
         var filters = Builders<PlannedWorkout>.Filter.And([
             Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, cursor.TraineeId),
@@ -31,7 +31,7 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
         return new Paginated<PlannedWorkout>
         {
             Data = response,
-            Cursor = PlannedExerciseCursor.From(response, cursor)
+            Cursor = PlannedWorkoutCursor.From(response, cursor)
         };
     }
 
@@ -39,8 +39,8 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
     {
         var filters = Builders<PlannedWorkout>.Filter.And([
             Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, traineeId),
-            Builders<PlannedWorkout>.Filter.Gte(x => x.PlannedAt, fromDate),
-            Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate),
+            fromDate != null ? Builders<PlannedWorkout>.Filter.Gte(x => x.PlannedAt, fromDate) : Builders<PlannedWorkout>.Filter.Empty,
+            toDate != null ? Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate) : Builders<PlannedWorkout>.Filter.Empty,
         ]);
 
         var response = await _context.PlannedWorkout
@@ -51,7 +51,7 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
         return new Paginated<PlannedWorkout>
         {
             Data = response,
-            Cursor = PlannedExerciseCursor.From(response, new PlannedExerciseCursor
+            Cursor = Cursor.From(response, new PlannedWorkoutCursor
             {
                 Page = 0,
                 Size = limit,

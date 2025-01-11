@@ -34,8 +34,7 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
             };
         }
 
-        var trainees = await _traineeRepository.Get(userId, cancellationToken);
-        if (trainees.Any(x => x.Id == request.TraineeId) is false)
+        if (!await _traineeRepository.HasAccess(request.TraineeId, userId, cancellationToken))
         {
             return new PaginatedResponse<PlannedWorkoutResponse>
             {
