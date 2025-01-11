@@ -35,6 +35,13 @@ public class ExerciseRepository : IExerciseRepository
             .ContinueWith(t => t.Result.Result.Single(), cancellationToken);
     }
 
+    public async Task<ICollection<Exercise>> GetMany(ICollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        return await _mongoDbContext.Exercises
+            .Find(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default)
     {
         var projection = Builders<Exercise>.Projection.MetaTextScore("Score");

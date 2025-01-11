@@ -83,6 +83,6 @@ export function ExerciseRow({ exercise }: Props) {
           : null}
       </>
     ),
-    [isDragging, exercise, listeners, attributes]
+    [isDragging, exercise, listeners, attributes, hoverCard, setNodeRef]
   );
 }

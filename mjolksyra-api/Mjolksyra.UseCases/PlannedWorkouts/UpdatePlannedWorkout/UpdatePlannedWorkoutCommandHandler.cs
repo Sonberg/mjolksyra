@@ -8,15 +8,18 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
 {
     private readonly IPlannedWorkoutRepository _plannedWorkoutRepository;
 
-    public UpdatePlannedWorkoutCommandHandler(IPlannedWorkoutRepository plannedWorkoutRepository)
+    private readonly IExerciseRepository _exerciseRepository;
+
+    public UpdatePlannedWorkoutCommandHandler(IPlannedWorkoutRepository plannedWorkoutRepository, IExerciseRepository exerciseRepository)
     {
         _plannedWorkoutRepository = plannedWorkoutRepository;
+        _exerciseRepository = exerciseRepository;
     }
 
     public async Task<PlannedWorkoutResponse?> Handle(UpdatePlannedWorkoutCommand request, CancellationToken cancellationToken)
     {
         var plannedWorkout = await _plannedWorkoutRepository.Get(request.PlannedWorkoutId, cancellationToken);
-        
+
         plannedWorkout.Name = request.Workout.Name;
         plannedWorkout.Note = request.Workout.Note;
         plannedWorkout.Exercises = request.Workout.Exercises
@@ -29,8 +32,15 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
             })
             .ToList();
 
+        var exerciseIds = plannedWorkout.Exercises
+            .Select(x => x.ExerciseId)
+            .OfType<Guid>()
+            .ToList();
+
+        var exercises = await _exerciseRepository.GetMany(exerciseIds, cancellationToken);
+
         await _plannedWorkoutRepository.Update(plannedWorkout, cancellationToken);
 
-        return PlannedWorkoutResponse.From(plannedWorkout);
+        return PlannedWorkoutResponse.From(plannedWorkout, exercises);
     }
 }

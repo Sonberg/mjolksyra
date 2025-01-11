@@ -1,7 +1,4 @@
-using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Infrastructure.Database;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace Mjolksyra.Api.Migration;
 

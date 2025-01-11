@@ -16,14 +16,23 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
 
     public async Task<Paginated<PlannedWorkout>> Get(PlannedWorkoutCursor cursor, CancellationToken cancellationToken)
     {
-        var filters = Builders<PlannedWorkout>.Filter.And([
-            Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, cursor.TraineeId),
-            Builders<PlannedWorkout>.Filter.Gte(x => x.PlannedAt, cursor.FromDate),
-            Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, cursor.ToDate),
-        ]);
+        var filters = new List<FilterDefinition<PlannedWorkout>>
+        {
+            Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, cursor.TraineeId)
+        };
+
+        if (cursor.FromDate is { } fromDate)
+        {
+            filters.Add(Builders<PlannedWorkout>.Filter.Gte(x => x.PlannedAt, fromDate));
+        }
+
+        if (cursor.ToDate is { } toDate)
+        {
+            filters.Add(Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate));
+        }
 
         var response = await _context.PlannedWorkout
-            .Find(filters)
+            .Find(Builders<PlannedWorkout>.Filter.And(filters))
             .Skip(cursor.Page * cursor.Size)
             .Limit(cursor.Size)
             .ToListAsync(cancellationToken);
@@ -31,34 +40,7 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
         return new Paginated<PlannedWorkout>
         {
             Data = response,
-            Cursor = PlannedWorkoutCursor.From(response, cursor)
-        };
-    }
-
-    public async Task<Paginated<PlannedWorkout>> Get(Guid traineeId, DateOnly? fromDate, DateOnly? toDate, int limit, CancellationToken cancellationToken)
-    {
-        var filters = Builders<PlannedWorkout>.Filter.And([
-            Builders<PlannedWorkout>.Filter.Eq(x => x.TraineeId, traineeId),
-            fromDate != null ? Builders<PlannedWorkout>.Filter.Gte(x => x.PlannedAt, fromDate) : Builders<PlannedWorkout>.Filter.Empty,
-            toDate != null ? Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate) : Builders<PlannedWorkout>.Filter.Empty,
-        ]);
-
-        var response = await _context.PlannedWorkout
-            .Find(filters)
-            .Limit(limit)
-            .ToListAsync(cancellationToken);
-
-        return new Paginated<PlannedWorkout>
-        {
-            Data = response,
-            Cursor = Cursor.From(response, new PlannedWorkoutCursor
-            {
-                Page = 0,
-                Size = limit,
-                TraineeId = traineeId,
-                FromDate = fromDate,
-                ToDate = toDate
-            })
+            Cursor = Cursor.From(response, cursor)
         };
     }
 

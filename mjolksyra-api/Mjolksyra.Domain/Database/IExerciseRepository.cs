@@ -11,6 +11,8 @@ public interface IExerciseRepository
 
     Task<Exercise> Get(Guid id, CancellationToken cancellationToken = default);
 
+    Task<ICollection<Exercise>> GetMany(ICollection<Guid> ids, CancellationToken cancellationToken = default);
+
     Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default);
 
     Task<Paginated<Exercise>> Get(int limit, CancellationToken cancellationToken = default);

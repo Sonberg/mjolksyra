@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { ViewportList, ViewportListRef } from "react-viewport-list";
 import dayjs from "dayjs";
 
@@ -11,10 +11,9 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable";
 import { Month } from "./Month";
-import useOnScreen from "@/hooks/useOnScreen";
 import { TodayButton } from "./TodayButton";
-import { decrementMonth, incrementMonth } from "@/lib/month";
 import { MonthPlannerProvider } from "./contexts/MonthPlanner";
+import { useInfinitMonths } from "@/hooks/useInfinitMonths";
 
 type YearMonth = {
   year: number;
@@ -26,16 +25,10 @@ type Props = {
 };
 
 export function WorkoutPlanner({ traineeId }: Props) {
-  const today = useMemo(() => dayjs(), []);
-  const [previousHeight, setPreviousHeight] = useState<number | null>(null);
-  const [months, setMonths] = useState<YearMonth[]>([
-    { year: today.year(), month: today.month() },
-  ]);
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<ViewportListRef | null>(null);
-  const start = useOnScreen();
-  const end = useOnScreen();
+  const today = useMemo(() => dayjs(), []);
+
+  const { months, containerRef, startRef, endRef } = useInfinitMonths();
 
   const goToToday = useCallback(() => {
     const year = today.year();
@@ -62,35 +55,6 @@ export function WorkoutPlanner({ traineeId }: Props) {
     [traineeId]
   );
 
-  useEffect(() => {
-    if (!start.isIntersecting) {
-      return;
-    }
-
-    setPreviousHeight(containerRef.current?.scrollHeight ?? null);
-    setMonths((state) => [decrementMonth(state[0]), ...state]);
-  }, [start.isIntersecting]);
-
-  useEffect(() => {
-    if (!end.isIntersecting) {
-      return;
-    }
-
-    setPreviousHeight(null);
-    setMonths((state) => [...state, incrementMonth(state[state.length - 1])]);
-  }, [end.isIntersecting]);
-
-  useEffect(() => {
-    if (previousHeight === null) {
-      return;
-    }
-
-    const scrollHeight = containerRef.current!.scrollHeight;
-    const scrollTop = scrollHeight - previousHeight;
-
-    containerRef.current!.scroll({ top: scrollTop });
-  }, [previousHeight]);
-
   return (
     <>
       <ResizablePanelGroup direction="horizontal">
@@ -101,7 +65,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
           >
             <div
               className="w-full h-8 text-background"
-              ref={start.measureRef}
+              ref={startRef}
               children="d"
             />
             <ViewportList
@@ -113,7 +77,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
 
             <div
               className="w-full h-8 text-background"
-              ref={end.measureRef}
+              ref={endRef}
               children="d"
             />
           </div>

@@ -1,26 +1,33 @@
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.UseCases.Common.Contracts;
 
 namespace Mjolksyra.UseCases.Exercises;
 
-public class ExerciseResponse
+public class ExerciseResponse : IExerciseResponse
 {
-    public Guid Id { get; set; }
+    public required Guid Id { get; set; }
 
     public required string Name { get; set; }
 
-    public string? Force { get; set; }
+    public required string? Force { get; set; }
 
-    public string? Level { get; set; }
+    public required string? Level { get; set; }
 
-    public string? Mechanic { get; set; }
+    public required string? Mechanic { get; set; }
 
-    public string? Equipment { get; set; }
+    public required string? Equipment { get; set; }
 
-    public string? Category { get; set; }
+    public required string? Category { get; set; }
 
-    public bool Starred { get; set; }
+    public required ICollection<string> Instructions { get; set; } 
 
-    public bool CanDelete { get; set; }
+    public required ICollection<string> PrimaryMuscles { get; set; }
+
+    public required ICollection<string> SecondaryMuscles { get; set; }
+
+    public required bool Starred { get; set; }
+
+    public required bool CanDelete { get; set; }
 
     public static ExerciseResponse From(Exercise exercise, Guid? userId)
     {
@@ -34,7 +41,10 @@ public class ExerciseResponse
             Level = exercise.Level,
             Mechanic = exercise.Mechanic,
             Starred = userId != null && exercise.StarredBy.Contains(userId.Value),
-            CanDelete = userId != null && exercise.CreatedByUserId == userId
+            CanDelete = userId != null && exercise.CreatedByUserId == userId,
+            Instructions = exercise.Instructions,
+            PrimaryMuscles = exercise.PrimaryMuscles,
+            SecondaryMuscles = exercise.SecondaryMuscles
         };
     }
 }
