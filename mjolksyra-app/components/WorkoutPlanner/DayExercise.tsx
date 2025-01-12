@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { DragOverlay } from "@dnd-kit/core";
-import { CopyIcon, EllipsisVertical, MoveIcon, TrashIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { EllipsisVertical } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import {
   AccordionContent,
@@ -14,11 +14,11 @@ import {
 } from "../ui/accordion";
 
 import { Textarea } from "../ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { DraggingExercise } from "../DraggingExercise";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { useMonthPlanner } from "./contexts/MonthPlanner";
 import { useDebounce } from "@/hooks/useDebounce";
+import { DraggingToolTip } from "../DraggingToolTip";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -38,7 +38,20 @@ export function DayExercise({
   const { update } = useMonthPlanner();
   const [note, setNote] = useState(plannedExercise.note ?? "");
 
-  const debouncedNote = useDebounce(note, 1000);
+  const updateNote = useDebounce((note: string) => {
+    update({
+      ...plannedWorkout,
+      exercises: plannedWorkout.exercises.map((x) =>
+        x.id == plannedExercise.id
+          ? {
+              ...x,
+              note,
+            }
+          : x
+      ),
+    });
+  }, 1000);
+
   const data = useMemo(
     () => ({
       date,
@@ -47,6 +60,7 @@ export function DayExercise({
       plannedExercise,
       source: "workout",
       type: "plannedExercise",
+      allowedTypes: ["plannedExercise"],
     }),
     [date, index, plannedWorkout, plannedExercise]
   );
@@ -70,21 +84,6 @@ export function DayExercise({
     "opacity-40": isDragging,
   });
 
-  useEffect(() => {
-    update({
-      ...plannedWorkout,
-      exercises: plannedWorkout.exercises.map((x) =>
-        x.id == plannedExercise.id
-          ? {
-              ...x,
-              note: debouncedNote,
-            }
-          : x
-      ),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedNote]);
-
   return useMemo(
     () => (
       <>
@@ -104,43 +103,22 @@ export function DayExercise({
           {...attributes}
         >
           <AccordionTrigger className="text-sm py-2">
-            <div className="flex  items-center">
-              <Tooltip delayDuration={50}>
-                <TooltipTrigger asChild onClick={(ev) => ev.preventDefault()}>
-                  <EllipsisVertical className="h-3" />
-                </TooltipTrigger>
-
-                {createPortal(
-                  <TooltipContent
-                    onClick={(ev) => ev.preventDefault()}
-                    className="flex gap-2 px-1"
-                  >
-                    <MoveIcon
-                      {...listeners}
-                      data-action="move"
-                      className="h-4 cursor-move  hover:text-zinc-400"
-                    />
-                    <CopyIcon
-                      {...listeners}
-                      data-action="clone"
-                      className="h-4 cursor-copy hover:text-zinc-400"
-                    />
-                    <TrashIcon
-                      onClick={() => {
-                        update({
-                          ...plannedWorkout,
-                          exercises: plannedWorkout.exercises.filter(
-                            (x) => x.id !== plannedExercise.id
-                          ),
-                        });
-                      }}
-                      className="h-4 cursor-pointer text-red-500 hover:text-red-800"
-                    />
-                  </TooltipContent>,
-                  document.body
-                )}
-              </Tooltip>
-              <div className="text-sm select-none">{plannedExercise.name}</div>
+            <div className="flex items-center gap-1">
+              <DraggingToolTip
+                listeners={listeners}
+                trigger={<EllipsisVertical className="h-4" />}
+                onDelete={() => {
+                  update({
+                    ...plannedWorkout,
+                    exercises: plannedWorkout.exercises.filter(
+                      (x) => x.id !== plannedExercise.id
+                    ),
+                  });
+                }}
+              />
+              <div className="text-sm select-none text-left">
+                {plannedExercise.name}
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-2 pb-3">
@@ -150,6 +128,7 @@ export function DayExercise({
               placeholder="Sets, reps, tempo etc"
               onChange={(ev) => {
                 setNote(ev.target.value);
+                updateNote(ev.target.value);
               }}
             />
           </AccordionContent>

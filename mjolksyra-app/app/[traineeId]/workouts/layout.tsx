@@ -24,7 +24,7 @@ export default function Layout({ children }: Props) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 px-2 h-full cursor-pointer">
           <ChevronDown className="h-5 w-5" />
           <div className="">
             <div className="text-muted-foreground text-xs">Coach</div>

@@ -14,8 +14,11 @@ export function Navigation() {
   const theme = useTheme();
   const auth = useAuth();
 
-  console.log({ theme: theme.resolvedTheme });
-
+  const logo =
+    theme.resolvedTheme == "light"
+      ? "/images/logo-light.png"
+      : "/images/logo-dark.png";
+      
   return (
     <div className=" flex-col flex">
       <div className={path === "/" ? "" : "border-b"}>
@@ -27,11 +30,8 @@ export function Navigation() {
             <div className="font-bold text-xl mr-4 flex items-center">
               <img
                 className="h-8 w-8 mr-2"
-                src={
-                  theme.resolvedTheme == "dark"
-                    ? "/images/logo-dark.png"
-                    : "/images/logo-light.png"
-                }
+                src={logo}
+                data-theme={theme.resolvedTheme}
               />
               <div>mjölksyra</div>
             </div>

@@ -89,8 +89,6 @@ export function WorkoutViewer({ traineeId }: Props) {
   const className = cn({
     "overflow-y-auto": true,
     "p-6": true,
-    grid: true,
-    "gap-8": true,
     "opacity-0": !past.isFetched || !future.isFetched,
   });
 
@@ -101,10 +99,11 @@ export function WorkoutViewer({ traineeId }: Props) {
         ref={start.measureRef}
         children="d"
       />
-
-      {data.map((x) => (
-        <Workout key={x.id} workout={x} />
-      ))}
+      <div className="grid gap-8">
+        {data.map((x) => (
+          <Workout key={x.id} workout={x} />
+        ))}
+      </div>
 
       {!future.hasNextPage ? (
         <div className="text-muted text-lg">No more workouts planned</div>

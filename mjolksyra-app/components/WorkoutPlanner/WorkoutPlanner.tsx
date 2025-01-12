@@ -58,7 +58,11 @@ export function WorkoutPlanner({ traineeId }: Props) {
   return (
     <>
       <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={80} minSize={50} className="relative">
+        <ResizablePanel
+          defaultSize={80}
+          minSize={50}
+          className="relative  border-collapse "
+        >
           <div
             className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-scroll relative will-change-transform"
             ref={containerRef}

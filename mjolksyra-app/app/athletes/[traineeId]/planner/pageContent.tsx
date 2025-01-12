@@ -22,6 +22,8 @@ export function PageContent({ traineeId }: Props) {
       const action = parse(event);
       const result = transform(traineeId, action);
 
+      console.log(action);
+
       const createTasks = result.create.map((plannedWorkout) =>
         createPlannedWorkout({ plannedWorkout })
       );

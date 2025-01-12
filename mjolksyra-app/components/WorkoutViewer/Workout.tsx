@@ -37,7 +37,7 @@ export function Workout({ workout }: Props) {
   }, [date]);
 
   return (
-    <Card data-today={displayName === "Today"}>
+    <Card data-today={displayName === "Today"} className="cursor-pointer">
       <CardHeader className="font-bold bg-accent/50 p-4">
         <div className="flex items-center justify-between">
           {displayName}
