@@ -14,4 +14,5 @@ export const workoutSchema = z.object({
   note: z.string().nullable(),
   plannedAt: z.string(),
   exercises: z.array(exerciseSchema),
+  createdAt: z.coerce.date().nullable()
 });

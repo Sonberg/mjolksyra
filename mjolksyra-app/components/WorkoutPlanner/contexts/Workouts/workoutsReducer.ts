@@ -98,6 +98,7 @@ export function workoutsReducer(
             traineeId: action.payload.traineeId,
             plannedAt: targetDate,
             exercises: [action.payload.exercise],
+            createdAt: null,
           };
 
       return {

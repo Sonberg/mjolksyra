@@ -15,6 +15,7 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
           exercises: [],
           name: null,
           note: null,
+          createdAt: null,
         },
       ] as PlannedWorkout[]);
 
@@ -47,6 +48,7 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
           traineeId,
           name: null,
           note: null,
+          createdAt: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
           exercises: action.sourceWorkout!.exercises.map((x) => ({
             ...x,

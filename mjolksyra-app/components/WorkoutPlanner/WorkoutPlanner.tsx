@@ -13,7 +13,7 @@ import {
 import { Month } from "./Month";
 import { TodayButton } from "./TodayButton";
 import { useInfinitMonths } from "@/hooks/useInfinitMonths";
-import { DragDropProvider } from "./contexts/DragDrop";
+import { PlannerProvider } from "./contexts/Planner";
 import { WorkoutsProvider } from "./contexts/Workouts";
 
 type Props = {
@@ -73,7 +73,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
 
   return (
     <WorkoutsProvider traineeId={traineeId} months={months}>
-      <DragDropProvider traineeId={traineeId}>
+      <PlannerProvider traineeId={traineeId}>
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
             defaultSize={80}
@@ -92,7 +92,7 @@ export function WorkoutPlanner({ traineeId }: Props) {
             <ExerciseLibrary />
           </ResizablePanel>
         </ResizablePanelGroup>
-      </DragDropProvider>
+      </PlannerProvider>
     </WorkoutsProvider>
   );
 }

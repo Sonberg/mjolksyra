@@ -96,7 +96,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 ">
+          <div className="grid grid-cols-7 border">
             {day("Mon")}
             {day("Tue")}
             {day("Wed")}

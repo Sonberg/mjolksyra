@@ -60,6 +60,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
           note: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
           exercises: [exercise],
+          createdAt: null,
         },
       ],
       update: [updateSourceWorkout],

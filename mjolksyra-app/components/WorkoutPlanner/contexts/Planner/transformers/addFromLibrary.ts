@@ -35,6 +35,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
           traineeId,
           name: null,
           note: null,
+          createdAt: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
           exercises: [
             {

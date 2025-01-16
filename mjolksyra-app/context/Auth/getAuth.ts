@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { JwtPayload, verify } from "jsonwebtoken";
 
@@ -85,5 +85,15 @@ export async function getAuth(args?: Args) {
     };
   }
 
-  return empty();
+  const headersList = await headers();
+  const fullUrl = headersList.get("x-url") || headersList.get("referer");
+
+  console.log("fullUrl", fullUrl);
+
+  if (!fullUrl) {
+    return empty();
+  }
+  const { pathname } = new URL(fullUrl);
+
+  redirect(pathname);
 }
