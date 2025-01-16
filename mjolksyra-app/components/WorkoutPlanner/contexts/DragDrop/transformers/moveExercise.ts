@@ -38,11 +38,13 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
     if (targetWorkout!.id === sourceWorkout.id) {
       return {
         create: [],
+        delete: [],
         update: [updatedTargetWorkout],
       };
     } else {
       return {
         create: [],
+        delete: [],
         update: [updateSourceWorkout, updatedTargetWorkout],
       };
     }
@@ -61,6 +63,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
         },
       ],
       update: [updateSourceWorkout],
+      delete: [],
     };
   };
 

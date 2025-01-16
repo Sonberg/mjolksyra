@@ -1,5 +1,9 @@
-export function insertAt<T>(array: T[], index: number | undefined, element: T) {
-  if (index === undefined) {
+export function insertAt<T>(
+  array: T[],
+  index: number | undefined | null,
+  element: T
+) {
+  if (index === undefined || index === null || index === -1) {
     return [...array, element];
   }
 

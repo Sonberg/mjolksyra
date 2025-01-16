@@ -20,6 +20,7 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
 
   const workoutExists = (): TransformResult => {
     return {
+      delete: [],
       create: [],
       update: [
         ...updateSourceWorkout,
@@ -37,6 +38,7 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
 
   const workoutMissing = (): TransformResult => {
     return {
+      delete: [],
       update: [...updateSourceWorkout],
       create: [
         {

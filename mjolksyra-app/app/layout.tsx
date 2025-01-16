@@ -35,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden h-[100vh]`}
       >
-        <CookiesProvider>
+        {/* <CookiesProvider> */}
           <AuthProvider>
             <PostHog>
               <Theme>
@@ -46,7 +46,7 @@ export default function RootLayout({
               </Theme>
             </PostHog>
           </AuthProvider>
-        </CookiesProvider>
+        {/* </CookiesProvider> */}
       </body>
     </html>
   );

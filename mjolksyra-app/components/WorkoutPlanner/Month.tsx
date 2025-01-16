@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
 import { Week } from "./Week";
 import { WeekDayNames } from "./WeekDayNames";
-import { getDatesBetween } from "@/lib/getDatesBetween";
 
 import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
@@ -10,8 +9,10 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { groupBy } from "@/lib/groupBy.";
 import { sortBy } from "@/lib/sortBy";
-import { useMonthPlanner } from "./contexts/MonthPlanner";
+// import { useMonthPlanner } from "./contexts/MonthPlanner";
 import { cn } from "@/lib/utils";
+import { MonthValue } from "@/hooks/useInfinitMonths";
+import { useWorkouts } from "./contexts/Workouts";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -20,25 +21,25 @@ dayjs.extend(updateLocale);
 
 dayjs.updateLocale("en", { weekStart: 1 });
 
-export function Month() {
-  const { startOfMonth, endOfMonth, workouts, isFetched } = useMonthPlanner();
+type Props = {
+  value: MonthValue;
+};
 
-  const days = useMemo(
-    () => getDatesBetween(startOfMonth, endOfMonth),
-    [startOfMonth, endOfMonth]
-  );
-
+export function Month({ value }: Props) {
+  // const { days, isFetched, startOfMonth } = useMonthPlanner();
+  const { data } = useWorkouts();
+  const workouts = data[value.monthId];
   const groupedByWeek = useMemo(
     () =>
       sortBy(
-        Object.entries(groupBy(days, (x) => x.week())),
+        Object.entries(groupBy(value.days, (x) => x.week())),
         ([, val]) => val[0]
       ),
-    [days]
+    [value]
   );
   const monthName = useMemo(
-    () => startOfMonth.format("MMMM YYYY"),
-    [startOfMonth]
+    () => value.startOfMonth.format("MMMM YYYY"),
+    [value]
   );
 
   const renderWeek = useCallback(
@@ -47,7 +48,7 @@ export function Month() {
         key={key}
         weekNumber={Number(key)}
         days={value}
-        plannedWorkouts={workouts}
+        plannedWorkouts={workouts ?? []}
       />
     ),
     [workouts]
@@ -58,7 +59,7 @@ export function Month() {
       <>
         <div
           className={cn({
-            "opacity-30": !isFetched,
+            "opacity-30": !workouts,
           })}
         >
           <div className="text-3xl font-bold mb-8 select-none">{monthName}</div>
@@ -69,6 +70,6 @@ export function Month() {
         </div>
       </>
     ),
-    [isFetched, monthName, groupedByWeek, renderWeek]
+    [workouts, monthName, groupedByWeek, renderWeek]
   );
 }

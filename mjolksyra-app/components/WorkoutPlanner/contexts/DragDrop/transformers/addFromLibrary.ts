@@ -7,6 +7,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
   const workoutExists = (): TransformResult => {
     return {
       create: [],
+      delete: [],
       update: [
         {
           ...action.targetWorkout!,
@@ -27,6 +28,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
   const workoutMissing = (): TransformResult => {
     return {
       update: [],
+      delete: [],
       create: [
         {
           id: v4(),

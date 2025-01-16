@@ -9,16 +9,18 @@ import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 type Props = {
   trigger: ReactNode;
   listeners: SyntheticListenerMap | undefined;
+  render: boolean;
   onDelete: () => void;
 };
 
-export function DraggingToolTip({ trigger, listeners, onDelete }: Props) {
+export function DraggingToolTip({
+  trigger,
+  listeners,
+  render,
+  onDelete,
+}: Props) {
   return (
-    <Tooltip delayDuration={50}>
-      <TooltipTrigger asChild onClick={(ev) => ev.preventDefault()}>
-        {trigger}
-      </TooltipTrigger>
-
+    <Tooltip open>
       {createPortal(
         <TooltipContent
           onClick={(ev) => ev.preventDefault()}

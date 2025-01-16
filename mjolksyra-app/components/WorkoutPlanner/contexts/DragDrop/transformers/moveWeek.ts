@@ -1,11 +1,24 @@
 import { v4 } from "uuid";
 import { MoveWeekAction } from "../parse";
 import { PLANNED_AT } from "@/constants/dateFormats";
+import { TransformResult } from ".";
 
-export function moveWeek(traineeId: string, action: MoveWeekAction) {
+export function moveWeek(action: MoveWeekAction): TransformResult {
   const targetYear = action.targetDays[0].year();
   const targetWeek = action.targetDays[0].week();
-  const workoutsMovedToNewWeek = action.sourceDays
+
+  const workoutsToDelete = action.targetDays
+    .map((date) => {
+      const plannedAt = date.format(PLANNED_AT);
+      const workout = action.sourceWorkouts.find(
+        (y) => y.plannedAt == plannedAt
+      );
+
+      return workout;
+    })
+    .filter((x) => x !== undefined);
+
+  const workoutsToUpdate = action.sourceDays
     .map((date) => {
       const plannedAt = date.format(PLANNED_AT);
       const workout = action.sourceWorkouts.find(
@@ -20,7 +33,7 @@ export function moveWeek(traineeId: string, action: MoveWeekAction) {
 
       return {
         ...workout,
-        id: v4(),
+        id: action.clone ? v4() : workout.id,
         plannedAt: sameDayDifferentWeek.format(PLANNED_AT),
         exercises: workout.exercises.map((y) => ({
           ...y,
@@ -28,12 +41,11 @@ export function moveWeek(traineeId: string, action: MoveWeekAction) {
         })),
       };
     })
-    .filter((x) => x);
-
-  console.log(workoutsMovedToNewWeek);
+    .filter((x) => x !== null);
 
   return {
-    create: [],
-    update: [],
+    create: action.clone ? workoutsToUpdate : [],
+    update: action.clone ? [] : workoutsToUpdate,
+    delete: workoutsToDelete,
   };
 }

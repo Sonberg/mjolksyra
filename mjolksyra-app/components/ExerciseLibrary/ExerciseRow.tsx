@@ -1,6 +1,4 @@
-import { useDraggable, DragOverlay } from "@dnd-kit/core";
-import { createPortal } from "react-dom";
-import { DraggingExercise } from "../DraggingExercise";
+import { useDraggable } from "@dnd-kit/core";
 import {
   HoverCard,
   HoverCardContent,
@@ -18,9 +16,10 @@ type Props = {
 
 export function ExerciseRow({ exercise }: Props) {
   const id = useId();
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef } = useDraggable({
     id: exercise.id + id,
     data: {
+      label: exercise.name,
       exercise: exercise,
       source: "library",
       type: "exercise",
@@ -73,16 +72,8 @@ export function ExerciseRow({ exercise }: Props) {
             </HoverCardContent>
           </HoverCard>
         </div>
-        {isDragging
-          ? createPortal(
-              <DragOverlay>
-                <DraggingExercise name={exercise.name} />
-              </DragOverlay>,
-              document.body
-            )
-          : null}
       </>
     ),
-    [isDragging, exercise, listeners, attributes, hoverCard, setNodeRef]
+    [exercise, listeners, attributes, hoverCard, setNodeRef]
   );
 }

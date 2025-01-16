@@ -8,6 +8,7 @@ import { moveWeek } from "./moveWeek";
 export type TransformResult = {
   create: PlannedWorkout[];
   update: PlannedWorkout[];
+  delete: PlannedWorkout[];
 };
 
 export function transform(traineeId: string, action: Action) {
@@ -15,6 +16,7 @@ export function transform(traineeId: string, action: Action) {
     return {
       create: [],
       update: [],
+      delete: [],
     };
   }
 
@@ -29,12 +31,13 @@ export function transform(traineeId: string, action: Action) {
       return moveWorkout(traineeId, action);
 
     case "moveWeek":
-      return moveWeek(traineeId, action);
+      return moveWeek(action);
 
     default:
       return {
         create: [],
         update: [],
+        delete: [],
       };
   }
 }
