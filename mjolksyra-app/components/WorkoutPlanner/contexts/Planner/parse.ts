@@ -2,6 +2,8 @@ import { Exercise } from "@/api/exercises/type";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { DragEndEvent } from "@dnd-kit/core";
 import dayjs from "dayjs";
+import { isDraggingWeek, isDraggingWorkout } from "./utils";
+import { MonthWorkouts } from "../Workouts/workoutsReducer";
 
 type PlannedWorkoutPayload = {
   date: dayjs.Dayjs;
@@ -65,11 +67,14 @@ export type MoveWorkoutAction = {
 export type MoveWeekAction = {
   type: "moveWeek";
   sourceDays: dayjs.Dayjs[];
-  sourceWorkouts: PlannedWorkout[];
-  targetWorkouts: PlannedWorkout[];
   targetDays: dayjs.Dayjs[];
-  targetWeekNumber: number;
+  workouts: MonthWorkouts;
   clone?: boolean;
+};
+
+export type UpsertAction = {
+  type: "upsertWorkouts";
+  workouts: PlannedWorkout[];
 };
 
 export type Action =
@@ -77,9 +82,11 @@ export type Action =
   | MoveExerciseAction
   | MoveWorkoutAction
   | MoveWeekAction
+  | UpsertAction
   | null;
 
-export function parse({ activatorEvent, active, over }: DragEndEvent): Action {
+export function parse(event: DragEndEvent, workouts: MonthWorkouts): Action {
+  const { activatorEvent, active, over } = event;
   const overData = over?.data.current as Payload | undefined;
   const activeData = active.data.current as Payload | undefined;
   const target = activatorEvent.target as HTMLElement;
@@ -94,79 +101,99 @@ export function parse({ activatorEvent, active, over }: DragEndEvent): Action {
   }
 
   // Add from library
-  if (activeData.type === "exercise") {
-    if (
-      overData.type !== "plannedExercise" &&
-      overData.type !== "plannedWorkout"
-    ) {
-      return null;
-    }
+  // if (activeData.type === "exercise") {
+  //   if (
+  //     overData.type !== "plannedExercise" &&
+  //     overData.type !== "plannedWorkout"
+  //   ) {
+  //     return null;
+  //   }
 
-    return {
-      type: "addExercise",
-      exercise: activeData.exercise!,
-      targetDate: overData.date!,
-      targetWorkout: overData.plannedWorkout!,
-      index: overData.type === "plannedExercise" ? overData.index : undefined,
-    };
-  }
+  //   return {
+  //     type: "addExercise",
+  //     exercise: activeData.exercise!,
+  //     targetDate: overData.date!,
+  //     targetWorkout: overData.plannedWorkout!,
+  //     index: overData.type === "plannedExercise" ? overData.index : undefined,
+  //   };
+  // }
 
-  // Exercise -> Workout
-  if (
-    overData.type === "plannedWorkout" &&
+  const targetWorkout =
+    overData.type === "plannedWorkout" || overData.type === "plannedExercise"
+      ? overData
+      : null;
+
+  const sourceWorkout =
+    activeData.type === "plannedWorkout" ||
     activeData.type === "plannedExercise"
-  ) {
+      ? activeData
+      : null;
+
+  const weekOrWorkout = isDraggingWeek(event) || isDraggingWorkout(event);
+
+  if (!weekOrWorkout) {
     return {
-      type: "moveExercise",
-      plannedExercise: activeData.plannedExercise!,
-      sourceWorkout: activeData.plannedWorkout!,
-      targetWorkout: overData.plannedWorkout,
-      targetDate: overData.date,
-      clone: clone,
+      type: "upsertWorkouts",
+      workouts: [
+        targetWorkout?.plannedWorkout,
+        sourceWorkout?.plannedWorkout,
+      ].filter((x): x is PlannedWorkout => !!x),
     };
   }
 
-  // Exercise -> Exercise
-  if (
-    overData.type === "plannedExercise" &&
-    activeData.type == "plannedExercise"
-  ) {
-    return {
-      type: "moveExercise",
-      targetDate: overData.date,
-      plannedExercise: activeData.plannedExercise!,
-      sourceWorkout: activeData.plannedWorkout!,
-      targetWorkout: overData.plannedWorkout!,
-      index: overData.index,
-      clone: clone,
-    };
-  }
+  // // Exercise -> Workout
+  // if (
+  //   overData.type === "plannedWorkout" &&
+  //   activeData.type === "plannedExercise"
+  // ) {
+  //   return {
+  //     type: "moveExercise",
+  //     plannedExercise: activeData.plannedExercise!,
+  //     sourceWorkout: activeData.plannedWorkout!,
+  //     targetWorkout: overData.plannedWorkout,
+  //     targetDate: overData.date,
+  //     clone: clone,
+  //   };
+  // }
 
-  // Workout -> Workout or Exercise
-  if (
-    (overData.type === "plannedWorkout" ||
-      overData.type === "plannedExercise") &&
-    activeData.type === "plannedWorkout"
-  ) {
-    return {
-      type: "moveWorkout",
-      sourceWorkout: activeData.plannedWorkout,
-      targetWorkout: overData.plannedWorkout,
-      targetDate: overData.date,
-      clone: clone,
-    };
-  }
+  // // Exercise -> Exercise
+  // if (
+  //   overData.type === "plannedExercise" &&
+  //   activeData.type == "plannedExercise"
+  // ) {
+  //   return {
+  //     type: "moveExercise",
+  //     targetDate: overData.date,
+  //     plannedExercise: activeData.plannedExercise!,
+  //     sourceWorkout: activeData.plannedWorkout!,
+  //     targetWorkout: overData.plannedWorkout!,
+  //     index: overData.index,
+  //     clone: clone,
+  //   };
+  // }
+
+  // // Workout -> Workout or Exercise
+  // if (
+  //   (overData.type === "plannedWorkout" ||
+  //     overData.type === "plannedExercise") &&
+  //   activeData.type === "plannedWorkout"
+  // ) {
+  //   return {
+  //     type: "moveWorkout",
+  //     sourceWorkout: activeData.plannedWorkout,
+  //     targetWorkout: overData.plannedWorkout,
+  //     targetDate: overData.date,
+  //     clone: clone,
+  //   };
+  // }
 
   // Workout -> Workout
-  if (
-    overData.type === "plannedWorkout" &&
-    activeData.type === "plannedWorkout"
-  ) {
+  if (sourceWorkout?.type === "plannedWorkout" && targetWorkout) {
     return {
       type: "moveWorkout",
-      sourceWorkout: activeData.plannedWorkout,
-      targetWorkout: overData.plannedWorkout,
-      targetDate: overData.date,
+      sourceWorkout: sourceWorkout.plannedWorkout,
+      targetWorkout: targetWorkout.plannedWorkout,
+      targetDate: targetWorkout.date,
       clone: clone,
     };
   }
@@ -176,10 +203,8 @@ export function parse({ activatorEvent, active, over }: DragEndEvent): Action {
     return {
       type: "moveWeek",
       sourceDays: activeData.days,
-      sourceWorkouts: activeData.plannedWorkouts,
-      targetWorkouts: overData.plannedWorkouts,
       targetDays: overData.days,
-      targetWeekNumber: overData.weekNumber,
+      workouts: workouts,
       clone: clone,
     };
   }

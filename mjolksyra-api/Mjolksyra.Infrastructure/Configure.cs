@@ -2,7 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Email;
 using Mjolksyra.Infrastructure.Database;
+using Mjolksyra.Infrastructure.Email;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -18,6 +20,11 @@ public static class Configure
             .AddOptions<MongoOptions>()
             .Bind(configuration.GetSection(MongoOptions.SectionName))
             .ValidateOnStart();
+        
+        services
+            .AddOptions<BrevoOptions>()
+            .Bind(configuration.GetSection(BrevoOptions.SectionName))
+            .ValidateOnStart();
 
 #pragma warning disable EXTEXP0018
         services.AddHybridCache();
@@ -29,6 +36,7 @@ public static class Configure
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITraineeRepository, TraineeRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
+        services.AddScoped<IEmailSender, BrevoEmailSender>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

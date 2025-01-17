@@ -5,31 +5,24 @@ import {
   DragEndEvent,
   DragOverEvent,
   DragOverlay,
-  DragStartEvent,
   pointerWithin,
 } from "@dnd-kit/core";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useState,
-} from "react";
+
+import { ReactNode, useCallback, useState } from "react";
 import { parse, Payload } from "./parse";
 import { transform } from "./transformers";
 import { deletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
 import { createPlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
 import { updatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
-import { uniqBy } from "@/lib/uniqBy";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { useWorkouts } from "../Workouts";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { createPortal } from "react-dom";
 import { DraggingExercise } from "@/components/DraggingExercise";
 import { v4 } from "uuid";
-import dayjs from "dayjs";
 import { insertAt } from "@/lib/insertAt";
+import { getExercise, isDraggingWeek, isDraggingWorkout } from "./utils";
+import { CloningContext, isCloning } from "./cloning";
 
 type Args = {
   traineeId: string;
@@ -44,65 +37,8 @@ type Clone = {
   index: number;
 };
 
-type Event = DragStartEvent | DragOverEvent | DragEndEvent;
-
-const CloningContext = createContext<Clone | null>(null);
-
-function isCloning(event: Event) {
-  const activeData = event.active?.data.current as Payload | undefined;
-  const eventTarget = event.activatorEvent.target as HTMLElement;
-
-  return (
-    eventTarget?.getAttribute("data-action") === "clone" ||
-    activeData?.type === "exercise"
-  );
-}
-
-function isDraggingWorkout(event: Event) {
-  return (
-    (event.active.data.current as Payload | undefined)?.type ===
-    "plannedWorkout"
-  );
-}
-
-function isDraggingExercise(event: Event) {
-  return (
-    (event.active.data.current as Payload | undefined)?.type ===
-    "plannedExercise"
-  );
-}
-
-function isDraggingWeek(event: Event) {
-  return (event.active.data.current as Payload | undefined)?.type === "week";
-}
-
-function getExercise(event: Event, clone: boolean) {
-  const activeData = event.active?.data.current as Payload | undefined;
-
-  if (activeData?.type == "plannedExercise") {
-    return activeData.plannedExercise
-      ? {
-          ...activeData.plannedExercise,
-          id: clone ? v4() : activeData.plannedExercise.id,
-        }
-      : null;
-  }
-
-  if (activeData?.type == "exercise") {
-    return {
-      id: v4(),
-      name: activeData.exercise.name,
-      exerciseId: activeData.exercise.id,
-    } as PlannedExercise;
-  }
-
-  return null;
-}
-
-export const useCloning = () => useContext(CloningContext);
-
 export function PlannerProvider({ traineeId, children }: Args) {
-  const { dispatch, reload } = useWorkouts();
+  const { dispatch, reload, data } = useWorkouts();
 
   const [dragging, setDragging] = useState<string | null>(null);
   const [cloning, setCloning] = useState<Clone | null>(null);
@@ -143,90 +79,10 @@ export function PlannerProvider({ traineeId, children }: Args) {
         return;
       }
 
-      const action = parse(event);
+      const action = parse(event, data);
       const result = transform(traineeId, action);
 
-      // const overData = event.over?.data.current as Payload | undefined;
-      // const activeData = event.active?.data.current as Payload | undefined;
-
-      // const source =
-      //   activeData?.type === "plannedExercise" ||
-      //   activeData?.type === "plannedWorkout"
-      //     ? activeData
-      //     : null;
-
-      // const target =
-      //   overData?.type === "plannedExercise" ||
-      //   overData?.type === "plannedWorkout"
-      //     ? overData
-      //     : null;
-
-      // if (!target) {
-      //   return;
-      // }
-
-      // if (isDraggingWorkout(event)) {
-      //   console.log("droppend workout", event.over?.data.current, clone);
-      //   if (!source?.plannedWorkout) {
-      //     return;
-      //   }
-
-      //   if (!clone) {
-      //     console.log("delete");
-
-      //     await deletePlannedWorkout({
-      //       plannedWorkout: source.plannedWorkout!,
-      //     });
-      //   }
-
-      //   if (target.plannedWorkout) {
-      //     await updatePlannedWorkout({
-      //       plannedWorkout: {
-      //         ...source.plannedWorkout,
-      //         id: target.plannedWorkout!.id,
-      //         plannedAt: target.date.format(PLANNED_AT),
-      //       },
-      //     });
-      //   } else {
-      //     await createPlannedWorkout({
-      //       plannedWorkout: {
-      //         ...source.plannedWorkout,
-      //         id: v4(),
-      //         plannedAt: target.date.format(PLANNED_AT),
-      //       },
-      //     });
-      //   }
-      // }
-
-      // const workouts = [source?.plannedWorkout, target?.plannedWorkout];
-      // const dates = uniqBy(
-      //   workouts.map((x) => x?.plannedAt).filter((x): x is string => !!x),
-      //   (x) => `${x}`.substring(0, 7)
-      // );
-
-      // if (isDraggingExercise(event)) {
-      //   for (const workout of workouts) {
-      //     if (!workout) {
-      //       continue;
-      //     }
-
-      //     if (workout.createdAt) {
-      //       await updatePlannedWorkout({
-      //         plannedWorkout: workout,
-      //       });
-      //     } else {
-      //       await createPlannedWorkout({
-      //         plannedWorkout: workout,
-      //       });
-      //     }
-      //   }
-      // }
-
-      // const tasks = dates
-      //   .map((x) => x.split("-"))
-      //   .map(([year, month]) => reload(`${year}-${Number(month) - 1}`));
-
-      // await Promise.all(tasks);
+      console.log(action, result);
 
       await Promise.all(
         result.delete.map((plannedWorkout) =>
@@ -253,7 +109,7 @@ export function PlannerProvider({ traineeId, children }: Args) {
 
       await Promise.all(tasks);
     },
-    [cloning]
+    [traineeId, cloning, data, reload]
   );
 
   const handleDragOver = useCallback(

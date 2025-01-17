@@ -5,12 +5,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { ChevronDown, EllipsisVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../ui/accordion";
-
 import { Textarea } from "../ui/textarea";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 // import { useMonthPlanner } from "./contexts/MonthPlanner";
@@ -36,6 +30,7 @@ export function DayExercise({
 }: Props) {
   // const { update } = useMonthPlanner();
   const [note, setNote] = useState(plannedExercise.note ?? "");
+  const [isOpen, setOpen] = useState(false);
 
   // const updateNote = useDebounce((note: string) => {
   //   // update({
@@ -86,12 +81,16 @@ export function DayExercise({
             "opacity-40": isDragging || isGhost,
             "bg-background": isDragging || isGhost,
             "hover:bg-accent/80": true,
+            "bg-accent/40": isOpen,
           })}
           ref={setNodeRef}
           style={{ transform: CSS.Translate.toString(transform), transition }}
           {...attributes}
         >
-          <div className="grid grid-cols-[auto_1fr_auto] justify-between w-full text-sm  py-2  items-center gap-1">
+          <div
+            onClick={() => setOpen((open) => !open)}
+            className="grid grid-cols-[auto_1fr_auto] justify-between w-full text-sm  py-2  items-center gap-1"
+          >
             <DraggingToolTip
               listeners={listeners}
               icon={<EllipsisVertical className="h-4" />}
@@ -124,6 +123,7 @@ export function DayExercise({
       isDragging,
       isGhost,
       isLast,
+      isOpen,
       // update,
     ]
   );

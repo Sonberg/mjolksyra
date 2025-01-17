@@ -27,7 +27,6 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
         ...updateSourceWorkout,
         {
           ...action.targetWorkout!,
-          id: action.sourceWorkout!.id,
           exercises: action.sourceWorkout!.exercises.map((x) => ({
             ...x,
             id: v4(),
@@ -43,7 +42,6 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
       update: [...updateSourceWorkout],
       create: [
         {
-          ...action.sourceWorkout,
           id: v4(),
           traineeId,
           name: null,

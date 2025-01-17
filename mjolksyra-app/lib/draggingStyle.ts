@@ -7,7 +7,6 @@ export function draggingStyle({
 }) {
   return {
     "bg-accent/25": canDrop,
-    "bg-accent": isOver && canDrop,
-    "transition-all": true,
+    "bg-accent": isOver && canDrop
   };
 }

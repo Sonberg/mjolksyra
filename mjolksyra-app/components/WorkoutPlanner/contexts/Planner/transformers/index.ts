@@ -33,6 +33,13 @@ export function transform(traineeId: string, action: Action) {
     case "moveWeek":
       return moveWeek(action);
 
+    case "upsertWorkouts":
+      return {
+        delete: [],
+        create: action.workouts.filter((x) => !x.createdAt),
+        update: action.workouts.filter((x) => x.createdAt),
+      };
+
     default:
       return {
         create: [],

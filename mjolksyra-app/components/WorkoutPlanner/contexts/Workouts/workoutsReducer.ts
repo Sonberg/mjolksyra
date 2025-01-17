@@ -7,8 +7,6 @@ import { v4 } from "uuid";
 
 export type MonthWorkouts = Record<string, PlannedWorkout[]>;
 
-type Test = "MOVE_EXERCISE" | "MOVE_WORKOUT";
-
 export type Action =
   | {
       type: "SET_MONTH";

@@ -26,7 +26,7 @@ type ContextValue = {
 const Context = createContext<ContextValue>({
   data: {},
   dispatch() {},
-  reload: async (monthId) => {},
+  reload: async () => {},
 });
 
 export const useWorkouts = () => useContext(Context);
@@ -45,6 +45,8 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
         return;
       }
 
+      console.log("reloading ", month.monthId);
+
       const { data } = await getPlannedWorkouts({
         traineeId,
         fromDate: month.startOfMonth,
@@ -58,7 +60,7 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
         payload: { monthId: month.monthId, workouts: data },
       });
     },
-    [months]
+    [months, traineeId]
   );
 
   useEffect(() => {
@@ -73,12 +75,12 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
       .filter((x) => !fetched.includes(x.monthId))
       .map((x) => reload(x, controller.signal));
 
-    Promise.all(tasks).then(() => console.log("Done"));
+    Promise.all(tasks);
 
     return () => {
       controller?.abort();
     };
-  }, [months, data, traineeId]);
+  }, [months, data, traineeId, reload]);
 
   return (
     <Context.Provider

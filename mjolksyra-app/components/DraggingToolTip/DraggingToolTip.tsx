@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { MoveIcon, CopyIcon, TrashIcon, EllipsisVertical } from "lucide-react";
+import { MoveIcon, CopyIcon, TrashIcon } from "lucide-react";
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
 type Props = {

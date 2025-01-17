@@ -1,51 +1,71 @@
 import { v4 } from "uuid";
 import { MoveWeekAction } from "../parse";
-import { PLANNED_AT } from "@/constants/dateFormats";
 import { TransformResult } from ".";
+import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { getDatesBetween } from "@/lib/getDatesBetween";
+import { PLANNED_AT } from "@/constants/dateFormats";
 
 export function moveWeek(action: MoveWeekAction): TransformResult {
-  const targetYear = action.targetDays[0].year();
-  const targetWeek = action.targetDays[0].week();
+  const workouts = Object.values(action.workouts).flatMap((x) => x);
+  const sourceDays = getDatesBetween(
+    action.sourceDays[0].startOf("week"),
+    action.sourceDays[0].endOf("week")
+  );
 
-  const workoutsToDelete = action.targetDays
+  const targetDays = getDatesBetween(
+    action.targetDays[0].startOf("week"),
+    action.targetDays[0].endOf("week")
+  );
+
+  const targetdWorkouts = sourceDays
     .map((date) => {
       const plannedAt = date.format(PLANNED_AT);
-      const workout = action.sourceWorkouts.find(
-        (y) => y.plannedAt == plannedAt
-      );
+      const sourceWorkout = workouts.find((y) => y.plannedAt == plannedAt);
 
-      return workout;
-    })
-    .filter((x) => x !== undefined);
+      const newPlannedAt = targetDays
+        .find((x) => x.format("ddd") === date.format("ddd"))!
+        .format(PLANNED_AT);
 
-  const workoutsToUpdate = action.sourceDays
-    .map((date) => {
-      const plannedAt = date.format(PLANNED_AT);
-      const workout = action.sourceWorkouts.find(
-        (y) => y.plannedAt == plannedAt
-      );
+      const targetWorkout = workouts.find((y) => y.plannedAt == newPlannedAt);
 
-      if (!workout) {
+      if (!sourceWorkout && targetWorkout) {
+        return {
+          ...targetWorkout,
+          exercises: [],
+        };
+      }
+
+      if (!sourceWorkout) {
         return null;
       }
 
-      const sameDayDifferentWeek = date.week(targetWeek).year(targetYear);
-
       return {
-        ...workout,
-        id: action.clone ? v4() : workout.id,
-        plannedAt: sameDayDifferentWeek.format(PLANNED_AT),
-        exercises: workout.exercises.map((y) => ({
+        id: targetWorkout?.id ?? v4(),
+        traineeId: sourceWorkout.traineeId,
+        plannedAt: newPlannedAt,
+        exercises: sourceWorkout.exercises.map((y) => ({
           ...y,
           id: v4(),
         })),
+        createdAt: targetWorkout?.createdAt,
       };
     })
-    .filter((x) => x !== null);
+    .filter((x): x is PlannedWorkout => !!x);
+
+  const sourceToDelete = action.clone
+    ? []
+    : sourceDays
+        .map((date) => {
+          const plannedAt = date.format(PLANNED_AT);
+          const workout = workouts.find((y) => y.plannedAt == plannedAt);
+
+          return workout;
+        })
+        .filter((x): x is PlannedWorkout => !!x);
 
   return {
-    create: action.clone ? workoutsToUpdate : [],
-    update: action.clone ? [] : workoutsToUpdate,
-    delete: workoutsToDelete,
+    create: targetdWorkouts.filter((x) => !x.createdAt),
+    update: targetdWorkouts.filter((x) => x.createdAt),
+    delete: [...sourceToDelete],
   };
 }
