@@ -9,6 +9,8 @@ type Args = {
   signal: AbortSignal;
 };
 
+export type SearchExercises = typeof searchExercises;
+
 export async function searchExercises({ freeText, signal }: Args) {
   const response = await ApiClient.post<Exercise>(
     "/api/exercises/search",

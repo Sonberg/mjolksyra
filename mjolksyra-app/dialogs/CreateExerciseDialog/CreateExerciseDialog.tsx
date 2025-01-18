@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { ApiClient } from "@/api/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
@@ -16,9 +17,8 @@ import { Input } from "@/components/ui/input";
 
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { SingleSelect } from "@/components/Select/SingleSelect";
-import { z } from "zod";
 import { useValidation } from "@/hooks/useValidation";
-import { createExercise } from "@/api/exercises/createExercise";
+import { CreateExercise } from "@/api/exercises/createExercise";
 
 const schema = z.object({
   name: z.string(),
@@ -33,9 +33,12 @@ type Values = z.infer<typeof schema>;
 
 type Props = {
   trigger: ReactNode;
+  exercises: {
+    create: CreateExercise;
+  };
 };
 
-export function CreateExerciseDialog({ trigger }: Props) {
+export function CreateExerciseDialog({ trigger, exercises }: Props) {
   const [isOpen, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, unknown>>({});
 
@@ -119,7 +122,7 @@ export function CreateExerciseDialog({ trigger }: Props) {
                 return validation.showAllError();
               }
 
-              await createExercise(validation.parsed!);
+              await exercises.create(validation.parsed!);
               await query.refetchQueries({
                 queryKey: ["exercises"],
               });

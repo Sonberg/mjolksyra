@@ -4,6 +4,8 @@ type Args = {
   id: string;
 };
 
+export type DeleteExercise = typeof deleteExercise;
+
 export async function deleteExercise({ id }: Args) {
   const response = await ApiClient.delete(`/api/exercises/${id}`);
 

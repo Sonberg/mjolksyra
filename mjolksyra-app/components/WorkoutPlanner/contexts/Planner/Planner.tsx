@@ -8,18 +8,19 @@ import {
   pointerWithin,
 } from "@dnd-kit/core";
 
+import { v4 } from "uuid";
 import { ReactNode, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
+
 import { parse, Payload } from "./parse";
 import { transform } from "./transformers";
-import { deletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
-import { createPlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
-import { updatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
+import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
+import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
+import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { useWorkouts } from "../Workouts";
 import { PLANNED_AT } from "@/constants/dateFormats";
-import { createPortal } from "react-dom";
 import { DraggingExercise } from "@/components/DraggingExercise";
-import { v4 } from "uuid";
 import { insertAt } from "@/lib/insertAt";
 import { getExercise, isDraggingWeek, isDraggingWorkout } from "./utils";
 import { CloningContext, isCloning } from "./cloning";
@@ -27,6 +28,11 @@ import { CloningContext, isCloning } from "./cloning";
 type Args = {
   traineeId: string;
   children: ReactNode;
+  plannedWorkouts: {
+    update: UpdatePlannedWorkout;
+    create: CreatePlannedWorkout;
+    delete: DeletePlannedWorkout;
+  };
 };
 
 type Clone = {
@@ -37,7 +43,11 @@ type Clone = {
   index: number;
 };
 
-export function PlannerProvider({ traineeId, children }: Args) {
+export function PlannerProvider({
+  traineeId,
+  children,
+  plannedWorkouts,
+}: Args) {
   const { dispatch, reload, data } = useWorkouts();
 
   const [dragging, setDragging] = useState<string | null>(null);
@@ -50,7 +60,7 @@ export function PlannerProvider({ traineeId, children }: Args) {
 
       if (cloning) {
         if (cloning.targetWorkout) {
-          await updatePlannedWorkout({
+          await plannedWorkouts.update({
             plannedWorkout: {
               ...cloning.targetWorkout,
               exercises: insertAt(
@@ -61,7 +71,7 @@ export function PlannerProvider({ traineeId, children }: Args) {
             },
           });
         } else {
-          await createPlannedWorkout({
+          await plannedWorkouts.create({
             plannedWorkout: {
               id: v4(),
               traineeId,
@@ -86,19 +96,19 @@ export function PlannerProvider({ traineeId, children }: Args) {
 
       await Promise.all(
         result.delete.map((plannedWorkout) =>
-          deletePlannedWorkout({ plannedWorkout })
+          plannedWorkouts.delete({ plannedWorkout })
         )
       );
 
       await Promise.all(
         result.update.map((plannedWorkout) =>
-          updatePlannedWorkout({ plannedWorkout })
+          plannedWorkouts.update({ plannedWorkout })
         )
       );
 
       await Promise.all(
         result.create.map((plannedWorkout) =>
-          createPlannedWorkout({ plannedWorkout })
+          plannedWorkouts.create({ plannedWorkout })
         )
       );
 

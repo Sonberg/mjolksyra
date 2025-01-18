@@ -7,7 +7,7 @@ import {
 } from "react";
 import type { Dispatch, ReactNode } from "react";
 
-import { getPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
+import { GetPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
 import { MonthValue } from "@/hooks/useInfinitMonths";
 import { Action, MonthWorkouts, workoutsReducer } from "./workoutsReducer";
 
@@ -15,6 +15,9 @@ type Args = {
   traineeId: string;
   months: MonthValue[];
   children: ReactNode;
+  plannedWorkouts: {
+    get: GetPlannedWorkouts;
+  };
 };
 
 type ContextValue = {
@@ -31,7 +34,12 @@ const Context = createContext<ContextValue>({
 
 export const useWorkouts = () => useContext(Context);
 
-export function WorkoutsProvider({ traineeId, months, children }: Args) {
+export function WorkoutsProvider({
+  traineeId,
+  months,
+  plannedWorkouts,
+  children,
+}: Args) {
   const [data, dispatch] = useReducer(workoutsReducer, {});
 
   const reload = useCallback(
@@ -47,7 +55,7 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
 
       console.log("reloading ", month.monthId);
 
-      const { data } = await getPlannedWorkouts({
+      const { data } = await plannedWorkouts.get({
         traineeId,
         fromDate: month.startOfMonth,
         toDate: month.endOfMonth,
@@ -60,7 +68,7 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
         payload: { monthId: month.monthId, workouts: data },
       });
     },
-    [months, traineeId]
+    [months, traineeId, plannedWorkouts.get]
   );
 
   useEffect(() => {

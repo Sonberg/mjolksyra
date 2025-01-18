@@ -15,6 +15,8 @@ type Args = {
   order?: "asc" | "desc";
 };
 
+export type GetPlannedWorkouts = typeof getPlannedWorkouts;
+
 export async function getPlannedWorkouts({
   traineeId,
   fromDate,

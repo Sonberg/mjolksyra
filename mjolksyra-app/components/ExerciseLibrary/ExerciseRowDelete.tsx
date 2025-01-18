@@ -1,15 +1,18 @@
 import { Trash2 } from "lucide-react";
 import { Exercise } from "@/api/exercises/type";
 import { cn } from "@/lib/utils";
-import { deleteExercise } from "@/api/exercises/deleteExercise";
+import { DeleteExercise } from "@/api/exercises/deleteExercise";
 import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@/dialogs/ConfirmDialog";
 
 type Props = {
   exercise: Exercise;
+  exercises: {
+    delete: DeleteExercise;
+  };
 };
 
-export function ExerciseRowDelete({ exercise }: Props) {
+export function ExerciseRowDelete({ exercise, exercises }: Props) {
   const client = useQueryClient();
   const className = cn({
     "h-4": true,
@@ -30,7 +33,7 @@ export function ExerciseRowDelete({ exercise }: Props) {
       continueButton="Yes, delete"
       cancelButton="No, keep it"
       onConfirm={async () => {
-        await deleteExercise({ id: exercise.id });
+        await exercises.delete({ id: exercise.id });
         await client.refetchQueries({
           queryKey: ["exercises"],
         });

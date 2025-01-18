@@ -39,7 +39,11 @@ function getMonth(month: YearMonth): MonthValue {
   };
 }
 
-export function useInfinitMonths() {
+type Args = {
+  oneMonthOnly?: boolean;
+};
+
+export function useInfinitMonths({ oneMonthOnly }: Args) {
   const today = useMemo(() => dayjs(), []);
   const [previousHeight, setPreviousHeight] = useState<number | null>(null);
   const [months, setMonths] = useState<MonthValue[]>(() => {
@@ -55,12 +59,20 @@ export function useInfinitMonths() {
       return;
     }
 
+    if (oneMonthOnly) {
+      return;
+    }
+
     setPreviousHeight(containerRef.current?.scrollHeight ?? null);
     setMonths((state) => [getMonth(decrementMonth(state[0].month)), ...state]);
-  }, [start.isIntersecting]);
+  }, [start.isIntersecting, oneMonthOnly]);
 
   useEffect(() => {
     if (!end.isIntersecting) {
+      return;
+    }
+
+    if (oneMonthOnly) {
       return;
     }
 
@@ -69,7 +81,7 @@ export function useInfinitMonths() {
       ...state,
       getMonth(incrementMonth(state[state.length - 1].month)),
     ]);
-  }, [end.isIntersecting]);
+  }, [end.isIntersecting, oneMonthOnly]);
 
   useEffect(() => {
     if (previousHeight === null) {

@@ -7,6 +7,8 @@ type Args = {
   signal: AbortSignal;
 };
 
+export type GetExercises = typeof getExercises;
+
 export async function getExercises({ cursor, signal }: Args) {
   const url = cursor ? `/api/exercises?cursor=${cursor}` : `/api/exercises`;
   const response = await ApiClient.get(url, {

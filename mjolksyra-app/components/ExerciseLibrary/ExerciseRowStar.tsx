@@ -4,14 +4,20 @@ import { Exercise } from "@/api/exercises/type";
 import { useStarredExercises } from "./hooks/useStarredExercises";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { StarredExercises } from "@/api/exercises/starredExercises";
+import { StarExercise } from "@/api/exercises/starExercise";
 
 type Props = {
   exercise: Exercise;
+  exercises: {
+    starred: StarredExercises;
+    star: StarExercise;
+  };
 };
 
-export function ExerciseRowStar({ exercise }: Props) {
+export function ExerciseRowStar({ exercise, exercises }: Props) {
   const { resolvedTheme } = useTheme();
-  const starred = useStarredExercises(true);
+  const starred = useStarredExercises({ mutationOnly: true, exercises });
   const isStarred = useMemo(
     () => starred.data?.find((x) => x.id == exercise.id),
     [exercise, starred.data]

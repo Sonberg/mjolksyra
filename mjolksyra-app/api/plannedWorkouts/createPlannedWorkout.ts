@@ -6,6 +6,8 @@ type Args = {
   plannedWorkout: PlannedWorkout;
 };
 
+export type CreatePlannedWorkout = typeof createPlannedWorkout;
+
 export async function createPlannedWorkout({ plannedWorkout }: Args) {
   const url = `/api/trainees/${plannedWorkout.traineeId}/planned-workouts`;
   const response = await ApiClient.post(url, plannedWorkout);

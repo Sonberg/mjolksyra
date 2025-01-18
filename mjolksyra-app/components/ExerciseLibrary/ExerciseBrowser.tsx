@@ -4,8 +4,22 @@ import { useBrowseExercises } from "./hooks/useBrowserExercises";
 import useOnScreen from "@/hooks/useOnScreen";
 import { cn } from "@/lib/utils";
 
-export function ExerciseBrowser() {
-  const browser = useBrowseExercises();
+import { GetExercises } from "@/api/exercises/getExercises";
+import { DeleteExercise } from "@/api/exercises/deleteExercise";
+import { StarExercise } from "@/api/exercises/starExercise";
+import { StarredExercises } from "@/api/exercises/starredExercises";
+
+type Props = {
+  exercies: {
+    get: GetExercises;
+    starred: StarredExercises;
+    star: StarExercise;
+    delete: DeleteExercise;
+  };
+};
+
+export function ExerciseBrowser({ exercies }: Props) {
+  const browser = useBrowseExercises({ exercies });
   const end = useOnScreen();
 
   useEffect(() => {
@@ -28,7 +42,7 @@ export function ExerciseBrowser() {
     <div className="mb-24">
       <div className="font-bold">Browser</div>
       {browser.data.map((x) => (
-        <ExerciseRow key={x.id} exercise={x} />
+        <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
       ))}
       <div ref={end.measureRef} className="text-background">
         end

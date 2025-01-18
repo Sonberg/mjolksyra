@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { ReactNode, useCallback, useMemo, useRef } from "react";
 import { ViewportList, ViewportListRef } from "react-viewport-list";
 import dayjs from "dayjs";
 
@@ -16,15 +16,35 @@ import { useInfinitMonths } from "@/hooks/useInfinitMonths";
 import { PlannerProvider } from "./contexts/Planner";
 import { WorkoutsProvider } from "./contexts/Workouts";
 
+import { GetPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
+import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
+import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
+import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
+
 type Props = {
   traineeId: string;
+  library: ReactNode;
+  oneMonthOnly?: boolean;
+  plannedWorkouts: {
+    update: UpdatePlannedWorkout;
+    create: CreatePlannedWorkout;
+    delete: DeletePlannedWorkout;
+    get: GetPlannedWorkouts;
+  };
 };
 
-export function WorkoutPlanner({ traineeId }: Props) {
+export function WorkoutPlanner({
+  oneMonthOnly,
+  traineeId,
+  plannedWorkouts,
+  library,
+}: Props) {
   const listRef = useRef<ViewportListRef | null>(null);
   const today = useMemo(() => dayjs(), []);
 
-  const { months, containerRef, startRef, endRef } = useInfinitMonths();
+  const { months, containerRef, startRef, endRef } = useInfinitMonths({
+    oneMonthOnly,
+  });
 
   const goToToday = useCallback(() => {
     const year = today.year();
@@ -72,8 +92,12 @@ export function WorkoutPlanner({ traineeId }: Props) {
   );
 
   return (
-    <WorkoutsProvider traineeId={traineeId} months={months}>
-      <PlannerProvider traineeId={traineeId}>
+    <WorkoutsProvider
+      traineeId={traineeId}
+      months={months}
+      plannedWorkouts={plannedWorkouts}
+    >
+      <PlannerProvider traineeId={traineeId} plannedWorkouts={plannedWorkouts}>
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
             defaultSize={80}
@@ -88,9 +112,8 @@ export function WorkoutPlanner({ traineeId }: Props) {
             minSize={0}
             maxSize={30}
             className="overflow-visible"
-          >
-            <ExerciseLibrary />
-          </ResizablePanel>
+            children={library}
+          />
         </ResizablePanelGroup>
       </PlannerProvider>
     </WorkoutsProvider>

@@ -1,13 +1,19 @@
-import { getExercises } from "@/api/exercises/getExercises";
+import { GetExercises } from "@/api/exercises/getExercises";
 import { flatten } from "@/lib/flatten";
 import { uniqBy } from "@/lib/uniqBy";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-export function useBrowseExercises() {
+type Args = {
+  exercies: {
+    get: GetExercises;
+  };
+};
+
+export function useBrowseExercises({ exercies }: Args) {
   const initial = useQuery({
     queryKey: ["exercises", "inital"],
-    queryFn: async ({ signal }) => await getExercises({ signal }),
+    queryFn: async ({ signal }) => await exercies.get({ signal }),
     placeholderData: {
       data: [],
       next: null,
@@ -18,7 +24,7 @@ export function useBrowseExercises() {
     queryKey: ["exercises"],
     queryFn: async ({ pageParam, signal }) => {
       return pageParam
-        ? await getExercises({ cursor: pageParam, signal: signal })
+        ? await exercies.get({ cursor: pageParam, signal: signal })
         : { data: [], next: null };
     },
     getNextPageParam: (lastPage) => lastPage.next,

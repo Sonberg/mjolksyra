@@ -1,8 +1,9 @@
-import { z } from "zod";
 import { ApiClient } from "../client";
 import { schema } from "./schema";
 import { Exercise } from "./type";
 import { paginated } from "../schema";
+
+export type StarredExercises = typeof starredExercises;
 
 export async function starredExercises() {
   const response = await ApiClient.get<Exercise>("/api/exercises/starred");

@@ -7,14 +7,24 @@ import {
 import { Exercise } from "@/api/exercises/type";
 import { useCallback, useId, useMemo } from "react";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
+
 import { ExerciseRowStar } from "./ExerciseRowStar";
 import { ExerciseRowDelete } from "./ExerciseRowDelete";
 
+import { DeleteExercise } from "@/api/exercises/deleteExercise";
+import { StarExercise } from "@/api/exercises/starExercise";
+import { StarredExercises } from "@/api/exercises/starredExercises";
+
 type Props = {
   exercise: Exercise;
+  exercises: {
+    starred: StarredExercises;
+    star: StarExercise;
+    delete: DeleteExercise;
+  };
 };
 
-export function ExerciseRow({ exercise }: Props) {
+export function ExerciseRow({ exercise, exercises }: Props) {
   const id = useId();
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: exercise.id + id,
@@ -56,8 +66,8 @@ export function ExerciseRow({ exercise }: Props) {
                 </div>
               </HoverCardTrigger>
               <div className="flex gap-1">
-                <ExerciseRowDelete exercise={exercise} />
-                <ExerciseRowStar exercise={exercise} />
+                <ExerciseRowDelete exercise={exercise} exercises={exercises} />
+                <ExerciseRowStar exercise={exercise} exercises={exercises} />
               </div>
             </div>
             <HoverCardContent className="z-30">

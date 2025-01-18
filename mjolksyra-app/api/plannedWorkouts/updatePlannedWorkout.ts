@@ -6,6 +6,8 @@ type Args = {
   plannedWorkout: PlannedWorkout;
 };
 
+export type UpdatePlannedWorkout = typeof updatePlannedWorkout;
+
 export async function updatePlannedWorkout({ plannedWorkout }: Args) {
   const url = `/api/trainees/${plannedWorkout.traineeId}/planned-workouts/${plannedWorkout.id}`;
   const response = await ApiClient.put(url, plannedWorkout);

@@ -6,6 +6,8 @@ type Args = {
   state: boolean;
 };
 
+export type StarExercise = typeof starExercises;
+
 export async function starExercises({ exerciseId, state }: Args) {
   const response = await ApiClient.put<Exercise>(
     `/api/exercises/${exerciseId}/star`,

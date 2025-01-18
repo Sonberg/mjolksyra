@@ -11,6 +11,8 @@ type Args = {
   category: string | null;
 };
 
+export type CreateExercise = typeof createExercise;
+
 export async function createExercise(body: Args) {
   const response = await ApiClient.post<Args, AxiosResponse<Exercise>>(
     `/api/exercises`,
