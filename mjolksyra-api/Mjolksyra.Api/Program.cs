@@ -18,11 +18,16 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 var otel = builder.Configuration
     .GetSection(OtelOptions.SectionName)
     .Get<OtelOptions>();
+
+var stripe = builder.Configuration
+    .GetSection(StripeOptions.SectionName)
+    .Get<StripeOptions>();
 
 foreach (var variable in otel!.EnvironmentVariables)
 {
@@ -113,6 +118,17 @@ builder.Services
         };
     });
 
+builder.Services.AddHttpClient("Stripe");
+builder.Services.AddTransient<IStripeClient, StripeClient>(s =>
+{
+    var clientFactory = s.GetRequiredService<IHttpClientFactory>();
+    var httpClient = new SystemNetHttpClient(
+        httpClient: clientFactory.CreateClient("Stripe"),
+        maxNetworkRetries: StripeConfiguration.MaxNetworkRetries,
+        enableTelemetry: StripeConfiguration.EnableTelemetry);
+
+    return new StripeClient(apiKey: stripe!.ApiKey, httpClient: httpClient);
+});
 
 builder.Services.AddHttpContextAccessor();
 // builder.Services.AddHostedService<ExerciseSeeder>();

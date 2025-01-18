@@ -67,11 +67,13 @@ export function WorkoutPlanner({
           className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-scroll relative will-change-transform"
           ref={containerRef}
         >
-          <div
-            className="w-full h-8 text-background"
-            ref={startRef}
-            children="d"
-          />
+          {oneMonthOnly ? null : (
+            <div
+              className="w-full h-8 text-background"
+              ref={startRef}
+              children="d"
+            />
+          )}
           <ViewportList
             viewportRef={containerRef}
             ref={listRef}
@@ -79,11 +81,13 @@ export function WorkoutPlanner({
             children={(x) => <Month key={x.monthId} value={x} />}
           />
 
-          <div
-            className="w-full h-8 text-background"
-            ref={endRef}
-            children="d"
-          />
+          {oneMonthOnly ? null : (
+            <div
+              className="w-full h-8 text-background"
+              ref={endRef}
+              children="d"
+            />
+          )}
         </div>
         <TodayButton onClick={goToToday} />
       </>
@@ -100,7 +104,7 @@ export function WorkoutPlanner({
       <PlannerProvider traineeId={traineeId} plannedWorkouts={plannedWorkouts}>
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
-            defaultSize={80}
+            defaultSize={75}
             minSize={50}
             className="relative  border-collapse"
             children={planner}
@@ -108,7 +112,7 @@ export function WorkoutPlanner({
 
           <ResizableHandle withHandle />
           <ResizablePanel
-            defaultSize={20}
+            defaultSize={25}
             minSize={0}
             maxSize={30}
             className="overflow-visible"
