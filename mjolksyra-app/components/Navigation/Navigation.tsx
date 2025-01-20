@@ -20,7 +20,7 @@ export function Navigation() {
       : "/images/logo-dark.png";
       
   return (
-    <div className=" flex-col flex">
+    <div className="flex-col flex">
       <div className={path === "/" ? "" : "border-b"}>
         <div className="flex h-16 items-center px-4">
           <Link

@@ -36,8 +36,8 @@ export function transform(traineeId: string, action: Action) {
     case "upsertWorkouts":
       return {
         delete: [],
-        create: action.workouts.filter((x) => !x.createdAt),
-        update: action.workouts.filter((x) => x.createdAt),
+        create: action.upsert.filter((x) => !x.createdAt),
+        update: action.upsert.filter((x) => x.createdAt),
       };
 
     default:

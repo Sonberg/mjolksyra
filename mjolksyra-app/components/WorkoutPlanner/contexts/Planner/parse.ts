@@ -4,6 +4,8 @@ import { DragEndEvent } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { isDraggingWeek, isDraggingWorkout } from "./utils";
 import { MonthWorkouts } from "../Workouts/workoutsReducer";
+import { uniqBy } from "@/lib/uniqBy";
+import { workoutChanged } from "@/lib/workoutChanged";
 
 type PlannedWorkoutPayload = {
   date: dayjs.Dayjs;
@@ -74,7 +76,12 @@ export type MoveWeekAction = {
 
 export type UpsertAction = {
   type: "upsertWorkouts";
-  workouts: PlannedWorkout[];
+  upsert: PlannedWorkout[];
+};
+
+export type State = {
+  old: MonthWorkouts;
+  new: MonthWorkouts;
 };
 
 export type Action =
@@ -85,12 +92,14 @@ export type Action =
   | UpsertAction
   | null;
 
-export function parse(event: DragEndEvent, workouts: MonthWorkouts): Action {
+export function parse(event: DragEndEvent, state: State): Action {
   const { activatorEvent, active, over } = event;
   const overData = over?.data.current as Payload | undefined;
   const activeData = active.data.current as Payload | undefined;
   const target = activatorEvent.target as HTMLElement;
   const clone = target?.getAttribute("data-action") === "clone";
+
+  console.log(event);
 
   if (!overData) {
     return null;
@@ -99,24 +108,6 @@ export function parse(event: DragEndEvent, workouts: MonthWorkouts): Action {
   if (!activeData) {
     return null;
   }
-
-  // Add from library
-  // if (activeData.type === "exercise") {
-  //   if (
-  //     overData.type !== "plannedExercise" &&
-  //     overData.type !== "plannedWorkout"
-  //   ) {
-  //     return null;
-  //   }
-
-  //   return {
-  //     type: "addExercise",
-  //     exercise: activeData.exercise!,
-  //     targetDate: overData.date!,
-  //     targetWorkout: overData.plannedWorkout!,
-  //     index: overData.type === "plannedExercise" ? overData.index : undefined,
-  //   };
-  // }
 
   const targetWorkout =
     overData.type === "plannedWorkout" || overData.type === "plannedExercise"
@@ -132,60 +123,17 @@ export function parse(event: DragEndEvent, workouts: MonthWorkouts): Action {
   const weekOrWorkout = isDraggingWeek(event) || isDraggingWorkout(event);
 
   if (!weekOrWorkout) {
+    const oldState = Object.values(state.old).flatMap((x) => x);
+    const newState = Object.values(state.new).flatMap((x) => x);
+    const changed = newState.filter((x) => workoutChanged(x, oldState));
+
+    console.log("changed", changed);
+
     return {
       type: "upsertWorkouts",
-      workouts: [
-        targetWorkout?.plannedWorkout,
-        sourceWorkout?.plannedWorkout,
-      ].filter((x): x is PlannedWorkout => !!x),
+      upsert: changed,
     };
   }
-
-  // // Exercise -> Workout
-  // if (
-  //   overData.type === "plannedWorkout" &&
-  //   activeData.type === "plannedExercise"
-  // ) {
-  //   return {
-  //     type: "moveExercise",
-  //     plannedExercise: activeData.plannedExercise!,
-  //     sourceWorkout: activeData.plannedWorkout!,
-  //     targetWorkout: overData.plannedWorkout,
-  //     targetDate: overData.date,
-  //     clone: clone,
-  //   };
-  // }
-
-  // // Exercise -> Exercise
-  // if (
-  //   overData.type === "plannedExercise" &&
-  //   activeData.type == "plannedExercise"
-  // ) {
-  //   return {
-  //     type: "moveExercise",
-  //     targetDate: overData.date,
-  //     plannedExercise: activeData.plannedExercise!,
-  //     sourceWorkout: activeData.plannedWorkout!,
-  //     targetWorkout: overData.plannedWorkout!,
-  //     index: overData.index,
-  //     clone: clone,
-  //   };
-  // }
-
-  // // Workout -> Workout or Exercise
-  // if (
-  //   (overData.type === "plannedWorkout" ||
-  //     overData.type === "plannedExercise") &&
-  //   activeData.type === "plannedWorkout"
-  // ) {
-  //   return {
-  //     type: "moveWorkout",
-  //     sourceWorkout: activeData.plannedWorkout,
-  //     targetWorkout: overData.plannedWorkout,
-  //     targetDate: overData.date,
-  //     clone: clone,
-  //   };
-  // }
 
   // Workout -> Workout
   if (sourceWorkout?.type === "plannedWorkout" && targetWorkout) {
@@ -204,7 +152,7 @@ export function parse(event: DragEndEvent, workouts: MonthWorkouts): Action {
       type: "moveWeek",
       sourceDays: activeData.days,
       targetDays: overData.days,
-      workouts: workouts,
+      workouts: state.new,
       clone: clone,
     };
   }

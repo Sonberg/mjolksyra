@@ -64,7 +64,7 @@ export function WorkoutPlanner({
     () => (
       <>
         <div
-          className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-scroll relative will-change-transform"
+          className="px-4 py-2 h-full flex flex-col gap-8 overflow-y-auto relative will-change-transform"
           ref={containerRef}
         >
           {oneMonthOnly ? null : (

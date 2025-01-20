@@ -118,7 +118,7 @@ export function Day({ date, plannedWorkout }: Props) {
           <div
             ref={setDroppableNodeRef}
             className={cn({
-              "flex flex-1 h-full min-h-32 flex-col": true,
+              "flex flex-1 h-full min-h-24 flex-col": true,
               ...draggingStyle({ canDrop, isOver: isOverContainer }),
             })}
           >

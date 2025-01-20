@@ -48,7 +48,7 @@ export default function Home() {
       <section className="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-44">
         <div className="mr-auto place-self-center lg:col-span-7">
           <h2 className="text-4xl leading-relaxed font-extrabold tracking-tight pb-8">
-            How munch can you make?
+            How much can you make?
           </h2>
         </div>
         <div className="border mr-auto place-self-center lg:col-span-12 rounded">
@@ -61,7 +61,7 @@ export default function Home() {
             Try it out!
           </h2>
         </div>
-        <div className="border mr-auto place-self-center lg:col-span-12 rounded">
+        <div className="border mr-auto place-self-center lg:col-span-12 rounded shadow-xl pl-2">
           <WorkoutPlannerDemo />
         </div>
       </section>

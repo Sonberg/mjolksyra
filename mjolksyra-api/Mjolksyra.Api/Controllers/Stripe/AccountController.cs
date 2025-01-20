@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.UserContext;
 using Stripe;
 
-namespace Mjolksyra.Api.Controllers;
+namespace Mjolksyra.Api.Controllers.Stripe;
 
 public class AccountLinkPostBody
 {
@@ -10,22 +14,45 @@ public class AccountLinkPostBody
     public required string BaseUrl { get; set; }
 }
 
-[Route("api/account")]
+[Authorize]
 [ApiController]
+[Route("api/stripe/account")]
 public class AccountController : Controller
 {
     private readonly IStripeClient _stripeClient;
 
-    public AccountController(IStripeClient stripeClient)
+    private readonly IUserContext _userContext;
+
+    private readonly IUserRepository _userRepository;
+
+    public AccountController(IStripeClient stripeClient, IUserContext userContext, IUserRepository userRepository)
     {
         _stripeClient = stripeClient;
+        _userContext = userContext;
+        _userRepository = userRepository;
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult> Get(string id)
+    {
+        var service = new AccountService(_stripeClient);
+        return Ok(await service.GetAsync(id));
     }
 
     [HttpPost]
-    public ActionResult Create()
+    public async Task<ActionResult> Create(CancellationToken cancellationToken)
     {
         try
         {
+            var user = await _userRepository.GetById(_userContext.UserId!.Value, cancellationToken);
+            if (user.Stripe?.AccountId is { } accountId)
+            {
+                return Json(new
+                {
+                    account = accountId
+                });
+            }
+
             var service = new AccountService(_stripeClient);
             var options = new AccountCreateOptions
             {
@@ -33,7 +60,7 @@ public class AccountController : Controller
                 {
                     StripeDashboard = new AccountControllerStripeDashboardOptions
                     {
-                        Type = "none"
+                        Type = "express"
                     },
                     Fees = new AccountControllerFeesOptions
                     {
@@ -52,9 +79,21 @@ public class AccountController : Controller
                     },
                 },
                 Country = "SE",
+                Email = user.Email,
+                Metadata = new Dictionary<string, string>
+                {
+                    {
+                        "UserId", user.Id.ToString()
+                    }
+                }
             };
 
-            var account = service.Create(options);
+            var account = await service.CreateAsync(options, null, cancellationToken);
+
+            user.Stripe ??= new UserStripe();
+            user.Stripe.AccountId = account.Id;
+
+            await _userRepository.Update(user, cancellationToken);
 
             return Json(new
             {
@@ -73,14 +112,14 @@ public class AccountController : Controller
     }
 
     [HttpPost("link")]
-    public ActionResult Link([FromBody] AccountLinkPostBody body)
+    public async Task<ActionResult> Link([FromBody] AccountLinkPostBody body)
     {
         try
         {
             var connectedAccountId = body.Account;
             var service = new AccountLinkService(_stripeClient);
 
-            AccountLink accountLink = service.Create(
+            var accountLink = await service.CreateAsync(
                 new AccountLinkCreateOptions
                 {
                     Account = connectedAccountId,
@@ -104,5 +143,28 @@ public class AccountController : Controller
                 error = ex.Message
             });
         }
+    }
+
+    private async Task Charge()
+    {
+        var options = new SubscriptionCreateOptions
+        {
+            Customer = "{{CUSTOMER_ID}}",
+            Items =
+            [
+                new SubscriptionItemOptions
+                {
+                    Price = "{{PRICE_ID}}"
+                }
+            ],
+            Expand = ["latest_invoice.payment_intent"],
+            ApplicationFeePercent = 10M,
+            TransferData = new SubscriptionTransferDataOptions
+            {
+                Destination = "{{CONNECTED_ACCOUNT_ID}}",
+            },
+        };
+        var service = new SubscriptionService();
+        await service.CreateAsync(options);
     }
 }

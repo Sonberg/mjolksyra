@@ -24,6 +24,8 @@ import { DraggingExercise } from "@/components/DraggingExercise";
 import { insertAt } from "@/lib/insertAt";
 import { getExercise, isDraggingWeek, isDraggingWorkout } from "./utils";
 import { CloningContext, isCloning } from "./cloning";
+import { MonthWorkouts } from "../Workouts/workoutsReducer";
+import { workoutEmpty } from "@/lib/workoutEmpty";
 
 type Args = {
   traineeId: string;
@@ -52,11 +54,13 @@ export function PlannerProvider({
 
   const [dragging, setDragging] = useState<string | null>(null);
   const [cloning, setCloning] = useState<Clone | null>(null);
+  const [state, setState] = useState<MonthWorkouts>(data);
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
       setDragging(null);
       setCloning(null);
+      setState(data);
 
       if (cloning) {
         if (cloning.targetWorkout) {
@@ -89,7 +93,11 @@ export function PlannerProvider({
         return;
       }
 
-      const action = parse(event, data);
+      const action = parse(event, {
+        new: data,
+        old: state,
+      });
+
       const result = transform(traineeId, action);
 
       console.log(action, result);
@@ -102,7 +110,9 @@ export function PlannerProvider({
 
       await Promise.all(
         result.update.map((plannedWorkout) =>
-          plannedWorkouts.update({ plannedWorkout })
+          workoutEmpty(plannedWorkout)
+            ? plannedWorkouts.delete({ plannedWorkout })
+            : plannedWorkouts.update({ plannedWorkout })
         )
       );
 
@@ -112,14 +122,14 @@ export function PlannerProvider({
         )
       );
 
-      const updated = [...result.delete, ...result.create, ...result.update];
+      const updated = [...result.create, ...result.delete, ...result.update];
       const tasks = updated
         .map((x) => x.plannedAt.split("-"))
         .map(([year, month]) => reload(`${year}-${Number(month) - 1}`));
 
       await Promise.all(tasks);
     },
-    [traineeId, cloning, data, reload]
+    [traineeId, cloning, data, state, reload]
   );
 
   const handleDragOver = useCallback(
@@ -238,6 +248,7 @@ export function PlannerProvider({
           }}
           onDragStart={(event) => {
             setDragging(event.active.data.current?.label ?? null);
+            setState(Object.freeze(data));
           }}
         >
           {children}

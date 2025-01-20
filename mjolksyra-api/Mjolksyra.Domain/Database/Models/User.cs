@@ -14,5 +14,7 @@ public class User
 
     public required string PasswordSalt { get; set; }
 
+    public UserStripe? Stripe { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 }
