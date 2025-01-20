@@ -45,7 +45,7 @@ public class AccountController : Controller
         try
         {
             var user = await _userRepository.GetById(_userContext.UserId!.Value, cancellationToken);
-            if (user.Stripe?.AccountId is { } accountId)
+            if (user.Coach?.Stripe?.AccountId is { } accountId)
             {
                 return Json(new
                 {
@@ -90,8 +90,9 @@ public class AccountController : Controller
 
             var account = await service.CreateAsync(options, null, cancellationToken);
 
-            user.Stripe ??= new UserStripe();
-            user.Stripe.AccountId = account.Id;
+            user.Coach ??= new UserCoach();
+            user.Coach.Stripe ??= new UserCoachStripe();
+            user.Coach.Stripe.AccountId = account.Id;
 
             await _userRepository.Update(user, cancellationToken);
 

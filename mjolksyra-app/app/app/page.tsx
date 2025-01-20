@@ -1,26 +1,30 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/Auth";
-import { AtheletePaymentDialog } from "@/dialogs/AtheletePaymentDialog";
+import { AthleteTab } from "./tabs/AthleteTab";
+import { CoachTab } from "./tabs/CoachTab";
 
 export default function Page() {
   const auth = useAuth();
 
   return (
     <div className="mt-24 mx-auto w-[60rem]">
-      <div className="text-4xl font-bold">Hi {auth.givenName}!</div>
-      <div className="mt-8">
-        <div className="font-light text-accent-foreground mb-4">
-          Lets get you started
+      <Tabs defaultValue="coach">
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-4xl font-bold">Hi {auth.givenName}!</div>
+          <TabsList>
+            <TabsTrigger value="coach">Coach</TabsTrigger>
+            <TabsTrigger value="athlete">Athlete</TabsTrigger>
+          </TabsList>
         </div>
-        <div className="text-3xl font-bold mb-20">
-          Are you{" "}
-          <span className="bg-muted px-2 py-1 cursor-pointer">Coach</span> or{" "}
-          <span className="bg-muted px-2 py-1 cursor-pointer">Athlete</span>?
-        </div>
-        <AtheletePaymentDialog trigger={<Button>Add payments</Button>} />
-      </div>
+        <TabsContent value="coach">
+          <CoachTab />
+        </TabsContent>
+        <TabsContent value="athlete">
+          <AthleteTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

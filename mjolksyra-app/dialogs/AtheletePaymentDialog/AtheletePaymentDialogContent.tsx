@@ -34,12 +34,12 @@ export function AtheletePaymentDialogContent({ clientSecret }: Props) {
       setIsLoading(false);
       return;
     }
-
+    await elements.submit();
     const { error } = await stripe.confirmSetup({
       clientSecret,
       elements,
       confirmParams: {
-        return_url: "",
+        return_url: window.location.href,
       },
     });
 
@@ -54,7 +54,15 @@ export function AtheletePaymentDialogContent({ clientSecret }: Props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <PaymentElement options={{ layout: "accordion" }} />
+      <PaymentElement
+        options={{
+          layout: {
+            type: "accordion",
+            radios: true,
+            spacedAccordionItems: true,
+          },
+        }}
+      />
       {error && <p style={{ color: "red" }}>{error}</p>}
       <DialogFooter className="mt-8">
         <Button type="submit" disabled={!stripe || !elements || isLoading}>

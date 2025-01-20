@@ -21,9 +21,10 @@ const stripePromise = loadStripe(
 
 type Props = {
   trigger: ReactNode;
+  onOpenChanged: (_: boolean) => void;
 };
 
-export function AtheletePaymentDialog({ trigger }: Props) {
+export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
   const [isOpen, setOpen] = useState(false);
   const { resolvedTheme } = useTheme();
   const { data } = useQuery({
@@ -39,10 +40,14 @@ export function AtheletePaymentDialog({ trigger }: Props) {
     enabled: isOpen,
   });
 
-  console.log(data);
-
   return (
-    <Dialog open={isOpen} onOpenChange={setOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(state) => {
+        setOpen(state);
+        onOpenChanged(state);
+      }}
+    >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[40rem]">
         <DialogHeader>

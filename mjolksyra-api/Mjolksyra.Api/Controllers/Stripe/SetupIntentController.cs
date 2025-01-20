@@ -7,7 +7,7 @@ using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
 
-[Authorize]
+// [Authorize]
 [ApiController]
 [Route("api/stripe/setup-intent")]
 public class SetupIntentController : Controller
@@ -28,12 +28,37 @@ public class SetupIntentController : Controller
         _userRepository = userRepository;
     }
 
+    [AllowAnonymous]
+    [HttpGet("{customerId}")]
+    public async Task<ActionResult> Get(string customerId, CancellationToken cancellationToken)
+    {
+        var ss = new PaymentMethodService(_stripeClient);
+        var methods = await ss.ListAsync(new PaymentMethodListOptions
+        {
+            Customer = customerId
+        }, cancellationToken: cancellationToken);
+        var service = new CustomerService(_stripeClient);
+        var customer = await service.GetAsync(customerId, cancellationToken: cancellationToken);
+
+        return Ok(new
+        {
+            methods,
+            customer
+        });
+    }
+
     [HttpPost]
     public async Task<ActionResult> Create(CancellationToken cancellationToken)
     {
         var setupIntentOptions = new SetupIntentCreateOptions
         {
-            Customer = await GetCustomerId(cancellationToken)
+            Customer = await GetCustomerId(cancellationToken),
+            Metadata = new Dictionary<string, string>
+            {
+                {
+                    "UserId", _userContext.UserId!.Value.ToString()
+                }
+            }
         };
         var setupIntentService = new SetupIntentService(_stripeClient);
         var setupIntent = await setupIntentService.CreateAsync(setupIntentOptions, cancellationToken: cancellationToken);
@@ -47,7 +72,7 @@ public class SetupIntentController : Controller
     private async Task<string> GetCustomerId(CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetById(_userContext.UserId!.Value, cancellationToken);
-        if (user.Stripe?.CustomerId is { } customerId)
+        if (user.Athlete?.Stripe?.CustomerId is { } customerId)
         {
             return customerId;
         }
@@ -67,8 +92,9 @@ public class SetupIntentController : Controller
 
         var customer = await service.CreateAsync(options, cancellationToken: cancellationToken);
 
-        user.Stripe ??= new UserStripe();
-        user.Stripe.CustomerId = customer.Id;
+        user.Athlete ??= new UserAthlete();
+        user.Athlete.Stripe ??= new UserAthleteStripe();
+        user.Athlete.Stripe.CustomerId = customer.Id;
 
         await _userRepository.Update(user, cancellationToken);
 
