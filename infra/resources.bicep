@@ -105,7 +105,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
         '*'
       ]
     }
-    scaleMinReplicas: 1
+    scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
       secureList:  union([
@@ -192,7 +192,7 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
   params: {
     name: 'mjolksyra-app'
     ingressTargetPort: 80
-    scaleMinReplicas: 1
+    scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
       secureList:  union([
