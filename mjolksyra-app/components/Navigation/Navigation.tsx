@@ -18,7 +18,7 @@ export function Navigation() {
     theme.resolvedTheme == "light"
       ? "/images/logo-light.png"
       : "/images/logo-dark.png";
-      
+
   return (
     <div className="flex-col flex">
       <div className={path === "/" ? "" : "border-b"}>
