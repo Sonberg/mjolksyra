@@ -5,10 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { ChevronDown, EllipsisVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Textarea } from "../ui/textarea";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 // import { useMonthPlanner } from "./contexts/MonthPlanner";
-import { useDebounce } from "@/hooks/useDebounce";
 import { DraggingToolTip } from "../DraggingToolTip";
 
 type Props = {
@@ -29,7 +27,7 @@ export function DayExercise({
   date,
 }: Props) {
   // const { update } = useMonthPlanner();
-  const [note, setNote] = useState(plannedExercise.note ?? "");
+  // const [note, setNote] = useState(plannedExercise.note ?? "");
   const [isOpen, setOpen] = useState(false);
 
   // const updateNote = useDebounce((note: string) => {
@@ -119,12 +117,10 @@ export function DayExercise({
       setNodeRef,
       attributes,
       listeners,
-      note,
       isDragging,
       isGhost,
       isLast,
       isOpen,
-      // update,
     ]
   );
   // return useMemo(

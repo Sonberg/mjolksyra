@@ -89,6 +89,6 @@ export function ExerciseLibrary({ exercies }: Props) {
         </div>
       </TooltipProvider>
     ),
-    [searchMode, freeText]
+    [searchMode, freeText, exercies]
   );
 }

@@ -129,7 +129,7 @@ export function PlannerProvider({
 
       await Promise.all(tasks);
     },
-    [traineeId, cloning, data, state, reload]
+    [data, cloning, state, traineeId, reload, plannedWorkouts]
   );
 
   const handleDragOver = useCallback(

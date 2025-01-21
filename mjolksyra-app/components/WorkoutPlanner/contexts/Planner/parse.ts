@@ -4,7 +4,6 @@ import { DragEndEvent } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { isDraggingWeek, isDraggingWorkout } from "./utils";
 import { MonthWorkouts } from "../Workouts/workoutsReducer";
-import { uniqBy } from "@/lib/uniqBy";
 import { workoutChanged } from "@/lib/workoutChanged";
 
 type PlannedWorkoutPayload = {

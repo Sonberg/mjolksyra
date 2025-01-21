@@ -14,7 +14,7 @@ export default function Home() {
             </h1>
             <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
               Get started with our coaching journey, create and sell workout
-              today. Side-hustle for PT's, Powerlifters, Crossfitters or
+              today. Side-hustle for PT&apos;s, Powerlifters, Crossfitters or
               Weightlifters.
             </p>
             <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
@@ -29,12 +29,6 @@ export default function Home() {
                   }
                 />
               )}
-              {/* <a
-                href="/signup"
-                className="inline-flex items-center justify-center w-full px-5 py-3 mb-2 mr-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:w-auto focus:outline-none hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-              >
-                Tell me more
-              </a> */}
             </div>
           </div>
           <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">

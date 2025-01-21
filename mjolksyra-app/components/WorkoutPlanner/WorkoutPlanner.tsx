@@ -4,7 +4,6 @@ import { ReactNode, useCallback, useMemo, useRef } from "react";
 import { ViewportList, ViewportListRef } from "react-viewport-list";
 import dayjs from "dayjs";
 
-import { ExerciseLibrary } from "../ExerciseLibrary";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -92,7 +91,7 @@ export function WorkoutPlanner({
         <TodayButton onClick={goToToday} />
       </>
     ),
-    [containerRef, endRef, startRef, goToToday, months]
+    [containerRef, oneMonthOnly, startRef, months, endRef, goToToday]
   );
 
   return (

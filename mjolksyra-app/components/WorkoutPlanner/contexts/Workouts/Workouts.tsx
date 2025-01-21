@@ -68,7 +68,7 @@ export function WorkoutsProvider({
         payload: { monthId: month.monthId, workouts: data },
       });
     },
-    [months, traineeId, plannedWorkouts.get]
+    [months, plannedWorkouts, traineeId]
   );
 
   useEffect(() => {

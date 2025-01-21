@@ -84,6 +84,6 @@ export function ExerciseRow({ exercise, exercises }: Props) {
         </div>
       </>
     ),
-    [exercise, listeners, attributes, hoverCard, setNodeRef]
+    [setNodeRef, listeners, attributes, exercise, exercises, hoverCard]
   );
 }

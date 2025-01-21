@@ -18,7 +18,7 @@ export default function Page() {
         {!connectedAccountId && <h2>Get ready for take off</h2>}
         {!connectedAccountId && (
           <p>
-            Mjölksyra is the world's leading air travel platform: join our team
+            Mjölksyra is the world&apos;s leading air travel platform: join our team
             of pilots to help people travel faster.
           </p>
         )}
@@ -27,7 +27,7 @@ export default function Page() {
         )}
         {connectedAccountId && (
           <p>
-            Matt's Mats partners with Stripe to help you receive payments and
+            Matt&apos;s Mats partners with Stripe to help you receive payments and
             keep your personal bank and details secure.
           </p>
         )}
