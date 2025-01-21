@@ -4,16 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 
 type Args = {
   freeText: string;
-  exercies: {
+  exercises: {
     search: SearchExercises;
   };
 };
 
-export function useSearchExercises({ freeText, exercies }: Args) {
+export function useSearchExercises({ freeText, exercises }: Args) {
   return useQuery({
     queryKey: [`exercises`, "search", freeText],
     queryFn: async ({ signal }) => {
-      return await exercies.search({ freeText, signal });
+      return await exercises.search({ freeText, signal });
     },
     placeholderData: {
       data: [] as Exercise[],

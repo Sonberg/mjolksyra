@@ -66,7 +66,7 @@ export function ExerciseLibrary({ exercies }: Props) {
           <div className="flex flex-col gap-4 overflow-y-auto h-full p-4 pb-16">
             {searchMode ? (
               <>
-                <ExerciseSearch freeText={freeText} />
+                <ExerciseSearch freeText={freeText} exercises={exercies} />
               </>
             ) : (
               <>
