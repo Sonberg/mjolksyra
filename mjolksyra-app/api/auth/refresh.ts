@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ApiClient } from "../client";
 
 type Args = { refreshToken: string };
 
@@ -11,14 +10,18 @@ const schema = z.object({
 });
 
 export async function refresh({ refreshToken }: Args) {
-  const { data, status } = await ApiClient.post(`/api/auth/refresh`, {
-    refreshToken,
+  const response = await fetch(`${process.env.API_URL}/api/auth/refresh`, {
+    method: "POST",
+    body: JSON.stringify({
+      refreshToken,
+    }),
   });
 
-  if (status !== 200) {
+  if (response.status !== 200) {
     return null;
   }
 
+  const data = await response.json();
   const result = await schema.safeParseAsync(data);
 
   if (!result.success) {
