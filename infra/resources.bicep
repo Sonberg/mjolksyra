@@ -220,7 +220,7 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
             value: mjolksyraAppIdentity.outputs.clientId
           }
           {
-            name: 'MJOLKSYRA-API_BASE_URL'
+            name: 'API_URL'
             value: 'https://mjolksyra-api.${containerAppsEnvironment.outputs.defaultDomain}'
           }
           {
