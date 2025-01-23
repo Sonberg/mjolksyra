@@ -204,7 +204,6 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
   params: {
     name: 'mjolksyra-app'
     ingressTargetPort: 3000
-    exposedPort: 80
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {

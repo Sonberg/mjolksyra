@@ -15,10 +15,6 @@ import { useTheme } from "next-themes";
 import { ReactNode, useState } from "react";
 import { AtheletePaymentDialogContent } from "./AtheletePaymentDialogContent";
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
-
 type Props = {
   trigger: ReactNode;
   onOpenChanged: (_: boolean) => void;
@@ -26,6 +22,10 @@ type Props = {
 
 export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
   const [isOpen, setOpen] = useState(false);
+  const [stripePromise] = useState(() =>
+    loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+  );
+
   const { resolvedTheme } = useTheme();
   const { data } = useQuery({
     queryKey: ["stripe", "setup-intent"],
