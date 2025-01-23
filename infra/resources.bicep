@@ -203,7 +203,7 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
   name: 'mjolksyraApp'
   params: {
     name: 'mjolksyra-app'
-    ingressTargetPort: 80
+    ingressTargetPort: 3000
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
@@ -239,7 +239,7 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
             }
             {
               name: 'PORT'
-              value: '80'
+              value: '3000'
             }
             {
               name: 'KEY_VAULT_URL'
