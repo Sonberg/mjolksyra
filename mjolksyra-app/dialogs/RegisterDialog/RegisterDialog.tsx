@@ -134,7 +134,7 @@ export function RegisterDialog({ trigger }: Props) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>RegisterF</DialogTitle>
+          <DialogTitle>Register</DialogTitle>
           <DialogDescription>
             Get started today, no upfront costs!
           </DialogDescription>
