@@ -20,12 +20,12 @@ type Props = {
   onOpenChanged: (_: boolean) => void;
 };
 
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
+
 export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
   const [isOpen, setOpen] = useState(false);
-  const [stripePromise] = useState(() =>
-    loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-  );
-
   const { resolvedTheme } = useTheme();
   const { data } = useQuery({
     queryKey: ["stripe", "setup-intent"],
