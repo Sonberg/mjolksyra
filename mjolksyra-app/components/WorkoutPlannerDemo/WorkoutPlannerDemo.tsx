@@ -60,11 +60,15 @@ export function WorkoutPlannerDemo() {
               exercies={{
                 starred: async () => {
                   return {
-                    data: [],
+                    data: exercises.current.filter((x) => x.starred),
                     next: null,
                   };
                 },
-                star: async () => {},
+                star: async ({ exerciseId, state }) => {
+                  exercises.current = exercises.current.map((x) =>
+                    x.id === exerciseId ? { ...x, starred: state } : x
+                  );
+                },
                 search: async () => {
                   return {
                     data: [],
@@ -73,17 +77,27 @@ export function WorkoutPlannerDemo() {
                 },
                 get: async () => {
                   return {
-                    data: exercises.current ?? [],
+                    data: exercises.current,
                     next: null,
                   };
                 },
-                delete: async () => {},
-                create: async (val) => ({
-                  id: v4(),
-                  ...val,
-                  canDelete: true,
-                  starred: false,
-                }),
+                delete: async ({ id }) => {
+                  exercises.current = exercises.current.filter(
+                    (x) => x.id !== id
+                  );
+                },
+                create: async (val) => {
+                  const newExercise = {
+                    id: v4(),
+                    ...val,
+                    canDelete: true,
+                    starred: false,
+                  };
+
+                  exercises.current = [...exercises.current, newExercise];
+
+                  return newExercise;
+                },
               }}
             />
           }
