@@ -2,13 +2,9 @@
 
 name: mjolksyra
 metadata:
-    template: azd-init@1.11.0
+  template: azd-init@1.11.0
 services:
-    mjolksyra-api:
-        project: mjolksyra-api/Mjolksyra.Api
-        host: containerapp
-        language: dotnet
-    mjolksyra-app:
-        project: mjolksyra-app
-        host: containerapp
-        language: js
+  mjolksyra-api:
+    project: mjolksyra-api/Mjolksyra.Api
+    host: containerapp
+    language: dotnet
