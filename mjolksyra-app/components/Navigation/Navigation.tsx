@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
-import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/context/Auth";
 import { BicepsFlexedIcon, DumbbellIcon } from "lucide-react";
 import { LoginDialog } from "@/dialogs/LoginDialog";
+import Image from "next/image";
 
 export function Navigation() {
-  const path = usePathname();
   const theme = useTheme();
   const auth = useAuth();
 
@@ -21,15 +20,18 @@ export function Navigation() {
 
   return (
     <div className="flex-col flex">
-      <div className={path === "/" ? "" : "border-b"}>
+      <div className={"border-b"}>
         <div className="flex h-16 items-center px-4">
           <Link
             href="/"
             className="text-base font-medium transition-colors hover:text-primary"
           >
             <div className="font-bold text-xl mr-4 flex items-center">
-              <img
+              <Image
                 className="h-8 w-8 mr-2"
+                alt="Logo"
+                width={32}
+                height={32}
                 src={logo}
                 data-theme={theme.resolvedTheme}
               />

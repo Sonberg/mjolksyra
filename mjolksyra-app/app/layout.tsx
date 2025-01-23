@@ -40,9 +40,9 @@ export default function RootLayout({
             <PostHog>
               <Theme>
                 <Navigation />
-                <div className="flex flex-col flex-1 overflow-hidden">
+                <main className="flex flex-col flex-1 overflow-hidden">
                   {children}
-                </div>
+                </main>
               </Theme>
             </PostHog>
           </AuthProvider>
