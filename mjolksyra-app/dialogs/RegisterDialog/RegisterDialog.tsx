@@ -17,6 +17,7 @@ import { z } from "zod";
 import { register } from "@/api/auth/register";
 import { useAuth } from "@/context/Auth";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/Spinner";
 
 const passwordSchema = z
   .string()
@@ -68,6 +69,7 @@ export function RegisterDialog({ trigger }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const auth = useAuth();
@@ -93,7 +95,7 @@ export function RegisterDialog({ trigger }: Props) {
       autoComplete,
       placeholder,
     }: FieldProps) => (
-      <div className="grid grid-cols-4 items-center gap-4">
+      <div className="flex flex-col items-start gap-4">
         <Label htmlFor={id} className="text-right">
           {label}
         </Label>
@@ -116,21 +118,23 @@ export function RegisterDialog({ trigger }: Props) {
       return; // Show all errors
     }
 
+    setLoading(true);
     const response = await register(parsed.data);
+    setLoading(false);
     if (!response?.isSuccessful) {
       return;
     }
 
     auth.login(response);
     router.push("/planner");
-  }, [parsed]);
+  }, [auth, parsed.data, parsed.success, router]);
 
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Register as a coach</DialogTitle>
+          <DialogTitle>RegisterF</DialogTitle>
           <DialogDescription>
             Get started today, no upfront costs!
           </DialogDescription>
@@ -171,7 +175,7 @@ export function RegisterDialog({ trigger }: Props) {
               placeholder: "Choose a new password",
               autoComplete: "new-password",
               onChange: setPassword,
-              type: "text",
+              type: "password",
             })}
             {renderField({
               id: "confirmPassword",
@@ -185,7 +189,10 @@ export function RegisterDialog({ trigger }: Props) {
           </div>
         </form>
         <DialogFooter>
-          <Button onClick={onSubmit}>Register</Button>
+          <Button disabled={loading} onClick={onSubmit}>
+            {loading ? <Spinner size={8} /> : null}
+            Register
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
