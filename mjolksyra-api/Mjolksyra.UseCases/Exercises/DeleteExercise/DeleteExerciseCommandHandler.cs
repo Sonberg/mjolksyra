@@ -24,7 +24,7 @@ public class DeleteExerciseCommandHandler : IRequestHandler<DeleteExerciseComman
         }
 
         var exercise = await _exerciseRepository.Get(request.ExerciseId, cancellationToken);
-        if (exercise.CreatedByUserId != userId)
+        if (exercise.CreatedBy != userId)
         {
             return;
         }

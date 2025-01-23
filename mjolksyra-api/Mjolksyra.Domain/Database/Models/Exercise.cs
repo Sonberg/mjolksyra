@@ -24,7 +24,7 @@ public class Exercise : IDocument
 
     public ICollection<string> SecondaryMuscles { get; set; } = Array.Empty<string>();
 
-    public Guid? CreatedByUserId { get; set; }
+    public Guid? CreatedBy { get; set; }
 
     public ICollection<Guid> StarredBy { get; set; } = Array.Empty<Guid>();
 

@@ -4,7 +4,6 @@ param location string = resourceGroup().location
 @description('Tags that will be applied to all resources')
 param tags object = {}
 
-
 param mjolksyraApiExists bool
 @secure()
 param mjolksyraApiDefinition object
@@ -39,16 +38,22 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' =
     acrAdminUserEnabled: true
     tags: tags
     publicNetworkAccess: 'Enabled'
-    roleAssignments:[
+    roleAssignments: [
       {
         principalId: mjolksyraApiIdentity.outputs.principalId
         principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+        roleDefinitionIdOrName: subscriptionResourceId(
+          'Microsoft.Authorization/roleDefinitions',
+          '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+        )
       }
       {
         principalId: mjolksyraAppIdentity.outputs.principalId
         principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+        roleDefinitionIdOrName: subscriptionResourceId(
+          'Microsoft.Authorization/roleDefinitions',
+          '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+        )
       }
     ]
   }
@@ -108,12 +113,13 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
-      secureList:  union([
-      ],
-      map(mjolksyraApiSecrets, secret => {
-        name: secret.secretRef
-        value: secret.value
-      }))
+      secureList: union(
+        [],
+        map(mjolksyraApiSecrets, secret => {
+          name: secret.secretRef
+          value: secret.value
+        })
+      )
     }
     containers: [
       {
@@ -123,32 +129,38 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
           cpu: json('0.5')
           memory: '1.0Gi'
         }
-        env: union([
-          {
-            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-            value: monitoring.outputs.applicationInsightsConnectionString
-          }
-          {
-            name: 'AZURE_CLIENT_ID'
-            value: mjolksyraApiIdentity.outputs.clientId
-          }
-          {
-            name: 'PORT'
-            value: '80'
-          }
-        ],
-        mjolksyraApiEnv,
-        map(mjolksyraApiSecrets, secret => {
+        env: union(
+          [
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: monitoring.outputs.applicationInsightsConnectionString
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: mjolksyraApiIdentity.outputs.clientId
+            }
+            {
+              name: 'PORT'
+              value: '80'
+            }
+            {
+              name: 'KeyVault--Url'
+              value: keyVaultApi.outputs.uri
+            }
+          ],
+          mjolksyraApiEnv,
+          map(mjolksyraApiSecrets, secret => {
             name: secret.name
             secretRef: secret.secretRef
-        }))
+          })
+        )
       }
     ]
-    managedIdentities:{
+    managedIdentities: {
       systemAssigned: false
       userAssignedResourceIds: [mjolksyraApiIdentity.outputs.resourceId]
     }
-    registries:[
+    registries: [
       {
         server: containerRegistry.outputs.loginServer
         identity: mjolksyraApiIdentity.outputs.resourceId
@@ -195,12 +207,13 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
-      secureList:  union([
-      ],
-      map(mjolksyraAppSecrets, secret => {
-        name: secret.secretRef
-        value: secret.value
-      }))
+      secureList: union(
+        [],
+        map(mjolksyraAppSecrets, secret => {
+          name: secret.secretRef
+          value: secret.value
+        })
+      )
     }
     containers: [
       {
@@ -210,36 +223,42 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
           cpu: json('0.5')
           memory: '1.0Gi'
         }
-        env: union([
-          {
-            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-            value: monitoring.outputs.applicationInsightsConnectionString
-          }
-          {
-            name: 'AZURE_CLIENT_ID'
-            value: mjolksyraAppIdentity.outputs.clientId
-          }
-          {
-            name: 'API_URL'
-            value: 'https://mjolksyra-api.${containerAppsEnvironment.outputs.defaultDomain}'
-          }
-          {
-            name: 'PORT'
-            value: '80'
-          }
-        ],
-        mjolksyraAppEnv,
-        map(mjolksyraAppSecrets, secret => {
+        env: union(
+          [
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: monitoring.outputs.applicationInsightsConnectionString
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: mjolksyraAppIdentity.outputs.clientId
+            }
+            {
+              name: 'API_URL'
+              value: 'https://mjolksyra-api.${containerAppsEnvironment.outputs.defaultDomain}'
+            }
+            {
+              name: 'PORT'
+              value: '80'
+            }
+            {
+              name: 'KEY_VAULT_URL'
+              value: keyVaultApp.outputs.uri
+            }
+          ],
+          mjolksyraAppEnv,
+          map(mjolksyraAppSecrets, secret => {
             name: secret.name
             secretRef: secret.secretRef
-        }))
+          })
+        )
       }
     ]
-    managedIdentities:{
+    managedIdentities: {
       systemAssigned: false
       userAssignedResourceIds: [mjolksyraAppIdentity.outputs.resourceId]
     }
-    registries:[
+    registries: [
       {
         server: containerRegistry.outputs.loginServer
         identity: mjolksyraAppIdentity.outputs.resourceId
@@ -250,11 +269,11 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
     tags: union(tags, { 'azd-service-name': 'mjolksyra-app' })
   }
 }
-// Create a keyvault to store secrets
-module keyVault 'br/public:avm/res/key-vault/vault:0.6.1' = {
-  name: 'keyvault'
+
+module keyVaultApi 'br/public:avm/res/key-vault/vault:0.6.1' = {
+  name: 'keyvault-api'
   params: {
-    name: '${abbrs.keyVaultVaults}${resourceToken}'
+    name: '${abbrs.keyVaultVaults}${resourceToken}-api'
     location: location
     tags: tags
     enableRbacAuthorization: false
@@ -262,28 +281,44 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.6.1' = {
       {
         objectId: principalId
         permissions: {
-          secrets: [ 'get', 'list' ]
+          secrets: ['get', 'list']
         }
       }
       {
         objectId: mjolksyraApiIdentity.outputs.principalId
         permissions: {
-          secrets: [ 'get', 'list' ]
+          secrets: ['get', 'list']
+        }
+      }
+    ]
+    secrets: []
+  }
+}
+
+module keyVaultApp 'br/public:avm/res/key-vault/vault:0.6.1' = {
+  name: 'keyvault-app'
+  params: {
+    name: '${abbrs.keyVaultVaults}${resourceToken}-app'
+    location: location
+    tags: tags
+    enableRbacAuthorization: false
+    accessPolicies: [
+      {
+        objectId: principalId
+        permissions: {
+          secrets: ['get', 'list']
         }
       }
       {
         objectId: mjolksyraAppIdentity.outputs.principalId
         permissions: {
-          secrets: [ 'get', 'list' ]
+          secrets: ['get', 'list']
         }
       }
     ]
-    secrets: [
-    ]
+    secrets: []
   }
 }
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.loginServer
-output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.uri
-output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
 output AZURE_RESOURCE_MJOLKSYRA_API_ID string = mjolksyraApi.outputs.resourceId
 output AZURE_RESOURCE_MJOLKSYRA_APP_ID string = mjolksyraApp.outputs.resourceId

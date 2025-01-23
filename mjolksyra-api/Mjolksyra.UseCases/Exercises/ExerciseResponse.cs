@@ -41,7 +41,7 @@ public class ExerciseResponse : IExerciseResponse
             Level = exercise.Level,
             Mechanic = exercise.Mechanic,
             Starred = userId != null && exercise.StarredBy.Contains(userId.Value),
-            CanDelete = userId != null && exercise.CreatedByUserId == userId,
+            CanDelete = userId != null && exercise.CreatedBy == userId,
             Instructions = exercise.Instructions,
             PrimaryMuscles = exercise.PrimaryMuscles,
             SecondaryMuscles = exercise.SecondaryMuscles

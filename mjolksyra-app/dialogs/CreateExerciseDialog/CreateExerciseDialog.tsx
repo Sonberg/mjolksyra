@@ -19,6 +19,7 @@ import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { SingleSelect } from "@/components/Select/SingleSelect";
 import { useValidation } from "@/hooks/useValidation";
 import { CreateExercise } from "@/api/exercises/createExercise";
+import { useAuth } from "@/context/Auth";
 
 const schema = z.object({
   name: z.string(),
@@ -42,6 +43,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
   const [isOpen, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, unknown>>({});
 
+  const auth = useAuth();
   const query = useQueryClient();
   const options = useQuery({
     queryKey: ["exercises/options"],
@@ -52,7 +54,10 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
 
       return response.data!;
     },
-    placeholderData: {},
+    placeholderData: {
+      data: [],
+    },
+    enabled: auth.isAuthenticated,
   });
 
   const validation = useValidation<Values>({
@@ -76,7 +81,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
           <DialogTitle>Create exercise</DialogTitle>
           <DialogDescription>
             Exercises created by you, will only be visible for you and your
-            trainee's
+            trainee&apos;s
           </DialogDescription>
         </DialogHeader>
 

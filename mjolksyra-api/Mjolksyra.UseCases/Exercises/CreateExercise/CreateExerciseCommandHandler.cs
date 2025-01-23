@@ -34,7 +34,7 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
             Mechanic = request.Mechanic,
             Equipment = request.Equipment,
             Category = request.Category,
-            CreatedByUserId = userId,
+            CreatedBy = userId,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
