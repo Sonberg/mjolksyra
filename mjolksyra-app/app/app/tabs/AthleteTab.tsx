@@ -1,17 +1,21 @@
+import { User } from "@/api/users/type";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { AtheletePaymentDialog } from "@/dialogs/AtheletePaymentDialog";
 import { useState } from "react";
 
-export function AthleteTab() {
+type Props = {
+  user: User;
+};
+
+export function AthleteTab({ user }: Props) {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   return (
     <div>
       <div className="text-lg text-primary">
         A new athelete, welcome. You are almost ready to get going, dd your
-        payment method and we can get started. You have one pending invite from:{" "}
-        <strong>Natalie Sleiers</strong>
+        payment method and we can get started.
       </div>
       <div className="border-b py-4">
         <div className="text-2xl font-bold">1. Add payment method</div>
@@ -34,7 +38,10 @@ export function AthleteTab() {
       </div>
       <div className="border-b py-4">
         <div className="text-2xl font-bold text-muted">
-          2. Your invites (1 pending)
+          2. Your invites{" "}
+          {user.coaches.length ? (
+            <span>({user.coaches.length} pending)</span>
+          ) : null}
         </div>
       </div>
     </div>

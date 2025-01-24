@@ -31,6 +31,14 @@ public class UserRepository : IUserRepository
             .ContinueWith(t => t.Result.Single(), ct);
     }
 
+    public async Task<ICollection<User>> GetManyById(ICollection<Guid> ids, CancellationToken ct)
+    {
+        return await _context.Users
+            .Find(x => ids.Contains(x.Id))
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.ToList(), ct);
+    }
+
     public async Task<User> Create(User user, CancellationToken ct)
     {
         await _context.Users.InsertOneAsync(user, new InsertOneOptions(), ct);
