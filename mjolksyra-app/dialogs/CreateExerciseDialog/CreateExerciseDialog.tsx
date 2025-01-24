@@ -54,9 +54,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
 
       return response.data!;
     },
-    placeholderData: {
-      data: [],
-    },
+    placeholderData: {},
     enabled: auth.isAuthenticated,
   });
 
@@ -72,6 +70,8 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
       ...values,
     },
   });
+
+  console.log(options.data);
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>

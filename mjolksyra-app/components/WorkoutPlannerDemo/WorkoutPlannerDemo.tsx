@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 import { Exercise } from "@/api/exercises/type";
 import { PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { useRef } from "react";
+import { search } from "fast-fuzzy";
 
 const queryClient = new QueryClient();
 
@@ -69,9 +70,11 @@ export function WorkoutPlannerDemo() {
                     x.id === exerciseId ? { ...x, starred: state } : x
                   );
                 },
-                search: async () => {
+                search: async ({ freeText }) => {
                   return {
-                    data: [],
+                    data: search(freeText, exercises.current, {
+                      keySelector: (obj) => obj.name,
+                    }),
                     next: null,
                   };
                 },
