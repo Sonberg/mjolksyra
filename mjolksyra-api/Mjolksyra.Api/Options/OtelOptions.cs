@@ -11,8 +11,7 @@ public class OtelOptions
     public required string EndpointMetrics { get; set; }
 
     public required string ServiceName { get; set; }
-
-
+    
     public required string? Protocol { get; set; }
 
     public required string? Headers { get; set; }

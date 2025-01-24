@@ -101,7 +101,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   name: 'mjolksyraApi'
   params: {
     name: 'mjolksyra-api'
-    ingressTargetPort: 80
+    ingressTargetPort: 8080
     corsPolicy: {
       allowedOrigins: [
         'https://mjolksyra-app.${containerAppsEnvironment.outputs.defaultDomain}'
@@ -138,10 +138,6 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
             {
               name: 'AZURE_CLIENT_ID'
               value: mjolksyraApiIdentity.outputs.clientId
-            }
-            {
-              name: 'PORT'
-              value: '80'
             }
             {
               name: 'KEY_VAULT_URL'
