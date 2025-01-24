@@ -144,7 +144,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
               value: '80'
             }
             {
-              name: 'KeyVault--Url'
+              name: 'KEY_VAULT_URL'
               value: keyVaultApi.outputs.uri
             }
           ],
