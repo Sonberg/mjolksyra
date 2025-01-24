@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WorkoutPlannerDemo } from "@/components/WorkoutPlannerDemo/WorkoutPlannerDemo";
 import { isBeta } from "@/constants/isBeta";
@@ -19,8 +20,15 @@ export default function Home() {
               Weightlifters.
             </p>
             <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-              {isBeta ? (
-                <Input />
+              {isBeta || true ? (
+                <div className="w-full flex flex-col items-start gap-4">
+                  <div className="text-sm">
+                    Want to stay in touch and informed when we are lunching?
+                  </div>
+
+                  <Input placeholder="You email" />
+                  <Button size="sm">Keep me up-to-date</Button>
+                </div>
               ) : (
                 <RegisterDialog
                   trigger={
@@ -40,7 +48,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    
+
       <section className="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-44">
         <div className="mr-auto place-self-center lg:col-span-7">
           <h2 className="text-4xl leading-relaxed font-extrabold tracking-tight pb-8">

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { Button } from "../ui/button";
-import { useTheme } from "next-themes";
 import { useAuth } from "@/context/Auth";
 import { BicepsFlexedIcon, DumbbellIcon } from "lucide-react";
 import { LoginDialog } from "@/dialogs/LoginDialog";
@@ -13,18 +12,12 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function Navigation() {
-  const theme = useTheme();
   const auth = useAuth();
   const pathname = usePathname();
 
   const [showBorder, setShowBorder] = useState(() =>
     pathname === "/" ? false : true
   );
-
-  const logo =
-    theme.resolvedTheme == "light"
-      ? "/images/logo-light.png"
-      : "/images/logo-dark.png";
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -77,8 +70,7 @@ export function Navigation() {
               alt="Logo"
               width={32}
               height={32}
-              src={logo}
-              data-theme={theme.resolvedTheme}
+              src={"/images/logo.svg"}
             />
             <div>mjölksyra</div>
           </div>

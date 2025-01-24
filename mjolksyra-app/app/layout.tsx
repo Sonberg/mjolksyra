@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Navigation } from "@/components/Navigation";
-
-import { Theme } from "@/context/Theme";
 import { AuthProvider } from "@/context/Auth";
 
 import "./globals.css";
@@ -33,17 +31,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden h-[100vh]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden dark  h-[100vh]`}
       >
         <CookiesProvider>
           <AuthProvider>
             <PostHog>
-              <Theme>
-                <Navigation />
-                <main className="flex flex-col flex-1 overflow-hidden">
-                  {children}
-                </main>
-              </Theme>
+              <Navigation />
+              <main className="flex flex-col flex-1 overflow-hidden">
+                {children}
+              </main>
             </PostHog>
           </AuthProvider>
         </CookiesProvider>

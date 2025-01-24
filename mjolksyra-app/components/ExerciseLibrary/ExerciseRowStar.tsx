@@ -3,7 +3,6 @@ import { Star } from "lucide-react";
 import { Exercise } from "@/api/exercises/type";
 import { useStarredExercises } from "./hooks/useStarredExercises";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
 import { StarredExercises } from "@/api/exercises/starredExercises";
 import { StarExercise } from "@/api/exercises/starExercise";
 
@@ -16,7 +15,6 @@ type Props = {
 };
 
 export function ExerciseRowStar({ exercise, exercises }: Props) {
-  const { resolvedTheme } = useTheme();
   const starred = useStarredExercises({ mutationOnly: true, exercises });
   const isStarred = useMemo(
     () => starred.data?.find((x) => x.id == exercise.id),
@@ -32,9 +30,7 @@ export function ExerciseRowStar({ exercise, exercises }: Props) {
 
   return (
     <Star
-      fill={
-        isStarred ? (resolvedTheme === "dark" ? "#FFF" : "#000") : 'transparent'
-      }
+      fill={isStarred ? "#FFF" : "transparent"}
       className={className}
       onClick={() =>
         isStarred ? starred.unstar(exercise.id) : starred.star(exercise.id)
