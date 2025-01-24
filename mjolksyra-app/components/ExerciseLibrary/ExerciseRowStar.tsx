@@ -33,7 +33,7 @@ export function ExerciseRowStar({ exercise, exercises }: Props) {
   return (
     <Star
       fill={
-        isStarred ? (resolvedTheme === "dark" ? "#FFF" : "#000") : undefined
+        isStarred ? (resolvedTheme === "dark" ? "#FFF" : "#000") : 'transparent'
       }
       className={className}
       onClick={() =>

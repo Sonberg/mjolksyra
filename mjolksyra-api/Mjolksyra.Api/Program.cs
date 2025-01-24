@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Azure.Identity;
 using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
@@ -21,7 +22,13 @@ using Scalar.AspNetCore;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
-var otel = builder.Configuration
+
+if (Environment.GetEnvironmentVariable("KEY_VAULT_URL") is { } keyVaultUrl)
+{
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+}
+
+var oTel = builder.Configuration
     .GetSection(OtelOptions.SectionName)
     .Get<OtelOptions>();
 
@@ -29,18 +36,18 @@ var stripe = builder.Configuration
     .GetSection(StripeOptions.SectionName)
     .Get<StripeOptions>();
 
-foreach (var variable in otel!.EnvironmentVariables)
+foreach (var variable in oTel!.EnvironmentVariables)
 {
     Environment.SetEnvironmentVariable(variable.Name, variable.Value);
 }
 
 builder.Logging.AddOpenTelemetry(logging =>
 {
-    logging.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(otel.ServiceName));
+    logging.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(oTel.ServiceName));
     logging.AddOtlpExporter(opt =>
     {
-        opt.Endpoint = new Uri(otel.Endpoint);
-        opt.Headers = otel.Headers;
+        opt.Endpoint = new Uri(oTel.Endpoint);
+        opt.Headers = oTel.Headers;
     });
     logging.IncludeFormattedMessage = true;
     logging.IncludeScopes = true;
@@ -62,14 +69,14 @@ builder.Services
     .ConfigureResource(x =>
     {
         x.Clear();
-        x.AddService(otel.ServiceName);
+        x.AddService(oTel.ServiceName);
     })
     .WithLogging(opt =>
     {
         opt.AddOtlpExporter(x =>
         {
-            x.Endpoint = new Uri(otel.Endpoint);
-            x.Headers = otel.Headers;
+            x.Endpoint = new Uri(oTel.Endpoint);
+            x.Headers = oTel.Headers;
         });
     })
     .WithMetrics(opt =>
@@ -79,8 +86,8 @@ builder.Services
         opt.AddMeter(InstrumentationOptions.MeterName);
         opt.AddOtlpExporter(x =>
         {
-            x.Endpoint = new Uri(otel.Endpoint);
-            x.Headers = otel.Headers;
+            x.Endpoint = new Uri(oTel.Endpoint);
+            x.Headers = oTel.Headers;
         });
     })
     .WithTracing(opt =>
@@ -91,8 +98,8 @@ builder.Services
         opt.AddHttpClientInstrumentation();
         opt.AddOtlpExporter(x =>
         {
-            x.Endpoint = new Uri(otel.Endpoint);
-            x.Headers = otel.Headers;
+            x.Endpoint = new Uri(oTel.Endpoint);
+            x.Headers = oTel.Headers;
         });
     });
 

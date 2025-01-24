@@ -9,7 +9,7 @@ export default function Page() {
   const auth = useAuth();
 
   return (
-    <div className="mt-24 mx-auto w-[60rem]">
+    <div className="mt-24 px-6 mx-auto w-full max-w-screen-xl">
       <Tabs defaultValue="coach">
         <div className="flex justify-between items-center mb-4">
           <div className="text-4xl font-bold">Hi {auth.givenName}!</div>
