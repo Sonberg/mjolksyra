@@ -9,11 +9,13 @@ namespace Mjolksyra.Infrastructure.Email;
 
 public class BrevoEmailSender : IEmailSender
 {
-    private readonly TransactionalEmailsApi _api;
+    private readonly TransactionalEmailsApi _transactionalEmailsApi;
+
+    private readonly ContactsApi _contactsApi;
 
     public BrevoEmailSender(IOptions<BrevoOptions> options)
     {
-        _api = new TransactionalEmailsApi(new Configuration
+        var configuration = new Configuration
         {
             ApiKey = new Dictionary<string, string>
             {
@@ -21,15 +23,26 @@ public class BrevoEmailSender : IEmailSender
                     "api-key", options.Value.ApiKey
                 }
             }
-        });
+        };
+
+        _contactsApi = new ContactsApi(configuration);
+        _transactionalEmailsApi = new TransactionalEmailsApi(configuration);
     }
 
     public async Task SendInvitation(string email, InvitationEmail invitation, CancellationToken cancellationToken)
     {
-        await _api.SendTransacEmailAsync(new SendSmtpEmail
+        await _transactionalEmailsApi.SendTransacEmailAsync(new SendSmtpEmail
         {
             TemplateId = 1,
             Params = invitation
+        });
+    }
+
+    public async Task SignUp(string email, CancellationToken cancellationToken)
+    {
+        await _contactsApi.CreateContactAsync(new CreateContact
+        {
+            Email = email
         });
     }
 }

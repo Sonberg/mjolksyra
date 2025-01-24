@@ -71,8 +71,6 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
     },
   });
 
-  console.log(options.data);
-
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>

@@ -1,8 +1,15 @@
+"use client";
+
+import { ApiClient } from "@/api/client";
+import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WorkoutPlannerDemo } from "@/components/WorkoutPlannerDemo/WorkoutPlannerDemo";
 import { isBeta } from "@/constants/isBeta";
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
+import { useValidation } from "@/hooks/useValidation";
+import { useState } from "react";
+import { z } from "zod";
 
 export default function Home() {
   return (
@@ -21,14 +28,7 @@ export default function Home() {
             </p>
             <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
               {isBeta || true ? (
-                <div className="w-full flex flex-col items-start gap-4">
-                  <div className="text-sm">
-                    Want to stay in touch and informed when we are lunching?
-                  </div>
-
-                  <Input placeholder="You email" />
-                  <Button size="sm">Keep me up-to-date</Button>
-                </div>
+                <SignupForm />
               ) : (
                 <RegisterDialog
                   trigger={
@@ -72,3 +72,55 @@ export default function Home() {
     </div>
   );
 }
+
+const schema = z.object({
+  email: z.string().email(),
+});
+
+const SignupForm = () => {
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setSubmitted] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+
+  const validation = useValidation({
+    schema,
+    values: {
+      email,
+    },
+  });
+
+  async function onSubmit() {
+    if (!validation.success) {
+      return;
+    }
+
+    setLoading(true);
+    await ApiClient.post("/api/signup", validation.parsed);
+    setSubmitted(true);
+    setLoading(false);
+  }
+
+  return (
+    <>
+      <div className="w-full flex flex-col items-start gap-4">
+        <div className="text-sm">
+          Want to stay in touch and informed when we are lunching?
+        </div>
+
+        <Input
+          value={email}
+          onChange={(ev) => setEmail(ev.target.value)}
+          placeholder="You email"
+        />
+        <Button
+          disabled={!validation.success || isSubmitted}
+          onClick={onSubmit}
+          size="sm"
+        >
+          {isLoading ? <Spinner size={8} /> : null}
+          {isSubmitted ? "Thank you!" : " Keep me up-to-date"}
+        </Button>
+      </div>
+    </>
+  );
+};

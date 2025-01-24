@@ -10,4 +10,6 @@ public class InvitationEmail
 public interface IEmailSender
 {
     Task SendInvitation(string email, InvitationEmail invitation, CancellationToken cancellationToken);
+    
+    Task SignUp(string email, CancellationToken cancellationToken);
 }
