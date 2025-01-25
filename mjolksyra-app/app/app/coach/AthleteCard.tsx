@@ -92,7 +92,7 @@ export function AthleteCard({ trainee }: Props) {
       </CardContent>
       <CardFooter className="grid place-items-end">
         <Button
-          onClick={() => router.push(`/athletes/${trainee.id}/planner`)}
+          onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
           size="sm"
           variant="secondary"
         >

@@ -12,17 +12,13 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, use, useMemo, useState } from "react";
 import { AtheletePaymentDialogContent } from "./AtheletePaymentDialogContent";
 
 type Props = {
   trigger: ReactNode;
   onOpenChanged: (_: boolean) => void;
 };
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
 
 export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
   const [isOpen, setOpen] = useState(false);
@@ -39,6 +35,11 @@ export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
     },
     enabled: isOpen,
   });
+
+  const stripe = useMemo(
+    () => loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!),
+    []
+  );
 
   return (
     <Dialog
@@ -57,7 +58,7 @@ export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
 
         {data ? (
           <Elements
-            stripe={stripePromise}
+            stripe={stripe}
             options={{
               clientSecret: data,
               appearance: {

@@ -1,6 +1,6 @@
 import { getAuth } from "@/context/Auth";
 import { getUserMe } from "@/api/users/getUserMe";
-import { PageContent } from "./pageContent";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
   const auth = await getAuth({
@@ -11,5 +11,13 @@ export default async function Page() {
     accessToken: auth!.accessToken!,
   });
 
-  return <PageContent user={user} />;
+  if (user.onboarding.coach !== "NotStarted") {
+    redirect("/app/coach");
+  }
+
+  if (user.onboarding.athlete !== "NotStarted") {
+    redirect("/app/athlete");
+  }
+
+  redirect("/app/coach");
 }

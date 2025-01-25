@@ -1,3 +1,5 @@
+"use client";
+
 import { User } from "@/api/users/type";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,7 @@ type Props = {
   user: User;
 };
 
-export function AthleteTab({ user }: Props) {
+export function AthleteOnboarding({ user }: Props) {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   return (

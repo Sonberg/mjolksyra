@@ -7,7 +7,7 @@ type Props = { trainees: Trainee[] };
 
 export function PageContent({ trainees }: Props) {
   return (
-    <div className="p-6">
+    <div>
       {trainees.map((x) => (
         <AthleteCard key={x.id} trainee={x} />
       ))}

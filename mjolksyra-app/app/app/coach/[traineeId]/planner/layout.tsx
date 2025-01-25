@@ -24,13 +24,11 @@ export default function Layout({ children }: Props) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/athletes">Athletes</BreadcrumbLink>
+              <BreadcrumbLink href="/app/coach">Coach</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/athletes#${auth.userId}`}>
-                Per Sonberg
-              </BreadcrumbLink>
+              <BreadcrumbLink href={`/app/coach`}>Per Sonberg</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

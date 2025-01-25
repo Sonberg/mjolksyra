@@ -49,7 +49,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-44">
+      {/* <section className="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-44">
         <div className="mr-auto place-self-center lg:col-span-7">
           <h2 className="text-4xl leading-relaxed font-extrabold tracking-tight pb-8">
             How much can you make?
@@ -58,7 +58,7 @@ export default function Home() {
         <div className="border mr-auto place-self-center lg:col-span-12 rounded">
           Calculator
         </div>
-      </section>
+      </section> */}
       <section className="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-44">
         <div className="mr-auto place-self-center lg:col-span-7">
           <h2 className="text-4xl leading-relaxed font-extrabold tracking-tight pb-8">
@@ -112,13 +112,9 @@ const SignupForm = () => {
           onChange={(ev) => setEmail(ev.target.value)}
           placeholder="You email"
         />
-        <Button
-          disabled={!validation.success || isSubmitted}
-          onClick={onSubmit}
-          size="sm"
-        >
+        <Button disabled={isSubmitted} onClick={onSubmit} size="sm">
           {isLoading ? <Spinner size={8} /> : null}
-          {isSubmitted ? "Thank you!" : " Keep me up-to-date"}
+          {isSubmitted ? "Thank you!" : "Keep me up-to-date"}
         </Button>
       </div>
     </>

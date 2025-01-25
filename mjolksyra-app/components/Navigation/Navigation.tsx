@@ -76,7 +76,7 @@ export function Navigation() {
           </div>
         </Link>
         <nav className={"flex items-center space-x-4 lg:space-x-6 mx-4"}>
-          {auth.isAuthenticated ? (
+          {/* {auth.isAuthenticated ? (
             <>
               <Link
                 href="/workouts"
@@ -93,7 +93,7 @@ export function Navigation() {
                 Athletes
               </Link>
             </>
-          ) : null}
+          ) : null} */}
         </nav>
         <div className="ml-auto flex items-center space-x-4">
           {auth.isAuthenticated ? (
