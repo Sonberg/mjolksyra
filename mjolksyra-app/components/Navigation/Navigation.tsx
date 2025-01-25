@@ -24,6 +24,7 @@ export function Navigation() {
     }
 
     if (pathname !== "/") {
+      setShowBorder(true);
       return;
     }
 

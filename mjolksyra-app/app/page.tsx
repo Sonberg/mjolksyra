@@ -2,7 +2,6 @@
 
 import { ApiClient } from "@/api/client";
 import { Spinner } from "@/components/Spinner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WorkoutPlannerDemo } from "@/components/WorkoutPlannerDemo/WorkoutPlannerDemo";
 import { isBeta } from "@/constants/isBeta";
