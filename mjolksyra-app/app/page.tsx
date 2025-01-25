@@ -7,7 +7,6 @@ import { WorkoutPlannerDemo } from "@/components/WorkoutPlannerDemo/WorkoutPlann
 import { isBeta } from "@/constants/isBeta";
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import { useValidation } from "@/hooks/useValidation";
-import { DotIcon } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 
