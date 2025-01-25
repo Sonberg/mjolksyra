@@ -4,7 +4,6 @@ import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
-import { BicepsFlexedIcon, DumbbellIcon } from "lucide-react";
 import { LoginDialog } from "@/dialogs/LoginDialog";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -75,26 +74,7 @@ export function Navigation() {
             <div>mjölksyra</div>
           </div>
         </Link>
-        <nav className={"flex items-center space-x-4 lg:space-x-6 mx-4"}>
-          {/* {auth.isAuthenticated ? (
-            <>
-              <Link
-                href="/workouts"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex gap-1 items-center"
-              >
-                <DumbbellIcon className="h-4" />
-                Workouts
-              </Link>
-              <Link
-                href="/athletes"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex gap-1 items-center"
-              >
-                <BicepsFlexedIcon className="h-4" />
-                Athletes
-              </Link>
-            </>
-          ) : null} */}
-        </nav>
+
         <div className="ml-auto flex items-center space-x-4">
           {auth.isAuthenticated ? (
             <NavigationUser />
