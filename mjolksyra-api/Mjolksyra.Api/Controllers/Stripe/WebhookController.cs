@@ -86,6 +86,9 @@ public class WebhookController : Controller
             _ => StripeStatus.RequiresAction
         };
 
+        user.Coach.Stripe.Message = account.Requirements.CurrentlyDue.Count > 0
+            ? "Please complete the onboarding process"
+            : "Onboarding completed";
 
         await _userRepository.Update(user, CancellationToken.None);
     }

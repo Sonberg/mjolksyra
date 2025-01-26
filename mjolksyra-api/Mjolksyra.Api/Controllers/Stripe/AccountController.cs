@@ -32,11 +32,16 @@ public class AccountController : Controller
         _userRepository = userRepository;
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<ActionResult> Get(string id)
     {
-        var service = new AccountService(_stripeClient);
-        return Ok(await service.GetAsync(id));
+        var linkService = new AccountLoginLinkService(_stripeClient);
+        var accountService = new AccountService(_stripeClient);
+        //var loginLink = await linkService.CreateAsync(id);
+        var account = await accountService.GetAsync(id);
+
+        return Ok(account);
     }
 
     [HttpPost]

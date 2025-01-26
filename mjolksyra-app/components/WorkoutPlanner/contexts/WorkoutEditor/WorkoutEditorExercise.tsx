@@ -2,20 +2,22 @@ import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useWorkouts } from "../Workouts";
 import { monthId } from "@/lib/monthId";
+import { arrayMove } from "@dnd-kit/sortable";
 
 type Props = {
   plannedExercise: PlannedExercise;
   plannedWorkout: PlannedWorkout;
+  update: (_: PlannedWorkout) => void;
 };
 
 export function WorkoutEditorExercise({
   plannedExercise,
   plannedWorkout,
+  update,
 }: Props) {
-  const [note, setNote] = useState(plannedExercise.note ?? "");
   const { dispatch } = useWorkouts();
   const index = useMemo(
     () =>
@@ -26,71 +28,94 @@ export function WorkoutEditorExercise({
   const canMoveUp = index !== 0;
   const canMoveDown = index !== plannedWorkout.exercises.length - 1;
 
-  //   const updateNote = useDebounce((note: string) => {
-  //     // update({
-  //     //   ...plannedWorkout,
-  //     //   exercises: plannedWorkout.exercises.map((x) =>
-  //     //     x.id == plannedExercise.id
-  //     //       ? {
-  //     //           ...x,
-  //     //           note,
-  //     //         }
-  //     //       : x
-  //     //   ),
-  //     // });
-  //   }, 1000);
+  async function onMoveUp() {
+    const updatedWorkout = {
+      ...plannedWorkout,
+      exercises: arrayMove(plannedWorkout.exercises, index, index - 1),
+    };
+
+    update(updatedWorkout);
+    dispatch({
+      type: "SET_WORKOUT",
+      payload: {
+        monthId: monthId(plannedWorkout.plannedAt),
+        plannedWorkout: updatedWorkout,
+      },
+    });
+  }
+
+  async function onMoveDown() {
+    const updatedWorkout = {
+      ...plannedWorkout,
+      exercises: arrayMove(plannedWorkout.exercises, index, index + 1),
+    };
+
+    update(updatedWorkout);
+    dispatch({
+      type: "SET_WORKOUT",
+      payload: {
+        monthId: monthId(plannedWorkout.plannedAt),
+        plannedWorkout: updatedWorkout,
+      },
+    });
+  }
+
+  async function onUpdateNote(value: string) {
+    const updatedWorkout = {
+      ...plannedWorkout,
+      exercises: plannedWorkout.exercises.map((x) =>
+        x.id == plannedExercise.id
+          ? {
+              ...x,
+              note: value,
+            }
+          : x
+      ),
+    };
+    update(updatedWorkout);
+    dispatch({
+      type: "SET_WORKOUT",
+      payload: {
+        monthId: monthId(plannedWorkout.plannedAt),
+        plannedWorkout: updatedWorkout,
+      },
+    });
+  }
 
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <div className="font-bold mb-4">
+      <div className="flex justify-between items-center mb-4 ">
+        <div className="font-bold">
           {index + 1}.{"  "}
           {plannedExercise.name}
         </div>
-        <div className="flex gap-2 ">
+        <div className="flex">
           <div
+            onClick={onMoveUp}
             className={cn({
               "rounded p-1 ": true,
               "hover:bg-accent cursor-pointer": canMoveUp,
               "text-accent-foreground/40": !canMoveUp,
             })}
-            onClick={() => {
-              dispatch({
-                type: "MOVE_EXERCISE",
-                payload: {
-                  plannedExerciseId: plannedExercise.id,
-                  plannedWorkoutId: plannedWorkout.id,
-                  index: index - 1,
-                  monthId: monthId(plannedWorkout.plannedAt),
-                },
-              });
-            }}
           >
             <ArrowUpIcon className="h-5" />
           </div>
           <div
+            onClick={onMoveDown}
             className={cn({
               "rounded p-1 ": true,
               "hover:bg-accent cursor-pointer": canMoveDown,
               "text-accent-foreground/40": !canMoveDown,
             })}
-            onClick={() => {
-              dispatch({
-                type: "MOVE_EXERCISE",
-                payload: {
-                  plannedExerciseId: plannedExercise.id,
-                  plannedWorkoutId: plannedWorkout.id,
-                  index: index + 1,
-                  monthId: monthId(plannedWorkout.plannedAt),
-                },
-              });
-            }}
           >
             <ArrowDownIcon className="h-5" />
           </div>
         </div>
       </div>
-      <Textarea value={note} onChange={(ev) => setNote(ev.target.value)} />
+      <Textarea
+        value={plannedExercise.note ?? ""}
+        onChange={(ev) => onUpdateNote(ev.target.value)}
+      />
     </div>
   );
 }

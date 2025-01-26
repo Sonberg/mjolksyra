@@ -8,7 +8,9 @@ type WorkoutEditorContextValue = {
 
 const WorkoutEditorContext = createContext<WorkoutEditorContextValue>({
   plannedWorkoutId: null,
-  open(_1: string) {},
+  open(id: string) {
+    throw new Error(`${id} but not implemented`);
+  },
   close() {},
 });
 

@@ -20,6 +20,7 @@ import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout
 import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
 import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
 import { WorkoutEditor, WorkoutEditorProvider } from "./contexts/WorkoutEditor";
+import { PlannedWorkoutActionsProvider } from "./contexts/PlannedWorkoutActions";
 
 type Props = {
   traineeId: string;
@@ -96,35 +97,33 @@ export function WorkoutPlanner({
   );
 
   return (
-    <WorkoutsProvider
-      traineeId={traineeId}
-      months={months}
-      plannedWorkouts={plannedWorkouts}
-    >
-      <WorkoutEditorProvider>
-        <PlannerProvider
-          traineeId={traineeId}
-          plannedWorkouts={plannedWorkouts}
-        >
-          <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel
-              defaultSize={75}
-              minSize={50}
-              className="relative  border-collapse"
-              children={planner}
-            />
+    <PlannedWorkoutActionsProvider value={plannedWorkouts}>
+      <WorkoutsProvider traineeId={traineeId} months={months}>
+        <WorkoutEditorProvider>
+          <PlannerProvider
+            traineeId={traineeId}
+            plannedWorkouts={plannedWorkouts}
+          >
+            <ResizablePanelGroup direction="horizontal">
+              <ResizablePanel
+                defaultSize={75}
+                minSize={50}
+                className="relative  border-collapse"
+                children={planner}
+              />
 
-            <ResizableHandle withHandle />
-            <ResizablePanel
-              defaultSize={25}
-              minSize={0}
-              maxSize={30}
-              className="overflow-visible"
-              children={<WorkoutEditor children={library} />}
-            />
-          </ResizablePanelGroup>
-        </PlannerProvider>
-      </WorkoutEditorProvider>
-    </WorkoutsProvider>
+              <ResizableHandle withHandle />
+              <ResizablePanel
+                defaultSize={25}
+                minSize={0}
+                maxSize={30}
+                className="overflow-visible"
+                children={<WorkoutEditor children={library} />}
+              />
+            </ResizablePanelGroup>
+          </PlannerProvider>
+        </WorkoutEditorProvider>
+      </WorkoutsProvider>
+    </PlannedWorkoutActionsProvider>
   );
 }

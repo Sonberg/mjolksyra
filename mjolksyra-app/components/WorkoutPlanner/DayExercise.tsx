@@ -77,12 +77,7 @@ export function DayExercise({
               listeners={listeners}
               icon={<EllipsisVertical className="h-4" />}
               onDelete={() => {
-                // update({
-                //   ...plannedWorkout,
-                //   exercises: plannedWorkout.exercises.filter(
-                //     (x) => x.id !== plannedExercise.id
-                //   ),
-                // });
+                throw new Error("Not implemented");
               }}
             />
             <div className="text-sm select-none text-left overflow-hidden whitespace-nowrap text-ellipsis">

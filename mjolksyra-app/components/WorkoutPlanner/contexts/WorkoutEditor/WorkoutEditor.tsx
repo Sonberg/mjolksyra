@@ -1,12 +1,16 @@
 import { ReactNode, useMemo } from "react";
 import { useWorkoutEditor } from "./WorkoutEditorContext";
 import { useWorkouts } from "../Workouts";
-import { Spinner } from "@/components/Spinner";
 import { WorkoutEditorExercise } from "./WorkoutEditorExercise";
+import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { useDebounce } from "@/hooks/useDebounce";
+import { usePlannedWorkoutActions } from "../PlannedWorkoutActions";
+import dayjs from "dayjs";
 
 export function WorkoutEditor({ children }: { children: ReactNode }) {
   const { data } = useWorkouts();
   const { plannedWorkoutId, close } = useWorkoutEditor();
+  const { update } = usePlannedWorkoutActions();
 
   const plannedWorkout = useMemo(() => {
     if (!plannedWorkoutId) {
@@ -18,6 +22,10 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       .find((x) => x.id == plannedWorkoutId);
   }, [data, plannedWorkoutId]);
 
+  const updateDebounce = useDebounce(async (plannedWorkout: PlannedWorkout) => {
+    await update({ plannedWorkout });
+  }, 600);
+
   if (!plannedWorkout) {
     return children;
   }
@@ -25,7 +33,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
     <div>
       <div className="flex items-center gap-4 justify-between border-b px-6 py-6">
         <div className="font-bold text-2xl flex items-center gap-4">
-          {plannedWorkout.plannedAt} <Spinner size={12} />
+          {dayjs(plannedWorkout.plannedAt).format("MMMM D, YYYY")}
         </div>
         <div>
           <button
@@ -43,6 +51,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
             key={x.id}
             plannedExercise={x}
             plannedWorkout={plannedWorkout}
+            update={updateDebounce}
           />
         ))}
       </div>

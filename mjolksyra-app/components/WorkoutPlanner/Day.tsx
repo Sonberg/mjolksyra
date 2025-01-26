@@ -16,6 +16,9 @@ import { PLANNED_AT } from "@/constants/dateFormats";
 import { useCloning } from "./contexts/Planner";
 import { insertAt } from "@/lib/insertAt";
 import { useWorkoutEditor } from "./contexts/WorkoutEditor";
+import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
+import { useWorkouts } from "./contexts/Workouts";
+import { monthId } from "@/lib/monthId";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
@@ -31,6 +34,8 @@ type Props = {
 export function Day({ date, plannedWorkout }: Props) {
   const cloning = useCloning();
   const editor = useWorkoutEditor();
+  const workouts = useWorkouts();
+  const actions = usePlannedWorkoutActions();
   const id = useMemo(() => date.format(PLANNED_AT), [date]);
   const data = useMemo(
     () => ({
@@ -118,15 +123,33 @@ export function Day({ date, plannedWorkout }: Props) {
                     </div>
                   }
                   listeners={listeners}
-                  onDelete={() => {}}
+                  onDelete={() => {
+                    actions.delete({ plannedWorkout });
+                    workouts.dispatch({
+                      type: "DELETE_WORKOUT",
+                      payload: {
+                        monthId: monthId(plannedWorkout.plannedAt),
+                        plannedWorkoutId: plannedWorkout.id,
+                      },
+                    });
+                  }}
                 />
                 <div
                   className={cn({
-                    "hover:bg-green-600 grid place-content-center px-2 h-9 ": true,
-                    "bg-green-800/40": !(editor.plannedWorkoutId === plannedWorkout.id),
-                    "bg-green-600": (editor.plannedWorkoutId === plannedWorkout.id),
+                    "grid place-content-center px-2 h-9 ": true,
+
+                    "bg-green-600":
+                      editor.plannedWorkoutId === plannedWorkout.id,
+                    "hover:bg-green-600/40":
+                      editor.plannedWorkoutId !== plannedWorkout.id,
+                    "hover:bg-green-500":
+                      editor.plannedWorkoutId === plannedWorkout.id,
                   })}
-                  onClick={() => editor.plannedWorkoutId === plannedWorkout.id ? editor.close() : editor.open(plannedWorkout.id)}
+                  onClick={() =>
+                    editor.plannedWorkoutId === plannedWorkout.id
+                      ? editor.close()
+                      : editor.open(plannedWorkout.id)
+                  }
                 >
                   <PencilIcon className="h-4 " />
                 </div>
@@ -172,6 +195,8 @@ export function Day({ date, plannedWorkout }: Props) {
       date,
       editor,
       exercises,
+      actions,
+      workouts,
       plannedWorkout,
       isToday,
       isOverContainer,

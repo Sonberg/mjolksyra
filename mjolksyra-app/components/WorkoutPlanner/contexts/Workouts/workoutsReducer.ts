@@ -13,6 +13,20 @@ export type Action =
       payload: { monthId: string; workouts: PlannedWorkout[] };
     }
   | {
+      type: "SET_WORKOUT";
+      payload: {
+        monthId: string;
+        plannedWorkout: PlannedWorkout;
+      };
+    }
+  | {
+      type: "DELETE_WORKOUT";
+      payload: {
+        monthId: string;
+        plannedWorkoutId: string;
+      };
+    }
+  | {
       type: "ADD_EXERCISE";
       payload: {
         traineeId: string;
@@ -120,6 +134,24 @@ export function workoutsReducer(
                 ),
               }
             : x
+        ),
+      };
+
+    case "SET_WORKOUT":
+      return {
+        ...state,
+        [action.payload.monthId]: state[action.payload.monthId].map((x) =>
+          x.id === action.payload.plannedWorkout.id
+            ? action.payload.plannedWorkout
+            : x
+        ),
+      };
+
+    case "DELETE_WORKOUT":
+      return {
+        ...state,
+        [action.payload.monthId]: state[action.payload.monthId].filter(
+          (x) => x.id !== action.payload.plannedWorkoutId
         ),
       };
 
