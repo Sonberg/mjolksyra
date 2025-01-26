@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/context/Auth";
 import { useGravatar } from "@/hooks/useGravatar";
 import dayjs from "dayjs";
 import { DumbbellIcon } from "lucide-react";
@@ -25,7 +24,6 @@ type Props = {
 
 export function AthleteCard({ trainee }: Props) {
   const router = useRouter();
-  const auth = useAuth();
   const url = useGravatar(trainee.athlete.email);
 
   const format = useCallback((date: dayjs.Dayjs) => {
