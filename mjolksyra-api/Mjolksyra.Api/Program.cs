@@ -149,16 +149,13 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
-else
+if (app.Environment.IsProduction())
 {
     app.UseHttpsRedirection();
 }
 
+app.MapOpenApi();
+app.MapScalarApiReference();
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
