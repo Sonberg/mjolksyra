@@ -172,7 +172,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
 }
 
 resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = {
-  name: '${abbrs.appManagedEnvironments}${resourceToken}/a'
+  name: '${abbrs.appManagedEnvironments}${resourceToken}/a.mjolksyra.com-cae-ygx5-250126123357'
   properties: {
     domainControlValidation: 'CNAME'
     subjectName: 'a.mjolksyra.com'
