@@ -22,7 +22,7 @@ type Props = {
   trainee: Trainee;
 };
 
-export function AthleteCard({ trainee }: Props) {
+export function CoachCard({ trainee }: Props) {
   const router = useRouter();
   const url = useGravatar(trainee.athlete.email);
 

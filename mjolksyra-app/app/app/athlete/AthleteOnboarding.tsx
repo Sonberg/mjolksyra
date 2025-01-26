@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function AthleteOnboarding({ user }: Props) {
-  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
   return (
     <div>
@@ -23,11 +23,10 @@ export function AthleteOnboarding({ user }: Props) {
         <div className="text-2xl font-bold">1. Add payment method</div>
         <div className="py-8">
           <AtheletePaymentDialog
-            onOpenChanged={setPaymentLoading}
+            onOpenChanged={setLoading}
             trigger={
               <Button>
-                {paymentLoading ? <Spinner size={24} /> : null} Setup payment
-                method
+                {isLoading ? <Spinner size={24} /> : null} Setup payment
               </Button>
             }
           />

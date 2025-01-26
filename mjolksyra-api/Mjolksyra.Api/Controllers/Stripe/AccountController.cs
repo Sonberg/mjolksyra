@@ -9,7 +9,7 @@ namespace Mjolksyra.Api.Controllers.Stripe;
 
 public class AccountLinkPostBody
 {
-    public required string Account { get; set; }
+    public required string AccountId { get; set; }
 
     public required string BaseUrl { get; set; }
 }
@@ -49,7 +49,7 @@ public class AccountController : Controller
             {
                 return Json(new
                 {
-                    account = accountId
+                    accountId
                 });
             }
 
@@ -66,6 +66,10 @@ public class AccountController : Controller
                     {
                         Payer = "application"
                     },
+                    Losses = new AccountControllerLossesOptions
+                    {
+                        Payments = "application"
+                    },
                 },
                 Capabilities = new AccountCapabilitiesOptions
                 {
@@ -77,6 +81,10 @@ public class AccountController : Controller
                     {
                         Requested = true,
                     },
+                    KlarnaPayments = new AccountCapabilitiesKlarnaPaymentsOptions
+                    {
+                        Requested = true
+                    }
                 },
                 Country = "SE",
                 Email = user.Email,
@@ -98,7 +106,7 @@ public class AccountController : Controller
 
             return Json(new
             {
-                account = account.Id
+                accountId = account.Id
             });
         }
         catch (Exception ex)
@@ -117,15 +125,15 @@ public class AccountController : Controller
     {
         try
         {
-            var connectedAccountId = body.Account;
+            var accountId = body.AccountId;
             var service = new AccountLinkService(_stripeClient);
 
             var accountLink = await service.CreateAsync(
                 new AccountLinkCreateOptions
                 {
-                    Account = connectedAccountId,
-                    ReturnUrl = $"{body.BaseUrl}/account/return/{connectedAccountId}",
-                    RefreshUrl = $"{body.BaseUrl}/account/refresh/{connectedAccountId}",
+                    Account = accountId,
+                    ReturnUrl = $"{body.BaseUrl}/app/coach",
+                    RefreshUrl = $"{body.BaseUrl}/account/refresh/{accountId}",
                     Type = "account_onboarding",
                 }
             );
