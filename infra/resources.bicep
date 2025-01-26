@@ -168,6 +168,19 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   }
 }
 
+resource containerApp 'Microsoft.App/containerApps@2024-03-01' existing = {
+  name: mjolksyraApi.outputs.name
+  scope: resourceGroup(mjolksyraApi.outputs.resourceGroupName)
+}
+
+resource containerCert 'Microsoft.AppmanagedCertificates@2023-05-01' = {
+  parent: containerApp
+  name: '${subdomain}-cert'
+  properties: {
+    domainControlValidation: 'CNAME'
+  }
+}
+
 module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
   name: 'mjolksyraAppidentity'
   params: {

@@ -54,7 +54,7 @@ export function AthleteCard({ trainee }: Props) {
   }, [format, trainee.nextWorkoutAt]);
 
   return (
-    <Card id={auth.userId ?? ""}>
+    <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
@@ -90,7 +90,14 @@ export function AthleteCard({ trainee }: Props) {
           </Card>
         </div>
       </CardContent>
-      <CardFooter className="grid place-items-end">
+      <CardFooter className="flex justify-end">
+        <Button
+          onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
+          size="sm"
+          variant="ghost"
+        >
+          Transactions
+        </Button>
         <Button
           onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
           size="sm"
