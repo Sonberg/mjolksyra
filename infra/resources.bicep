@@ -111,7 +111,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
       ]
     }
     customDomains: [
-      { name: 'a.mjolksyra.com' }
+      { name: 'a.mjolksyra.com', certificateId: managedCert.id }
     ]
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
@@ -171,13 +171,13 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   }
 }
 
-// resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = {
-//   name: '${containerAppsEnvironment.outputs.name}/a'
-//   properties: {
-//     domainControlValidation: 'CNAME'
-//     subjectName: 'a.mjolksyra.com'
-//   }
-// }
+resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = {
+  name: '${containerAppsEnvironment.outputs.name}/a'
+  properties: {
+    domainControlValidation: 'CNAME'
+    subjectName: 'a.mjolksyra.com'
+  }
+}
 
 module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
   name: 'mjolksyraAppidentity'
