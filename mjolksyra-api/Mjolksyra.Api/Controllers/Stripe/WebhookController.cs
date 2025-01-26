@@ -38,7 +38,11 @@ public class WebhookController : Controller
         switch (stripeEvent)
         {
             case { Data.Object: SetupIntent intent }:
-                await HandleSetupIntent(intent);
+                await Handle(intent);
+                break;
+
+            case { Data.Object: Account account }:
+                await Handle(account);
                 break;
         }
 
@@ -46,12 +50,12 @@ public class WebhookController : Controller
     }
 
 
-    private async Task HandleSetupIntent(SetupIntent intent)
+    private async Task Handle(SetupIntent intent)
     {
         var userId = Guid.Parse(intent.Metadata["UserId"]);
         var user = await _userRepository.GetById(userId, CancellationToken.None);
         var service = new SetupIntentService(_stripeClient);
-        
+
         user.Athlete!.Stripe!.Status = intent.Status switch
         {
             "requires_payment_method" => StripeStatus.RequiresPaymentMethod,
@@ -67,6 +71,21 @@ public class WebhookController : Controller
         {
             PaymentMethod = intent.PaymentMethodId
         });
+
+        await _userRepository.Update(user, CancellationToken.None);
+    }
+
+    private async Task Handle(Account account)
+    {
+        var userId = Guid.Parse(account.Metadata["UserId"]);
+        var user = await _userRepository.GetById(userId, CancellationToken.None);
+
+        user.Coach!.Stripe!.Status = account switch
+        {
+            { PayoutsEnabled: true, ChargesEnabled: true } => StripeStatus.Succeeded,
+            _ => StripeStatus.RequiresAction
+        };
+
 
         await _userRepository.Update(user, CancellationToken.None);
     }
