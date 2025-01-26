@@ -110,6 +110,9 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
         '*'
       ]
     }
+    customDomains: [
+      { name: 'a.mjolksyra.com' }
+    ]
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
@@ -168,18 +171,13 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   }
 }
 
-resource containerApp 'Microsoft.App/containerApps@2024-03-01' existing = {
-  name: mjolksyraApi.outputs.name
-  scope: resourceGroup(mjolksyraApi.outputs.resourceGroupName)
-}
-
-resource containerCert 'Microsoft.AppmanagedCertificates@2023-05-01' = {
-  parent: containerApp
-  name: '${subdomain}-cert'
-  properties: {
-    domainControlValidation: 'CNAME'
-  }
-}
+// resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = {
+//   name: '${containerAppsEnvironment.outputs.name}/a'
+//   properties: {
+//     domainControlValidation: 'CNAME'
+//     subjectName: 'a.mjolksyra.com'
+//   }
+// }
 
 module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
   name: 'mjolksyraAppidentity'
