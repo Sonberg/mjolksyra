@@ -19,6 +19,7 @@ import { GetPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
 import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
 import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
 import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
+import { WorkoutEditor, WorkoutEditorProvider } from "./contexts/WorkoutEditor";
 
 type Props = {
   traineeId: string;
@@ -100,25 +101,30 @@ export function WorkoutPlanner({
       months={months}
       plannedWorkouts={plannedWorkouts}
     >
-      <PlannerProvider traineeId={traineeId} plannedWorkouts={plannedWorkouts}>
-        <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel
-            defaultSize={75}
-            minSize={50}
-            className="relative  border-collapse"
-            children={planner}
-          />
+      <WorkoutEditorProvider>
+        <PlannerProvider
+          traineeId={traineeId}
+          plannedWorkouts={plannedWorkouts}
+        >
+          <ResizablePanelGroup direction="horizontal">
+            <ResizablePanel
+              defaultSize={75}
+              minSize={50}
+              className="relative  border-collapse"
+              children={planner}
+            />
 
-          <ResizableHandle withHandle />
-          <ResizablePanel
-            defaultSize={25}
-            minSize={0}
-            maxSize={30}
-            className="overflow-visible"
-            children={library}
-          />
-        </ResizablePanelGroup>
-      </PlannerProvider>
+            <ResizableHandle withHandle />
+            <ResizablePanel
+              defaultSize={25}
+              minSize={0}
+              maxSize={30}
+              className="overflow-visible"
+              children={<WorkoutEditor children={library} />}
+            />
+          </ResizablePanelGroup>
+        </PlannerProvider>
+      </WorkoutEditorProvider>
     </WorkoutsProvider>
   );
 }

@@ -9,12 +9,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
-import { RectangleEllipsisIcon } from "lucide-react";
+import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { draggingStyle } from "@/lib/draggingStyle";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { useCloning } from "./contexts/Planner";
 import { insertAt } from "@/lib/insertAt";
+import { useWorkoutEditor } from "./contexts/WorkoutEditor";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
@@ -29,6 +30,7 @@ type Props = {
 
 export function Day({ date, plannedWorkout }: Props) {
   const cloning = useCloning();
+  const editor = useWorkoutEditor();
   const id = useMemo(() => date.format(PLANNED_AT), [date]);
   const data = useMemo(
     () => ({
@@ -96,7 +98,7 @@ export function Day({ date, plannedWorkout }: Props) {
       <>
         <div className="border-l border-r border-b flex flex-col ">
           <div
-            className="font-bold text-xs p-2 border-b flex items-center justify-between"
+            className="font-bold text-xs h-9 border-b flex items-center justify-between"
             ref={setDraggableNodeRef}
           >
             <div
@@ -108,11 +110,27 @@ export function Day({ date, plannedWorkout }: Props) {
               {date.date()}
             </div>
             {plannedWorkout ? (
-              <DraggingToolTip
-                icon={<RectangleEllipsisIcon className="h-4" />}
-                listeners={listeners}
-                onDelete={() => {}}
-              />
+              <div className="flex items-center cursor-pointer">
+                <DraggingToolTip
+                  icon={
+                    <div className="hover:bg-accent grid place-content-center px-2 h-9">
+                      <RectangleEllipsisIcon className="h-4" />
+                    </div>
+                  }
+                  listeners={listeners}
+                  onDelete={() => {}}
+                />
+                <div
+                  className={cn({
+                    "hover:bg-green-600 grid place-content-center px-2 h-9 ": true,
+                    "bg-green-800/40": !(editor.plannedWorkoutId === plannedWorkout.id),
+                    "bg-green-600": (editor.plannedWorkoutId === plannedWorkout.id),
+                  })}
+                  onClick={() => editor.plannedWorkoutId === plannedWorkout.id ? editor.close() : editor.open(plannedWorkout.id)}
+                >
+                  <PencilIcon className="h-4 " />
+                </div>
+              </div>
             ) : null}
           </div>
           <div
@@ -152,6 +170,7 @@ export function Day({ date, plannedWorkout }: Props) {
     ),
     [
       date,
+      editor,
       exercises,
       plannedWorkout,
       isToday,
