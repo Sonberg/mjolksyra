@@ -8,6 +8,7 @@ import {
   useSelectedLayoutSegment,
 } from "next/navigation";
 import { useAuth } from "@/context/Auth";
+import { LogOutIcon } from "lucide-react";
 
 const client = new QueryClient();
 
@@ -26,14 +27,21 @@ export default function Layout({ children }: { children: ReactNode }) {
       <div className="mt-12 px-6 mx-auto w-full max-w-screen-xl">
         <div className="flex justify-between items-center mb-8">
           <div className="text-4xl font-bold">Hi {auth.givenName}!</div>
-          <CustomTab
-            value={segment}
-            options={[
-              { name: "Coach", value: "coach" },
-              { name: "Athlete", value: "athlete" },
-            ]}
-            onSelect={(tab) => redirect(`/app/${tab.value}`)}
-          />
+          <div className="flex gap-4 items-center">
+            <CustomTab
+              value={segment}
+              options={[
+                { name: "Coach", value: "coach" },
+                { name: "Athlete", value: "athlete" },
+              ]}
+              onSelect={(tab) => redirect(`/app/${tab.value}`)}
+            />
+            <div
+              className="hover:bg-accent rounded p-2 cursor-pointer"
+              onClick={auth.logout}
+              children={<LogOutIcon className="h-5" />}
+            />
+          </div>
         </div>
         {children}
       </div>

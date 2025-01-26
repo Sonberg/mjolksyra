@@ -92,13 +92,6 @@ export function CoachCard({ trainee }: Props) {
         <Button
           onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
           size="sm"
-          variant="ghost"
-        >
-          Transactions
-        </Button>
-        <Button
-          onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
-          size="sm"
           variant="secondary"
         >
           <DumbbellIcon />

@@ -43,7 +43,7 @@ public class AccountController : Controller
 
         return Ok(account);
     }
-
+    
     [HttpPost]
     public async Task<ActionResult> Create(CancellationToken cancellationToken)
     {

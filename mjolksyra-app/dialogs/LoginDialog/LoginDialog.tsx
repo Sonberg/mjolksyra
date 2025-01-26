@@ -45,7 +45,7 @@ export function LoginDialog({ trigger }: Props) {
     }
 
     auth.login(response);
-    router.push("/planner");
+    router.push("/app");
   }, [auth, email, password, router]);
 
   return (

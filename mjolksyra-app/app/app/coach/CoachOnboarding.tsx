@@ -1,13 +1,32 @@
 import { ApiClient } from "@/api/client";
+import { User } from "@/api/users/type";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
-import { useCallback, useState } from "react";
+import { CardTitle } from "@/components/ui/card";
+import { ReactNode, useCallback, useState } from "react";
 
 type Account = { accountId: string };
 type Link = { url: string };
+type Dashboard = { url: string };
+type Props = {
+  user: User;
+};
 
-export function CoachOnboarding() {
+export function CoachOnboarding({ user }: Props) {
   const [isLoading, setLoading] = useState(false);
+
+  const dashboard = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await ApiClient.get<Dashboard>("/api/stripe/dashboard");
+
+      window.open(data.url, "_blank");
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  }, []);
 
   const start = useCallback(async () => {
     setLoading(true);
@@ -26,30 +45,39 @@ export function CoachOnboarding() {
     setLoading(false);
   }, []);
 
-  return (
-    <div>
-      <div className="text-lg text-primary">
-        A new coach, welcome. You are almost ready to start, add your payment
-        method and we can get started.
+  const card = (
+    title: string | null,
+    text: string | null,
+    button: ReactNode | null
+  ) => {
+    return (
+      <div className="mb-16 border-none bg-accent/60 p-6 rounded-lg">
+        {title ? <CardTitle children={title} /> : null}
+        {text ? <div className="py-4" children={text} /> : null}
+        {button ? <div className="flex justify-end">{button}</div> : null}
       </div>
-      <div className="border-b py-4">
-        <div className="text-2xl font-bold">1. Configure payments</div>
-        <div className="py-8">
-          <Button disabled={isLoading} onClick={start}>
-            {isLoading ? <Spinner size={24} /> : null} Setup payment
-          </Button>
-        </div>
-        <div className="">
-          <Button size="sm" variant="secondary">
-            Next
-          </Button>
-        </div>
-      </div>
-      <div className="border-b py-4">
-        <div className="text-2xl font-bold text-muted">
-          2. Invite your first athlete
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
+
+  const primaryButtonText = user.onboarding.coach === "NotStarted" ? "Continue" : "Get started";
+  const primaryButton = user.onboarding.coach === "Completed" ? (
+      <Button children="Dashboard" onClick={dashboard} />
+    ) : (
+      <Button onClick={start} disabled={isLoading}>
+        {isLoading ? <Spinner size={8} /> : null} {primaryButtonText}
+      </Button>
+    );
+
+  switch (user.onboarding.coach) {
+    case "Completed":
+      return card("Payment dashboard", null, primaryButton);
+
+    case "NotStarted":
+    case "Started":
+      return card(
+        "Onboarding",
+        "One last step before you can invite your first athlete. You need to setup payments in order to recive money",
+        primaryButton
+      );
+  }
 }

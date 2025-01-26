@@ -10,6 +10,9 @@ import { DraggingToolTip } from "../DraggingToolTip";
 import { cn } from "@/lib/utils";
 import { draggingStyle } from "@/lib/draggingStyle";
 import { useSortable } from "@dnd-kit/sortable";
+import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
+import { useWorkouts } from "./contexts/Workouts";
+import { monthId } from "@/lib/monthId";
 
 type Props = {
   weekNumber: number;
@@ -19,6 +22,8 @@ type Props = {
 
 export function Week({ weekNumber, days, plannedWorkouts }: Props) {
   const id = useId();
+  const actions = usePlannedWorkoutActions();
+  const workouts = useWorkouts();
   const data = useMemo(
     () => ({
       days,
@@ -86,8 +91,29 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
               <DraggingToolTip
                 icon={<RectangleEllipsisIcon className="h-4" />}
                 listeners={listeners}
-                onDelete={function (): void {
-                  throw new Error("Function not implemented.");
+                onDelete={() => {
+                  const plannedAts = Object.values(groupByName)
+                    .flatMap((x) => x)
+                    .map((x) => x.format(PLANNED_AT));
+
+                  for (const plannedAt of plannedAts) {
+                    const plannedWorkout = plannedWorkouts.find(
+                      (x) => x.plannedAt === plannedAt
+                    );
+
+                    if (!plannedWorkout) {
+                      continue;
+                    }
+
+                    actions.delete({ plannedWorkout });
+                    workouts.dispatch({
+                      type: "DELETE_WORKOUT",
+                      payload: {
+                        monthId: monthId(plannedAt),
+                        plannedWorkoutId: plannedWorkout.id,
+                      },
+                    });
+                  }
                 }}
               />
             ) : null}

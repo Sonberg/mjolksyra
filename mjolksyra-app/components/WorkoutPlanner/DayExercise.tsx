@@ -3,10 +3,13 @@ import { cn } from "@/lib/utils";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { EllipsisVertical } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
 import { DraggingToolTip } from "../DraggingToolTip";
+import { useWorkouts } from "./contexts/Workouts";
+import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
+import { monthId } from "@/lib/monthId";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -27,6 +30,8 @@ export function DayExercise({
 }: Props) {
   const [isOpen, setOpen] = useState(false);
 
+  const workouts = useWorkouts();
+  const actions = usePlannedWorkoutActions();
   const data = useMemo(
     () => ({
       date,
@@ -53,6 +58,28 @@ export function DayExercise({
     data,
   });
 
+  const onDelete = useCallback(() => {
+    if (!plannedWorkout) {
+      return;
+    }
+
+    const newPlannedWorkout = {
+      ...plannedWorkout,
+      exercises: plannedWorkout.exercises.filter(
+        (x) => x.id !== plannedExercise.id
+      ),
+    };
+
+    actions.update({ plannedWorkout: newPlannedWorkout });
+    workouts.dispatch({
+      type: "SET_WORKOUT",
+      payload: {
+        plannedWorkout: newPlannedWorkout,
+        monthId: monthId(plannedWorkout.plannedAt),
+      },
+    });
+  }, [actions, workouts, plannedExercise, plannedWorkout]);
+
   return useMemo(
     () => (
       <>
@@ -76,9 +103,7 @@ export function DayExercise({
             <DraggingToolTip
               listeners={listeners}
               icon={<EllipsisVertical className="h-4" />}
-              onDelete={() => {
-                throw new Error("Not implemented");
-              }}
+              onDelete={onDelete}
             />
             <div className="text-sm select-none text-left overflow-hidden whitespace-nowrap text-ellipsis">
               {plannedExercise.name}
@@ -92,6 +117,7 @@ export function DayExercise({
       transform,
       transition,
       setNodeRef,
+      onDelete,
       attributes,
       listeners,
       isDragging,
