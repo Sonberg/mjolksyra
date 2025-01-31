@@ -21,7 +21,7 @@ export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
     >
       {icon}
       {isHovering ? (
-        <div className="absolute bg-background border rounded py-2 px-1 top-0 left-1/2 transform -translate-x-1/2 -translate-y-full z-10">
+        <div className="absolute bg-background border rounded  py-2 px-1 top-0 left-1/2 transform -translate-x-1/2 -translate-y-full">
           <div
             onClick={(ev) => ev.preventDefault()}
             className="flex gap-2 px-1"

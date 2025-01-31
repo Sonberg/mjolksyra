@@ -5,6 +5,7 @@ export const exerciseSchema = z.object({
   exerciseId: z.string().nullable(),
   name: z.string(),
   note: z.string().nullable(),
+  images: z.array(z.string()),
 });
 
 export const workoutSchema = z.object({
@@ -14,5 +15,5 @@ export const workoutSchema = z.object({
   note: z.string().nullable(),
   plannedAt: z.string(),
   exercises: z.array(exerciseSchema),
-  createdAt: z.coerce.date().nullable()
+  createdAt: z.coerce.date().nullable(),
 });

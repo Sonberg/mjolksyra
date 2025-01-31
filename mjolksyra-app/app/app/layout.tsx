@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={client}>
       <div className="mt-12 px-6 mx-auto w-full max-w-screen-xl">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-16">
           <div className="text-4xl font-bold">Hi {auth.givenName}!</div>
           <div className="flex gap-4 items-center">
             <CustomTab
@@ -37,9 +37,9 @@ export default function Layout({ children }: { children: ReactNode }) {
               onSelect={(tab) => redirect(`/app/${tab.value}`)}
             />
             <div
-              className="hover:bg-accent rounded p-2 cursor-pointer"
+              className="bg-accent/60 hover:bg-accent rounded h-8 w-8 cursor-pointer grid place-items-center"
               onClick={auth.logout}
-              children={<LogOutIcon className="h-5" />}
+              children={<LogOutIcon className="h-4" />}
             />
           </div>
         </div>

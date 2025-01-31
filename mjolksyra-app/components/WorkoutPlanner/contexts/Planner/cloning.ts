@@ -1,7 +1,9 @@
 import { PlannedWorkout, PlannedExercise } from "@/api/plannedWorkouts/type";
-import { DragEndEvent, DragOverEvent } from "@dnd-kit/core";
+import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { createContext, useContext } from "react";
 import { Payload } from "./parse";
+
+type Event = DragStartEvent | DragEndEvent | DragOverEvent;
 
 type Clone = {
   targetMonth: string;
@@ -24,7 +26,7 @@ const getTarget = (el: HTMLElement): HTMLElement | null => {
     : null;
 };
 
-export function isCloning(event: DragEndEvent | DragOverEvent) {
+export function isCloning(event: Event) {
   const activeData = event.active?.data.current as Payload | undefined;
   const eventTarget = getTarget(event.activatorEvent.target as HTMLElement);
 

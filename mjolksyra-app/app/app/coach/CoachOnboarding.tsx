@@ -51,16 +51,18 @@ export function CoachOnboarding({ user }: Props) {
     button: ReactNode | null
   ) => {
     return (
-      <div className="mb-16 border-none bg-accent/60 p-6 rounded-lg">
+      <div className="mb-16">
         {title ? <CardTitle children={title} /> : null}
         {text ? <div className="py-4" children={text} /> : null}
-        {button ? <div className="flex justify-end">{button}</div> : null}
+        {button ? <div className="mt-4">{button}</div> : null}
       </div>
     );
   };
 
-  const primaryButtonText = user.onboarding.coach === "NotStarted" ? "Continue" : "Get started";
-  const primaryButton = user.onboarding.coach === "Completed" ? (
+  const primaryButtonText =
+    user.onboarding.coach === "NotStarted" ? "Continue" : "Get started";
+  const primaryButton =
+    user.onboarding.coach === "Completed" ? (
       <Button children="Dashboard" onClick={dashboard} />
     ) : (
       <Button onClick={start} disabled={isLoading}>

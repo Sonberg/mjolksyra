@@ -24,7 +24,7 @@ export function PageContent({ trainees, user }: Props) {
         </>
       ) : null}
       <div className="grid place-items-center">
-        <Button className="mx-auto text-center">
+        <Button variant="secondary" className="mx-auto text-center">
           <PlusIcon /> Invite athlete
         </Button>
       </div>

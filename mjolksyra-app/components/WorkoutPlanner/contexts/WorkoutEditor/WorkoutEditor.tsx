@@ -30,7 +30,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
     return children;
   }
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <div className="flex items-center gap-4 justify-between border-b px-6 py-6">
         <div className="font-bold text-2xl flex items-center gap-4">
           {dayjs(plannedWorkout.plannedAt).format("MMMM D, YYYY")}
@@ -45,15 +45,17 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
           </button>
         </div>
       </div>
-      <div className="flex flex-col gap-8 px-6 py-8">
-        {plannedWorkout.exercises.map((x) => (
-          <WorkoutEditorExercise
-            key={x.id}
-            plannedExercise={x}
-            plannedWorkout={plannedWorkout}
-            update={updateDebounce}
-          />
-        ))}
+      <div className="overflow-y-auto flex-1">
+        <div className="flex flex-col gap-8 px-6 py-8">
+          {plannedWorkout.exercises.map((x) => (
+            <WorkoutEditorExercise
+              key={x.id}
+              plannedExercise={x}
+              plannedWorkout={plannedWorkout}
+              update={updateDebounce}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

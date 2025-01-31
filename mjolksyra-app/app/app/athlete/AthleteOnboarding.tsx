@@ -1,10 +1,9 @@
-"use client";
-
 import { User } from "@/api/users/type";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
+import { CardTitle } from "@/components/ui/card";
 import { AtheletePaymentDialog } from "@/dialogs/AtheletePaymentDialog";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 type Props = {
   user: User;
@@ -13,38 +12,37 @@ type Props = {
 export function AthleteOnboarding({ user }: Props) {
   const [isLoading, setLoading] = useState(false);
 
-  return (
-    <div>
-      <div className="text-lg text-primary">
-        A new athelete, welcome. You are almost ready to get going, dd your
-        payment method and we can get started.
-      </div>
-      <div className="border-b py-4">
-        <div className="text-2xl font-bold">1. Add payment method</div>
-        <div className="py-8">
-          <AtheletePaymentDialog
-            onOpenChanged={setLoading}
-            trigger={
-              <Button>
-                {isLoading ? <Spinner size={24} /> : null} Setup payment
-              </Button>
-            }
-          />
+  const card = (
+    title: string | null,
+    text: string | null,
+    button: ReactNode | null
+  ) => {
+    return (
+      <div className="mb-16">
+        <div>
+          {title ? <CardTitle children={title} /> : null}
+          {text ? <div className="py-4" children={text} /> : null}
         </div>
-        <div className="">
-          <Button size="sm" variant="secondary">
-            Next
-          </Button>
-        </div>
+        {button ? <div className="mt-4">{button}</div> : null}
       </div>
-      <div className="border-b py-4">
-        <div className="text-2xl font-bold text-muted">
-          2. Your invites{" "}
-          {user.coaches.length ? (
-            <span>({user.coaches.length} pending)</span>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
+
+  switch (user.onboarding.athlete) {
+    case "Completed":
+      return null;
+
+    case "NotStarted":
+    case "Started":
+      return card(
+        "Onboarding",
+        "Almost there, you only need to add payment method.",
+        <AtheletePaymentDialog
+          onOpenChanged={setLoading}
+          trigger={
+            <Button>{isLoading ? <Spinner size={24} /> : null} Setup</Button>
+          }
+        />
+      );
+  }
 }

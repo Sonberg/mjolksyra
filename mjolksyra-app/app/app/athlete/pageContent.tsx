@@ -3,15 +3,18 @@
 import { User } from "@/api/users/type";
 import { AthleteOnboarding } from "./AthleteOnboarding";
 import { AthleteWorkouts } from "./AthleteWorkouts";
+import { AthleteInvitations } from "./AthleteInvitations";
 
 type Props = {
   user: User;
 };
 
 export function PageContent({ user }: Props) {
-  return user.onboarding.athlete === "Completed" ? (
-    <AthleteWorkouts />
-  ) : (
-    <AthleteOnboarding user={user} />
+  return (
+    <>
+      <AthleteOnboarding user={user} />
+      <AthleteInvitations />
+      <AthleteWorkouts />
+    </>
   );
 }

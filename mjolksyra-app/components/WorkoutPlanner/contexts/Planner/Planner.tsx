@@ -247,6 +247,7 @@ export function PlannerProvider({
             setCloning(null);
           }}
           onDragStart={(event) => {
+            console.log({ clone: isCloning(event) });
             setDragging(event.active.data.current?.label ?? null);
             setState(Object.freeze(data));
           }}

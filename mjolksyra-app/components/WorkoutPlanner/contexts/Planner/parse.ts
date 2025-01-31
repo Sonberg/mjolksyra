@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { isDraggingWeek, isDraggingWorkout } from "./utils";
 import { MonthWorkouts } from "../Workouts/workoutsReducer";
 import { workoutChanged } from "@/lib/workoutChanged";
+import { isCloning } from "./cloning";
 
 type PlannedWorkoutPayload = {
   date: dayjs.Dayjs;
@@ -92,11 +93,10 @@ export type Action =
   | null;
 
 export function parse(event: DragEndEvent, state: State): Action {
-  const { activatorEvent, active, over } = event;
+  const { active, over } = event;
   const overData = over?.data.current as Payload | undefined;
   const activeData = active.data.current as Payload | undefined;
-  const target = activatorEvent.target as HTMLElement;
-  const clone = target?.getAttribute("data-action") === "clone";
+  const clone = isCloning(event);
 
   console.log(event);
 

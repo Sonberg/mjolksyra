@@ -32,7 +32,7 @@ type Team = (typeof groups)[number]["teams"][number];
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-type TeamSwitcherProps = PopoverTriggerProps & {}
+type TeamSwitcherProps = PopoverTriggerProps & {};
 
 export function TraineeSwitcher({ className }: TeamSwitcherProps) {
   const [open, setOpen] = React.useState(false);
@@ -86,14 +86,7 @@ export function TraineeSwitcher({ className }: TeamSwitcherProps) {
                       <AvatarFallback>SC</AvatarFallback>
                     </Avatar>
                     {team.label}
-                    <Check
-                      className={cn(
-                        "ml-auto",
-                        selectedTeam.value === team.value
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
+                    <Check className={cn("ml-auto", "opacity-100")} />
                   </CommandItem>
                 ))}
               </CommandGroup>

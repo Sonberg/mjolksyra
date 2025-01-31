@@ -131,14 +131,17 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
       </div>
     ),
     [
-      weekNumber,
-      day,
+      setDroppableNodeRef,
       canDrop,
       isOver,
-      listeners,
-      plannedWorkouts.length,
+      weekNumber,
       setDraggableNodeRef,
-      setDroppableNodeRef,
+      plannedWorkouts,
+      listeners,
+      day,
+      groupByName,
+      actions,
+      workouts,
     ]
   );
 }

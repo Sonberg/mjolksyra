@@ -104,7 +104,6 @@ export function WorkoutViewer({ traineeId }: Props) {
           <Workout key={x.id} workout={x} />
         ))}
       </div>
-
       {!future.hasNextPage ? (
         <div className="text-muted text-lg">No more workouts planned</div>
       ) : null}

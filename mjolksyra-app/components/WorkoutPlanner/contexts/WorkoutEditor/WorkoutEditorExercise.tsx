@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { useWorkouts } from "../Workouts";
 import { monthId } from "@/lib/monthId";
 import { arrayMove } from "@dnd-kit/sortable";
+import { ExerciseImage } from "@/components/ExerciseImage";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -112,7 +113,9 @@ export function WorkoutEditorExercise({
           </div>
         </div>
       </div>
+      <ExerciseImage images={plannedExercise.images} />
       <Textarea
+        className="mt-4"
         value={plannedExercise.note ?? ""}
         onChange={(ev) => onUpdateNote(ev.target.value)}
       />

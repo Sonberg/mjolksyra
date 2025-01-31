@@ -23,6 +23,8 @@ public class Exercise : IDocument
     public ICollection<string> PrimaryMuscles { get; set; } = Array.Empty<string>();
 
     public ICollection<string> SecondaryMuscles { get; set; } = Array.Empty<string>();
+    
+    public ICollection<string> Images { get; set; } = Array.Empty<string>();
 
     public Guid? CreatedBy { get; set; }
 

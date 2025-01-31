@@ -59,6 +59,8 @@ public class PlannedExerciseResponse : IExerciseResponse
     public required ICollection<string> PrimaryMuscles { get; set; }
 
     public required ICollection<string> SecondaryMuscles { get; set; }
+    
+    public required ICollection<string> Images { get; set; }
 
     public static PlannedExerciseResponse From(PlannedExercise plannedExercise, ICollection<Exercise> exercises)
     {
@@ -75,6 +77,7 @@ public class PlannedExerciseResponse : IExerciseResponse
             Force = exercise?.Force ?? string.Empty,
             Level = exercise?.Level ?? string.Empty,
             Mechanic = exercise?.Mechanic ?? string.Empty,
+            Images = exercise?.Images ?? Array.Empty<string>(),
             Instructions = exercise?.Instructions ?? Array.Empty<string>(),
             PrimaryMuscles = exercise?.PrimaryMuscles ?? Array.Empty<string>(),
             SecondaryMuscles = exercise?.SecondaryMuscles ?? Array.Empty<string>()

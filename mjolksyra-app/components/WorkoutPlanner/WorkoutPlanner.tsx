@@ -108,7 +108,7 @@ export function WorkoutPlanner({
               <ResizablePanel
                 defaultSize={75}
                 minSize={50}
-                className="relative  border-collapse"
+                className="relative border-collapse"
                 children={planner}
               />
 
@@ -116,7 +116,7 @@ export function WorkoutPlanner({
               <ResizablePanel
                 defaultSize={25}
                 minSize={0}
-                maxSize={30}
+                maxSize={50}
                 className="overflow-visible"
                 children={<WorkoutEditor children={library} />}
               />
