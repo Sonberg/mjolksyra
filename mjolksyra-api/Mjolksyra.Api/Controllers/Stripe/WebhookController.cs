@@ -67,10 +67,13 @@ public class WebhookController : Controller
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        await service.ConfirmAsync(intent.Id, new SetupIntentConfirmOptions
+        if (intent.Status == "requires_confirmation")
         {
-            PaymentMethod = intent.PaymentMethodId
-        });
+            await service.ConfirmAsync(intent.Id, new SetupIntentConfirmOptions
+            {
+                PaymentMethod = intent.PaymentMethodId
+            });
+        }
 
         await _userRepository.Update(user, CancellationToken.None);
     }
