@@ -4,6 +4,7 @@ using Azure.Identity;
 using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
 using Mjolksyra.Api.Converters;
@@ -26,6 +27,14 @@ var builder = WebApplication.CreateBuilder(args);
 if (Environment.GetEnvironmentVariable("KEY_VAULT_URL") is { } keyVaultUrl)
 {
     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+}
+
+if (Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") is { } appInsights)
+{
+    builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+    {
+        ConnectionString = appInsights
+    });
 }
 
 var oTel = builder.Configuration
