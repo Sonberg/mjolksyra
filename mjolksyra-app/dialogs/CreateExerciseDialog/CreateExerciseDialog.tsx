@@ -28,6 +28,7 @@ const schema = z.object({
   mechanic: z.string().nullable(),
   equipment: z.string().nullable(),
   category: z.string().nullable(),
+  images: z.array(z.string())
 });
 
 type Values = z.infer<typeof schema>;
@@ -67,6 +68,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
       mechanic: null,
       equipment: null,
       category: null,
+      images: [],
       ...values,
     },
   });
@@ -119,6 +121,9 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
         })}
 
         <DialogFooter>
+          <Button onClick={() => setOpen(false)} variant="link">
+            Cancel
+          </Button>
           <Button
             onClick={async () => {
               if (!validation.success) {
@@ -134,7 +139,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
               setValues({});
             }}
           >
-            Save
+            Create exercise
           </Button>
         </DialogFooter>
       </DialogContent>
