@@ -5,6 +5,7 @@ using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
 using Mjolksyra.Api.Converters;
@@ -63,6 +64,7 @@ builder.Logging.AddOpenTelemetry(logging =>
     logging.ParseStateValues = true;
 });
 
+builder.Services.AddSingleton(Options.Create(stripe!));
 builder.Services.AddOpenApi();
 builder.Services
     .AddControllers()
