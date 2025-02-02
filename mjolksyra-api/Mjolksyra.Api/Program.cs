@@ -51,6 +51,12 @@ foreach (var variable in oTel!.EnvironmentVariables)
     Environment.SetEnvironmentVariable(variable.Name, variable.Value);
 }
 
+builder.Services
+    .AddOptions<StripeOptions>()
+    .Bind(builder.Configuration.GetSection(StripeOptions.SectionName))
+    .ValidateOnStart();
+
+
 builder.Logging.AddOpenTelemetry(logging =>
 {
     logging.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(oTel.ServiceName));

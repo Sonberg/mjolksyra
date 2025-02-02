@@ -1,3 +1,4 @@
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Mjolksyra.Api.Options;
@@ -17,19 +18,25 @@ public class WebhookController : Controller
 
     private readonly IUserRepository _userRepository;
 
+    private readonly TelemetryClient _telemetryClient;
+
     public WebhookController(
         IOptions<StripeOptions> options,
         IStripeClient stripeClient,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        TelemetryClient telemetryClient)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
+        _telemetryClient = telemetryClient;
     }
 
     [HttpPost]
-    public async Task<ActionResult> Webhook()
+    public async Task<ActionResult> Handle()
     {
+        _telemetryClient.TrackTrace($"Signature: {Request.Headers["Stripe-Signature"]}");
+        _telemetryClient.TrackTrace($"Header keys: {string.Join(", ", Request.Headers.Keys)}");
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
         var stripeEvent = EventUtility.ConstructEvent(json,
             Request.Headers["Stripe-Signature"],
