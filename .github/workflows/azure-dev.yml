@@ -6,6 +6,7 @@ on:
     # Set this to the mainline branch you are using
     branches:
       - main
+      - develop
     paths-ignore:
       - /mjolksyra-app/**"
 
