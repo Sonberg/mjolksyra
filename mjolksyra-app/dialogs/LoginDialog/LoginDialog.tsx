@@ -32,20 +32,23 @@ export function LoginDialog({ trigger }: Props) {
     setLoading(true);
     setFailed(false);
 
-    const response = await login({
-      email,
-      password,
-    });
+    try {
+      const response = await login({
+        email,
+        password,
+      });
 
-    setLoading(false);
+      if (!response?.isSuccessful) {
+        throw new Error("failed");
+      }
 
-    if (!response?.isSuccessful) {
+      auth.login(response);
+      router.push("/app");
+    } catch (error) {
+      console.log(error);
       setFailed(true);
-      return;
+      setLoading(false);
     }
-
-    auth.login(response);
-    router.push("/app");
   }, [auth, email, password, router]);
 
   return (

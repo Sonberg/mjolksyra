@@ -18,7 +18,7 @@ const schema = z.object({
 });
 
 export async function register(body: Args) {
-  "use client";
+  console.log("register (hopefully client)");
 
   const { data, status } = await ApiClient.post(`/api/auth/register`, body);
 
