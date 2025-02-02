@@ -37,6 +37,7 @@ public class WebhookController : Controller
     {
         _telemetryClient.TrackTrace($"Signature: {Request.Headers["Stripe-Signature"]}");
         _telemetryClient.TrackTrace($"Header keys: {string.Join(", ", Request.Headers.Keys)}");
+        _telemetryClient.TrackTrace($"Has secret: {!string.IsNullOrEmpty(_options.WebhookSecret)}");
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
         var stripeEvent = EventUtility.ConstructEvent(json,
             Request.Headers["Stripe-Signature"],
