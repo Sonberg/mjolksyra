@@ -18,6 +18,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
               exerciseId: action.exercise.id,
               name: action.exercise.name,
               note: "",
+              images: []
             },
           ],
         },
@@ -43,6 +44,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
               exerciseId: action.exercise.id,
               name: action.exercise.name,
               note: "",
+              images: []
             },
           ],
         },
