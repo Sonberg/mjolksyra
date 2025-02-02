@@ -69,7 +69,7 @@ export default function Home() {
               Weightlifters.
             </p>
             <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-              {isBeta || true ? (
+              {isBeta ? (
                 <SignupForm />
               ) : (
                 <RegisterDialog
@@ -180,4 +180,3 @@ const SignupForm = () => {
     </>
   );
 };
- 
