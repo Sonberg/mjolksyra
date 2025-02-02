@@ -1,5 +1,3 @@
-"use client";
-
 import { z } from "zod";
 import { ApiClient } from "../client";
 
@@ -20,6 +18,8 @@ const schema = z.object({
 });
 
 export async function register(body: Args) {
+  "use client";
+
   const { data, status } = await ApiClient.post(`/api/auth/register`, body);
 
   if (status !== 200) {
