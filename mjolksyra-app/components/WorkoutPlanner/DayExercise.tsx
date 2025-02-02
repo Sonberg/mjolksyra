@@ -5,7 +5,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { EllipsisVertical } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
-import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { useWorkouts } from "./contexts/Workouts";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";

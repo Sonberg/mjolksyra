@@ -1,4 +1,4 @@
-import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";

@@ -1,5 +1,5 @@
-import { Exercise } from "@/api/exercises/type";
-import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { Exercise } from "@/services/exercises/type";
+import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { DragEndEvent } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { isDraggingWeek, isDraggingWorkout } from "./utils";

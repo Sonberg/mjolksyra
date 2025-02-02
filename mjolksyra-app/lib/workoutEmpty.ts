@@ -1,4 +1,4 @@
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 
 export function workoutEmpty(workout: PlannedWorkout) {
   if (workout.exercises.length) {

@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { refresh } from "@/api/auth/refresh";
+import { refresh } from "@/services/auth/refresh";
 import { redirect } from "next/navigation";
 
 type LoginRequest = {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ApiClient } from "@/api/client";
+import { ApiClient } from "@/services/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 import {
@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { SingleSelect } from "@/components/Select/SingleSelect";
 import { useValidation } from "@/hooks/useValidation";
-import { CreateExercise } from "@/api/exercises/createExercise";
+import { CreateExercise } from "@/services/exercises/createExercise";
 import { useAuth } from "@/context/Auth";
 
 const schema = z.object({

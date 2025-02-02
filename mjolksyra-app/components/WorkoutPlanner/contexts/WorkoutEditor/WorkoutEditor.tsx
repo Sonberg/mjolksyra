@@ -2,7 +2,7 @@ import { ReactNode, useMemo } from "react";
 import { useWorkoutEditor } from "./WorkoutEditorContext";
 import { useWorkouts } from "../Workouts";
 import { WorkoutEditorExercise } from "./WorkoutEditorExercise";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePlannedWorkoutActions } from "../PlannedWorkoutActions";
 import dayjs from "dayjs";

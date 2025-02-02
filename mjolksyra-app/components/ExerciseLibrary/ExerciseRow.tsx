@@ -4,16 +4,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
-import { Exercise } from "@/api/exercises/type";
+import { Exercise } from "@/services/exercises/type";
 import { useCallback, useId, useMemo } from "react";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 
 import { ExerciseRowStar } from "./ExerciseRowStar";
 import { ExerciseRowDelete } from "./ExerciseRowDelete";
 
-import { DeleteExercise } from "@/api/exercises/deleteExercise";
-import { StarExercise } from "@/api/exercises/starExercise";
-import { StarredExercises } from "@/api/exercises/starredExercises";
+import { DeleteExercise } from "@/services/exercises/deleteExercise";
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
 
 type Props = {
   exercise: Exercise;

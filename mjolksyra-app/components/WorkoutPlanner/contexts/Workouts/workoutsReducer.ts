@@ -1,4 +1,4 @@
-import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { insertAt } from "@/lib/insertAt";
 import { arrayMove } from "@dnd-kit/sortable";

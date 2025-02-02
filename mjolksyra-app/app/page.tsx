@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiClient } from "@/api/client";
+import { ApiClient } from "@/services/client";
 import { Spinner } from "@/components/Spinner";
 import { Input } from "@/components/ui/input";
 import { WorkoutPlannerDemo } from "@/components/WorkoutPlannerDemo/WorkoutPlannerDemo";

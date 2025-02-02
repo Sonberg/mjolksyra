@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@/api/users/type";
+import { User } from "@/services/users/type";
 import { AthleteOnboarding } from "./AthleteOnboarding";
 import { AthleteWorkouts } from "./AthleteWorkouts";
 import { AthleteInvitations } from "./AthleteInvitations";

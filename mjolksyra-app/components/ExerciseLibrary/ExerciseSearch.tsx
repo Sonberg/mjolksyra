@@ -1,10 +1,10 @@
 import { useSearchExercises } from "./hooks/useSearchExercises";
 import { ExerciseRow } from "./ExerciseRow";
 
-import { DeleteExercise } from "@/api/exercises/deleteExercise";
-import { StarExercise } from "@/api/exercises/starExercise";
-import { StarredExercises } from "@/api/exercises/starredExercises";
-import { SearchExercises } from "@/api/exercises/searchExercises";
+import { DeleteExercise } from "@/services/exercises/deleteExercise";
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
+import { SearchExercises } from "@/services/exercises/searchExercises";
 
 type Props = {
   freeText: string;

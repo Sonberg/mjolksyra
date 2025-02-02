@@ -4,7 +4,7 @@ import { RectangleEllipsisIcon } from "lucide-react";
 
 import { Day } from "./Day";
 import { groupBy } from "@/lib/groupBy.";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { cn } from "@/lib/utils";

@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ExerciseLibrary } from "../ExerciseLibrary";
 import { WorkoutPlanner } from "../WorkoutPlanner/WorkoutPlanner";
 import { v4 } from "uuid";
-import { Exercise } from "@/api/exercises/type";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { Exercise } from "@/services/exercises/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useRef } from "react";
 import { search } from "fast-fuzzy";
 

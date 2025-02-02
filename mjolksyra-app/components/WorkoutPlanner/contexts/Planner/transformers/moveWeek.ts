@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { MoveWeekAction } from "../parse";
 import { TransformResult } from ".";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { getDatesBetween } from "@/lib/getDatesBetween";
 import { PLANNED_AT } from "@/constants/dateFormats";
 

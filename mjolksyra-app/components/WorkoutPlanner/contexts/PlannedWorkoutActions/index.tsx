@@ -1,7 +1,7 @@
-import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
-import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
-import { GetPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
-import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
+import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
+import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
+import { GetPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
+import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { createContext, ReactNode, useContext } from "react";
 
 type PlannedWorkoutActionsContextValue = {

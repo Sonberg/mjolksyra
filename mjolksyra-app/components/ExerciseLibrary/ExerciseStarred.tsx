@@ -1,9 +1,9 @@
 import { ExerciseRow } from "./ExerciseRow";
 import { useStarredExercises } from "./hooks/useStarredExercises";
 
-import { DeleteExercise } from "@/api/exercises/deleteExercise";
-import { StarExercise } from "@/api/exercises/starExercise";
-import { StarredExercises } from "@/api/exercises/starredExercises";
+import { DeleteExercise } from "@/services/exercises/deleteExercise";
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
 
 type Props = {
   exercises: {

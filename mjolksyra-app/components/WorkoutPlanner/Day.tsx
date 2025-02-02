@@ -8,7 +8,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { draggingStyle } from "@/lib/draggingStyle";

@@ -3,10 +3,10 @@ import { ExerciseRow } from "./ExerciseRow";
 import { useBrowseExercises } from "./hooks/useBrowserExercises";
 import useOnScreen from "@/hooks/useOnScreen";
 
-import { GetExercises } from "@/api/exercises/getExercises";
-import { DeleteExercise } from "@/api/exercises/deleteExercise";
-import { StarExercise } from "@/api/exercises/starExercise";
-import { StarredExercises } from "@/api/exercises/starredExercises";
+import { GetExercises } from "@/services/exercises/getExercises";
+import { DeleteExercise } from "@/services/exercises/deleteExercise";
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
 import { Spinner } from "../Spinner";
 
 type Props = {

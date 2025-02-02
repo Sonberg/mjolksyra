@@ -1,5 +1,5 @@
-import { SearchExercises } from "@/api/exercises/searchExercises";
-import { Exercise } from "@/api/exercises/type";
+import { SearchExercises } from "@/services/exercises/searchExercises";
+import { Exercise } from "@/services/exercises/type";
 import { useQuery } from "@tanstack/react-query";
 
 type Args = {

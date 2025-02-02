@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
-import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
-import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
-import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
+import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
 import { v4 } from "uuid";
 
 type WorkoutStoreState = {

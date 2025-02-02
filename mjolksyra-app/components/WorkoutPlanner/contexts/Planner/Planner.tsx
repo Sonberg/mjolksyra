@@ -14,10 +14,10 @@ import { createPortal } from "react-dom";
 
 import { parse, Payload } from "./parse";
 import { transform } from "./transformers";
-import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
-import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
-import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
-import { PlannedExercise, PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
+import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
+import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useWorkouts } from "../Workouts";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { DraggingExercise } from "@/components/DraggingExercise";

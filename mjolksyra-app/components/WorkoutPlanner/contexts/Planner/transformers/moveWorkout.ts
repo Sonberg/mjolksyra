@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 import { MoveWorkoutAction } from "../parse";
 import { TransformResult } from "./";
 import { PLANNED_AT } from "@/constants/dateFormats";
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 
 export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
   const updateSourceWorkout = action.clone

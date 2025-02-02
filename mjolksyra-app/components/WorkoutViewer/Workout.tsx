@@ -1,4 +1,4 @@
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Card, CardHeader, CardDescription, CardContent } from "../ui/card";
 import dayjs from "dayjs";
 import { useMemo } from "react";

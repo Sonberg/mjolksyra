@@ -1,4 +1,4 @@
-import { PlannedWorkout, PlannedExercise } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout, PlannedExercise } from "@/services/plannedWorkouts/type";
 import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { createContext, useContext } from "react";
 import { Payload } from "./parse";

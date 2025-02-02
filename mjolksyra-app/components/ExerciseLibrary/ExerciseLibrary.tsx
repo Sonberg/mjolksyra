@@ -9,12 +9,12 @@ import { ExerciseSearch } from "./ExerciseSearch";
 import { Button } from "../ui/button";
 
 import { CreateExerciseDialog } from "@/dialogs/CreateExerciseDialog";
-import { CreateExercise } from "@/api/exercises/createExercise";
-import { DeleteExercise } from "@/api/exercises/deleteExercise";
-import { GetExercises } from "@/api/exercises/getExercises";
-import { SearchExercises } from "@/api/exercises/searchExercises";
-import { StarExercise } from "@/api/exercises/starExercise";
-import { StarredExercises } from "@/api/exercises/starredExercises";
+import { CreateExercise } from "@/services/exercises/createExercise";
+import { DeleteExercise } from "@/services/exercises/deleteExercise";
+import { GetExercises } from "@/services/exercises/getExercises";
+import { SearchExercises } from "@/services/exercises/searchExercises";
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
 import { TooltipProvider } from "../ui/tooltip";
 
 type Props = {

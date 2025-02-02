@@ -1,4 +1,4 @@
-import { getUserMe } from "@/api/users/getUserMe";
+import { getUserMe } from "@/services/users/getUserMe";
 import { getAuth } from "@/context/Auth";
 import { PageContent } from "./pageContent";
 

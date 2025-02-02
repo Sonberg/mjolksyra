@@ -1,7 +1,7 @@
 import { getAuth } from "@/context/Auth";
-import { getTrainees } from "@/api/trainees/getTrainees";
+import { getTrainees } from "@/services/trainees/getTrainees";
 import { PageContent } from "./pageContent";
-import { getUserMe } from "@/api/users/getUserMe";
+import { getUserMe } from "@/services/users/getUserMe";
 
 export default async function Page() {
   const auth = await getAuth({ redirect: true });

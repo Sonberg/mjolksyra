@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiClient } from "@/api/client";
+import { ApiClient } from "@/services/client";
 import { Spinner } from "@/components/Spinner";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";

@@ -1,5 +1,5 @@
-import { StarExercise } from "@/api/exercises/starExercise";
-import { StarredExercises } from "@/api/exercises/starredExercises";
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 type Args = {

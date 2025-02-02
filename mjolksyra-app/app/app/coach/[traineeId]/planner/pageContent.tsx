@@ -1,15 +1,15 @@
 "use client";
 
-import { createExercise } from "@/api/exercises/createExercise";
-import { deleteExercise } from "@/api/exercises/deleteExercise";
-import { getExercises } from "@/api/exercises/getExercises";
-import { searchExercises } from "@/api/exercises/searchExercises";
-import { starExercises } from "@/api/exercises/starExercise";
-import { starredExercises } from "@/api/exercises/starredExercises";
-import { createPlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
-import { deletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
-import { getPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
-import { updatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
+import { createExercise } from "@/services/exercises/createExercise";
+import { deleteExercise } from "@/services/exercises/deleteExercise";
+import { getExercises } from "@/services/exercises/getExercises";
+import { searchExercises } from "@/services/exercises/searchExercises";
+import { starExercises } from "@/services/exercises/starExercise";
+import { starredExercises } from "@/services/exercises/starredExercises";
+import { createPlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
+import { deletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
+import { getPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
+import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
 import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";

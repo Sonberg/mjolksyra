@@ -1,4 +1,4 @@
-import { GetExercises } from "@/api/exercises/getExercises";
+import { GetExercises } from "@/services/exercises/getExercises";
 import { flatten } from "@/lib/flatten";
 import { uniqBy } from "@/lib/uniqBy";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";

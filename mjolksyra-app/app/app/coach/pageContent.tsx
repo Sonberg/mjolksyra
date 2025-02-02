@@ -1,8 +1,8 @@
 "use client";
 
-import { Trainee } from "@/api/trainees/type";
+import { Trainee } from "@/services/trainees/type";
 import { CoachCard } from "./CoachCard";
-import { User } from "@/api/users/type";
+import { User } from "@/services/users/type";
 import { CoachOnboarding } from "./CoachOnboarding";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";

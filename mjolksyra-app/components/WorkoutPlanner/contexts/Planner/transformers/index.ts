@@ -1,4 +1,4 @@
-import { PlannedWorkout } from "@/api/plannedWorkouts/type";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Action } from "../parse";
 import { addFromLibrary } from "./addFromLibrary";
 import { moveExercise } from "./moveExercise";

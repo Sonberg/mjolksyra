@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { Payload } from "./parse";
 import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
-import { PlannedExercise } from "@/api/plannedWorkouts/type";
+import { PlannedExercise } from "@/services/plannedWorkouts/type";
 
 type Event = DragStartEvent | DragOverEvent | DragEndEvent;
 

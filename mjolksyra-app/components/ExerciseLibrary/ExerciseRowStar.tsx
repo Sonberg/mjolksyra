@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { Star } from "lucide-react";
-import { Exercise } from "@/api/exercises/type";
+import { Exercise } from "@/services/exercises/type";
 import { useStarredExercises } from "./hooks/useStarredExercises";
 import { cn } from "@/lib/utils";
-import { StarredExercises } from "@/api/exercises/starredExercises";
-import { StarExercise } from "@/api/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
+import { StarExercise } from "@/services/exercises/starExercise";
 
 type Props = {
   exercise: Exercise;

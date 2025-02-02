@@ -1,4 +1,4 @@
-import { User } from "@/api/users/type";
+import { User } from "@/services/users/type";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { CardTitle } from "@/components/ui/card";

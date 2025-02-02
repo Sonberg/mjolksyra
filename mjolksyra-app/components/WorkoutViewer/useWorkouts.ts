@@ -1,4 +1,4 @@
-import { getPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
+import { getPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
 import { flatten } from "@/lib/flatten";
 import { uniqBy } from "@/lib/uniqBy";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";

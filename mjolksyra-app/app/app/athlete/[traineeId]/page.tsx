@@ -1,4 +1,4 @@
-import { getTrainees } from "@/api/trainees/getTrainees";
+import { getTrainees } from "@/services/trainees/getTrainees";
 import { getAuth } from "@/context/Auth";
 import { redirect } from "next/navigation";
 

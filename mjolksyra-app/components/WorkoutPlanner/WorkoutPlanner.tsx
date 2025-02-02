@@ -15,10 +15,10 @@ import { useInfinitMonths } from "@/hooks/useInfinitMonths";
 import { PlannerProvider } from "./contexts/Planner";
 import { WorkoutsProvider } from "./contexts/Workouts";
 
-import { GetPlannedWorkouts } from "@/api/plannedWorkouts/getPlannedWorkout";
-import { DeletePlannedWorkout } from "@/api/plannedWorkouts/deletePlannedWorkout";
-import { CreatePlannedWorkout } from "@/api/plannedWorkouts/createPlannedWorkout";
-import { UpdatePlannedWorkout } from "@/api/plannedWorkouts/updatePlannedWorkout";
+import { GetPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
+import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
+import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
+import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { WorkoutEditor, WorkoutEditorProvider } from "./contexts/WorkoutEditor";
 import { PlannedWorkoutActionsProvider } from "./contexts/PlannedWorkoutActions";
 

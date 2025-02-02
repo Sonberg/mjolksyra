@@ -1,7 +1,7 @@
 import { Trash2 } from "lucide-react";
-import { Exercise } from "@/api/exercises/type";
+import { Exercise } from "@/services/exercises/type";
 import { cn } from "@/lib/utils";
-import { DeleteExercise } from "@/api/exercises/deleteExercise";
+import { DeleteExercise } from "@/services/exercises/deleteExercise";
 import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmDialog } from "@/dialogs/ConfirmDialog";
 

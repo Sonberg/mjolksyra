@@ -1,5 +1,5 @@
 import { getAuth } from "@/context/Auth";
-import { getUserMe } from "@/api/users/getUserMe";
+import { getUserMe } from "@/services/users/getUserMe";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
