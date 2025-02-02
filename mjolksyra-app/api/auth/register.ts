@@ -18,7 +18,7 @@ const schema = z.object({
 });
 
 export async function register(body: Args) {
-  const { data, status } = await ApiClient.post(`/api/auth/register`, body);
+  const { data, status } = await ApiClient.post(`${process.env.API_URL}/api/auth/register`, body);
 
   if (status !== 200) {
     return null;
