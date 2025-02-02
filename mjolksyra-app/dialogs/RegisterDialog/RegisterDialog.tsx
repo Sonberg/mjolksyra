@@ -119,14 +119,21 @@ export function RegisterDialog({ trigger }: Props) {
     }
 
     setLoading(true);
-    const response = await register(parsed.data);
-    setLoading(false);
-    if (!response?.isSuccessful) {
-      return;
-    }
 
-    auth.login(response);
-    router.push("/planner");
+    try {
+      const response = await register(parsed.data);
+
+      if (!response?.isSuccessful) {
+        return;
+      }
+
+      auth.login(response);
+      router.push("/app");
+    } catch (error) {
+      console.log(error);
+
+      setLoading(false);
+    }
   }, [auth, parsed.data, parsed.success, router]);
 
   return (

@@ -27,6 +27,8 @@ async function Send(request: NextRequest) {
   const headers = new Headers(request.headers);
   const hasBody = request.method !== "GET";
 
+  console.log("Api SEND");
+
   headers.delete("Connection");
   headers.delete("Content-Length");
 
