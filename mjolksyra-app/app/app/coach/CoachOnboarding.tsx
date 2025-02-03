@@ -2,8 +2,8 @@ import { ApiClient } from "@/services/client";
 import { User } from "@/services/users/type";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
-import { CardTitle } from "@/components/ui/card";
-import { ReactNode, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
+import { OnboardingCard } from "@/components/OnboardingCard";
 
 type Account = { accountId: string };
 type Link = { url: string };
@@ -45,41 +45,30 @@ export function CoachOnboarding({ user }: Props) {
     setLoading(false);
   }, []);
 
-  const card = (
-    title: string | null,
-    text: string | null,
-    button: ReactNode | null
-  ) => {
-    return (
-      <div className="mb-16">
-        {title ? <CardTitle children={title} /> : null}
-        {text ? <div className="py-4" children={text} /> : null}
-        {button ? <div className="mt-4">{button}</div> : null}
-      </div>
-    );
-  };
-
-  const primaryButtonText =
-    user.onboarding.coach === "NotStarted" ? "Continue" : "Get started";
-  const primaryButton =
-    user.onboarding.coach === "Completed" ? (
-      <Button children="Dashboard" onClick={dashboard} />
-    ) : (
-      <Button onClick={start} disabled={isLoading}>
-        {isLoading ? <Spinner size={8} /> : null} {primaryButtonText}
-      </Button>
-    );
-
   switch (user.onboarding.coach) {
     case "Completed":
-      return card("Payment dashboard", null, primaryButton);
+      return (
+        <OnboardingCard
+          title="Payment dashboard"
+          button={<Button children="Dashboard" onClick={dashboard} />}
+        />
+      );
 
     case "NotStarted":
     case "Started":
-      return card(
-        "Onboarding",
-        "One last step before you can invite your first athlete. You need to setup payments in order to recive money",
-        primaryButton
+      return (
+        <OnboardingCard
+          title="Coach onboarding"
+          text="One last step before you can invite your first athlete. You need to setup payments in order to recive money"
+          button={
+            <Button onClick={start} disabled={isLoading}>
+              {isLoading ? <Spinner size={8} /> : null}{" "}
+              {user.onboarding.coach === "NotStarted"
+                ? "Continue"
+                : "Get started"}
+            </Button>
+          }
+        />
       );
   }
 }

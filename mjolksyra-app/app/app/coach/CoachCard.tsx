@@ -52,7 +52,7 @@ export function CoachCard({ trainee }: Props) {
   }, [format, trainee.nextWorkoutAt]);
 
   return (
-    <Card>
+    <Card className="bg-border/30 border-none">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
@@ -68,31 +68,30 @@ export function CoachCard({ trainee }: Props) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-3 gap-4">
-          <Card className="hover:bg-accent">
-            <CardContent className="p-4">
+          <div>
+            <div className="p-4">
               <div className="text-sm mb-2">Price (monthly)</div>
               <div className="text-xl font-bold">1000 kr</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:bg-accent">
-            <CardContent className="p-4">
+            </div>
+          </div>
+          <div>
+            <div className="p-4">
               <div className="text-sm  mb-2">Next workout</div>
               <div className="text-xl font-bold">{nextWorkoutAt}</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:bg-accent">
-            <CardContent className="p-4">
+            </div>
+          </div>
+          <div>
+            <div className="p-4">
               <div className="text-sm mb-2">Last workout</div>
               <div className="text-xl font-bold">{lastWorkoutAt}</div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end">
+      <CardFooter className="flex justify-end !p-4 bg-border/50">
         <Button
           onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
           size="sm"
-          variant="secondary"
         >
           <DumbbellIcon />
           Plan

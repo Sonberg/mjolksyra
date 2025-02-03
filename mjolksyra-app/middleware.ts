@@ -3,10 +3,24 @@ import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { refresh } from "./services/auth/refresh";
 
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    "/((?!api|images|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+  ],
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function middleware(_: NextRequest) {
+export async function middleware(req: NextRequest) {
   const response = NextResponse.next();
   const secret = new TextEncoder().encode(`${process.env.JWT_SECRET}`);
+  console.log(req.url);
 
   const store = await cookies();
   const accessToken = store.get("accessToken")?.value;
