@@ -23,11 +23,13 @@ export function PageContent({ trainees, user }: Props) {
           </div>
         </>
       ) : null}
-      <div className="grid place-items-center">
-        <Button variant="secondary" className="mx-auto text-center">
-          <PlusIcon /> Invite athlete
-        </Button>
-      </div>
+      {user.onboarding.coach === "Completed" ? (
+        <div className="grid place-items-center">
+          <Button className="mx-auto text-center rounded-full px-8 py-6 text-base font-semibold">
+            <PlusIcon /> Invite athlete
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

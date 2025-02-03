@@ -67,24 +67,25 @@ export function CoachCard({ trainee }: Props) {
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <div className="p-4">
-              <div className="text-sm mb-2">Price (monthly)</div>
-              <div className="text-xl font-bold">1000 kr</div>
-            </div>
+        <div className="grid grid-cols-4 gap-4">
+          <div className="p-4">
+            <div className="text-sm mb-2">Price (monthly)</div>
+            <div className="text-xl font-bold">1000 kr</div>
           </div>
-          <div>
-            <div className="p-4">
-              <div className="text-sm  mb-2">Next workout</div>
-              <div className="text-xl font-bold">{nextWorkoutAt}</div>
-            </div>
+
+          <div className="p-4">
+            <div className="text-sm mb-2">Next charge at</div>
+            <div className="text-xl font-bold">in 2 days</div>
           </div>
-          <div>
-            <div className="p-4">
-              <div className="text-sm mb-2">Last workout</div>
-              <div className="text-xl font-bold">{lastWorkoutAt}</div>
-            </div>
+
+          <div className="p-4">
+            <div className="text-sm  mb-2">Next workout</div>
+            <div className="text-xl font-bold">{nextWorkoutAt}</div>
+          </div>
+
+          <div className="p-4">
+            <div className="text-sm mb-2">Last workout</div>
+            <div className="text-xl font-bold">{lastWorkoutAt}</div>
           </div>
         </div>
       </CardContent>
