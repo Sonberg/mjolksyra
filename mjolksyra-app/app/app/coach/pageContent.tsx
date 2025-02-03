@@ -23,13 +23,20 @@ export function PageContent({ trainees, user }: Props) {
           </div>
         </>
       ) : null}
-      {user.onboarding.coach === "Completed" ? (
-        <div className="grid place-items-center">
-          <Button className="mx-auto text-center rounded-full px-8 py-6 text-base font-semibold">
-            <PlusIcon /> Invite athlete
-          </Button>
-        </div>
-      ) : null}
+
+      <div className="grid place-items-center">
+        <Button
+          disabled={user.onboarding.coach !== "Completed"}
+          className="mx-auto text-center rounded-full px-8 py-6 text-base font-semibold"
+        >
+          <PlusIcon /> Invite athlete
+        </Button>
+        {user.onboarding.coach !== "Completed" && trainees.length === 0 ? (
+          <div className="text-sm mt-4">
+            Excited to get started? Complete onboarding first 😃
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
