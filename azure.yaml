@@ -8,3 +8,8 @@ services:
     project: mjolksyra-api/Mjolksyra.Api
     host: containerapp
     language: dotnet
+    docker:
+      path: Dockerfile
+      context: ../
+      registry: docker.io/glufs
+      image: mjolksyra-api

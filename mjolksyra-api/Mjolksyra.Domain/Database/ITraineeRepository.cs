@@ -5,6 +5,10 @@ namespace Mjolksyra.Domain.Database;
 public interface ITraineeRepository
 {
     Task<Trainee> Create(Trainee trainee, CancellationToken ct);
+    
+    Task<Trainee> Update(Trainee trainee, CancellationToken ct);
+
+    Task<Trainee?> GetById(Guid traineeId, CancellationToken ct);
 
     Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct);
 

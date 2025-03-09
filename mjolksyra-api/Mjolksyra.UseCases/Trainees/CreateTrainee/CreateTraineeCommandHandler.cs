@@ -27,7 +27,8 @@ public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand,
         var trainee = await _traineeRepository.Create(new Trainee
         {
             AthleteUserId = athlete.Id,
-            CoachUserId = coach.Id
+            CoachUserId = coach.Id,
+            Status = TraineeStatus.Active
         }, cancellationToken);
 
         return await _traineeResponseBuilder.Build(trainee, cancellationToken);

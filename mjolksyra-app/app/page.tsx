@@ -102,26 +102,43 @@ export default function Home() {
         </div>
       </section> */}
 
-      <section className="max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:pt-44 ">
-        <h2 className="text-4xl leading-relaxed font-extrabold tracking-tight pb-8">
-          Join us today!
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {points.map((x) => (
-            <div key={x.title} className="py-6 md:py-8 flex gap-4 items-center">
-              <div className="grid gap-2">
-                <div className="font-bold">{x.title}</div>
-                {x.text ? <div className="text-sm">{x.text}</div> : null}
+      <div className="bg-[#1f2937] mt-20">
+        <section className="max-w-screen-xl px-4 py-20 lg:py-40  mx-auto ">
+          <h2 className="text-5xl leading-relaxed font-extrabold tracking-tight pb-8">
+            Join us today!
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 ">
+            {points.map((x) => (
+              <div
+                key={x.title}
+                className="py-6 md:py-8 flex gap-4 items-center"
+              >
+                <div className="grid gap-2">
+                  <div className="font-bold text-xl">{x.title}</div>
+                  {x.text ? <div className="text-lg">{x.text}</div> : null}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </section>
+      </div>
+      <section className=" max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-40 hidden md:grid">
+        <div className="mr-auto place-self-center lg:col-span-7 mb-8">
+          <h2 className="text-5xl leading-relaxed font-extrabold tracking-tight">
+            Try our planner
+          </h2>
+          <div>Drag and drop exercise to get started!</div>
+        </div>
+        <div className="border mr-auto place-self-center lg:col-span-12 rounded shadow-xl pl-2">
+          <WorkoutPlannerDemo />
         </div>
       </section>
       <section className=" max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-40 hidden md:grid">
-        <div className="mr-auto place-self-center lg:col-span-7">
-          <h2 className="text-4xl leading-relaxed font-extrabold tracking-tight pb-8">
-            Try our planner!
+        <div className="mr-auto place-self-center lg:col-span-7 mb-8">
+          <h2 className="text-5xl leading-relaxed font-extrabold tracking-tight">
+            Try our planner
           </h2>
+          <div>Drag and drop exercise to get started!</div>
         </div>
         <div className="border mr-auto place-self-center lg:col-span-12 rounded shadow-xl pl-2">
           <WorkoutPlannerDemo />

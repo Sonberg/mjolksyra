@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Mjolksyra.Api.Options;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Database.Models;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -17,14 +18,18 @@ public class WebhookController : Controller
 
     private readonly IUserRepository _userRepository;
 
+    private readonly ITraineeRepository _traineeRepository;
+
     public WebhookController(
         IOptions<StripeOptions> options,
         IStripeClient stripeClient,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        ITraineeRepository traineeRepository)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
+        _traineeRepository = traineeRepository;
     }
 
     [HttpPost]
@@ -43,6 +48,10 @@ public class WebhookController : Controller
 
             case { Data.Object: Account account }:
                 await Handle(account);
+                break;
+
+            case { Data.Object: PaymentIntent paymentIntent }:
+                await Handle(paymentIntent);
                 break;
         }
 
@@ -94,5 +103,24 @@ public class WebhookController : Controller
             : "Onboarding completed";
 
         await _userRepository.Update(user, CancellationToken.None);
+    }
+
+    private async Task Handle(PaymentIntent intent)
+    {
+        var traineeId = Guid.Parse(intent.Metadata["TraineeId"]);
+        var trainee = await _traineeRepository.GetById(traineeId, CancellationToken.None);
+        var transaction = trainee!.Transactions.Single(x => x.PaymentIntentId == intent.Id);
+
+        transaction.StatusRaw = intent.Status;
+        transaction.Status = intent.Status switch
+        {
+            "requires_payment_method" => TraineeTransactionStatus.Pending,
+            "requires_confirmation" => TraineeTransactionStatus.Pending,
+            "processing" => TraineeTransactionStatus.Pending,
+            "succeeded" => TraineeTransactionStatus.Succeeded,
+            "requires_action" => TraineeTransactionStatus.Pending,
+            "canceled" => TraineeTransactionStatus.Failed,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }

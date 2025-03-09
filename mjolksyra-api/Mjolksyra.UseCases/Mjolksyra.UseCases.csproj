@@ -14,10 +14,7 @@
       <PackageReference Include="MediatR" Version="12.4.1" />
       <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="5.1.0" />
       <PackageReference Include="OneOf" Version="3.0.271" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Stripe\" />
+      <PackageReference Include="Stripe.net" Version="47.2.0" />
     </ItemGroup>
 
 </Project>

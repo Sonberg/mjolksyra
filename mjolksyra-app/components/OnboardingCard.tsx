@@ -8,7 +8,7 @@ type Props = {
 
 export function OnboardingCard({ text, title, button }: Props) {
   return (
-    <div className="mb-16 bg-[#c6b9ff] text-black p-6 rounded-xl">
+    <div className="mb-16 bg-[#c6b9ff]/80 text-black p-6 rounded-xl">
       {title ? (
         <div className="text-3xl font-semibold" children={title} />
       ) : null}

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.UseCases.Trainees;
+using Mjolksyra.UseCases.Trainees.ChargeTrainee;
 using Mjolksyra.UseCases.Trainees.CreateTrainee;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
 
@@ -29,16 +30,34 @@ public class TraineesController : Controller
         throw new NotImplementedException();
     }
 
-    [HttpPut("{traineeId:guid}")]
-    public IActionResult Update(Guid traineeId)
+    [HttpPut("{traineeId:guid}/cancel")]
+    public IActionResult Cancel(Guid traineeId)
     {
         throw new NotImplementedException();
     }
 
-    [HttpPost("invite")]
-    public IActionResult Invite()
+
+    [HttpPut("{traineeId:guid}/cost")]
+    public IActionResult CostUpdate(Guid traineeId)
     {
         throw new NotImplementedException();
+    }
+
+    [HttpPost("{traineeId:guid}/cost/simulate")]
+    public IActionResult CostSimulate(Guid traineeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPost("{traineeId:guid}/charge")]
+    public async Task<IActionResult> Charge(Guid traineeId, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new ChargeTraineeRequest
+        {
+            TraineeId = traineeId
+        }, cancellationToken);
+
+        return Ok();
     }
 
     [HttpPost]

@@ -24,6 +24,23 @@ public class TraineeRepository : ITraineeRepository
         return trainee;
     }
 
+    public async Task<Trainee> Update(Trainee trainee, CancellationToken ct)
+    {
+        await _context.Trainees.ReplaceOneAsync(x => x.Id == trainee.Id, trainee, new ReplaceOptions
+        {
+            IsUpsert = false
+        }, ct);
+
+        return trainee;
+    }
+
+    public async Task<Trainee?> GetById(Guid traineeId, CancellationToken ct)
+    {
+        return await _context.Trainees.Find(x => x.Id == traineeId)
+            .ToListAsync(cancellationToken: ct)
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
+    }
+
     public async Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct)
     {
         var filters = Builders<Trainee>.Filter.Or([

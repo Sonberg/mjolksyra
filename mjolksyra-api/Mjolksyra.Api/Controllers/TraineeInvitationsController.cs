@@ -1,5 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.TraineeInvitations.GetTraineeInvitations;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -7,17 +9,23 @@ namespace Mjolksyra.Api.Controllers;
 [Route("api/trainee-invitations")]
 public class TraineeInvitationsController : Controller
 {
+    private readonly IUserContext _userContext;
+
     private readonly IMediator _mediator;
 
-    public TraineeInvitationsController(IMediator mediator)
+    public TraineeInvitationsController(IUserContext userContext, IMediator mediator)
     {
+        _userContext = userContext;
         _mediator = mediator;
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<ActionResult<ICollection<TraineeInvitationsResponse>>> GetAll(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Ok(await _mediator.Send(new GetTraineeInvitationsRequest
+        {
+            UserId = _userContext.UserId!.Value
+        }, cancellationToken));
     }
 
     [HttpPut("{traineeInvitationId:guid}/accept")]
