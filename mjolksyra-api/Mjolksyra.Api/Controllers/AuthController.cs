@@ -30,7 +30,7 @@ public class AuthController : Controller
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<RefreshResponse>> Register([FromBody] RefreshCommand request, CancellationToken cancellationToken)
+    public async Task<ActionResult<RefreshResponse>> Refresh([FromBody] RefreshCommand request, CancellationToken cancellationToken)
     {
         return Ok(await _mediator.Send(request, cancellationToken));
     }

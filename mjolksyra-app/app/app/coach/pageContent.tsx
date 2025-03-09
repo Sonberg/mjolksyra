@@ -1,13 +1,13 @@
 "use client";
 
-import { Trainee } from "@/services/trainees/type";
 import { CoachCard } from "./CoachCard";
 import { User } from "@/services/users/type";
 import { CoachOnboarding } from "./CoachOnboarding";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
+import { TraineeResponse } from "@/generated-client";
 
-type Props = { trainees: Trainee[]; user: User };
+type Props = { trainees: TraineeResponse[]; user: User };
 
 export function PageContent({ trainees, user }: Props) {
   return (

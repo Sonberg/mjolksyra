@@ -1,9 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Trainees;
+using Mjolksyra.UseCases.Trainees.CancelTrainee;
 using Mjolksyra.UseCases.Trainees.ChargeTrainee;
 using Mjolksyra.UseCases.Trainees.CreateTrainee;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
+using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -13,9 +16,12 @@ public class TraineesController : Controller
 {
     private readonly IMediator _mediator;
 
-    public TraineesController(IMediator mediator)
+    private readonly IUserContext _userContext;
+
+    public TraineesController(IMediator mediator, IUserContext userContext)
     {
         _mediator = mediator;
+        _userContext = userContext;
     }
 
     [HttpGet]
@@ -24,6 +30,13 @@ public class TraineesController : Controller
         return Ok(await _mediator.Send(new GetTraineesRequest(), cancellationToken));
     }
 
+    [HttpPost("/cost/simulate")]
+    public Task<SimulateTraineeCostResponse> CostSimulate(SimulateTraineeCostRequest request, CancellationToken cancellationToken)
+    {
+        return _mediator.Send(request, cancellationToken);
+    }
+
+
     [HttpGet("{traineeId:guid}")]
     public IActionResult Get(Guid traineeId)
     {
@@ -31,22 +44,20 @@ public class TraineesController : Controller
     }
 
     [HttpPut("{traineeId:guid}/cancel")]
-    public IActionResult Cancel(Guid traineeId)
+    public async Task Cancel(Guid traineeId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await _mediator.Send(new CancelTraineeRequest
+        {
+            TraineeId = traineeId,
+            UserId = _userContext.UserId!.Value
+        }, cancellationToken);
     }
 
-
+    
     [HttpPut("{traineeId:guid}/cost")]
-    public IActionResult CostUpdate(Guid traineeId)
+    public async Task UpdateCost(Guid traineeId, UpdateTraineeCostRequest request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-    }
-
-    [HttpPost("{traineeId:guid}/cost/simulate")]
-    public IActionResult CostSimulate(Guid traineeId)
-    {
-        throw new NotImplementedException();
+        await _mediator.Send(request.ToCommand(traineeId, _userContext.UserId!.Value), cancellationToken);
     }
 
     [HttpPost("{traineeId:guid}/charge")]

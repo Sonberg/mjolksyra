@@ -5,6 +5,8 @@ using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
@@ -71,7 +73,18 @@ builder.Logging.AddOpenTelemetry(logging =>
 });
 
 builder.Services.AddSingleton(Options.Create(stripe!));
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(opt =>
+{
+    opt.AddOperationTransformer((operation, context, _) =>
+    {
+        if (context.Description.ActionDescriptor is ControllerActionDescriptor descriptor)
+        {
+            operation.OperationId = descriptor.ControllerName + descriptor.ActionName;
+        }
+
+        return Task.CompletedTask;
+    });
+});
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>

@@ -26,11 +26,11 @@ public class CompletedWorkoutsController : Controller
         throw new NotImplementedException();
     }
 
-    [HttpGet("{completedWorkoutId:guid}")]
-    public IActionResult Get(Guid traineeId, Guid completedWorkoutId)
-    {
-        throw new NotImplementedException();
-    }
+    // [HttpGet("{completedWorkoutId:guid}")]
+    // public IActionResult Get(Guid traineeId, Guid completedWorkoutId)
+    // {
+    //     throw new NotImplementedException();
+    // }
 
     [HttpPut("{completedWorkoutId:guid}")]
     public IActionResult Update(Guid traineeId, Guid completedWorkoutId)

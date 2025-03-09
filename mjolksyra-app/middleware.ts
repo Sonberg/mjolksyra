@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { refresh } from "./services/auth/refresh";
+import { authApi } from "./services/client";
 
 export const config = {
   matcher: [
@@ -20,7 +20,6 @@ export const config = {
 export async function middleware(req: NextRequest) {
   const response = NextResponse.next();
   const secret = new TextEncoder().encode(`${process.env.JWT_SECRET}`);
-  console.log(req.url);
 
   const store = await cookies();
   const accessToken = store.get("accessToken")?.value;
@@ -42,7 +41,9 @@ export async function middleware(req: NextRequest) {
     return response;
   } catch {
     const secure = process.env.NODE_ENV === "production";
-    const refreshed = await refresh({ refreshToken: refreshToken });
+    const refreshed = await authApi.authRefresh({
+      refreshCommand: { refreshToken: refreshToken },
+    });
 
     if (!refreshed?.isSuccessful) {
       return response;
