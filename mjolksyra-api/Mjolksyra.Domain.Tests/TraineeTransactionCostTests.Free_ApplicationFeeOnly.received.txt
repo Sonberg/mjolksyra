@@ -1,0 +1,4 @@
+﻿{
+  ApplicationFee: 50,
+  Total: 50
+}

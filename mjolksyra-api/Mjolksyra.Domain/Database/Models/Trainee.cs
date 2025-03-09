@@ -51,7 +51,7 @@ public class TraineeTransactionCost
 
     public static TraineeTransactionCost From(TraineeCost cost)
     {
-        var applicationFee = Math.Min(50, Convert.ToInt32(cost.Amount * 0.1));
+        var applicationFee = Math.Max(50, Convert.ToInt32(cost.Amount * 0.1));
         var coach = Math.Max(0, cost.Amount - applicationFee);
 
         return new TraineeTransactionCost
