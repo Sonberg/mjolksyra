@@ -3,7 +3,6 @@
 import { createExercise } from "@/services/exercises/createExercise";
 import { deleteExercise } from "@/services/exercises/deleteExercise";
 import { getExercises } from "@/services/exercises/getExercises";
-import { searchExercises } from "@/services/exercises/searchExercises";
 import { starExercises } from "@/services/exercises/starExercise";
 import { starredExercises } from "@/services/exercises/starredExercises";
 import { createPlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
@@ -14,6 +13,7 @@ import { ExerciseLibrary } from "@/components/ExerciseLibrary";
 import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { exercisesApi } from "@/services/client";
 
 const queryClient = new QueryClient();
 
@@ -38,8 +38,14 @@ export function PageContent({ traineeId }: Props) {
               <ExerciseLibrary
                 exercies={{
                   starred: starredExercises,
-                  star: starExercises,
-                  search: searchExercises,
+                  star: ({ signal, ...request }) => exercisesApi.exercisesStar(request, { signal }),
+                  search: ({ freeText, signal }) =>
+                    exercisesApi.exercisesSearch(
+                      {
+                        searchExercisesRequest: { freeText },
+                      },
+                      { signal }
+                    ),
                   get: getExercises,
                   delete: deleteExercise,
                   create: createExercise,

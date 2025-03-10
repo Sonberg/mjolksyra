@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { ApiClient } from "../client";
 import { schema } from "./schema";
 import { Exercise } from "./type";
