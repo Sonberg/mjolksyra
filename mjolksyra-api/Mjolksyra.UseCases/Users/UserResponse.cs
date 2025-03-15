@@ -24,7 +24,7 @@ public class UserResponse
 
     public required UserOnboardingResponse Onboarding { get; set; }
 
-    public required IList<UserTraineeResponse> Athletes { get; set; }
+    public required List<UserTraineeResponse> Athletes { get; set; }
 
-    public required IList<UserTraineeResponse> Coaches { get; set; }
+    public required List<UserTraineeResponse> Coaches { get; set; }
 }

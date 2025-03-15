@@ -73,6 +73,11 @@ builder.Logging.AddOpenTelemetry(logging =>
 });
 
 builder.Services.AddSingleton(Options.Create(stripe!));
+builder.Services.ConfigureHttpJsonOptions(opt =>
+{
+    opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
 builder.Services.AddOpenApi(opt =>
 {
     opt.AddOperationTransformer((operation, context, _) =>

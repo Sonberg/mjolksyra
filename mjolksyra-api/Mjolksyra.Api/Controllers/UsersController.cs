@@ -22,7 +22,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetUserMe()
+    public async Task<ActionResult<UserResponse>> GetUserMe()
     {
         if (_userContext.UserId is not { } userId)
         {
