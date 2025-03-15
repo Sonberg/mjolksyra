@@ -6,17 +6,17 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { accessTokenStore } from "@/services/client";
+import { refresh } from "@/services/auth/refresh";
+import { redirect } from "next/navigation";
 
 type LoginRequest = {
-  accessToken?: string | null | undefined;
-  refreshToken?: string | null | undefined;
-  refreshTokenExpiresAt?: Date | null | undefined;
+  accessToken: string | null;
+  refreshToken: string | null;
+  refreshTokenExpiresAt: Date | null;
 };
 
 type AuthContextValue = {
@@ -28,12 +28,13 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   login: (req: LoginRequest) => void;
   logout: () => void;
+  getAccessToken: () => Promise<string | null>;
 };
 
 const AuthContext = createContext<AuthContextValue>({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  login(_: LoginRequest) {},
+  login(req: LoginRequest) {},
   logout() {},
+  getAccessToken: async () => Promise.any(""),
   isAuthenticated: false,
   userId: null,
   name: null,
@@ -63,9 +64,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => cookies.get("accessToken") ?? null
   );
 
+  const [refreshToken, setRefreshToken] = useState<string | null>(
+    () => cookies.get("refreshToken") ?? null
+  );
+
   const content = useMemo(() => {
     return accessToken ? jwtDecode<Jwt>(accessToken) : null;
   }, [accessToken]);
+
+  const getDiff = useCallback(
+    () => (content ? content.exp! * 1000 - Date.now() : 0),
+    [content]
+  );
 
   const login = useCallback(
     (req: LoginRequest) => {
@@ -74,6 +84,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (!req.refreshTokenExpiresAt) return;
 
       setAccessToken(req.accessToken);
+      setRefreshToken(req.refreshToken);
 
       console.log("Setting new token");
 
@@ -94,19 +105,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("logout");
 
     setAccessToken(null);
+    setRefreshToken(null);
     cookies.remove("accessToken");
     cookies.remove("refreshToken");
   }, [cookies]);
 
-  useEffect(() => {
-    accessTokenStore.setState(accessToken);
-  }, [accessToken]);
+  const getAccessToken = useCallback(async () => {
+    if (!accessToken) {
+      redirect("/");
+    }
+
+    if (getDiff() > 5000) {
+      return accessToken;
+    }
+
+    const res = await refresh({ refreshToken: refreshToken! });
+
+    if (!res?.isSuccessful) {
+      redirect("/");
+    }
+
+    login(res);
+
+    return res.accessToken;
+  }, [accessToken, getDiff, refreshToken, login]);
 
   return (
     <AuthContext.Provider
       value={{
         login,
         logout,
+        getAccessToken,
         userId: content?.userId ?? null,
         name: content?.name ?? null,
         email: content?.email ?? null,

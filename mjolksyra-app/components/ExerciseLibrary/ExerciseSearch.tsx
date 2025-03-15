@@ -17,7 +17,6 @@ type Props = {
 };
 
 export function ExerciseSearch({ freeText, exercises }: Props) {
-
   const { data } = useSearchExercises({ freeText, exercises });
 
   return (

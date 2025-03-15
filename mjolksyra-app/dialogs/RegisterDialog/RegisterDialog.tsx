@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
+import { register } from "@/services/auth/register";
 import { useAuth } from "@/context/Auth";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/Spinner";
-import { authApi } from "@/services/client";
 
 const passwordSchema = z
   .string()
@@ -121,9 +121,7 @@ export function RegisterDialog({ trigger }: Props) {
     setLoading(true);
 
     try {
-      const response = await authApi.authRegister({
-        registerCommand: parsed.data,
-      });
+      const response = await register(parsed.data);
 
       if (!response?.isSuccessful) {
         return;

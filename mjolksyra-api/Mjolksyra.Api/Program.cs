@@ -181,16 +181,6 @@ builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddUseCases();
 builder.Services.AddDomain(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddCors(opt =>
-{
-    opt.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:3000", "https://mjolksyra.com")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
 
 var app = builder.Build();
 
@@ -204,5 +194,4 @@ app.MapScalarApiReference();
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors();
 app.Run();

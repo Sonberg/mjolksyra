@@ -12,9 +12,7 @@ import {
   TraineesApi,
   UsersApi,
 } from "@/generated-client";
-
 import axios from "axios";
-import { createStore } from "zustand";
 
 export const ApiClient = axios.create({
   baseURL: process.env.API_URL,
@@ -23,16 +21,8 @@ export const ApiClient = axios.create({
   },
 });
 
-export const accessTokenStore = createStore<string | null>(() => null);
 export const configuration = new Configuration({
   basePath: process.env.API_URL,
-  middleware: [
-    {
-      async pre(context) {
-        context.init.headers = getHeaders(accessTokenStore.getState());
-      },
-    },
-  ],
 });
 
 export const usersApi = new UsersApi(configuration);

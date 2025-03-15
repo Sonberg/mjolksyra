@@ -1,12 +1,16 @@
+import { StarExercise } from "@/services/exercises/starExercise";
+import { StarredExercises } from "@/services/exercises/starredExercises";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useExerciseProvider } from "../ExerciseProvider";
 
 type Args = {
   mutationOnly: boolean;
+  exercises: {
+    starred: StarredExercises;
+    star: StarExercise;
+  };
 };
 
-export function useStarredExercises({ mutationOnly }: Args) {
-  const exercises = useExerciseProvider();
+export function useStarredExercises({ mutationOnly, exercises }: Args) {
   const starred = useQuery({
     queryKey: [`exercises`, "starred"],
     queryFn: async () => {
@@ -22,10 +26,7 @@ export function useStarredExercises({ mutationOnly }: Args) {
   const star = useMutation({
     mutationKey: [`exercises`],
     mutationFn: async (exerciseId: string) => {
-      await exercises.star({
-        exerciseId,
-        starExerciseRequest: { state: true },
-      });
+      await exercises.star({ exerciseId, state: true });
     },
     onSuccess: () => starred.refetch(),
   });
@@ -33,10 +34,7 @@ export function useStarredExercises({ mutationOnly }: Args) {
   const unstar = useMutation({
     mutationKey: [`exercises`],
     mutationFn: async (exerciseId: string) => {
-      await exercises.star({
-        exerciseId,
-        starExerciseRequest: { state: false },
-      });
+      await exercises.star({ exerciseId, state: false });
     },
     onSuccess: () => starred.refetch(),
   });
