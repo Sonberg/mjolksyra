@@ -3,13 +3,19 @@ import { Star } from "lucide-react";
 import { Exercise } from "@/services/exercises/type";
 import { useStarredExercises } from "./hooks/useStarredExercises";
 import { cn } from "@/lib/utils";
+import { StarredExercises } from "@/services/exercises/starredExercises";
+import { StarExercise } from "@/services/exercises/starExercise";
 
 type Props = {
   exercise: Exercise;
+  exercises: {
+    starred: StarredExercises;
+    star: StarExercise;
+  };
 };
 
-export function ExerciseRowStar({ exercise }: Props) {
-  const starred = useStarredExercises({ mutationOnly: true });
+export function ExerciseRowStar({ exercise, exercises }: Props) {
+  const starred = useStarredExercises({ mutationOnly: true, exercises });
   const isStarred = useMemo(
     () => starred.data?.find((x) => x.id == exercise.id),
     [exercise, starred.data]

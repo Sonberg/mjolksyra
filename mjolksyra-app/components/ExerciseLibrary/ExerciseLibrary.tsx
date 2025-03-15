@@ -55,19 +55,19 @@ export function ExerciseLibrary({ exercies }: Props) {
             <div className="flex flex-col gap-4 overflow-y-auto h-full p-4 pb-16">
               {searchMode ? (
                 <>
-                  <ExerciseSearch freeText={freeText} />
+                  <ExerciseSearch freeText={freeText} exercises={exercies} />
                 </>
               ) : (
                 <>
-                  <ExerciseStarred />
-                  <ExerciseBrowser />
+                  <ExerciseStarred exercises={exercies} />
+                  <ExerciseBrowser exercies={exercies} />
                 </>
               )}
             </div>
 
             <div className="absolute bottom-4 left-0 right-0 grid place-items-end pb-6 pt-2 px-6 bg-gradient-to-b from-transparent to-background via-background/70">
               <CreateExerciseDialog
-                createExercise={exercies.create}
+                exercises={exercies}
                 trigger={
                   <Button className="rounded-full h-9 w-9 p-0">
                     <PlusIcon />

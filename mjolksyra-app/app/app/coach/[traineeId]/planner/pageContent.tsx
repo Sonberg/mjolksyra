@@ -1,5 +1,10 @@
 "use client";
 
+import { createExercise } from "@/services/exercises/createExercise";
+import { deleteExercise } from "@/services/exercises/deleteExercise";
+import { getExercises } from "@/services/exercises/getExercises";
+import { starExercises } from "@/services/exercises/starExercise";
+import { starredExercises } from "@/services/exercises/starredExercises";
 import { createPlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
 import { deletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
 import { getPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
@@ -32,12 +37,18 @@ export function PageContent({ traineeId }: Props) {
             library={
               <ExerciseLibrary
                 exercies={{
-                  starred: exercisesApi.exercisesStarred,
-                  star: exercisesApi.exercisesStar,
-                  search: exercisesApi.exercisesSearch,
-                  get: exercisesApi.exercisesGet,
-                  delete: exercisesApi.exercisesDelete,
-                  create: exercisesApi.exercisesCreate,
+                  starred: starredExercises,
+                  star: ({ signal, ...request }) => exercisesApi.exercisesStar(request, { signal }),
+                  search: ({ freeText, signal }) =>
+                    exercisesApi.exercisesSearch(
+                      {
+                        searchExercisesRequest: { freeText },
+                      },
+                      { signal }
+                    ),
+                  get: getExercises,
+                  delete: deleteExercise,
+                  create: createExercise,
                 }}
               />
             }

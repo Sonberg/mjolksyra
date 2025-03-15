@@ -4,15 +4,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ExerciseLibrary } from "../ExerciseLibrary";
 import { WorkoutPlanner } from "../WorkoutPlanner/WorkoutPlanner";
 import { v4 } from "uuid";
+import { Exercise } from "@/services/exercises/type";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useRef } from "react";
 import { search } from "fast-fuzzy";
-import { ExerciseResponse } from "@/generated-client";
 
 const queryClient = new QueryClient();
 
 export function WorkoutPlannerDemo() {
-  const exercises = useRef<ExerciseResponse[]>([
+  const exercises = useRef<Exercise[]>([
     {
       id: v4(),
       name: "Bench press",
@@ -23,9 +23,6 @@ export function WorkoutPlannerDemo() {
       category: null,
       starred: false,
       canDelete: false,
-      instructions: [],
-      primaryMuscles: [],
-      secondaryMuscles: [],
     },
     {
       id: v4(),
@@ -37,9 +34,6 @@ export function WorkoutPlannerDemo() {
       category: null,
       starred: false,
       canDelete: false,
-      instructions: [],
-      primaryMuscles: [],
-      secondaryMuscles: [],
     },
     {
       id: v4(),
@@ -51,9 +45,6 @@ export function WorkoutPlannerDemo() {
       category: null,
       starred: false,
       canDelete: false,
-      instructions: [],
-      primaryMuscles: [],
-      secondaryMuscles: [],
     },
   ]);
 
@@ -74,22 +65,16 @@ export function WorkoutPlannerDemo() {
                     next: null,
                   };
                 },
-                star: async ({ exerciseId, starExerciseRequest }) => {
+                star: async ({ exerciseId, state }) => {
                   exercises.current = exercises.current.map((x) =>
-                    x.id === exerciseId
-                      ? { ...x, starred: starExerciseRequest.state }
-                      : x
+                    x.id === exerciseId ? { ...x, starred: state } : x
                   );
                 },
-                search: async ({ searchExercisesRequest }) => {
+                search: async ({ freeText }) => {
                   return {
-                    data: search(
-                      searchExercisesRequest.freeText,
-                      exercises.current,
-                      {
-                        keySelector: (obj) => obj.name,
-                      }
-                    ),
+                    data: search(freeText, exercises.current, {
+                      keySelector: (obj) => obj.name,
+                    }),
                     next: null,
                   };
                 },
@@ -99,29 +84,15 @@ export function WorkoutPlannerDemo() {
                     next: null,
                   };
                 },
-                delete: async ({ exerciseId }) => {
-                  const deletedExercise = exercises.current.find(
-                    (x) => x.id == exerciseId
-                  );
-
+                delete: async ({ id }) => {
                   exercises.current = exercises.current.filter(
-                    (x) => x.id !== exerciseId
+                    (x) => x.id !== id
                   );
-
-                  return deletedExercise!;
                 },
-                create: async ({ createExerciseCommand }) => {
-                  const newExercise: ExerciseResponse = {
+                create: async (val) => {
+                  const newExercise = {
                     id: v4(),
-                    name: createExerciseCommand.name,
-                    force: createExerciseCommand.force ?? null,
-                    level: createExerciseCommand.level ?? null,
-                    mechanic: createExerciseCommand.mechanic ?? null,
-                    equipment: createExerciseCommand.equipment ?? null,
-                    category: createExerciseCommand.category ?? null,
-                    instructions: [],
-                    primaryMuscles: [],
-                    secondaryMuscles: [],
+                    ...val,
                     canDelete: true,
                     starred: false,
                   };

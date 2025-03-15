@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ApiClient, exercisesApi } from "@/services/client";
+import { ApiClient } from "@/services/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 import {
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { SingleSelect } from "@/components/Select/SingleSelect";
 import { useValidation } from "@/hooks/useValidation";
+import { CreateExercise } from "@/services/exercises/createExercise";
 import { useAuth } from "@/context/Auth";
 
 const schema = z.object({
@@ -27,17 +28,19 @@ const schema = z.object({
   mechanic: z.string().nullable(),
   equipment: z.string().nullable(),
   category: z.string().nullable(),
-  images: z.array(z.string()),
+  images: z.array(z.string())
 });
 
 type Values = z.infer<typeof schema>;
 
 type Props = {
   trigger: ReactNode;
-  createExercise: typeof exercisesApi.exercisesCreate;
+  exercises: {
+    create: CreateExercise;
+  };
 };
 
-export function CreateExerciseDialog({ trigger, createExercise }: Props) {
+export function CreateExerciseDialog({ trigger, exercises }: Props) {
   const [isOpen, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, unknown>>({});
 
@@ -127,9 +130,7 @@ export function CreateExerciseDialog({ trigger, createExercise }: Props) {
                 return validation.showAllError();
               }
 
-              await createExercise({
-                createExerciseCommand: validation.parsed!,
-              });
+              await exercises.create(validation.parsed!);
               await query.refetchQueries({
                 queryKey: ["exercises"],
               });
