@@ -4,15 +4,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ExerciseLibrary } from "../ExerciseLibrary";
 import { WorkoutPlanner } from "../WorkoutPlanner/WorkoutPlanner";
 import { v4 } from "uuid";
-import { Exercise } from "@/services/exercises/type";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useRef } from "react";
 import { search } from "fast-fuzzy";
+import { ExerciseResponse } from "@/generated-client";
 
 const queryClient = new QueryClient();
 
 export function WorkoutPlannerDemo() {
-  const exercises = useRef<Exercise[]>([
+  const exercises = useRef<ExerciseResponse[]>([
     {
       id: v4(),
       name: "Bench press",
@@ -23,6 +23,9 @@ export function WorkoutPlannerDemo() {
       category: null,
       starred: false,
       canDelete: false,
+      instructions: [],
+      primaryMuscles: [],
+      secondaryMuscles: [],
     },
     {
       id: v4(),
@@ -34,6 +37,9 @@ export function WorkoutPlannerDemo() {
       category: null,
       starred: false,
       canDelete: false,
+      instructions: [],
+      primaryMuscles: [],
+      secondaryMuscles: [],
     },
     {
       id: v4(),
@@ -45,6 +51,9 @@ export function WorkoutPlannerDemo() {
       category: null,
       starred: false,
       canDelete: false,
+      instructions: [],
+      primaryMuscles: [],
+      secondaryMuscles: [],
     },
   ]);
 
@@ -65,16 +74,22 @@ export function WorkoutPlannerDemo() {
                     next: null,
                   };
                 },
-                star: async ({ exerciseId, state }) => {
+                star: async ({ exerciseId, starExerciseRequest }) => {
                   exercises.current = exercises.current.map((x) =>
-                    x.id === exerciseId ? { ...x, starred: state } : x
+                    x.id === exerciseId
+                      ? { ...x, starred: starExerciseRequest.state }
+                      : x
                   );
                 },
-                search: async ({ freeText }) => {
+                search: async ({ searchExercisesRequest }) => {
                   return {
-                    data: search(freeText, exercises.current, {
-                      keySelector: (obj) => obj.name,
-                    }),
+                    data: search(
+                      searchExercisesRequest.freeText,
+                      exercises.current,
+                      {
+                        keySelector: (obj) => obj.name,
+                      }
+                    ),
                     next: null,
                   };
                 },
@@ -84,15 +99,29 @@ export function WorkoutPlannerDemo() {
                     next: null,
                   };
                 },
-                delete: async ({ id }) => {
-                  exercises.current = exercises.current.filter(
-                    (x) => x.id !== id
+                delete: async ({ exerciseId }) => {
+                  const deletedExercise = exercises.current.find(
+                    (x) => x.id == exerciseId
                   );
+
+                  exercises.current = exercises.current.filter(
+                    (x) => x.id !== exerciseId
+                  );
+
+                  return deletedExercise!;
                 },
-                create: async (val) => {
-                  const newExercise = {
+                create: async ({ createExerciseCommand }) => {
+                  const newExercise: ExerciseResponse = {
                     id: v4(),
-                    ...val,
+                    name: createExerciseCommand.name,
+                    force: createExerciseCommand.force ?? null,
+                    level: createExerciseCommand.level ?? null,
+                    mechanic: createExerciseCommand.mechanic ?? null,
+                    equipment: createExerciseCommand.equipment ?? null,
+                    category: createExerciseCommand.category ?? null,
+                    instructions: [],
+                    primaryMuscles: [],
+                    secondaryMuscles: [],
                     canDelete: true,
                     starred: false,
                   };

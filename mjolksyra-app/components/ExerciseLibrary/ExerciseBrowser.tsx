@@ -3,23 +3,10 @@ import { ExerciseRow } from "./ExerciseRow";
 import { useBrowseExercises } from "./hooks/useBrowserExercises";
 import useOnScreen from "@/hooks/useOnScreen";
 
-import { GetExercises } from "@/services/exercises/getExercises";
-import { DeleteExercise } from "@/services/exercises/deleteExercise";
-import { StarExercise } from "@/services/exercises/starExercise";
-import { StarredExercises } from "@/services/exercises/starredExercises";
 import { Spinner } from "../Spinner";
 
-type Props = {
-  exercies: {
-    get: GetExercises;
-    starred: StarredExercises;
-    star: StarExercise;
-    delete: DeleteExercise;
-  };
-};
-
-export function ExerciseBrowser({ exercies }: Props) {
-  const browser = useBrowseExercises({ exercies });
+export function ExerciseBrowser() {
+  const browser = useBrowseExercises();
   const end = useOnScreen();
 
   useEffect(() => {
@@ -42,7 +29,7 @@ export function ExerciseBrowser({ exercies }: Props) {
     <div className="mb-24">
       <div className="font-bold">Browser</div>
       {browser.data.map((x) => (
-        <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
+        <ExerciseRow key={x.id} exercise={x} />
       ))}
       <div ref={end.measureRef} className="text-background">
         end
