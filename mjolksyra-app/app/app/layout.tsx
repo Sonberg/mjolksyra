@@ -24,26 +24,31 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={client}>
-      <div className="mt-12 px-6 mx-auto w-full max-w-screen-xl overflow-y-auto">
-        <div className="flex justify-between items-center mb-16">
-          <div className="text-4xl font-bold">Hi {auth.givenName}!</div>
-          <div className="flex gap-4 items-center">
-            <CustomTab
-              value={segment}
-              options={[
-                { name: "Coach", value: "coach" },
-                { name: "Athlete", value: "athlete" },
-              ]}
-              onSelect={(tab) => redirect(`/app/${tab.value}`)}
-            />
-            <div
-              className="bg-accent/60 hover:bg-accent rounded h-8 w-8 cursor-pointer grid place-items-center"
-              onClick={auth.logout}
-              children={<LogOutIcon className="h-4" />}
-            />
+      <div className="min-h-screen bg-black">
+        <div className="mt-12 px-6 mx-auto w-full max-w-screen-xl overflow-y-auto">
+          <div className="flex justify-between items-center mb-16">
+            <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
+              Hi {auth.givenName}!
+            </div>
+            <div className="flex gap-4 items-center">
+              <CustomTab
+                value={segment}
+                options={[
+                  { name: "Coach", value: "coach" },
+                  { name: "Athlete", value: "athlete" },
+                ]}
+                onSelect={(tab) => redirect(`/app/${tab.value}`)}
+              />
+              <div
+                className="bg-white/5 hover:bg-white/10 rounded-lg h-8 w-8 cursor-pointer grid place-items-center transition-colors"
+                onClick={auth.logout}
+              >
+                <LogOutIcon className="h-4 text-stone-200" />
+              </div>
+            </div>
           </div>
+          {children}
         </div>
-        {children}
       </div>
     </QueryClientProvider>
   );
@@ -62,19 +67,21 @@ type CustomTabProps = {
 
 function CustomTab({ options, value, onSelect }: CustomTabProps) {
   function renderTab(tab: TabOption) {
+    const isActive = tab.value === value;
     return (
       <button
         key={tab.value}
         type="button"
         role="tab"
-        aria-selected="true"
-        aria-controls="radix-:ru:-content-coach"
-        data-state={tab.value === value ? "active" : "inactive"}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+        aria-selected={isActive}
+        aria-controls={`radix-:ru:-content-${tab.value}`}
+        data-state={isActive ? "active" : "inactive"}
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-200 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:bg-gray-800/50"
         tabIndex={-1}
-        children={tab.name}
         onClick={() => onSelect(tab)}
-      />
+      >
+        {tab.name}
+      </button>
     );
   }
 
@@ -82,10 +89,11 @@ function CustomTab({ options, value, onSelect }: CustomTabProps) {
     <div
       role="tablist"
       aria-orientation="horizontal"
-      className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground outline-none"
+      className="inline-flex h-10 items-center justify-center rounded-lg bg-gray-950/80 p-1 text-muted-foreground border border-gray-800/50"
       tabIndex={0}
       data-orientation="horizontal"
-      children={options.map(renderTab)}
-    />
+    >
+      {options.map(renderTab)}
+    </div>
   );
 }

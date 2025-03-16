@@ -54,15 +54,17 @@ export function Navigation() {
 
   return (
     <div
-      className={cn({
-        "flex-col flex": true,
-        "border-b": showBorder,
-      })}
+      className={cn(
+        "flex-col flex bg-black/95 backdrop-blur-sm sticky top-0 z-50",
+        {
+          "border-b border-gray-800/50": showBorder,
+        }
+      )}
     >
       <div className="flex h-16 items-center px-4">
         <Link
           href="/"
-          className="text-base font-medium transition-colors hover:text-primary"
+          className="text-base font-medium transition-colors hover:text-emerald-400"
         >
           <div className="font-bold text-xl mr-4 flex items-center">
             <Image
@@ -72,7 +74,9 @@ export function Navigation() {
               height={32}
               src={"/images/logo.svg"}
             />
-            <div>mjölksyra</div>
+            <div className="">
+              mjölksyra
+            </div>
           </div>
         </Link>
 
@@ -80,7 +84,16 @@ export function Navigation() {
           {auth.isAuthenticated ? (
             <NavigationUser />
           ) : (
-            <LoginDialog trigger={<Button variant="ghost">Login</Button>} />
+            <LoginDialog 
+              trigger={
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                >
+                  Login
+                </Button>
+              } 
+            />
           )}
         </div>
       </div>

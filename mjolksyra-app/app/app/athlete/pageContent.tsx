@@ -14,7 +14,7 @@ export function PageContent({ user }: Props) {
   const needsOnboarding = user.onboarding.athlete !== "Completed" && false;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8 space-y-8">
         {needsOnboarding ? (
           <AthleteOnboardingFlow />
@@ -22,7 +22,7 @@ export function PageContent({ user }: Props) {
           <>
             {/* Header Section */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
                 Welcome Back, {user.givenName || 'Athlete'}
               </h1>
               <p className="text-sm text-gray-400 mt-2">
@@ -33,7 +33,7 @@ export function PageContent({ user }: Props) {
             {/* Main Content */}
             <div className="grid gap-8">
               {/* Invitations Section */}
-              <section className="rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
+              <section className="rounded-xl border border-gray-800/50 bg-gray-950/50 p-6 backdrop-blur-sm">
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold text-gray-100">
                     Pending Invitations
@@ -42,13 +42,13 @@ export function PageContent({ user }: Props) {
                     Review and accept coach invitations
                   </p>
                 </div>
-                <div className="bg-gray-900/30 rounded-lg p-4">
+                <div className="bg-gray-950/80 rounded-lg p-4">
                   <AthleteInvitations />
                 </div>
               </section>
 
               {/* Workouts Section */}
-              <section className="rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
+              <section className="rounded-xl border border-gray-800/50 bg-gray-950/50 p-6 backdrop-blur-sm">
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold text-gray-100">
                     Your Workouts
@@ -57,7 +57,7 @@ export function PageContent({ user }: Props) {
                     View and track your workout progress
                   </p>
                 </div>
-                <div className="bg-gray-900/30 rounded-lg p-4">
+                <div className="bg-gray-950/80 rounded-lg p-4">
                   <AthleteWorkouts />
                 </div>
               </section>
@@ -68,11 +68,11 @@ export function PageContent({ user }: Props) {
               {['Weekly Progress', 'Active Programs', 'Next Session'].map((stat) => (
                 <div
                   key={stat}
-                  className="p-6 rounded-xl border border-gray-800 bg-gray-900/30 hover:bg-gray-900/50 transition-colors"
+                  className="p-6 rounded-xl border border-gray-800/50 bg-gray-950/80 hover:bg-gray-900/80 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-purple-500/20 grid place-items-center">
-                      <DumbbellIcon className="w-5 h-5 text-purple-400" />
+                    <div className="h-10 w-10 rounded-lg bg-white/10 grid place-items-center">
+                      <DumbbellIcon className="w-5 h-5 text-stone-200" />
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-400">{stat}</h3>
