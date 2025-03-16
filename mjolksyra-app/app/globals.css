@@ -46,7 +46,8 @@ body {
   }
   .dark {
     /* --background: 240 10% 3.9%; */
-    --background: 223 14.3% 9.6%;
+    /* --background: 223 14.3% 9.6%; */
+    --background: #02030a;
     --foreground: 0 0% 98%;
     /* --card: 240 10% 3.9%; */
     --card: 223 14.3% 9.6%;

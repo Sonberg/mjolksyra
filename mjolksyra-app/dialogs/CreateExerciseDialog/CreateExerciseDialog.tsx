@@ -28,7 +28,7 @@ const schema = z.object({
   mechanic: z.string().nullable(),
   equipment: z.string().nullable(),
   category: z.string().nullable(),
-  images: z.array(z.string())
+  images: z.array(z.string()),
 });
 
 type Values = z.infer<typeof schema>;
@@ -99,26 +99,28 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
           </div>
         </div>
 
-        {Object.entries(options.data!).map(([key, rawOptions]) => {
-          const options = rawOptions.map((value) => ({
-            label: capitalizeFirstLetter(value),
-            value,
-          }));
+        {options.data
+          ? Object.entries(options.data!).map(([key, rawOptions]) => {
+              const options = rawOptions.map((value) => ({
+                label: capitalizeFirstLetter(value),
+                value,
+              }));
 
-          return (
-            <div key={key} className="grid items-center gap-2 mb-4">
-              <Label>{capitalizeFirstLetter(key)}</Label>
-              <SingleSelect
-                placeholder="-"
-                options={options}
-                value={values[key] ? `${values[key]}` : null}
-                setSelectedOption={(state) =>
-                  setValues((prev) => ({ ...prev, [key]: state }))
-                }
-              />
-            </div>
-          );
-        })}
+              return (
+                <div key={key} className="grid items-center gap-2 mb-4">
+                  <Label>{capitalizeFirstLetter(key)}</Label>
+                  <SingleSelect
+                    placeholder="-"
+                    options={options}
+                    value={values[key] ? `${values[key]}` : null}
+                    setSelectedOption={(state) =>
+                      setValues((prev) => ({ ...prev, [key]: state }))
+                    }
+                  />
+                </div>
+              );
+            })
+          : null}
 
         <DialogFooter>
           <Button onClick={() => setOpen(false)} variant="link">
