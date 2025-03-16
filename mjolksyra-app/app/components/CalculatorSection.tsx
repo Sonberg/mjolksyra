@@ -4,10 +4,14 @@ import { useState } from "react";
 
 export const CalculatorSection = () => {
   const [athleteCount, setAthleteCount] = useState(5);
-  const [monthlyFee, setMonthlyFee] = useState(100);
+  const [monthlyFee, setMonthlyFee] = useState(1000);
 
-  const monthlyEarnings = athleteCount * monthlyFee;
-  const platformFee = monthlyEarnings * 0.1; // 10% platform fee
+  const monthlyEarnings = Math.max(
+    athleteCount * 50,
+    athleteCount * monthlyFee
+  );
+
+  const platformFee = Math.max(athleteCount * 50, monthlyEarnings * 0.1); // 10% platform fee
   const netEarnings = monthlyEarnings - platformFee;
 
   return (
@@ -45,15 +49,15 @@ export const CalculatorSection = () => {
                 </label>
                 <input
                   type="range"
-                  min="50"
-                  max="500"
-                  step="10"
+                  min="0"
+                  max="3000"
+                  step="30"
                   value={monthlyFee}
                   onChange={(e) => setMonthlyFee(Number(e.target.value))}
                   className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
                 />
                 <div className="text-white font-semibold mt-2">
-                  ${monthlyFee} per month
+                  {monthlyFee} kr per month
                 </div>
               </div>
             </div>
@@ -63,21 +67,19 @@ export const CalculatorSection = () => {
               <div>
                 <div className="text-gray-400 mb-2">Monthly Revenue</div>
                 <div className="text-3xl font-bold text-white">
-                  ${monthlyEarnings}
+                  {monthlyEarnings} kr
                 </div>
               </div>
               <div>
                 <div className="text-gray-400 mb-2">Platform Fee (10%)</div>
                 <div className="text-xl font-semibold text-gray-300">
-                  -${platformFee}
+                  -{platformFee} kr
                 </div>
               </div>
               <div className="pt-6 border-t border-gray-800">
-                <div className="text-gray-400 mb-2">
-                  Your Monthly Earnings
-                </div>
+                <div className="text-gray-400 mb-2">Your Monthly Earnings</div>
                 <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
-                  ${netEarnings}
+                  {netEarnings} kr
                 </div>
               </div>
             </div>
@@ -86,4 +88,4 @@ export const CalculatorSection = () => {
       </div>
     </section>
   );
-}; 
+};
