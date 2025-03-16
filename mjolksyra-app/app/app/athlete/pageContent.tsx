@@ -4,14 +4,19 @@ import { User } from "@/services/users/type";
 import { AthleteOnboardingFlow } from "@/components/AthleteOnboardingFlow/AthleteOnboardingFlow";
 import { AthleteWorkouts } from "./AthleteWorkouts";
 import { AthleteInvitations } from "./AthleteInvitations";
-import { DumbbellIcon, UserCircle2Icon, CalendarIcon, TrendingUpIcon } from "lucide-react";
+import {
+  DumbbellIcon,
+  UserCircle2Icon,
+  CalendarIcon,
+  TrendingUpIcon,
+} from "lucide-react";
 
 type Props = {
   user: User;
 };
 
 export function PageContent({ user }: Props) {
-  const needsOnboarding = user.onboarding.athlete !== "Completed" && false;
+  const needsOnboarding = user.onboarding.athlete !== "Completed";
 
   return (
     <div className="min-h-screen bg-black">
@@ -48,7 +53,9 @@ export function PageContent({ user }: Props) {
                   {/* Active Coaches */}
                   {user.coaches?.length > 0 && (
                     <div className="space-y-4 mb-8">
-                      <h3 className="text-sm font-medium text-gray-400 mb-3">Active</h3>
+                      <h3 className="text-sm font-medium text-gray-400 mb-3">
+                        Active
+                      </h3>
                       {user.coaches.map((coach) => (
                         <div
                           key={coach.traineeId}
@@ -61,7 +68,9 @@ export function PageContent({ user }: Props) {
                             <h3 className="font-medium text-gray-100">
                               {coach.givenName} {coach.familyName}
                             </h3>
-                            <p className="text-sm text-gray-400">Active Coach</p>
+                            <p className="text-sm text-gray-400">
+                              Active Coach
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -70,7 +79,9 @@ export function PageContent({ user }: Props) {
 
                   {/* Pending Invitations */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-400 mb-3">Pending Invitations</h3>
+                    <h3 className="text-sm font-medium text-gray-400 mb-3">
+                      Pending Invitations
+                    </h3>
                     <div className="bg-gray-950/80 rounded-lg p-4">
                       <AthleteInvitations />
                     </div>

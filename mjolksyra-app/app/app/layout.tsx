@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   redirect,
   usePathname,
@@ -10,8 +9,6 @@ import {
 import { useAuth } from "@/context/Auth";
 import { LogOutIcon } from "lucide-react";
 
-const client = new QueryClient();
-
 export default function Layout({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const segment = useSelectedLayoutSegment() ?? "";
@@ -19,38 +16,36 @@ export default function Layout({ children }: { children: ReactNode }) {
   const showLayout = pathname.endsWith(segment);
 
   if (!showLayout) {
-    return <QueryClientProvider client={client} children={children} />;
+    return children;
   }
 
   return (
-    <QueryClientProvider client={client}>
-      <div className="min-h-screen bg-black">
-        <div className="mt-12 px-6 mx-auto w-full container overflow-y-auto">
-          <div className="flex justify-between items-center">
-            <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
-              Hi {auth.givenName}!
-            </div>
-            <div className="flex gap-4 items-center">
-              <CustomTab
-                value={segment}
-                options={[
-                  { name: "Coach", value: "coach" },
-                  { name: "Athlete", value: "athlete" },
-                ]}
-                onSelect={(tab) => redirect(`/app/${tab.value}`)}
-              />
-              <div
-                className="bg-white/5 hover:bg-white/10 rounded-lg h-8 w-8 cursor-pointer grid place-items-center transition-colors"
-                onClick={auth.logout}
-              >
-                <LogOutIcon className="h-4 text-stone-200" />
-              </div>
+    <div className="min-h-screen bg-black">
+      <div className="mt-12 px-6 mx-auto w-full container overflow-y-auto">
+        <div className="flex justify-between items-center">
+          <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
+            Hi {auth.givenName}!
+          </div>
+          <div className="flex gap-4 items-center">
+            <CustomTab
+              value={segment}
+              options={[
+                { name: "Coach", value: "coach" },
+                { name: "Athlete", value: "athlete" },
+              ]}
+              onSelect={(tab) => redirect(`/app/${tab.value}`)}
+            />
+            <div
+              className="bg-white/5 hover:bg-white/10 rounded-lg h-8 w-8 cursor-pointer grid place-items-center transition-colors"
+              onClick={auth.logout}
+            >
+              <LogOutIcon className="h-4 text-stone-200" />
             </div>
           </div>
-          {children}
         </div>
+        {children}
       </div>
-    </QueryClientProvider>
+    </div>
   );
 }
 

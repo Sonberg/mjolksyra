@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Navigation } from "@/components/Navigation";
-import { AuthProvider } from "@/context/Auth";
 
 import "./globals.css";
-import { PostHog } from "@/context/PostHog";
 import { CookiesProvider } from "next-client-cookies/server";
+import { Providers } from "./providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,14 +33,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden dark  h-[100vh]`}
       >
         <CookiesProvider>
-          <AuthProvider>
-            <PostHog>
-              <Navigation />
-              <main className="flex flex-col flex-1 overflow-hidden">
-                {children}
-              </main>
-            </PostHog>
-          </AuthProvider>
+          <Providers>
+            <Navigation />
+            <main className="flex flex-col flex-1 overflow-hidden">
+              {children}
+            </main>
+          </Providers>
         </CookiesProvider>
       </body>
     </html>

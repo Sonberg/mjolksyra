@@ -13,9 +13,6 @@ import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWo
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
 import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
 
 type Props = {
   traineeId: string;
@@ -24,31 +21,29 @@ type Props = {
 export function PageContent({ traineeId }: Props) {
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <WorkoutPlanner
-            traineeId={traineeId}
-            plannedWorkouts={{
-              get: getPlannedWorkouts,
-              create: createPlannedWorkout,
-              update: updatePlannedWorkout,
-              delete: deletePlannedWorkout,
-            }}
-            library={
-              <ExerciseLibrary
-                exercies={{
-                  starred: starredExercises,
-                  star: starExercises,
-                  search: searchExercises,
-                  get: getExercises,
-                  delete: deleteExercise,
-                  create: createExercise,
-                }}
-              />
-            }
-          />
-        </TooltipProvider>
-      </QueryClientProvider>
+      <TooltipProvider>
+        <WorkoutPlanner
+          traineeId={traineeId}
+          plannedWorkouts={{
+            get: getPlannedWorkouts,
+            create: createPlannedWorkout,
+            update: updatePlannedWorkout,
+            delete: deletePlannedWorkout,
+          }}
+          library={
+            <ExerciseLibrary
+              exercies={{
+                starred: starredExercises,
+                star: starExercises,
+                search: searchExercises,
+                get: getExercises,
+                delete: deleteExercise,
+                create: createExercise,
+              }}
+            />
+          }
+        />
+      </TooltipProvider>
     </>
   );
 }
