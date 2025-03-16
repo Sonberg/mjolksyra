@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { authApi } from "./services/client";
+import { refresh } from "./services/auth/refresh";
 
 export const config = {
   matcher: [
@@ -41,8 +41,8 @@ export async function middleware(req: NextRequest) {
     return response;
   } catch {
     const secure = process.env.NODE_ENV === "production";
-    const refreshed = await authApi.authRefresh({
-      refreshCommand: { refreshToken: refreshToken },
+    const refreshed = await refresh({
+      refreshToken,
     });
 
     if (!refreshed?.isSuccessful) {
