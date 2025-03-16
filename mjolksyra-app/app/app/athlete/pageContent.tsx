@@ -1,7 +1,7 @@
 "use client";
 
 import { User } from "@/services/users/type";
-import { AthleteOnboarding } from "./AthleteOnboarding";
+import { AthleteOnboardingFlow } from "@/components/AthleteOnboardingFlow/AthleteOnboardingFlow";
 import { AthleteWorkouts } from "./AthleteWorkouts";
 import { AthleteInvitations } from "./AthleteInvitations";
 
@@ -10,11 +10,18 @@ type Props = {
 };
 
 export function PageContent({ user }: Props) {
+  const needsOnboarding = user.onboarding.athlete !== "Completed";
+
   return (
-    <>
-      <AthleteOnboarding user={user} />
-      <AthleteInvitations />
-      <AthleteWorkouts />
-    </>
+    <div className="container mx-auto px-4 py-8">
+      {needsOnboarding ? (
+        <AthleteOnboardingFlow />
+      ) : (
+        <>
+          <AthleteInvitations />
+          <AthleteWorkouts />
+        </>
+      )}
+    </div>
   );
 }

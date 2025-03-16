@@ -102,7 +102,7 @@ export default function Home() {
         </div>
       </section> */}
 
-      <div className="bg-[#1f2937] mt-20">
+      <div className="mt-20">
         <section className="max-w-screen-xl px-4 py-20 lg:py-40  mx-auto ">
           <h2 className="text-5xl leading-relaxed font-extrabold tracking-tight pb-8">
             Join us today!

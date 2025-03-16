@@ -12,7 +12,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 
-import { ReactNode, use, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { AtheletePaymentDialogContent } from "./AtheletePaymentDialogContent";
 
 type Props = {

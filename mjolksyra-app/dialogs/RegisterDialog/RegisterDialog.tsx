@@ -106,7 +106,7 @@ export function RegisterDialog({ trigger }: Props) {
           autoComplete={autoComplete}
           placeholder={placeholder}
           onChange={(ev) => onChange(ev.target.value)}
-          className="col-span-3"
+          className="col-span-3 text-black"
         />
       </div>
     ),
