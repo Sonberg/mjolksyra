@@ -19,12 +19,10 @@ export function CoachOnboarding({ user }: Props) {
     setLoading(true);
     try {
       const { data } = await ApiClient.get<Dashboard>("/api/stripe/dashboard");
-
       window.open(data.url, "_blank");
     } catch (error) {
       console.log(error);
     }
-
     setLoading(false);
   }, []);
 
@@ -36,12 +34,10 @@ export function CoachOnboarding({ user }: Props) {
         accountId: account.data.accountId,
         baseUrl: location.origin,
       });
-
       window.open(link.data.url, "_blank");
     } catch (error) {
       console.log(error);
     }
-
     setLoading(false);
   }, []);
 
@@ -50,7 +46,15 @@ export function CoachOnboarding({ user }: Props) {
       return (
         <OnboardingCard
           title="Payment dashboard"
-          button={<Button children="Dashboard" onClick={dashboard} />}
+          text="Access your earnings and manage your payment settings"
+          button={
+            <Button
+              onClick={dashboard}
+              className="w-full font-semibold bg-white/10 hover:bg-white/20 text-white"
+            >
+              {isLoading ? <Spinner size={8} /> : "Open dashboard"}
+            </Button>
+          }
         />
       );
 
@@ -58,14 +62,21 @@ export function CoachOnboarding({ user }: Props) {
     case "Started":
       return (
         <OnboardingCard
-          title="Coach onboarding"
-          text="One last step before you can invite your first athlete. You need to setup payments in order to recive money"
+          title="Complete your coach profile"
+          text="Set up your payment details to start accepting athletes and receiving payments for your coaching services"
           button={
-            <Button onClick={start} disabled={isLoading}>
-              {isLoading ? <Spinner size={8} /> : null}{" "}
-              {user.onboarding.coach === "NotStarted"
-                ? "Continue"
-                : "Get started"}
+            <Button
+              onClick={start}
+              disabled={isLoading}
+              className="w-full font-semibold bg-white/10 hover:bg-white/20 text-white"
+            >
+              {isLoading ? (
+                <Spinner size={8} />
+              ) : user.onboarding.coach === "NotStarted" ? (
+                "Get started"
+              ) : (
+                "Continue setup"
+              )}
             </Button>
           }
         />

@@ -25,8 +25,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={client}>
       <div className="min-h-screen bg-black">
-        <div className="mt-12 px-6 mx-auto w-full max-w-screen-xl overflow-y-auto">
-          <div className="flex justify-between items-center mb-16">
+        <div className="mt-12 px-6 mx-auto w-full container overflow-y-auto">
+          <div className="flex justify-between items-center">
             <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
               Hi {auth.givenName}!
             </div>

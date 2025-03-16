@@ -15,7 +15,7 @@ export function PageContent({ user }: Props) {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="py-8 space-y-8">
         {needsOnboarding ? (
           <AthleteOnboardingFlow />
         ) : (
@@ -23,7 +23,7 @@ export function PageContent({ user }: Props) {
             {/* Header Section */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
-                Welcome Back, {user.givenName || 'Athlete'}
+                Welcome Back, {user.givenName || "Athlete"}
               </h1>
               <p className="text-sm text-gray-400 mt-2">
                 Track your progress and manage your workouts
@@ -65,22 +65,28 @@ export function PageContent({ user }: Props) {
 
             {/* Quick Stats or Featured Content */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['Weekly Progress', 'Active Programs', 'Next Session'].map((stat) => (
-                <div
-                  key={stat}
-                  className="p-6 rounded-xl border border-gray-800/50 bg-gray-950/80 hover:bg-gray-900/80 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-white/10 grid place-items-center">
-                      <DumbbellIcon className="w-5 h-5 text-stone-200" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-400">{stat}</h3>
-                      <p className="text-lg font-semibold text-gray-100">--</p>
+              {["Weekly Progress", "Active Programs", "Next Session"].map(
+                (stat) => (
+                  <div
+                    key={stat}
+                    className="p-6 rounded-xl border border-gray-800/50 bg-gray-950/80 hover:bg-gray-900/80 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-white/10 grid place-items-center">
+                        <DumbbellIcon className="w-5 h-5 text-stone-200" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-400">
+                          {stat}
+                        </h3>
+                        <p className="text-lg font-semibold text-gray-100">
+                          --
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </>
         )}

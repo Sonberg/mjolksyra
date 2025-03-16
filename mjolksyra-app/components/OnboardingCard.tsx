@@ -20,12 +20,12 @@ export function OnboardingCard({
     <div
       className={cn(
         "relative overflow-hidden rounded-xl p-8 shadow-lg transition-all duration-200",
-        "border border-gray-100/20 backdrop-blur-sm",
+        "border border-gray-800/50 backdrop-blur-sm",
         {
-          "bg-white/90": variant === "default",
-          "bg-[#c6b9ff]/90": variant === "purple",
+          "bg-gray-950/50": variant === "default",
+          "bg-gray-900/50": variant === "purple",
         },
-        "hover:shadow-xl",
+        "hover:shadow-xl hover:shadow-white/5",
         className
       )}
     >
@@ -33,9 +33,9 @@ export function OnboardingCard({
         {title && (
           <h3
             className={cn("mb-4 text-2xl font-semibold tracking-tight", {
-              "bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent":
+              "bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent":
                 variant === "default",
-              "text-gray-900": variant === "purple",
+              "text-white": variant === "purple",
             })}
           >
             {title}
@@ -43,15 +43,15 @@ export function OnboardingCard({
         )}
 
         {text && (
-          <p className="text-base leading-relaxed text-gray-600">{text}</p>
+          <p className="text-base leading-relaxed text-gray-400">{text}</p>
         )}
 
         {button && <div className="mt-6">{button}</div>}
       </div>
 
       {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 blur-2xl opacity-50" />
-      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-gradient-to-tr from-blue-100 to-blue-200 blur-2xl opacity-50" />
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-24 h-24 rounded-full bg-gradient-to-br from-white/5 to-stone-500/5 blur-2xl opacity-50" />
+      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-gradient-to-tr from-stone-400/5 to-white/5 blur-2xl opacity-50" />
     </div>
   );
 }
