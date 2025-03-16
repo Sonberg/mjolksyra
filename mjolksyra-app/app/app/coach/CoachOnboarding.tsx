@@ -68,7 +68,7 @@ export function CoachOnboarding({ user }: Props) {
             <Button
               onClick={start}
               disabled={isLoading}
-              className="w-full font-semibold bg-white hover:bg-white/20 text-black"
+              className="w-full font-semibold bg-white hover:bg-white/80 text-black"
             >
               {isLoading ? (
                 <Spinner size={8} />

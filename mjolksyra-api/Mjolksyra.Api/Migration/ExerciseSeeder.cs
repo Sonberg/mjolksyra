@@ -19,6 +19,15 @@ public class ExerciseSeeder : BackgroundService
         using var scope = _serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<IMongoDbContext>();
+        var first = await context.Exercises
+            .Find(Builders<Exercise>.Filter.Empty)
+            .FirstOrDefaultAsync(cancellationToken: stoppingToken);
+
+        if (first is not null)
+        {
+            return;
+        }
+
         var reader = new StreamReader("./exercises.json");
         var content = await reader.ReadToEndAsync(stoppingToken);
 

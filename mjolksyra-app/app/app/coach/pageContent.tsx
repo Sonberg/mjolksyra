@@ -7,6 +7,7 @@ import { PlusIcon, UserPlusIcon } from "lucide-react";
 import { Trainee } from "@/services/trainees/type";
 import { TraineeCard } from "./TraineeCard";
 import { useRouter } from "next/navigation";
+import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog/InviteTraineeDialog";
 
 type Props = { trainees: Trainee[]; user: User };
 
@@ -43,14 +44,18 @@ export function PageContent({ trainees, user }: Props) {
                 Manage your {trainees.length} {trainees.length === 1 ? "athlete" : "athletes"}
               </p>
             </div>
-            <Button
-              disabled={!canInvite}
-              className="flex items-center gap-2 px-6 py-2 font-semibold shadow-sm bg-white/10 hover:bg-white/20 text-white"
-              size="lg"
-            >
-              <UserPlusIcon className="w-5 h-5" />
-              Invite Athlete
-            </Button>
+            <InviteTraineeDialog
+              trigger={
+                <Button
+                  disabled={!canInvite}
+                  className="flex items-center gap-2 px-6 py-2 font-semibold shadow-sm bg-white/10 hover:bg-white/20 text-white"
+                  size="lg"
+                >
+                  <UserPlusIcon className="w-5 h-5" />
+                  Invite Athlete
+                </Button>
+              }
+            />
           </div>
 
           {trainees.length > 0 ? (
@@ -78,14 +83,18 @@ export function PageContent({ trainees, user }: Props) {
                   ? "Ready to expand your coaching impact? Start by inviting your first athlete and begin your journey as a professional coach."
                   : "Complete your onboarding to unlock athlete invitations and start your coaching journey."}
               </p>
-              <Button 
-                disabled={!canInvite} 
-                size="lg" 
-                className="font-semibold px-8 bg-white/10 hover:bg-white/20 text-white"
-              >
-                <PlusIcon className="w-5 h-5" />
-                Invite Your First Athlete
-              </Button>
+              <InviteTraineeDialog
+                trigger={
+                  <Button 
+                    disabled={!canInvite} 
+                    size="lg" 
+                    className="font-semibold px-8 bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    Invite Your First Athlete
+                  </Button>
+                }
+              />
             </div>
           )}
         </div>

@@ -173,7 +173,7 @@ builder.Services.AddTransient<IStripeClient, StripeClient>(s =>
 });
 
 builder.Services.AddHttpContextAccessor();
-// builder.Services.AddHostedService<ExerciseSeeder>();
+ builder.Services.AddHostedService<ExerciseSeeder>();
 builder.Services.AddHostedService<SearchIndexBuilder>();
 builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
 builder.Services.AddHostedService<TraineeIndexBuilder>();
