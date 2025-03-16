@@ -1,6 +1,5 @@
 import { User } from "@/services/users/type";
 import { PageContent } from "./pageContent";
-import { withReactQuery } from "@/cosmos.decorators";
 
 const user: User = {
   id: "1",
@@ -14,7 +13,7 @@ const user: User = {
   },
 };
 
-export default {
+export default  {
     NotOnboarded: () => <PageContent user={user} />,
 
     Onboarded: () => (

@@ -1,5 +1,4 @@
 import { OnboardingCard } from "../OnboardingCard";
-import { Button } from "../ui/button";
 import { AtheletePaymentDialog } from "@/dialogs/AtheletePaymentDialog";
 
 interface PaymentStepProps {
@@ -8,12 +7,6 @@ interface PaymentStepProps {
 }
 
 export function PaymentStep({ onNext, onBack }: PaymentStepProps) {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Add payment processing logic here
-    onNext();
-  };
-
   return (
     <div className="space-y-6">
       <OnboardingCard

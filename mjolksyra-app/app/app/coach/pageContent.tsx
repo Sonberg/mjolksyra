@@ -1,6 +1,5 @@
 "use client";
 
-import { CoachCard } from "./CoachCard";
 import { User } from "@/services/users/type";
 import { CoachOnboarding } from "./CoachOnboarding";
 import { Button } from "@/components/ui/button";
