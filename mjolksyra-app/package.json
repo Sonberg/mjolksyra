@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
+    "cosmos": "npx cosmos",
     "generate": "npx openapi-generator-cli generate -i http://localhost:5107/openapi/v1.json -g typescript-fetch -o generated-client"
   },
   "dependencies": {
@@ -69,6 +70,7 @@
     "eslint-config-next": "14.2.16",
     "jest": "^29.7.0",
     "postcss": "^8",
+    "react-cosmos": "^6.2.3",
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.2.5",
     "typescript": "^5"
