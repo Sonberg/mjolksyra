@@ -8,7 +8,7 @@ public class TraineeResponse
 
     public required TraineeUserResponse Athlete { get; set; }
 
-    public required TraineePriceResponse? Price { get; set; }
+    public required TraineeCostResponse? Cost { get; set; }
 
     public required DateTimeOffset? LastWorkoutAt { get; set; }
 

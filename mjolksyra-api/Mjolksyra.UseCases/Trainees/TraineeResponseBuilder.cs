@@ -23,17 +23,13 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
         var coachTask = _userRepository.GetById(trainee.CoachUserId, cancellationToken);
 
         await Task.WhenAll(athleteTask, coachTask);
-
+        
         return new TraineeResponse
         {
             Id = trainee.Id,
             Athlete = TraineeUserResponse.From(athleteTask.Result),
             Coach = TraineeUserResponse.From(coachTask.Result),
-            Price = new TraineePriceResponse
-            {
-                Amount = 1000,
-                Currency = "SEK"
-            },
+            Cost = TraineeCostResponse.From(TraineeTransactionCost.From(trainee.Cost)),
             LastWorkoutAt = DateTimeOffset.UtcNow.AddMonths(1),
             NextWorkoutAt = DateTimeOffset.UtcNow.AddHours(2),
             CreatedAt = trainee.CreatedAt

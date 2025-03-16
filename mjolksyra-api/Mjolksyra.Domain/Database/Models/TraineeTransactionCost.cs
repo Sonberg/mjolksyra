@@ -7,6 +7,8 @@ public class TraineeTransactionCost
     public int Coach { get; init; }
 
     public int Total { get; init; }
+    
+    public string Currency { get; init; }
 
     public static TraineeTransactionCost From(TraineeCost cost)
     {
@@ -17,7 +19,8 @@ public class TraineeTransactionCost
         {
             ApplicationFee = applicationFee,
             Coach = Math.Max(0, cost.Amount - applicationFee),
-            Total = applicationFee + coach
+            Total = applicationFee + coach,
+            Currency = cost.Currency
         };
     }
 }
