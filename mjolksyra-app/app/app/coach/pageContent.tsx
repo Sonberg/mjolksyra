@@ -6,11 +6,26 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, UserPlusIcon } from "lucide-react";
 import { Trainee } from "@/services/trainees/type";
 import { TraineeCard } from "./TraineeCard";
+import { useRouter } from "next/navigation";
 
 type Props = { trainees: Trainee[]; user: User };
 
 export function PageContent({ trainees, user }: Props) {
+  const router = useRouter();
   const canInvite = user.onboarding.coach === "Completed";
+
+  const handlePlanWorkout = (trainee: Trainee) => {
+    router.push(`/app/coach/athletes/${trainee.id}/plan`);
+  };
+
+  const handleManageCost = (trainee: Trainee) => {
+    router.push(`/app/coach/athletes/${trainee.id}/cost`);
+  };
+
+  const handleCancel = (trainee: Trainee) => {
+    // TODO: Implement cancel functionality
+    console.log("Cancel trainee:", trainee.id);
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -41,7 +56,13 @@ export function PageContent({ trainees, user }: Props) {
           {trainees.length > 0 ? (
             <div className="grid gap-4">
               {trainees.map((trainee) => (
-                <TraineeCard key={trainee.id} trainee={trainee} />
+                <TraineeCard 
+                  key={trainee.id} 
+                  trainee={trainee}
+                  onPlanWorkout={handlePlanWorkout}
+                  onManageCost={handleManageCost}
+                  onCancel={handleCancel}
+                />
               ))}
             </div>
           ) : (
