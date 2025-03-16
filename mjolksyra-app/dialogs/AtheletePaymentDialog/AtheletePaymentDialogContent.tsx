@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
 import {
   useStripe,
   useElements,
@@ -9,13 +8,15 @@ import { useState } from "react";
 
 type Props = {
   clientSecret: string;
+  onBack: () => void;
 };
 
-export function AtheletePaymentDialogContent({ clientSecret }: Props) {
+export function AtheletePaymentDialogContent({ clientSecret, onBack }: Props) {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setReady] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,20 +56,30 @@ export function AtheletePaymentDialogContent({ clientSecret }: Props) {
   return (
     <form onSubmit={handleSubmit}>
       <PaymentElement
+        onReady={() => setReady(true)}
         options={{
           layout: {
-            type: "accordion",
+            type: "tabs",
             radios: true,
             spacedAccordionItems: true,
           },
         }}
       />
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <DialogFooter className="mt-8">
-        <Button type="submit" disabled={!stripe || !elements || isLoading}>
-          {isLoading ? "Saving..." : "Save"}
-        </Button>
-      </DialogFooter>
+      {isReady && (
+        <div className="flex justify-between pt-8">
+          <Button type="button" variant="outline" onClick={onBack}>
+            Back
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading || !elements || !stripe}
+            className="font-bold"
+          >
+            Complete Setup
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

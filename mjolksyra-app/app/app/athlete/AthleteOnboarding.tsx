@@ -22,16 +22,7 @@ export function AthleteOnboarding({ user }: Props) {
         <OnboardingCard
           title="Athlete onboarding"
           text="Almost there, you only need to add payment method."
-          button={
-            <AtheletePaymentDialog
-              onOpenChanged={setLoading}
-              trigger={
-                <Button>
-                  {isLoading ? <Spinner size={24} /> : null} Setup
-                </Button>
-              }
-            />
-          }
+          button={<AtheletePaymentDialog onBack={() => {}} />}
         />
       );
   }

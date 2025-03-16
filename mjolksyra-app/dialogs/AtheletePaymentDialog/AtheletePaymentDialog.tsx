@@ -1,27 +1,17 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { AtheletePaymentDialogContent } from "./AtheletePaymentDialogContent";
+import { Spinner } from "@/components/Spinner";
 
 type Props = {
-  trigger: ReactNode;
-  onOpenChanged: (_: boolean) => void;
+  onBack: () => void;
 };
 
-export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
-  const [isOpen, setOpen] = useState(false);
+export function AtheletePaymentDialog({ onBack }: Props) {
   const { resolvedTheme } = useTheme();
   const { data } = useQuery({
     queryKey: ["stripe", "setup-intent"],
@@ -33,7 +23,6 @@ export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
 
       return clientSecret;
     },
-    enabled: isOpen,
   });
 
   const stripe = useMemo(
@@ -41,35 +30,21 @@ export function AtheletePaymentDialog({ trigger, onOpenChanged }: Props) {
     []
   );
 
-  return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(state) => {
-        setOpen(state);
-        onOpenChanged(state);
+  return data ? (
+    <Elements
+      stripe={stripe}
+      options={{
+        clientSecret: data,
+        appearance: {
+          theme: resolvedTheme === "dark" ? "night" : undefined,
+        },
       }}
     >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[40rem]">
-        <DialogHeader>
-          <DialogTitle>Title</DialogTitle>
-          <DialogDescription>Description</DialogDescription>
-        </DialogHeader>
-
-        {data ? (
-          <Elements
-            stripe={stripe}
-            options={{
-              clientSecret: data,
-              appearance: {
-                theme: resolvedTheme === "dark" ? "night" : undefined,
-              },
-            }}
-          >
-            <AtheletePaymentDialogContent clientSecret={data} />
-          </Elements>
-        ) : null}
-      </DialogContent>
-    </Dialog>
+      <AtheletePaymentDialogContent clientSecret={data} onBack={onBack} />
+    </Elements>
+  ) : (
+    <div className="flex items-center justify-center min-h-56">
+      <Spinner className="stroke-slate-400" size={32} />
+    </div>
   );
 }
