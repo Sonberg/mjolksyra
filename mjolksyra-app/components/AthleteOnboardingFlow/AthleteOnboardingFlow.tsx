@@ -51,7 +51,7 @@ export function AthleteOnboardingFlow() {
   };
 
   return (
-    <div className="max-w-[52rem] mx-auto">
+    <div className="mx-auto">
       {/* Progress bar */}
       <div className="mb-8">
         <div className="h-2 w-full bg-gray-200 rounded-full">

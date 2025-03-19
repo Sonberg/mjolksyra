@@ -61,11 +61,8 @@ export function Navigation() {
         }
       )}
     >
-      <div className="flex h-16 items-center px-4">
-        <Link
-          href="/"
-          className="text-base font-medium transition-colors hover:text-emerald-400"
-        >
+      <div className="flex h-16 items-center px-4 hover:opacity-80 transition-opacity">
+        <Link href="/" className="text-base font-medium transition-colors ">
           <div className="font-bold text-xl mr-4 flex items-center">
             <Image
               className="h-8 w-8 mr-2"
@@ -74,9 +71,7 @@ export function Navigation() {
               height={32}
               src={"/images/logo.svg"}
             />
-            <div className="">
-              mjölksyra
-            </div>
+            <div className="">mjölksyra</div>
           </div>
         </Link>
 
@@ -84,15 +79,15 @@ export function Navigation() {
           {auth.isAuthenticated ? (
             <NavigationUser />
           ) : (
-            <LoginDialog 
+            <LoginDialog
               trigger={
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="text-gray-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
                 >
                   Login
                 </Button>
-              } 
+              }
             />
           )}
         </div>

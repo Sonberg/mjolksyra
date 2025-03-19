@@ -3,8 +3,8 @@
 
 import { RendererConfig, UserModuleWrappers } from 'react-cosmos-core';
 
-import * as fixture0 from './app/app/coach/Coach.fixture';
-import * as fixture1 from './app/app/athlete/Athlete.fixture';
+import * as fixture0 from './app/app/athlete/Athlete.fixture';
+import * as fixture1 from './app/app/coach/Coach.fixture';
 
 import * as decorator0 from './cosmos.decorator';
 
@@ -14,8 +14,8 @@ export const rendererConfig: RendererConfig = {
 };
 
 const fixtures = {
-  'app/app/coach/Coach.fixture.tsx': { module: fixture0 },
-  'app/app/athlete/Athlete.fixture.tsx': { module: fixture1 }
+  'app/app/athlete/Athlete.fixture.tsx': { module: fixture0 },
+  'app/app/coach/Coach.fixture.tsx': { module: fixture1 }
 };
 
 const decorators = {

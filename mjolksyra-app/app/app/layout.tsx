@@ -20,12 +20,10 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="mt-12 px-6 mx-auto w-full container overflow-y-auto">
+    <div className=" bg-black min-h-screen ">
+      <div className="mt-12 px-6 mx-auto w-full container overflow-y-auto mb-32">
         <div className="flex justify-between items-center">
-          <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
-            Hi {auth.givenName}!
-          </div>
+          <div />
           <div className="flex gap-4 items-center">
             <CustomTab
               value={segment}
