@@ -1,68 +1,64 @@
-import { useState } from "react";
-import { OnboardingCard } from "../OnboardingCard";
-import { Button } from "../ui/button";
-import { InvitationStep } from "./InvitationStep";
+import { useMemo, useState } from "react";
+
 import { PaymentStep } from "./PaymentStep";
 import { WelcomeStep } from "./WelcomeStep";
+import { loadStripe } from "@stripe/stripe-js";
+import { useQuery } from "@tanstack/react-query";
+import { Elements } from "@stripe/react-stripe-js";
+import { Spinner } from "../Spinner";
 
-type Step = "welcome" | "invitations" | "payment" | "completed";
+type Step = "welcome" | "payment";
 
 export function AthleteOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
 
+  const { data: clientSecret } = useQuery({
+    queryKey: ["stripe", "setup-intent"],
+    queryFn: async () => {
+      const response = await fetch(`/api/stripe/setup-intent`, {
+        method: "POST",
+      });
+      const { clientSecret } = await response.json();
+
+      return `${clientSecret}`;
+    },
+  });
+
+  const stripe = useMemo(
+    () => loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!),
+    []
+  );
+
   const steps = {
     welcome: {
-      component: <WelcomeStep onNext={() => setCurrentStep("invitations")} />,
-      progress: 25,
-    },
-    invitations: {
-      component: (
-        <InvitationStep
-          onNext={() => setCurrentStep("payment")}
-          onBack={() => setCurrentStep("welcome")}
-        />
-      ),
-      progress: 50,
+      component: <WelcomeStep onNext={() => setCurrentStep("payment")} />,
     },
     payment: {
-      component: (
-        <PaymentStep
-          onNext={() => setCurrentStep("completed")}
-          onBack={() => setCurrentStep("invitations")}
-        />
+      component: clientSecret ? (
+        <Elements
+          stripe={stripe}
+          options={{
+            clientSecret: clientSecret,
+            appearance: {
+              theme: "night",
+            },
+          }}
+        >
+          <PaymentStep
+            clientSecret={clientSecret!}
+            onBack={() => setCurrentStep("welcome")}
+          />
+        </Elements>
+      ) : (
+        <div className="flex items-center justify-center min-h-56">
+          <Spinner className="stroke-slate-400" size={32} />
+        </div>
       ),
-      progress: 75,
-    },
-    completed: {
-      component: (
-        <OnboardingCard
-          variant="purple"
-          title="You're all set! 🎉"
-          text="Your account is now fully configured. You can start your fitness journey with your coach."
-          button={
-            <Button className="w-full font-bold" variant="default">
-              Go to Dashboard
-            </Button>
-          }
-        />
-      ),
-      progress: 100,
     },
   };
 
   return (
-    <div className="mx-auto">
-      {/* Progress bar */}
-      <div className="mb-8">
-        <div className="h-2 w-full bg-gray-200 rounded-full">
-          <div
-            className="h-full bg-purple-500 rounded-full transition-all duration-500 ease-in-out"
-            style={{ width: `${steps[currentStep].progress}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Current step */}
+    <div className="mx-auto bg-background">
       <div className="transition-all duration-300">
         {steps[currentStep].component}
       </div>

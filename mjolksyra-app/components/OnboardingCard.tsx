@@ -16,42 +16,59 @@ export function OnboardingCard({
   className,
   variant = "default",
 }: Props) {
+  const baseStyles = "relative overflow-hidden rounded-xl p-8 transition-all duration-300";
+  const borderStyles = "border border-border/20";
+  const glassEffect = "backdrop-blur-sm";
+  const hoverEffect = cn(
+    "shadow-[0_0_15px_rgba(0,0,0,0.1)]",
+    "hover:shadow-[0_0_30px_rgba(0,0,0,0.15)]",
+  );
+  
+  const backgroundStyles = cn({
+    "bg-background/40": variant === "default",
+    "bg-purple-900/40": variant === "purple",
+  });
+
+  const titleStyles = cn("mb-4 text-2xl font-semibold tracking-tight", {
+    "bg-gradient-to-r from-foreground/90 to-foreground bg-clip-text text-transparent": variant === "default",
+    "text-foreground": variant === "purple",
+  });
+
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl p-8 shadow-lg transition-all duration-200",
-        "border border-gray-800/50 backdrop-blur-sm",
-        {
-          "bg-gray-950/50": variant === "default",
-          "bg-gray-900/50": variant === "purple",
-        },
-        "hover:shadow-xl hover:shadow-white/5",
+        baseStyles,
+        borderStyles,
+        glassEffect,
+        backgroundStyles,
+        hoverEffect,
         className
       )}
     >
-      <div className="relative z-10">
-        {title && (
-          <h3
-            className={cn("mb-4 text-2xl font-semibold tracking-tight", {
-              "bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent":
-                variant === "default",
-              "text-white": variant === "purple",
-            })}
-          >
-            {title}
-          </h3>
+      {/* Content */}
+      <div className="relative z-10 space-y-4">
+        {title && <h3 className={titleStyles}>{title}</h3>}
+        {text && <p className="text-base leading-relaxed text-muted-foreground">{text}</p>}
+        {button && (
+          <div className="mt-2 flex justify-start">
+            <div className="inline-flex">
+              {button}
+            </div>
+          </div>
         )}
-
-        {text && (
-          <p className="text-base leading-relaxed text-gray-400">{text}</p>
-        )}
-
-        {button && <div className="mt-6">{button}</div>}
       </div>
 
-      {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-24 h-24 rounded-full bg-gradient-to-br from-white/5 to-stone-500/5 blur-2xl opacity-50" />
-      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-gradient-to-tr from-stone-400/5 to-white/5 blur-2xl opacity-50" />
+      {/* Background Decorations */}
+      <div 
+        className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-24 h-24 
+          rounded-full bg-gradient-to-br from-foreground/5 to-foreground/10 
+          blur-2xl opacity-50"
+      />
+      <div 
+        className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-32 h-32 
+          rounded-full bg-gradient-to-tr from-foreground/10 to-foreground/5 
+          blur-2xl opacity-50"
+      />
     </div>
   );
 }
