@@ -20,8 +20,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className=" bg-black min-h-screen ">
-      <div className="mt-12 px-6 mx-auto w-full container overflow-y-auto mb-32">
+    <div className=" bg-black min-h-screen overflow-y-auto">
+      <div className="mt-12 px-6 mx-auto w-full container mb-32">
         <div className="flex justify-between items-center">
           <div />
           <div className="flex gap-4 items-center">
@@ -82,7 +82,7 @@ function CustomTab({ options, value, onSelect }: CustomTabProps) {
     <div
       role="tablist"
       aria-orientation="horizontal"
-      className="inline-flex h-10 items-center justify-center rounded-lg bg-gray-950/80 p-1 text-muted-foreground border border-gray-800/50"
+      className="inline-flex h-10 gap-1 items-center justify-center rounded-lg bg-gray-950/80 p-1 text-muted-foreground border border-gray-800/50"
       tabIndex={0}
       data-orientation="horizontal"
     >
