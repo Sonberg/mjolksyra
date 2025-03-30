@@ -3,6 +3,6 @@
   "rules": {
     "react/no-children-prop": "off",
     "import/no-anonymous-default-export": "off",
-    "@next/next/no-img-element": "off",
+    "@next/next/no-img-element": "off"
   }
 }

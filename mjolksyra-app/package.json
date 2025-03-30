@@ -10,8 +10,7 @@
     "lint": "next lint",
     "test": "jest",
     "cosmos": "cosmos --expose-imports",
-    "cosmos-export": "cosmos-export --expose-imports",
-    "generate": "npx openapi-generator-cli generate -i http://localhost:5107/openapi/v1.json -g typescript-fetch -o generated-client"
+    "cosmos-export": "cosmos-export --expose-imports"
   },
   "dependencies": {
     "@azure/identity": "^4.6.0",

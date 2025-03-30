@@ -12,14 +12,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useGravatar } from "@/hooks/useGravatar";
+import { Trainee } from "@/services/trainees/type";
 import dayjs from "dayjs";
 import { DumbbellIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
-import { TraineeResponse } from "@/generated-client";
 
 type Props = {
-  trainee: TraineeResponse;
+  trainee: Trainee;
 };
 
 export function CoachCard({ trainee }: Props) {
