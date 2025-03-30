@@ -19,7 +19,7 @@ export function PageContent({ user }: Props) {
   const needsOnboarding = user.onboarding.athlete !== "Completed";
 
   return (
-    <div className="px-4 py-8 space-y-8">
+    <div className="py-8 space-y-8">
       {needsOnboarding ? (
         <AthleteOnboardingFlow />
       ) : (
