@@ -1,8 +1,7 @@
 "use client";
 
 import { Trainee } from "@/services/trainees/type";
-import { CalendarIcon, ChevronRightIcon, MoreVerticalIcon, DumbbellIcon, DollarSignIcon, XIcon } from "lucide-react";
-import Link from "next/link";
+import { CalendarIcon, MoreVerticalIcon, DumbbellIcon, DollarSignIcon, XIcon } from "lucide-react";
 import { format } from "date-fns";
 import {
   DropdownMenu,
