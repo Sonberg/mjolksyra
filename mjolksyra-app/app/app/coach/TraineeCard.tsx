@@ -2,23 +2,11 @@
 
 import { Trainee } from "@/services/trainees/type";
 import {
-  CalendarIcon,
-  MoreVerticalIcon,
   DumbbellIcon,
-  DollarSignIcon,
-  XIcon,
   WalletIcon,
   BadgeEuroIcon,
 } from "lucide-react";
 import { format } from "date-fns";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { useGravatar } from "@/hooks/useGravatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";

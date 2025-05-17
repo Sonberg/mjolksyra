@@ -12,7 +12,7 @@ type Props = {
 
 export function PageContent({ user }: Props) {
   const [coach, setCoach] = useState<UserTrainee | null>(user.coaches[0]);
-  const needsOnboarding = user.onboarding.athlete !== "Completed" || false;
+  // const needsOnboarding = user.onboarding.athlete !== "Completed" || false;
 
   return (
     <div className="py-8 space-y-8">
