@@ -1,11 +1,7 @@
 "use client";
 
 import { Trainee } from "@/services/trainees/type";
-import {
-  DumbbellIcon,
-  WalletIcon,
-  BadgeEuroIcon,
-} from "lucide-react";
+import { DumbbellIcon, WalletIcon, BadgeEuroIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useGravatar } from "@/hooks/useGravatar";
 import { AvatarImage } from "@/components/ui/avatar";
@@ -18,12 +14,7 @@ type TraineeCardProps = {
   onCancel?: (trainee: Trainee) => void;
 };
 
-export function TraineeCard({
-  trainee,
-  onPlanWorkout,
-  onManageCost,
-  onCancel,
-}: TraineeCardProps) {
+export function TraineeCard({ trainee, onPlanWorkout }: TraineeCardProps) {
   const url = useGravatar(trainee.coach.email ?? "", 56);
 
   return (
