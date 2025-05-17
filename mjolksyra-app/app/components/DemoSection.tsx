@@ -14,10 +14,12 @@ export const DemoSection = () => {
             Experience our intuitive drag-and-drop interface
           </p>
         </div>
+      </div>
+      <div className="max-w-screen-2xl mx-auto px-4">
         <div className="rounded-xl border border-gray-800/50 bg-gray-950/50 backdrop-blur-sm overflow-hidden">
           <WorkoutPlannerDemo />
         </div>
       </div>
     </section>
   );
-}; 
+};
