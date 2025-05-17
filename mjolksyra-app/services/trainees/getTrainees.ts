@@ -15,8 +15,6 @@ export async function getTrainees({ signal, accessToken }: Args) {
     },
   });
 
-  console.log(response.data);
-
   const parsed = await z.array(schema).safeParseAsync(response.data);
 
   if (!parsed.success) {

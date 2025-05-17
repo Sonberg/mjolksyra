@@ -2,18 +2,9 @@
 
 import { User, UserTrainee } from "@/services/users/type";
 import { AthleteOnboardingFlow } from "@/components/AthleteOnboardingFlow/AthleteOnboardingFlow";
-import { AthleteWorkouts } from "./AthleteWorkouts";
-import { AthleteInvitations } from "./AthleteInvitations";
-import {
-  DumbbellIcon,
-  UserCircle2Icon,
-  CalendarIcon,
-  TrendingUpIcon,
-} from "lucide-react";
-import { Trainee } from "@/services/trainees/type";
 import { useState } from "react";
-import { AthleteCoach } from "./AthleteCoach";
 import { AthleteDashboard } from "./AthleteDashboard";
+import { AthleteCoaches } from "./AthleteCoaches";
 
 type Props = {
   user: User;
@@ -40,38 +31,11 @@ export function PageContent({ user }: Props) {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
-              <section className="rounded-xl border border-gray-800/50 bg-gray-950/50 p-6 backdrop-blur-sm">
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-100">
-                    Your Coaches
-                  </h2>
-                </div>
-
-                {user.coaches?.length > 0 && (
-                  <div className="space-y-4 mb-8">
-                    <h3 className="text-sm font-medium text-gray-400 mb-3">
-                      Active
-                    </h3>
-                    {user.coaches.map((x) => (
-                      <AthleteCoach
-                        key={x.traineeId}
-                        coach={x}
-                        isSelected={x.traineeId === coach?.traineeId}
-                        onSelect={() => setCoach(x)}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {user.invitations.length ? (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">
-                      Pending Invitations
-                    </h3>
-                    <AthleteInvitations invitations={user.invitations} />
-                  </div>
-                ) : null}
-              </section>
+              <AthleteCoaches
+                user={user}
+                selected={coach}
+                onSelect={setCoach}
+              />
             </div>
             {coach ? <AthleteDashboard coach={coach} /> : null}
           </div>

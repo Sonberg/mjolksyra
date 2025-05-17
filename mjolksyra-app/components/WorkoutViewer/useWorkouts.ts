@@ -12,6 +12,7 @@ type Args = {
   toDate?: dayjs.Dayjs;
   sortBy: string;
   order: "asc" | "desc";
+  enabled: boolean;
 };
 
 export function useWorkouts({
@@ -19,6 +20,7 @@ export function useWorkouts({
   traineeId,
   fromDate,
   toDate,
+  enabled,
   ...args
 }: Args) {
   const initial = useQuery({
@@ -29,13 +31,14 @@ export function useWorkouts({
         signal,
         fromDate,
         toDate,
-        limit: 10,
+        limit: 5,
         ...args,
       }),
     placeholderData: {
       data: [],
       next: null,
     },
+    enabled: enabled,
   });
 
   const infinit = useInfiniteQuery({
@@ -47,7 +50,7 @@ export function useWorkouts({
     },
     getNextPageParam: (lastPage) => lastPage.next,
     initialPageParam: initial.data?.next,
-    enabled: !!initial.data?.next,
+    enabled: !!initial.data?.next && enabled,
   });
 
   return useMemo(

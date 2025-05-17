@@ -44,7 +44,7 @@ export function ExerciseBrowser({ exercies }: Props) {
       {browser.data.map((x) => (
         <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
       ))}
-      <div ref={end.measureRef} className="text-background">
+      <div ref={end.measureRef} className="text-black">
         end
       </div>
       {browser.hasNextPage ? (

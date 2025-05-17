@@ -73,6 +73,9 @@ export async function getAuth(args?: Args) {
 
   const [success, payload] = await tryVerify(accessToken);
 
+  if (!success) {
+  }
+
   if (success) {
     ensureScope(payload);
 
@@ -86,14 +89,11 @@ export async function getAuth(args?: Args) {
   }
 
   const headersList = await headers();
-  const fullUrl = headersList.get("x-url") || headersList.get("referer");
+  const path = headersList.get("x-pathname");
 
-  console.log("fullUrl", fullUrl);
-
-  if (!fullUrl) {
-    return empty();
+  if (path) {
+    redirect(path);
   }
-  const { pathname } = new URL(fullUrl);
 
-  redirect(pathname);
+  return empty();
 }

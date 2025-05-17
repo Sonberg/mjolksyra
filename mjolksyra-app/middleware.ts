@@ -25,6 +25,8 @@ export async function middleware(req: NextRequest) {
   const accessToken = store.get("accessToken")?.value;
   const refreshToken = store.get("refreshToken")?.value;
 
+  response.headers.set("x-pathname", req.nextUrl.pathname);
+
   if (!refreshToken) {
     return response;
   }

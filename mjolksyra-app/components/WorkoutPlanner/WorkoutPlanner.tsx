@@ -24,7 +24,7 @@ import { PlannedWorkoutActionsProvider } from "./contexts/PlannedWorkoutActions"
 
 type Props = {
   traineeId: string;
-  library: ReactNode;
+  rightSide: ReactNode;
   oneMonthOnly?: boolean;
   plannedWorkouts: {
     update: UpdatePlannedWorkout;
@@ -38,7 +38,7 @@ export function WorkoutPlanner({
   oneMonthOnly,
   traineeId,
   plannedWorkouts,
-  library,
+  rightSide,
 }: Props) {
   const listRef = useRef<ViewportListRef | null>(null);
   const today = useMemo(() => dayjs(), []);
@@ -118,7 +118,7 @@ export function WorkoutPlanner({
                 minSize={0}
                 maxSize={50}
                 className="overflow-visible"
-                children={<WorkoutEditor children={library} />}
+                children={<WorkoutEditor children={rightSide} />}
               />
             </ResizablePanelGroup>
           </PlannerProvider>

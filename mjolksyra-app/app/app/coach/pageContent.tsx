@@ -65,10 +65,26 @@ export function PageContent({ trainees, user }: Props) {
           />
         </div>
 
-        <h3 className="font-bold mb-4">Pending invitations</h3>
+        <div className="grid grid-cols-2 gap-8">
+          {trainees.length > 0
+            ? trainees.map(
+                (trainee) => (
+                  <TraineeCard
+                    key={trainee.id}
+                    trainee={trainee}
+                    onPlanWorkout={handlePlanWorkout}
+                    onManageCost={handleManageCost}
+                    onCancel={handleCancel}
+                  />
+                )
+              )
+            : null}
+        </div>
+
         {invitaions.data.length > 0 ? (
           <div className="mb-8">
-            <div className="grid gap-4">
+            <h3 className="font-bold mb-4">Pending invitations</h3>
+            <div className="grid gap-4 grid-cols-3">
               {invitaions.data.map((invitation) => (
                 <TraineeInvitationCard
                   key={invitation.id}
@@ -78,18 +94,6 @@ export function PageContent({ trainees, user }: Props) {
             </div>
           </div>
         ) : null}
-
-        {trainees.length > 0
-          ? trainees.map((trainee) => (
-              <TraineeCard
-                key={trainee.id}
-                trainee={trainee}
-                onPlanWorkout={handlePlanWorkout}
-                onManageCost={handleManageCost}
-                onCancel={handleCancel}
-              />
-            ))
-          : null}
       </div>
     </div>
   );

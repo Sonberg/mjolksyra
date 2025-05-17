@@ -54,7 +54,7 @@ export function ExerciseRow({ exercise, exercises }: Props) {
       <>
         <div className="text-sm border-b">
           <HoverCard openDelay={500}>
-            <div className="hover:underline py-2 text-sm flex justify-between items-center">
+            <div className="hover:underline py-3 text-sm flex justify-between items-center">
               <HoverCardTrigger>
                 <div
                   ref={setNodeRef}

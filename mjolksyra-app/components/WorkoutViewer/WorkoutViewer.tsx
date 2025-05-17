@@ -5,7 +5,6 @@ import useOnScreen from "@/hooks/useOnScreen";
 import { useEffect, useMemo, useState } from "react";
 import { uniqBy } from "@/lib/uniqBy";
 import { sortBy } from "@/lib/sortBy";
-import { cn } from "@/lib/utils";
 import { CustomTab } from "../CustomTab";
 
 type Props = {
@@ -19,7 +18,8 @@ export function WorkoutViewer({ traineeId }: Props) {
     traineeId,
     toDate: dayjs().add(-1, "day"),
     sortBy: "PlannedAt",
-    order: "desc",
+    order: "asc",
+    enabled: mode === "past",
   });
 
   const future = useWorkouts({
@@ -28,6 +28,7 @@ export function WorkoutViewer({ traineeId }: Props) {
     fromDate: dayjs(),
     sortBy: "PlannedAt",
     order: "asc",
+    enabled: mode === "future",
   });
 
   const hasNextPage = mode === "future" ? future.hasNextPage : past.hasNextPage;
@@ -46,13 +47,13 @@ export function WorkoutViewer({ traineeId }: Props) {
             .year(Number(year))
             .month(Number(month) - 1)
             .date(Number(day));
-        }
+        },
+        mode == "future"
       ),
     [past.data, future.data, mode]
   );
 
   console.log(data);
-  
 
   useEffect(() => {
     if (!end.isIntersecting) {
@@ -65,9 +66,11 @@ export function WorkoutViewer({ traineeId }: Props) {
   }, [end.isIntersecting, hasNextPage, fetchNextPage]);
 
   return (
-    <div className="mt-8">
+    <>
       <div className="flex justify-between items-center mb-4">
-        <div className="text-2xl font-bold">Workouts</div>
+        <div className="text-3xl font-bold">
+          {mode === "future" ? "Upcoming workouts" : "Past workouts"}
+        </div>
         <CustomTab
           value={mode}
           options={[
@@ -88,6 +91,6 @@ export function WorkoutViewer({ traineeId }: Props) {
         </div>
       ) : null}
       <div className="w-full h-8 opacity-0" ref={end.measureRef} children="d" />
-    </div>
+    </>
   );
 }

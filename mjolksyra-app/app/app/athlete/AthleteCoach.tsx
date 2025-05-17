@@ -10,9 +10,9 @@ type Props = {
 
 export function AthleteCoach({ coach, isSelected, onSelect }: Props) {
   const classNames = cn({
-    "flex items-center gap-4 p-4 rounded-lg bg-gray-950/80 border hover:border-white/30 transition-colors":
+    "flex items-center gap-2 p-2 rounded-lg bg-black  transition-colors":
       true,
-    "cursor-pointer border-gray-800/50": !isSelected,
+    "cursor-pointer border-white/10 hover:bg-white/5": !isSelected,
     "bg-white/10 border-0": isSelected,
   });
   return (
@@ -21,16 +21,13 @@ export function AthleteCoach({ coach, isSelected, onSelect }: Props) {
       className={classNames}
       onClick={isSelected ? undefined : onSelect}
     >
-      <div className="h-12 w-12 rounded-full bg-white/10 grid place-items-center">
-        <UserCircle2Icon className="w-6 h-6 text-stone-200" />
+      <div className="h-8 w-8 rounded-full bg-white/10 grid place-items-center">
+        <UserCircle2Icon className="w-4 h-4 text-stone-200" />
       </div>
       <div>
         <h3 className="font-medium text-gray-100">
           {coach.givenName} {coach.familyName}
         </h3>
-        {isSelected ? (
-          <p className="text-sm text-gray-400">Active Coach</p>
-        ) : null}
       </div>
     </div>
   );

@@ -13,12 +13,43 @@ import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWo
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
 import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ChevronLeftIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 type Props = {
   traineeId: string;
 };
 
 export function PageContent({ traineeId }: Props) {
+  const router = useRouter();
+  const rightSide = useMemo(
+    () => (
+      <>
+        <div className="px-4 pt-2 flex gap-2 items-center">
+          <div
+            className="rounded-full p-2 hover:bg-blue-800 cursor-pointer"
+            onClick={() => router.push("/app/coach")}
+          >
+            <ChevronLeftIcon />
+          </div>
+          <div className="font-bold text-lg">Per Sonberg</div>
+        </div>
+        <ExerciseLibrary
+          exercies={{
+            starred: starredExercises,
+            star: starExercises,
+            search: searchExercises,
+            get: getExercises,
+            delete: deleteExercise,
+            create: createExercise,
+          }}
+        />
+      </>
+    ),
+    [router]
+  );
+
   return (
     <>
       <TooltipProvider>
@@ -30,18 +61,7 @@ export function PageContent({ traineeId }: Props) {
             update: updatePlannedWorkout,
             delete: deletePlannedWorkout,
           }}
-          library={
-            <ExerciseLibrary
-              exercies={{
-                starred: starredExercises,
-                star: starExercises,
-                search: searchExercises,
-                get: getExercises,
-                delete: deleteExercise,
-                create: createExercise,
-              }}
-            />
-          }
+          rightSide={rightSide}
         />
       </TooltipProvider>
     </>

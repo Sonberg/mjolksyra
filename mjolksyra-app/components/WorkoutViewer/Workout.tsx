@@ -37,8 +37,11 @@ export function Workout({ workout }: Props) {
   }, [date]);
 
   return (
-    <Card data-today={displayName === "Today"} className="overflow-hidden">
-      <CardHeader className="font-bold bg-black over p-4">
+    <Card
+      data-today={displayName === "Today"}
+      className="overflow-hidden bg-white/10"
+    >
+      <CardHeader className="font-bold over p-4">
         <div className="flex items-center justify-between">
           {displayName}
           {displayName === "Today" ? (
@@ -49,7 +52,7 @@ export function Workout({ workout }: Props) {
         </div>
       </CardHeader>
       <CardDescription>{workout.note}</CardDescription>
-      <CardContent className="p-4 grid gap-4 bg-gray-950/80">
+      <CardContent className="p-4 grid gap-4 bg-black rounded-t-lg">
         {workout.exercises.map((exercise, index) => (
           <div key={exercise.id} className="flex gap-4 items-center">
             <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">

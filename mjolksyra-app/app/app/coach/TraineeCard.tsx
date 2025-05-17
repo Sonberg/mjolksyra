@@ -7,6 +7,8 @@ import {
   DumbbellIcon,
   DollarSignIcon,
   XIcon,
+  WalletIcon,
+  BadgeEuroIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -17,6 +19,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useGravatar } from "@/hooks/useGravatar";
+import { AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 
 type TraineeCardProps = {
   trainee: Trainee;
@@ -31,45 +36,87 @@ export function TraineeCard({
   onManageCost,
   onCancel,
 }: TraineeCardProps) {
+  const url = useGravatar(trainee.coach.email ?? "", 56);
+
   return (
-    <div className="group relative flex items-center justify-between p-6 rounded-xl bg-gray-950/80 hover:bg-gray-900/80 border border-gray-800/50 hover:border-white/30 hover:shadow-lg hover:shadow-white/5 transition-all duration-200">
-      <div className="flex-1 flex items-center justify-between">
-        {/* Left Section: Athlete Info */}
-        <div className="flex items-center gap-5">
-          <div className="relative">
-            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-white/10 to-stone-500/10 grid place-items-center">
-              <span className="text-xl font-semibold text-stone-200">
-                {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
-              </span>
-            </div>
-            {trainee.nextWorkoutAt && (
-              <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white/20 border-2 border-black grid place-items-center">
-                <CalendarIcon className="w-3 h-3 text-white" />
-              </div>
-            )}
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-100 group-hover:text-white transition-colors">
-              {trainee.athlete.givenName
-                ? `${trainee.athlete.givenName} ${
-                    trainee.athlete.familyName || ""
-                  }`
-                : trainee.athlete.name}
-            </h3>
-            <div className="flex items-center gap-4 mt-1">
-              <p className="text-sm text-gray-400">{trainee.athlete.email}</p>
-              {trainee.lastWorkoutAt && (
-                <span className="text-sm text-gray-500">
-                  Last active:{" "}
-                  {format(new Date(trainee.lastWorkoutAt), "MMM d")}
-                </span>
-              )}
-            </div>
+    <div className="group relative rounded-xl bg-white/10 border border-gray-800/50 transition-all duration-200 overflow-hidden">
+      <div className="flex items-center gap-4 p-4">
+        <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-black">
+          <AvatarImage src={url} />
+          <AvatarFallback>
+            {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-100 group-hover:text-white transition-colors">
+            {trainee.athlete.givenName
+              ? `${trainee.athlete.givenName} ${
+                  trainee.athlete.familyName || ""
+                }`
+              : trainee.athlete.name}
+          </h3>
+          <div className="flex items-center gap-4">
+            <p className="text-sm text-gray-400">{trainee.athlete.email}</p>
           </div>
         </div>
+      </div>
 
-        {/* Right Section: Cost & Action */}
-        <div className="flex items-center gap-8">
+      <div className="grid grid-cols-4 gap-8 bg-black py-6 rounded-t-lg">
+        <div className="text-md text-gray-500 text-center">
+          <div className="text-white font-bold text-md">
+            {trainee.nextWorkoutAt
+              ? format(new Date(trainee.nextWorkoutAt), "MMM d")
+              : "--"}
+          </div>
+          <div className="text-sm">Next workout at</div>
+        </div>
+
+        <div className="text-gray-500 text-center">
+          <div className="text-white font-bold text-md">
+            {trainee.lastWorkoutAt
+              ? format(new Date(trainee.lastWorkoutAt), "MMM d")
+              : "--"}
+          </div>
+          <div className="text-sm">Last workout at</div>
+        </div>
+
+        <div className="text-gray-500 text-center">
+          <div className="text-white font-bold text-md">
+            {trainee.lastWorkoutAt
+              ? format(new Date(trainee.lastWorkoutAt), "MMM d")
+              : "--"}
+          </div>
+          <div className="text-sm">Last charged at</div>
+        </div>
+
+        <div className="text-gray-500 text-center">
+          <div className="text-white font-bold text-md">1000kr</div>
+          <div className="text-sm">Price</div>
+        </div>
+      </div>
+
+      <div className="flex gap-4 bg-black pb-4 px-4 justify-start">
+        <button
+          className="flex gap-2 bg-white text-black py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
+          onClick={() => onPlanWorkout?.(trainee)}
+        >
+          <DumbbellIcon className="h-4" /> Plan workouts
+        </button>
+        <button
+          className="flex gap-2 bg-white/10 py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
+          onClick={() => onPlanWorkout?.(trainee)}
+        >
+          <BadgeEuroIcon className="h-4" /> Change price
+        </button>
+        <button
+          className="flex gap-2 bg-white/10 py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
+          onClick={() => onPlanWorkout?.(trainee)}
+        >
+          <WalletIcon className="h-4" /> Pay now
+        </button>
+      </div>
+
+      {/* <div className="flex items-center gap-8">
           {trainee.cost && (
             <div className="text-right">
               <div className="text-2xl font-semibold text-gray-100">
@@ -86,9 +133,9 @@ export function TraineeCard({
             </div>
           )}
         </div>
-      </div>
-      {/* Actions Dropdown */}
-      <div className="ml-4">
+      </div> */}
+
+      {/* <div className="ml-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -124,7 +171,7 @@ export function TraineeCard({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div> */}
     </div>
   );
 }
