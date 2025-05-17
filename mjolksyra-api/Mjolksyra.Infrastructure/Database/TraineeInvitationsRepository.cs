@@ -32,6 +32,28 @@ public class TraineeInvitationsRepository : ITraineeInvitationsRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<TraineeInvitation> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.TraineeInvitations.Find(
+                Builders<TraineeInvitation>.Filter.And(
+                    Builders<TraineeInvitation>.Filter.Eq(x => x.Id, id)
+                )
+            )
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<ICollection<TraineeInvitation>> GetByCoachAsync(Guid coachUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.TraineeInvitations.Find(
+                Builders<TraineeInvitation>.Filter.And(
+                    Builders<TraineeInvitation>.Filter.Eq(x => x.CoachUserId, coachUserId),
+                    Builders<TraineeInvitation>.Filter.Eq(x => x.AcceptedAt, null),
+                    Builders<TraineeInvitation>.Filter.Eq(x => x.RejectedAt, null)
+                )
+            )
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AcceptAsync(Guid id, CancellationToken cancellationToken)
     {
         await _dbContext.TraineeInvitations.FindOneAndUpdateAsync(

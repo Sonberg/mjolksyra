@@ -27,7 +27,7 @@ public class PlannedWorkoutsController : Controller
         Guid traineeId,
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to,
-        [FromQuery] string? cursor,
+        [FromQuery] string? next,
         [FromQuery] int limit,
         [FromQuery] string[] sortBy,
         [FromQuery] SortOrder order,
@@ -41,7 +41,7 @@ public class PlannedWorkoutsController : Controller
             Limit = limit,
             SortBy = sortBy,
             Order = order,
-            Cursor = Cursor.Parse<PlannedWorkoutCursor>(cursor),
+            Cursor = Cursor.Parse<PlannedWorkoutCursor>(next),
         }, cancellationToken));
     }
 

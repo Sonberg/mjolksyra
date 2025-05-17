@@ -5,6 +5,7 @@ using Mjolksyra.UseCases.Trainees;
 using Mjolksyra.UseCases.Trainees.CancelTrainee;
 using Mjolksyra.UseCases.Trainees.ChargeTrainee;
 using Mjolksyra.UseCases.Trainees.CreateTrainee;
+using Mjolksyra.UseCases.Trainees.GetTraineeById;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 
@@ -38,9 +39,19 @@ public class TraineesController : Controller
 
 
     [HttpGet("{traineeId:guid}")]
-    public IActionResult Get(Guid traineeId)
+    public async Task<ActionResult<TraineeResponse>> Get(Guid traineeId)
     {
-        throw new NotImplementedException();
+        var trainee = await _mediator.Send(new GetTraineeByIdRequest
+        {
+            TraineeId = traineeId
+        });
+
+        if (trainee is null)
+        {
+            return NoContent();
+        }
+
+        return Ok(trainee);
     }
 
     [HttpPut("{traineeId:guid}/cancel")]
@@ -53,7 +64,7 @@ public class TraineesController : Controller
         }, cancellationToken);
     }
 
-    
+
     [HttpPut("{traineeId:guid}/cost")]
     public async Task UpdateCost(Guid traineeId, UpdateTraineeCostRequest request, CancellationToken cancellationToken)
     {

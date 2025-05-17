@@ -1,0 +1,37 @@
+import { cn } from "@/lib/utils";
+import { UserTrainee } from "@/services/users/type";
+import { UserCircle2Icon } from "lucide-react";
+
+type Props = {
+  coach: UserTrainee;
+  isSelected: boolean;
+  onSelect: () => void;
+};
+
+export function AthleteCoach({ coach, isSelected, onSelect }: Props) {
+  const classNames = cn({
+    "flex items-center gap-4 p-4 rounded-lg bg-gray-950/80 border hover:border-white/30 transition-colors":
+      true,
+    "cursor-pointer border-gray-800/50": !isSelected,
+    "bg-white/10 border-0": isSelected,
+  });
+  return (
+    <div
+      key={coach.traineeId}
+      className={classNames}
+      onClick={isSelected ? undefined : onSelect}
+    >
+      <div className="h-12 w-12 rounded-full bg-white/10 grid place-items-center">
+        <UserCircle2Icon className="w-6 h-6 text-stone-200" />
+      </div>
+      <div>
+        <h3 className="font-medium text-gray-100">
+          {coach.givenName} {coach.familyName}
+        </h3>
+        {isSelected ? (
+          <p className="text-sm text-gray-400">Active Coach</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}

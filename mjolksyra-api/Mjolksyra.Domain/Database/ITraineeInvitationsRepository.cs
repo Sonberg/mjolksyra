@@ -8,6 +8,10 @@ public interface ITraineeInvitationsRepository
 
     Task<ICollection<TraineeInvitation>> GetAsync(string email, CancellationToken cancellationToken);
 
+    Task<TraineeInvitation> GetByIdAsync(Guid coachUserId, CancellationToken cancellationToken);
+
+    Task<ICollection<TraineeInvitation>> GetByCoachAsync(Guid coachUserId, CancellationToken cancellationToken);
+
     Task AcceptAsync(Guid id, CancellationToken cancellationToken);
 
     Task RejectAsync(Guid id, CancellationToken cancellationToken);

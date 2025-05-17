@@ -70,7 +70,7 @@ export function LoginDialog({ trigger }: Props) {
               id="email"
               value={email}
               onChange={(ev) => setEmail(ev.target.value)}
-              className="col-span-3"
+              className="col-span-3 text-black"
             />
           </div>
           <div className="flex flex-col items-start gap-4">
@@ -82,7 +82,7 @@ export function LoginDialog({ trigger }: Props) {
               value={password}
               onChange={(ev) => setPassword(ev.target.value)}
               type="password"
-              className="col-span-3"
+              className="col-span-3  text-black"
             />
           </div>
           {failed ? (

@@ -32,7 +32,7 @@ public class MongoDbContext : IMongoDbContext
 
     public IMongoCollection<User> Users => Database.GetCollection<User>("users");
 
-    public IMongoCollection<TraineeInvitation> TraineeInvitations => Database.GetCollection<TraineeInvitation>("traineeF-invitations");
+    public IMongoCollection<TraineeInvitation> TraineeInvitations => Database.GetCollection<TraineeInvitation>("trainee-invitations");
 
     public IMongoCollection<Exercise> Exercises => Database.GetCollection<Exercise>("exercises");
 

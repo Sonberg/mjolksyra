@@ -17,11 +17,24 @@ public class GetTraineeInvitationsRequestHandler : IRequestHandler<GetTraineeInv
 
     public async Task<ICollection<TraineeInvitationsResponse>> Handle(GetTraineeInvitationsRequest request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetById(request.UserId, cancellationToken);
-        var invitations = await _traineeInvitationsRepository.GetAsync(user.Email, cancellationToken);
-        var coachUserIds = invitations.Select(x => x.CoachUserId).Distinct().ToList();
-        var coaches = await _userRepository.GetManyById(coachUserIds, cancellationToken);
+        if (request.Type == TraineeInvitationsType.Athlete)
+        {
+            var user = await _userRepository.GetById(request.UserId, cancellationToken);
+            var invitations = await _traineeInvitationsRepository.GetAsync(user.Email, cancellationToken);
+            var coachUserIds = invitations.Select(x => x.CoachUserId).Distinct().ToList();
+            var coaches = await _userRepository.GetManyById(coachUserIds, cancellationToken);
 
-        return invitations.Select(x => TraineeInvitationsResponse.From(x, coaches)).ToList();
+            return invitations.Select(x => TraineeInvitationsResponse.From(x, coaches)).ToList();
+        }
+
+        if (request.Type == TraineeInvitationsType.Coach)
+        {
+            var user = await _userRepository.GetById(request.UserId, cancellationToken);
+            var invitations = await _traineeInvitationsRepository.GetByCoachAsync(request.UserId, cancellationToken);
+
+            return invitations.Select(x => TraineeInvitationsResponse.From(x, [user])).ToList();
+        }
+
+        throw new NotImplementedException($"TraineeInvitationsType {request.Type} is not implemented.");
     }
 }

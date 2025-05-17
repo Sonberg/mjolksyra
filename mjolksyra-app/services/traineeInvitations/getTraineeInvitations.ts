@@ -4,10 +4,11 @@ import { schema } from "./schema";
 
 type Args = {
   signal?: AbortSignal;
+  type: "coach" | "athlete";
 };
 
-export async function getTraineeInvitations({ signal }: Args) {
-  const response = await ApiClient.get(`/api/trainee-invitations`, {
+export async function getTraineeInvitations({ signal, type }: Args) {
+  const response = await ApiClient.get(`/api/trainee-invitations/${type}`, {
     signal,
   });
   const parsed = await z.array(schema).safeParseAsync(response.data);

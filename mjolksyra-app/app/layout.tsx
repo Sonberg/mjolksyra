@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden dark  h-[100vh]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden dark bg-black h-[100vh]`}
       >
         <CookiesProvider>
           <Providers>

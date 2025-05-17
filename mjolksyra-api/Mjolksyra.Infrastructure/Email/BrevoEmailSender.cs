@@ -33,8 +33,17 @@ public class BrevoEmailSender : IEmailSender
     {
         await _transactionalEmailsApi.SendTransacEmailAsync(new SendSmtpEmail
         {
+            To =
+            [
+                new SendSmtpEmailTo(email)
+            ],
             TemplateId = 1,
-            Params = invitation
+            Params = new
+            {
+                COACH = invitation.Coach,
+                TEXT = invitation.Text,
+                LINK = invitation.Link
+            }
         });
     }
 

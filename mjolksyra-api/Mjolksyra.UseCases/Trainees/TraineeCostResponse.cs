@@ -10,7 +10,7 @@ public class TraineeCostResponse
 
     public required int Total { get; init; }
 
-    public required string Curreny { get; set; }
+    public required string Currency { get; set; }
 
     public static TraineeCostResponse From(TraineeTransactionCost cost)
     {
@@ -19,7 +19,7 @@ public class TraineeCostResponse
             ApplicationFee = cost.ApplicationFee,
             Coach = cost.Coach,
             Total = cost.Total,
-            Curreny = cost.Currency
+            Currency = cost.Currency
         };
     }
 }

@@ -13,12 +13,20 @@ export const userTraineeSchema = z.object({
   status: z.enum(["Active", "PendingInvitation"]),
 });
 
+export const userInvitationSchema = z.object({
+  id: z.string(),
+  givenName: z.string().nullable(),
+  familyName: z.string().nullable(),
+  createdAt: z.coerce.date(),
+});
+
 export const userSchema = z.object({
   id: z.string(),
   givenName: z.string(),
   familyName: z.string(),
   athletes: z.array(userTraineeSchema),
   coaches: z.array(userTraineeSchema),
+  invitations: z.array(userInvitationSchema),
   onboarding: z.object({
     athlete: userOnboardingStatus,
     coach: userOnboardingStatus,

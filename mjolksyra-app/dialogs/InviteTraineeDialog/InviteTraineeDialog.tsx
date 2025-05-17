@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useValidation } from "@/hooks/useValidation";
+import { inviteTrainee } from "@/services/traineeInvitations/inviteTrainee";
 
 const schema = z.object({
   email: z.string().email(),
@@ -20,15 +21,17 @@ const schema = z.object({
 
 type Props = {
   trigger: ReactNode;
+  onCompletion: () => Promise<void> | void;
 };
 
-export function InviteTraineeDialog({ trigger }: Props) {
+export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
   const [email, setEmail] = useState("");
+  const [isOpen, setOpen] = useState(false);
 
   const validation = useValidation({ schema, values: { email } });
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -54,8 +57,16 @@ export function InviteTraineeDialog({ trigger }: Props) {
         </div>
         <DialogFooter>
           <Button
-            onClick={() => {
-              validation.showAllError();
+            onClick={async () => {
+              if (!validation.success) {
+                validation.showAllError();
+                return;
+              }
+
+              await inviteTrainee({ email });
+              await onCompletion();
+              setOpen(false);
+              setEmail("");
             }}
           >
             Send invitation

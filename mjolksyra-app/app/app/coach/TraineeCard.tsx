@@ -1,7 +1,13 @@
 "use client";
 
 import { Trainee } from "@/services/trainees/type";
-import { CalendarIcon, MoreVerticalIcon, DumbbellIcon, DollarSignIcon, XIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  MoreVerticalIcon,
+  DumbbellIcon,
+  DollarSignIcon,
+  XIcon,
+} from "lucide-react";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -19,7 +25,12 @@ type TraineeCardProps = {
   onCancel?: (trainee: Trainee) => void;
 };
 
-export function TraineeCard({ trainee, onPlanWorkout, onManageCost, onCancel }: TraineeCardProps) {
+export function TraineeCard({
+  trainee,
+  onPlanWorkout,
+  onManageCost,
+  onCancel,
+}: TraineeCardProps) {
   return (
     <div className="group relative flex items-center justify-between p-6 rounded-xl bg-gray-950/80 hover:bg-gray-900/80 border border-gray-800/50 hover:border-white/30 hover:shadow-lg hover:shadow-white/5 transition-all duration-200">
       <div className="flex-1 flex items-center justify-between">
@@ -40,14 +51,17 @@ export function TraineeCard({ trainee, onPlanWorkout, onManageCost, onCancel }: 
           <div>
             <h3 className="text-lg font-semibold text-gray-100 group-hover:text-white transition-colors">
               {trainee.athlete.givenName
-                ? `${trainee.athlete.givenName} ${trainee.athlete.familyName || ""}`
+                ? `${trainee.athlete.givenName} ${
+                    trainee.athlete.familyName || ""
+                  }`
                 : trainee.athlete.name}
             </h3>
             <div className="flex items-center gap-4 mt-1">
               <p className="text-sm text-gray-400">{trainee.athlete.email}</p>
               {trainee.lastWorkoutAt && (
                 <span className="text-sm text-gray-500">
-                  Last active: {format(new Date(trainee.lastWorkoutAt), "MMM d")}
+                  Last active:{" "}
+                  {format(new Date(trainee.lastWorkoutAt), "MMM d")}
                 </span>
               )}
             </div>
@@ -72,13 +86,13 @@ export function TraineeCard({ trainee, onPlanWorkout, onManageCost, onCancel }: 
             </div>
           )}
         </div>
-</div>
+      </div>
       {/* Actions Dropdown */}
       <div className="ml-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10"
             >
@@ -86,7 +100,7 @@ export function TraineeCard({ trainee, onPlanWorkout, onManageCost, onCancel }: 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => onPlanWorkout?.(trainee)}
               className="cursor-pointer text-white hover:text-white focus:text-white"
             >
@@ -94,14 +108,14 @@ export function TraineeCard({ trainee, onPlanWorkout, onManageCost, onCancel }: 
               Plan Workout
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => onManageCost?.(trainee)}
               className="cursor-pointer text-white hover:text-white focus:text-white"
             >
               <DollarSignIcon className="mr-2 h-4 w-4" />
               Manage Cost
             </DropdownMenuItem>
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => onCancel?.(trainee)}
               className="cursor-pointer text-red-500 hover:text-red-400 focus:text-red-400"
             >
@@ -113,4 +127,4 @@ export function TraineeCard({ trainee, onPlanWorkout, onManageCost, onCancel }: 
       </div>
     </div>
   );
-} 
+}

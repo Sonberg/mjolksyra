@@ -1,4 +1,4 @@
-namespace Mjolksyra.UseCases.TraineeInvitations.GetTraineeInvitations;
+namespace Mjolksyra.UseCases.TraineeInvitations;
 
 public class TraineeInvitationCoach
 {

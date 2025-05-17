@@ -7,6 +7,8 @@ public class Trainee
     public Guid CoachUserId { get; set; }
 
     public Guid AthleteUserId { get; set; }
+    
+    public Guid? TraineeInvitationId { get; set; }
 
     public required TraineeStatus Status { get; set; }
 

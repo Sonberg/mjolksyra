@@ -4,28 +4,24 @@ using Mjolksyra.Domain.Database.Enum;
 
 namespace Mjolksyra.UseCases.Users;
 
-public class GetUserRequestHandler : IRequestHandler<GetUserRequest, UserResponse>
+public class GetUserRequestHandler(
+    IUserRepository userRepository,
+    ITraineeRepository traineeRepository,
+    ITraineeInvitationsRepository traineeInvitationsRepository
+) : IRequestHandler<GetUserRequest, UserResponse>
 {
-    private readonly IUserRepository _userRepository;
-
-    private readonly ITraineeRepository _traineeRepository;
-
-    public GetUserRequestHandler(IUserRepository userRepository, ITraineeRepository traineeRepository)
-    {
-        _userRepository = userRepository;
-        _traineeRepository = traineeRepository;
-    }
-
     public async Task<UserResponse> Handle(GetUserRequest request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetById(request.UserId, cancellationToken);
-        var trainees = await _traineeRepository.Get(request.UserId, cancellationToken);
+        var user = await userRepository.GetById(request.UserId, cancellationToken);
+        var invitations = await traineeInvitationsRepository.GetAsync(user.Email, cancellationToken);
+        var trainees = await traineeRepository.Get(request.UserId, cancellationToken);
         var userIds = trainees
             .SelectMany(x => (Guid[]) [x.CoachUserId, x.AthleteUserId])
+            .Concat(invitations.Select(x => x.CoachUserId))
             .Distinct()
             .ToList();
 
-        var traineeUsers = await _userRepository.GetManyById(userIds, cancellationToken);
+        var traineeUsers = await userRepository.GetManyById(userIds, cancellationToken);
         var traineeUsersLookup = traineeUsers.ToDictionary(x => x.Id);
         var response = new UserResponse
         {
@@ -65,6 +61,22 @@ public class GetUserRequestHandler : IRequestHandler<GetUserRequest, UserRespons
                     GivenName = traineeUsersLookup[x.CoachUserId].GivenName,
                     FamilyName = traineeUsersLookup[x.CoachUserId].FamilyName,
                     Status = UserTraineeStatus.Active
+                })
+                .Append(new UserTraineeResponse
+                {
+                    TraineeId = Guid.NewGuid(),
+                    GivenName = "Natalie",
+                    FamilyName = "Sleiers",
+                    Status = UserTraineeStatus.Active
+                })
+                .ToList(),
+            Invitations = invitations
+                .Select(x => new UserInvitationResponse
+                {
+                    Id = x.Id,
+                    GivenName = traineeUsersLookup[x.CoachUserId].GivenName,
+                    FamilyName = traineeUsersLookup[x.CoachUserId].FamilyName,
+                    CreatedAt = x.CreatedAt
                 })
                 .ToList()
         };

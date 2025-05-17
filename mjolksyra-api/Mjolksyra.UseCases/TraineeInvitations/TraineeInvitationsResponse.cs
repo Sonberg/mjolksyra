@@ -1,10 +1,12 @@
 using Mjolksyra.Domain.Database.Models;
 
-namespace Mjolksyra.UseCases.TraineeInvitations.GetTraineeInvitations;
+namespace Mjolksyra.UseCases.TraineeInvitations;
 
 public class TraineeInvitationsResponse
 {
     public Guid Id { get; set; }
+
+    public required string Email { get; set; }
 
     public required TraineeInvitationCoach Coach { get; set; }
 
@@ -21,6 +23,7 @@ public class TraineeInvitationsResponse
         return new TraineeInvitationsResponse
         {
             Id = invitation.Id,
+            Email = invitation.Email,
             Coach = new TraineeInvitationCoach
             {
                 FamilyName = coach.FamilyName!,
