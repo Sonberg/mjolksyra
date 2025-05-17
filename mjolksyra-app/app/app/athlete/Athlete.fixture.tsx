@@ -7,102 +7,103 @@ const user: User = {
   familyName: "Sonberg",
   athletes: [],
   coaches: [],
+  invitations: [],
   onboarding: {
     athlete: "NotStarted",
     coach: "NotStarted",
   },
 };
 
-export default  {
-    NotOnboarded: () => <PageContent user={user} />,
+export default {
+  NotOnboarded: () => <PageContent user={user} />,
 
-    Onboarded: () => (
-      <PageContent
-        user={{
-          ...user,
-          onboarding: { athlete: "Completed", coach: "NotStarted" },
-        }}
-      />
-    ),
+  Onboarded: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Completed", coach: "NotStarted" },
+      }}
+    />
+  ),
 
-    WithActiveCoach: () => (
-      <PageContent
-        user={{
-          ...user,
-          onboarding: { athlete: "Completed", coach: "NotStarted" },
-          coaches: [
-            {
-              traineeId: "1",
-              givenName: "John",
-              familyName: "Doe",
-              status: "Active",
-            },
-            {
-              traineeId: "2",
-              givenName: "Jane",
-              familyName: "Smith",
-              status: "Active",
-            },
-          ],
-        }}
-      />
-    ),
+  WithActiveCoach: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Completed", coach: "NotStarted" },
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "John",
+            familyName: "Doe",
+            status: "Active",
+          },
+          {
+            traineeId: "2",
+            givenName: "Jane",
+            familyName: "Smith",
+            status: "Active",
+          },
+        ],
+      }}
+    />
+  ),
 
-    WithMixedCoaches: () => (
-      <PageContent
-        user={{
-          ...user,
-          onboarding: { athlete: "Completed", coach: "NotStarted" },
-          coaches: [
-            {
-              traineeId: "1",
-              givenName: "John",
-              familyName: "Doe",
-              status: "Active",
-            },
-            {
-              traineeId: "2",
-              givenName: "Jane",
-              familyName: "Smith",
-              status: "PendingInvitation",
-            },
-          ],
-        }}
-      />
-    ),
+  WithMixedCoaches: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Completed", coach: "NotStarted" },
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "John",
+            familyName: "Doe",
+            status: "Active",
+          },
+          {
+            traineeId: "2",
+            givenName: "Jane",
+            familyName: "Smith",
+            status: "PendingInvitation",
+          },
+        ],
+      }}
+    />
+  ),
 
-    WithWorkouts: () => (
-      <PageContent
-        user={{
-          ...user,
-          onboarding: { athlete: "Completed", coach: "NotStarted" },
-          coaches: [
-            {
-              traineeId: "1",
-              givenName: "John",
-              familyName: "Doe",
-              status: "Active",
-            },
-          ],
-          // Note: Workouts will be handled by AthleteWorkouts component
-        }}
-      />
-    ),
+  WithWorkouts: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Completed", coach: "NotStarted" },
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "John",
+            familyName: "Doe",
+            status: "Active",
+          },
+        ],
+        // Note: Workouts will be handled by AthleteWorkouts component
+      }}
+    />
+  ),
 
-    CompleteProfile: () => (
-      <PageContent
-        user={{
-          ...user,
-          onboarding: { athlete: "Completed", coach: "Completed" },
-          coaches: [
-            {
-              traineeId: "1",
-              givenName: "John",
-              familyName: "Doe",
-              status: "Active",
-            },
-          ],
-        }}
-      />
-    ),
-  };
+  CompleteProfile: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Completed", coach: "Completed" },
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "John",
+            familyName: "Doe",
+            status: "Active",
+          },
+        ],
+      }}
+    />
+  ),
+};
