@@ -16,12 +16,14 @@ public class ChargeTraineeRequestHandler : IRequestHandler<ChargeTraineeRequest>
 
     private readonly IUserRepository _userRepository;
 
-    public ChargeTraineeRequestHandler(ITraineeRepository traineeRepository, IUserRepository userRepository)
+    private readonly IStripeClient _stripeClient;
+
+    public ChargeTraineeRequestHandler(ITraineeRepository traineeRepository, IUserRepository userRepository, IStripeClient stripeClient)
     {
         _traineeRepository = traineeRepository;
         _userRepository = userRepository;
+        _stripeClient = stripeClient;
     }
-
 
     public async Task Handle(ChargeTraineeRequest request, CancellationToken cancellationToken)
     {
@@ -35,17 +37,23 @@ public class ChargeTraineeRequestHandler : IRequestHandler<ChargeTraineeRequest>
         if (coach is not { IsCoach: true, Coach.Stripe.AccountId: not null }) return;
 
         var transactionCost = TraineeTransactionCost.From(trainee.Cost);
-        var service = new PaymentIntentService();
-        var paymentIntent = await service.CreateAsync(new PaymentIntentCreateOptions
+        var paymentService = new PaymentIntentService(_stripeClient);
+        var paymentIntent = await paymentService.CreateAsync(new PaymentIntentCreateOptions
             {
                 Amount = transactionCost.Total * 100,
                 Currency = trainee.Cost.Currency,
                 Customer = athlete.Athlete.Stripe.CustomerId,
                 Confirm = true,
+                PaymentMethod = athlete.Athlete.Stripe.PaymentMethodId,
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                    AllowRedirects = "never"
+                },
                 TransferData = new PaymentIntentTransferDataOptions
                 {
                     Destination = coach.Coach.Stripe.AccountId,
-                    Amount = transactionCost.Coach * 100,
+                    Amount = Math.Max(transactionCost.Coach * 100, 1),
                 },
                 ApplicationFeeAmount = transactionCost.ApplicationFee * 100,
                 Metadata = new Dictionary<string, string>

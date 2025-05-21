@@ -6,6 +6,8 @@ public class UserAthleteStripe
 {
     public string? CustomerId { get; set; }
 
+    public string? PaymentMethodId { get; set; }
+
     public StripeStatus Status { get; set; }
 
     public string? Message { get; set; }

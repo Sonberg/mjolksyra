@@ -2,7 +2,6 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
-using Mjolksyra.UseCases.TraineeInvitations.GetTraineeInvitations;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.InviteTrainee;
 
@@ -19,7 +18,7 @@ public class InviteTraineeCommandHandler(
         var invitation = await invitationsRepository.Create(new TraineeInvitation
         {
             Id = Guid.NewGuid(),
-            Email = request.Email,
+            Email = Email.From(request.Email),
             CoachUserId = request.CoachUserId,
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);

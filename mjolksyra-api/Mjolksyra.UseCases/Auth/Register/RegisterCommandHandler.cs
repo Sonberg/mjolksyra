@@ -54,7 +54,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         {
             GivenName = request.GivenName,
             FamilyName = request.FamilyName,
-            Email = request.Email,
+            Email = Email.From(request.Email),
             Password = password.HashedPassword,
             PasswordSalt = password.Salt,
             CreatedAt = DateTimeOffset.UtcNow

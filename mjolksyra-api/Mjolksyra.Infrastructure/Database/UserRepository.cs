@@ -1,3 +1,4 @@
+using Mjolksyra.Domain;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
@@ -16,10 +17,16 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmail(string email, CancellationToken ct)
     {
         return await _context.Users
-            .Find(x => x.Email == email)
+            .Find(
+                Builders<User>.Filter.Or(
+                    Builders<User>.Filter.Eq(x => x.Email.Value, email),
+                    Builders<User>.Filter.Eq(x => x.Email.Normalized, EmailNormalizer.Normalize(email)
+                    )
+                )
+            )
             .Limit(1)
             .ToListAsync(ct)
-            .ContinueWith(t => t.Result.FirstOrDefault(), ct);
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
     }
 
     public async Task<User> GetById(Guid id, CancellationToken ct)

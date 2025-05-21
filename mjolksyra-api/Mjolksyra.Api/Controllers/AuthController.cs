@@ -34,4 +34,10 @@ public class AuthController : Controller
     {
         return Ok(await _mediator.Send(request, cancellationToken));
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<ActionResult<RefreshResponse>> ForgotPassword([FromBody] RefreshCommand request, CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(request, cancellationToken));
+    }
 }

@@ -24,7 +24,7 @@ export function CustomTab<T extends string>({
         aria-selected={isActive}
         aria-controls={`radix-:ru:-content-${tab.value}`}
         data-state={isActive ? "active" : "inactive"}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all fo data-[state=active]:bg-black data-[state=active]:text-white data-[state=inactive]:text-white"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all fo data-[state=active]:bg-white data-[state=active]:text-black data-[state=inactive]:text-white"
         tabIndex={-1}
         onClick={() => onSelect(tab)}
       >

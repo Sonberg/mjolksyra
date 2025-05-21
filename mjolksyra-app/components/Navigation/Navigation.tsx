@@ -79,16 +79,7 @@ export function Navigation() {
           {auth.isAuthenticated ? (
             <NavigationUser />
           ) : (
-            <LoginDialog
-              trigger={
-                <Button
-                  variant="ghost"
-                  className="text-gray-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
-                >
-                  Login
-                </Button>
-              }
-            />
+            <LoginDialog trigger={<Button variant="ghost">Login</Button>} />
           )}
         </div>
       </div>

@@ -62,7 +62,7 @@ export function CoachOnboarding({ user }: Props) {
     case "Started":
       return (
         <OnboardingCard
-          title="Complete your coach profile"
+          title="Are you our new coach? Welcome!"
           text="Set up your payment details to start accepting athletes and receiving payments for your coaching services"
           button={
             <Button

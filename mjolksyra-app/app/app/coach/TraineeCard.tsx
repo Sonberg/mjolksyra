@@ -6,16 +6,21 @@ import { format } from "date-fns";
 import { useGravatar } from "@/hooks/useGravatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { chargeTrainee } from "@/services/trainees/chargeTrainee";
 
 type TraineeCardProps = {
   trainee: Trainee;
-  onPlanWorkout?: (trainee: Trainee) => void;
-  onManageCost?: (trainee: Trainee) => void;
-  onCancel?: (trainee: Trainee) => void;
 };
 
-export function TraineeCard({ trainee, onPlanWorkout }: TraineeCardProps) {
+export function TraineeCard({ trainee }: TraineeCardProps) {
+  const router = useRouter();
   const url = useGravatar(trainee.coach.email ?? "", 56);
+  const charge = useMutation({
+    mutationKey: ["trainee", trainee.id, "charge"],
+    mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
+  });
 
   return (
     <div className="group relative rounded-xl bg-white/10 border border-gray-800/50 transition-all duration-200 overflow-hidden">
@@ -77,19 +82,20 @@ export function TraineeCard({ trainee, onPlanWorkout }: TraineeCardProps) {
       <div className="flex gap-4 bg-black pb-4 px-4 justify-start">
         <button
           className="flex gap-2 bg-white text-black py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
-          onClick={() => onPlanWorkout?.(trainee)}
+          onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
         >
           <DumbbellIcon className="h-4" /> Plan workouts
         </button>
         <button
           className="flex gap-2 bg-white/10 py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
-          onClick={() => onPlanWorkout?.(trainee)}
+          onClick={() => null}
         >
           <BadgeEuroIcon className="h-4" /> Change price
         </button>
         <button
           className="flex gap-2 bg-white/10 py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
-          onClick={() => onPlanWorkout?.(trainee)}
+          disabled={charge.isPending}
+          onClick={() => charge.mutateAsync()}
         >
           <WalletIcon className="h-4" /> Pay now
         </button>

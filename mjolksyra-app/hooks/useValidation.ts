@@ -19,18 +19,17 @@ export function useValidation<T>({ schema, values }: Args<T>) {
     () => ({
       success: parsed.success,
       parsed: parsed.success ? parsed.data : null,
-      errors:
-        parsed.error?.errors.reduce((prev, current) => {
-          const key = current.path[0];
-          if (!errors.includes(key)) {
-            return prev;
-          }
+      errors: (parsed.error?.errors.reduce((prev, current) => {
+        const key = current.path[0];
+        if (!errors.includes(key)) {
+          return prev;
+        }
 
-          return {
-            ...prev,
-            [key]: current.message,
-          };
-        }, {}) ?? {},
+        return {
+          ...prev,
+          [key]: current.message,
+        };
+      }, {}) ?? {}) as Record<keyof typeof values, string>,
       showError: (key: string) => {
         setErrors((state) => [...state, key]);
       },

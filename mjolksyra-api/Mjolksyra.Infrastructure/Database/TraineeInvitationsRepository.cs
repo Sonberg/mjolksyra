@@ -1,3 +1,4 @@
+using Mjolksyra.Domain;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
@@ -24,11 +25,14 @@ public class TraineeInvitationsRepository : ITraineeInvitationsRepository
     {
         return await _dbContext.TraineeInvitations.Find(
                 Builders<TraineeInvitation>.Filter.And(
-                    Builders<TraineeInvitation>.Filter.Eq(x => x.Email, email),
+                    Builders<TraineeInvitation>.Filter.Or(
+                        Builders<TraineeInvitation>.Filter.Eq(x => x.Email.Value, email),
+                        Builders<TraineeInvitation>.Filter.Eq(x => x.Email.Normalized, EmailNormalizer.Normalize(email)
+                        )
+                    ),
                     Builders<TraineeInvitation>.Filter.Eq(x => x.AcceptedAt, null),
                     Builders<TraineeInvitation>.Filter.Eq(x => x.RejectedAt, null)
-                )
-            )
+                ))
             .ToListAsync(cancellationToken);
     }
 

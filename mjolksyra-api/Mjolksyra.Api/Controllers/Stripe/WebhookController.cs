@@ -65,6 +65,7 @@ public class WebhookController : Controller
         var user = await _userRepository.GetById(userId, CancellationToken.None);
         var service = new SetupIntentService(_stripeClient);
 
+        user.Athlete!.Stripe!.PaymentMethodId = intent.PaymentMethodId;
         user.Athlete!.Stripe!.Status = intent.Status switch
         {
             "requires_payment_method" => StripeStatus.RequiresPaymentMethod,

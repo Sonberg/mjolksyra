@@ -11,7 +11,7 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import { refresh } from "@/services/auth/refresh";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 type LoginRequest = {
   accessToken: string | null;
@@ -59,6 +59,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const cookies = useCookies();
+  const router = useRouter();
 
   const [accessToken, setAccessToken] = useState<string | null>(
     () => cookies.get("accessToken") ?? null
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setRefreshToken(null);
     cookies.remove("accessToken");
     cookies.remove("refreshToken");
+    router.replace("/");
   }, [cookies]);
 
   const getAccessToken = useCallback(async () => {
