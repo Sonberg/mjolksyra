@@ -4,14 +4,14 @@ import posthog from "posthog-js";
 
 import { PostHogProvider } from "posthog-js/react";
 import { ReactNode, useEffect } from "react";
-import { useAuth } from "./Auth";
+import { useUser } from "@clerk/nextjs";
 
 type Props = {
   children: ReactNode;
 };
 
 export function PostHog({ children }: Props) {
-  const auth = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -30,13 +30,13 @@ export function PostHog({ children }: Props) {
       person_profiles: "identified_only",
     });
 
-    if (auth.userId) {
-      posthog.identify(auth.userId, {
-        email: auth.email,
-        name: auth.name,
+    if (user) {
+      posthog.identify(user.id, {
+        email: user.primaryEmailAddress?.emailAddress,
+        name: user.fullName,
       });
     }
-  }, [auth]);
+  }, [user]);
 
   return <PostHogProvider client={posthog}>{children}</PostHogProvider>;
 }

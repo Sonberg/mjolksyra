@@ -53,6 +53,15 @@ public class TraineeRepository : ITraineeRepository
             .ToListAsync(ct);
     }
 
+    public async Task<Trainee?> GetBySubscriptionId(string subscriptionId, CancellationToken ct)
+    {
+        return await _context.Trainees
+            .Find(x => x.StripeSubscriptionId == subscriptionId)
+            .Limit(1)
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
+    }
+
     public async Task<bool> HasAccess(Guid traineeId, Guid userId, CancellationToken cancellationToken)
     {
         return await _cache.GetOrCreateAsync($"HasAccess_{traineeId}_{userId}",

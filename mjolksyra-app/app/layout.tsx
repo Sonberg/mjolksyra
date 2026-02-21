@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import { Navigation } from "@/components/Navigation";
 
 import "./globals.css";
-import { CookiesProvider } from "next-client-cookies/server";
 import { Providers } from "./providers";
 
 const geistSans = localFont({
@@ -32,14 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden dark bg-black h-[100vh]`}
       >
-        <CookiesProvider>
-          <Providers>
-            <Navigation />
-            <main className="flex flex-col flex-1 overflow-hidden">
-              {children}
-            </main>
-          </Providers>
-        </CookiesProvider>
+        <Providers>
+          <Navigation />
+          <main className="flex flex-col flex-1 overflow-hidden">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );

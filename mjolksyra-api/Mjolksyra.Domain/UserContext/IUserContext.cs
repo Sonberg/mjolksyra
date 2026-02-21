@@ -12,5 +12,7 @@ public interface IUserContext
 
     public string? FamilyName { get; }
 
+    public string? ClerkSubject { get; }
+
     public Guid? UserId { get; }
 }

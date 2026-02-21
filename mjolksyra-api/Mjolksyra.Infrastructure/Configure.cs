@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.Domain.Database;
-using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
@@ -33,7 +32,6 @@ public static class Configure
         services.AddSingleton<IMongoDbContext, MongoDbContext>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITraineeRepository, TraineeRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();

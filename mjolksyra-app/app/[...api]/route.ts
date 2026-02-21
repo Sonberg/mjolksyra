@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -21,13 +22,12 @@ export async function DELETE(request: NextRequest) {
 }
 
 async function Send(request: NextRequest) {
-  const token = request.cookies.get("accessToken");
+  const { getToken } = await auth();
+  const token = await getToken();
   const url = new URL(request.url);
   const path = `${url.pathname}${url.search}`;
   const headers = new Headers(request.headers);
   const hasBody = request.method !== "GET";
-
-  console.log("Api SEND");
 
   headers.delete("Connection");
   headers.delete("Content-Length");
@@ -37,7 +37,7 @@ async function Send(request: NextRequest) {
   }
 
   if (token) {
-    headers.set("Authorization", `Bearer ${token.value}`);
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   const res = await fetch(`${process.env.API_URL}${path}`, {

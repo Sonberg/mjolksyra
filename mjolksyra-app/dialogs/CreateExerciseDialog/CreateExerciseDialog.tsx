@@ -19,7 +19,7 @@ import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { SingleSelect } from "@/components/Select/SingleSelect";
 import { useValidation } from "@/hooks/useValidation";
 import { CreateExercise } from "@/services/exercises/createExercise";
-import { useAuth } from "@/context/Auth";
+import { useUser } from "@clerk/nextjs";
 
 const schema = z.object({
   name: z.string(),
@@ -44,7 +44,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
   const [isOpen, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, unknown>>({});
 
-  const auth = useAuth();
+  const { isSignedIn } = useUser();
   const query = useQueryClient();
   const options = useQuery({
     queryKey: ["exercises/options"],
@@ -56,7 +56,7 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
       return response.data!;
     },
     placeholderData: {},
-    enabled: auth.isAuthenticated,
+    enabled: isSignedIn === true,
   });
 
   const validation = useValidation<Values>({

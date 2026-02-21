@@ -6,12 +6,10 @@ import {
   usePathname,
   useSelectedLayoutSegment,
 } from "next/navigation";
-import { useAuth } from "@/context/Auth";
-import { LogOutIcon } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import { CustomTab } from "@/components/CustomTab";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const auth = useAuth();
   const segment = useSelectedLayoutSegment() ?? "";
   const pathname = usePathname();
   const showLayout = pathname.endsWith(segment);
@@ -34,12 +32,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               ]}
               onSelect={(tab) => redirect(`/app/${tab.value}`)}
             />
-            <div
-              className="bg-white/5 hover:bg-white/10 rounded-lg h-8 w-8 cursor-pointer grid place-items-center transition-colors"
-              onClick={auth.logout}
-            >
-              <LogOutIcon className="h-4 text-stone-200" />
-            </div>
+            <UserButton />
           </div>
         </div>
         {children}

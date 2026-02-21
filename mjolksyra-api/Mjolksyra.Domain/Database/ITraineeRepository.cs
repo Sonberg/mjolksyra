@@ -13,4 +13,6 @@ public interface ITraineeRepository
     Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct);
 
     Task<bool> HasAccess(Guid traineeId, Guid userId, CancellationToken cancellationToken);
+
+    Task<Trainee?> GetBySubscriptionId(string subscriptionId, CancellationToken ct);
 }

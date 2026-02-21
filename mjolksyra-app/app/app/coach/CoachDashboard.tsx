@@ -2,7 +2,6 @@ import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog";
 import { UserPlusIcon } from "lucide-react";
 import { TraineeCard } from "./TraineeCard";
 import { TraineeInvitationCard } from "./TraineeInvitationCard";
-import { useRouter } from "next/router";
 import { getTraineeInvitations } from "@/services/traineeInvitations/getTraineeInvitations";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,6 @@ type Props = {
 };
 
 export function CoachDashboard({ trainees }: Props) {
-  const router = useRouter();
   const invitaions = useQuery({
     queryKey: ["invitations"],
     queryFn: ({ signal }) => getTraineeInvitations({ signal, type: "coach" }),

@@ -50,8 +50,16 @@ public class WebhookController : Controller
                 await Handle(account);
                 break;
 
-            case { Data.Object: PaymentIntent paymentIntent }:
-                await Handle(paymentIntent);
+            case { Type: "invoice.payment_succeeded", Data.Object: Invoice invoice }:
+                await HandleInvoiceSucceeded(invoice);
+                break;
+
+            case { Type: "invoice.payment_failed", Data.Object: Invoice invoice }:
+                await HandleInvoiceFailed(invoice);
+                break;
+
+            case { Type: "customer.subscription.deleted", Data.Object: Subscription subscription }:
+                await HandleSubscriptionDeleted(subscription);
                 break;
         }
 
@@ -106,22 +114,56 @@ public class WebhookController : Controller
         await _userRepository.Update(user, CancellationToken.None);
     }
 
-    private async Task Handle(PaymentIntent intent)
+    private async Task HandleInvoiceSucceeded(Invoice invoice)
     {
-        var traineeId = Guid.Parse(intent.Metadata["TraineeId"]);
-        var trainee = await _traineeRepository.GetById(traineeId, CancellationToken.None);
-        var transaction = trainee!.Transactions.Single(x => x.PaymentIntentId == intent.Id);
+        if (invoice.SubscriptionId is null) return;
 
-        transaction.StatusRaw = intent.Status;
-        transaction.Status = intent.Status switch
+        var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
+        if (trainee is null) return;
+
+        var transactionCost = TraineeTransactionCost.From(trainee.Cost);
+        trainee.Transactions.Add(new TraineeTransaction
         {
-            "requires_payment_method" => TraineeTransactionStatus.Pending,
-            "requires_confirmation" => TraineeTransactionStatus.Pending,
-            "processing" => TraineeTransactionStatus.Pending,
-            "succeeded" => TraineeTransactionStatus.Succeeded,
-            "requires_action" => TraineeTransactionStatus.Pending,
-            "canceled" => TraineeTransactionStatus.Failed,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            Id = Guid.NewGuid(),
+            PaymentIntentId = invoice.Id,
+            Cost = transactionCost,
+            Status = TraineeTransactionStatus.Succeeded,
+            StatusRaw = "invoice.payment_succeeded",
+            CreatedAt = DateTimeOffset.UtcNow,
+        });
+
+        await _traineeRepository.Update(trainee, CancellationToken.None);
+    }
+
+    private async Task HandleInvoiceFailed(Invoice invoice)
+    {
+        if (invoice.SubscriptionId is null) return;
+
+        var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
+        if (trainee is null) return;
+
+        var transactionCost = TraineeTransactionCost.From(trainee.Cost);
+        trainee.Transactions.Add(new TraineeTransaction
+        {
+            Id = Guid.NewGuid(),
+            PaymentIntentId = invoice.Id,
+            Cost = transactionCost,
+            Status = TraineeTransactionStatus.Failed,
+            StatusRaw = "invoice.payment_failed",
+            CreatedAt = DateTimeOffset.UtcNow,
+        });
+
+        await _traineeRepository.Update(trainee, CancellationToken.None);
+    }
+
+    private async Task HandleSubscriptionDeleted(Subscription subscription)
+    {
+        var trainee = await _traineeRepository.GetBySubscriptionId(subscription.Id, CancellationToken.None);
+        if (trainee is null) return;
+
+        trainee.Status = TraineeStatus.Cancelled;
+        trainee.StripeSubscriptionId = null;
+
+        await _traineeRepository.Update(trainee, CancellationToken.None);
     }
 }

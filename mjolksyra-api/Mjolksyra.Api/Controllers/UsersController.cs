@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Users;
+using Mjolksyra.UseCases.Users.EnsureUser;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -19,6 +20,25 @@ public class UsersController : Controller
     {
         _mediator = mediator;
         _userContext = userContext;
+    }
+
+    [HttpPost("me")]
+    public async Task<ActionResult<EnsureUserResponse>> EnsureUser(CancellationToken cancellationToken)
+    {
+        if (_userContext.ClerkSubject is not { } clerkSubject)
+        {
+            return BadRequest();
+        }
+
+        var response = await _mediator.Send(new EnsureUserCommand
+        {
+            ClerkUserId = clerkSubject,
+            Email = _userContext.Email ?? string.Empty,
+            GivenName = _userContext.GivenName,
+            FamilyName = _userContext.FamilyName,
+        }, cancellationToken);
+
+        return Ok(response);
     }
 
     [HttpGet("me")]

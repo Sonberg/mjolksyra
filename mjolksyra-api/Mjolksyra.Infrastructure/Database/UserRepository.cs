@@ -14,6 +14,15 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
+    public async Task<User?> GetByClerkId(string clerkUserId, CancellationToken ct)
+    {
+        return await _context.Users
+            .Find(x => x.ClerkUserId == clerkUserId)
+            .Limit(1)
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
+    }
+
     public async Task<User?> GetByEmail(string email, CancellationToken ct)
     {
         return await _context.Users

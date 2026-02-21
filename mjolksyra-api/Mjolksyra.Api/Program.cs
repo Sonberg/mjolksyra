@@ -1,10 +1,10 @@
-using System.Text;
 using System.Text.Json.Serialization;
 using Azure.Identity;
 using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
@@ -17,7 +17,6 @@ using Mjolksyra.Domain;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
 using Mjolksyra.UseCases;
-using Ndoors.Domain.Jwt;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -58,6 +57,10 @@ builder.Services
     .Bind(builder.Configuration.GetSection(StripeOptions.SectionName))
     .ValidateOnStart();
 
+builder.Services
+    .AddOptions<ClerkOptions>()
+    .Bind(builder.Configuration.GetSection(ClerkOptions.SectionName))
+    .ValidateOnStart();
 
 builder.Logging.AddOpenTelemetry(logging =>
 {
@@ -143,20 +146,15 @@ builder.Services
 
 builder.Services.AddAuthorization();
 builder.Services
-    .AddAuthentication()
-    .AddJwtBearer((opt) =>
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
     {
-        var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
-
+        var clerk = builder.Configuration.GetSection(ClerkOptions.SectionName).Get<ClerkOptions>()!;
+        opt.Authority = $"https://{clerk.Domain}";
         opt.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = !string.IsNullOrEmpty(jwt.Issuer),
-            ValidateAudience = !string.IsNullOrEmpty(jwt.Audience),
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwt.Issuer,
-            ValidAudience = jwt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret))
+            ValidateAudience = false,
+            NameClaimType = "sub",
         };
     });
 

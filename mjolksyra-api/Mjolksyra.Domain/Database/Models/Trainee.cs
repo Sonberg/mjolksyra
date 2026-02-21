@@ -16,6 +16,8 @@ public class Trainee
 
     public ICollection<TraineeTransaction> Transactions { get; set; } = [];
 
+    public string? StripeSubscriptionId { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }

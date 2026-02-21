@@ -3,15 +3,13 @@
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { Button } from "../ui/button";
-import { useAuth } from "@/context/Auth";
-import { LoginDialog } from "@/dialogs/LoginDialog";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function Navigation() {
-  const auth = useAuth();
   const pathname = usePathname();
 
   const [showBorder, setShowBorder] = useState(() =>
@@ -76,11 +74,14 @@ export function Navigation() {
         </Link>
 
         <div className="ml-auto flex items-center space-x-4">
-          {auth.isAuthenticated ? (
+          <SignedIn>
             <NavigationUser />
-          ) : (
-            <LoginDialog trigger={<Button variant="ghost">Login</Button>} />
-          )}
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="redirect">
+              <Button variant="ghost">Login</Button>
+            </SignInButton>
+          </SignedOut>
         </div>
       </div>
     </div>
