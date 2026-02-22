@@ -4,8 +4,7 @@ import { Trainee } from "@/services/trainees/type";
 import { DumbbellIcon, WalletIcon, BadgeEuroIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useGravatar } from "@/hooks/useGravatar";
-import { AvatarImage } from "@/components/ui/avatar";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { chargeTrainee } from "@/services/trainees/chargeTrainee";
@@ -16,147 +15,98 @@ type TraineeCardProps = {
 
 export function TraineeCard({ trainee }: TraineeCardProps) {
   const router = useRouter();
-  const url = useGravatar(trainee.coach.email ?? "", 56);
+  const url = useGravatar(trainee.athlete.email ?? "", 56);
   const charge = useMutation({
     mutationKey: ["trainee", trainee.id, "charge"],
     mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
   });
 
+  const metrics = [
+    {
+      label: "Next workout",
+      value: trainee.nextWorkoutAt
+        ? format(new Date(trainee.nextWorkoutAt), "MMM d")
+        : "--",
+    },
+    {
+      label: "Last workout",
+      value: trainee.lastWorkoutAt
+        ? format(new Date(trainee.lastWorkoutAt), "MMM d")
+        : "--",
+    },
+    {
+      label: "Last charged",
+      value: trainee.lastWorkoutAt
+        ? format(new Date(trainee.lastWorkoutAt), "MMM d")
+        : "--",
+    },
+    {
+      label: "Monthly price",
+      value: "1000 kr",
+    },
+  ];
+
   return (
-    <div className="group relative rounded-xl bg-white/10 border border-gray-800/50 transition-all duration-200 overflow-hidden">
-      <div className="flex items-center gap-4 p-4">
-        <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-black">
-          <AvatarImage src={url} />
-          <AvatarFallback>
+    <article className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/80 transition-all duration-300 hover:border-cyan-200/20 hover:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+      <div className="flex flex-wrap items-center gap-4 px-5 py-5 md:px-6">
+        <Avatar className="h-12 w-12 border border-white/15">
+          <AvatarImage src={url} alt={trainee.athlete.name} />
+          <AvatarFallback className="bg-zinc-800 text-zinc-100">
             {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-100 group-hover:text-white transition-colors">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-lg font-semibold text-zinc-100 transition-colors group-hover:text-white">
             {trainee.athlete.givenName
               ? `${trainee.athlete.givenName} ${
                   trainee.athlete.familyName || ""
                 }`
               : trainee.athlete.name}
           </h3>
-          <div className="flex items-center gap-4">
-            <p className="text-sm text-gray-400">{trainee.athlete.email}</p>
-          </div>
+          <p className="truncate text-sm text-zinc-400">{trainee.athlete.email}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-8 bg-black py-6 rounded-t-lg">
-        <div className="text-md text-gray-500 text-center">
-          <div className="text-white font-bold text-md">
-            {trainee.nextWorkoutAt
-              ? format(new Date(trainee.nextWorkoutAt), "MMM d")
-              : "--"}
+      <div className="grid grid-cols-2 gap-3 border-y border-white/10 bg-zinc-950/70 px-5 py-4 md:grid-cols-4 md:px-6">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3 text-center"
+          >
+            <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+              {metric.label}
+            </p>
+            <p className="mt-2 text-base font-semibold text-zinc-100">
+              {metric.value}
+            </p>
           </div>
-          <div className="text-sm">Next workout at</div>
-        </div>
-
-        <div className="text-gray-500 text-center">
-          <div className="text-white font-bold text-md">
-            {trainee.lastWorkoutAt
-              ? format(new Date(trainee.lastWorkoutAt), "MMM d")
-              : "--"}
-          </div>
-          <div className="text-sm">Last workout at</div>
-        </div>
-
-        <div className="text-gray-500 text-center">
-          <div className="text-white font-bold text-md">
-            {trainee.lastWorkoutAt
-              ? format(new Date(trainee.lastWorkoutAt), "MMM d")
-              : "--"}
-          </div>
-          <div className="text-sm">Last charged at</div>
-        </div>
-
-        <div className="text-gray-500 text-center">
-          <div className="text-white font-bold text-md">1000kr</div>
-          <div className="text-sm">Price</div>
-        </div>
+        ))}
       </div>
 
-      <div className="flex gap-4 bg-black pb-4 px-4 justify-start">
+      <div className="flex flex-wrap gap-3 bg-zinc-950/70 px-5 py-4 md:px-6">
         <button
-          className="flex gap-2 bg-white text-black py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
+          className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-200"
           onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
         >
-          <DumbbellIcon className="h-4" /> Plan workouts
+          <DumbbellIcon className="h-4 w-4" />
+          Plan workouts
         </button>
         <button
-          className="flex gap-2 bg-white/10 py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10"
           onClick={() => null}
         >
-          <BadgeEuroIcon className="h-4" /> Change price
+          <BadgeEuroIcon className="h-4 w-4" />
+          Change price
         </button>
         <button
-          className="flex gap-2 bg-white/10 py-2 px-4 items-center justify-center rounded-full hover:opacity-80"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={charge.isPending}
           onClick={() => charge.mutateAsync()}
         >
-          <WalletIcon className="h-4" /> Pay now
+          <WalletIcon className="h-4 w-4" />
+          Pay now
         </button>
       </div>
-
-      {/* <div className="flex items-center gap-8">
-          {trainee.cost && (
-            <div className="text-right">
-              <div className="text-2xl font-semibold text-gray-100">
-                ${trainee.cost.total}
-              </div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-stone-200 border border-white/20">
-                  ${trainee.cost.coach} coach
-                </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-900 text-gray-300 border border-gray-800">
-                  ${trainee.cost.applicationFee} platform
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div> */}
-
-      {/* <div className="ml-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10"
-            >
-              <MoreVerticalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              onClick={() => onPlanWorkout?.(trainee)}
-              className="cursor-pointer text-white hover:text-white focus:text-white"
-            >
-              <DumbbellIcon className="mr-2 h-4 w-4" />
-              Plan Workout
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => onManageCost?.(trainee)}
-              className="cursor-pointer text-white hover:text-white focus:text-white"
-            >
-              <DollarSignIcon className="mr-2 h-4 w-4" />
-              Manage Cost
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onCancel?.(trainee)}
-              className="cursor-pointer text-red-500 hover:text-red-400 focus:text-red-400"
-            >
-              <XIcon className="mr-2 h-4 w-4" />
-              Cancel
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div> */}
-    </div>
+    </article>
   );
 }

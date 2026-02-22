@@ -81,7 +81,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
       <div ref={setDroppableNodeRef}>
         <div
           className={cn(
-            "p-1 px-2 text-sm select-none flex items-center justify-between border bg-accent",
+            "flex select-none items-center justify-between rounded-t-xl border-x border-t border-b border-white/15 bg-zinc-900/80 px-3 py-2 text-sm font-semibold text-zinc-100 backdrop-blur-sm",
             {
               ...draggingStyle({ canDrop, isOver }),
             }
@@ -121,7 +121,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
             ) : null}
           </div>
         </div>
-        <div className="grid grid-cols-7 border">
+        <div className="grid grid-cols-7 divide-x divide-white/15 rounded-b-xl border-x border-b border-white/15 bg-zinc-950/70">
           {day("Mon")}
           {day("Tue")}
           {day("Wed")}

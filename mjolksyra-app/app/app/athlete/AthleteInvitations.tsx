@@ -24,27 +24,27 @@ export function AthleteInvitations({ invitations }: Props) {
   });
 
   return (
-    <div>
+    <div className="mt-2 space-y-3">
       {invitations.map((x) => (
         <div
           key={x.id}
-          className="flex items-center py-2 justify-between  border-b-1"
+          className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3"
         >
-          <div className="font-bold bm-2">
+          <div className="font-medium text-zinc-100">
             {x.givenName} {x.familyName}
           </div>
           <div className="flex gap-4">
             <button
-              className="h-10 w-10 rounded-lg bg-green-600 hover:bg-green-500 grid place-items-center"
+              className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-600 text-white transition hover:bg-emerald-500"
               onClick={() => accept.mutateAsync(x.id)}
             >
-              <CheckIcon />
+              <CheckIcon className="h-4 w-4" />
             </button>
             <button
-              className="h-10 w-10 rounded-lg bg-white/10 hover:bg-white/20 grid place-items-center"
+              className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-zinc-200 transition hover:bg-white/20"
               onClick={() => decline.mutateAsync(x.id)}
             >
-              <XIcon />
+              <XIcon className="h-4 w-4" />
             </button>
           </div>
         </div>

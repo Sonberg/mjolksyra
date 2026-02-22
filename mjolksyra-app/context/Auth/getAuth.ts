@@ -2,7 +2,8 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { JwtPayload, verify } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 
 type Args = {
   redirect: boolean | string;

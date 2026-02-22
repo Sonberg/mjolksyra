@@ -101,7 +101,7 @@ export function Day({ date, plannedWorkout }: Props) {
   return useMemo(
     () => (
       <>
-        <div className="border-l border-r border-b flex flex-col ">
+        <div className="flex flex-col">
           <div
             className="font-bold text-xs h-9 border-b flex items-center justify-between"
             ref={setDraggableNodeRef}
