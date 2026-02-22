@@ -19,7 +19,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeftIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { getTrainee } from "@/services/trainees/getTrainee";
 
 type Props = {
   traineeId: string;
@@ -27,17 +29,26 @@ type Props = {
 
 export function PageContent({ traineeId }: Props) {
   const router = useRouter();
+  const { data: trainee } = useQuery({
+    queryKey: ["trainees", traineeId, "plannerHeader"],
+    queryFn: ({ signal }) => getTrainee({ id: traineeId, signal }),
+  });
+  const athleteName =
+    trainee?.athlete?.givenName || trainee?.athlete?.familyName
+      ? `${trainee?.athlete?.givenName ?? ""} ${trainee?.athlete?.familyName ?? ""}`.trim()
+      : trainee?.athlete?.name || "Athlete";
+
   const rightSide = useMemo(
     () => (
       <>
         <div className="px-4 pt-2 flex gap-2 items-center">
           <div
-            className="rounded-full p-2 hover:bg-blue-800 cursor-pointer"
+            className="rounded-full p-2 hover:bg-zinc-800 cursor-pointer"
             onClick={() => router.push("/app/coach")}
           >
             <ChevronLeftIcon />
           </div>
-          <div className="font-bold text-lg">Per Sonberg</div>
+          <div className="font-semibold text-lg text-zinc-100">{athleteName}</div>
         </div>
         <Tabs defaultValue="exercises" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="mx-4 mb-0">
@@ -62,7 +73,7 @@ export function PageContent({ traineeId }: Props) {
         </Tabs>
       </>
     ),
-    [router]
+    [router, athleteName]
   );
 
   return (

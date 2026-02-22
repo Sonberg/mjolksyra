@@ -28,7 +28,6 @@ export default function Home() {
       className="font-[var(--font-body)] relative min-h-screen overflow-y-auto [background:var(--home-bg)]"
     >
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.09),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(255,255,255,0.05),transparent_30%)]" />
-      <div className="pointer-events-none fixed inset-0 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.02)_0px,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_13px)]" />
       <HeroSection />
       <FeaturesSection />
       <BenefitsSection />

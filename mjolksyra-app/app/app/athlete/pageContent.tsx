@@ -17,22 +17,22 @@ export function PageContent({ user }: Props) {
 
   return (
     <div className="relative space-y-8 py-6 md:py-10">
-      <div className="pointer-events-none absolute -top-20 -left-16 h-56 w-56 rounded-full bg-sky-400/10 blur-3xl" />
-      <div className="pointer-events-none absolute top-56 -right-16 h-64 w-64 rounded-full bg-teal-300/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-20 -left-16 h-56 w-56 rounded-full bg-white/8 blur-3xl" />
+      <div className="pointer-events-none absolute top-56 -right-16 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
 
       {needsOnboarding ? (
         <AthleteOnboardingFlow />
       ) : (
         <>
           <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-6 py-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)] md:px-10">
-            <div className="absolute -right-8 -top-16 h-52 w-52 rounded-full bg-sky-300/10 blur-3xl" />
-            <div className="absolute -bottom-20 left-20 h-52 w-52 rounded-full bg-teal-300/10 blur-3xl" />
+            <div className="absolute -right-8 -top-16 h-52 w-52 rounded-full bg-white/8 blur-3xl" />
+            <div className="absolute -bottom-20 left-20 h-52 w-52 rounded-full bg-white/5 blur-3xl" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-200/80">
+                <p className="font-[var(--font-display)] text-xs font-semibold uppercase tracking-[0.24em] text-zinc-400">
                   Athlete dashboard
                 </p>
-                <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight text-white md:text-4xl">
                   Welcome back, {athleteName}
                 </h1>
                 <p className="max-w-2xl text-sm text-zinc-300 md:text-base">
