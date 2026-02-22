@@ -15,23 +15,12 @@ import {
   Trash2,
 } from "lucide-react";
 import dayjs from "dayjs";
-import { Unbounded, Spectral } from "next/font/google";
 
 import { getBlocks } from "@/services/blocks/getBlocks";
 import { createBlock } from "@/services/blocks/createBlock";
 import { deleteBlock } from "@/services/blocks/deleteBlock";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/dialogs/ConfirmDialog";
-
-const displayFont = Unbounded({
-  subsets: ["latin"],
-  weight: ["500", "700"],
-});
-
-const bodyFont = Spectral({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
 
 export function BlocksPageContent() {
   const router = useRouter();
@@ -93,7 +82,7 @@ export function BlocksPageContent() {
   return (
     <div
       style={themeVars}
-      className={`${bodyFont.className} relative mx-auto max-w-6xl overflow-hidden px-4 py-8 md:px-6 md:py-10`}
+      className="font-[var(--font-body)] relative mx-auto max-w-6xl overflow-hidden px-4 py-8 md:px-6 md:py-10"
     >
       <section className="blocks-rise relative overflow-hidden rounded-[2rem] border p-6 md:p-10 [background:var(--blocks-surface)] [border-color:var(--blocks-border)]">
         <div className="pointer-events-none absolute -right-32 -top-16 h-56 w-56 rotate-12 rounded-[2rem] border [border-color:var(--blocks-border)] [background:rgba(255,255,255,0.03)]" />
@@ -104,9 +93,7 @@ export function BlocksPageContent() {
               <BoltIcon className="h-3.5 w-3.5 [color:#c7c7c7]" />
               Periodization Studio
             </p>
-            <h1
-              className={`${displayFont.className} text-3xl font-semibold tracking-tight md:text-4xl [color:var(--blocks-text)]`}
-            >
+            <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight md:text-4xl [color:var(--blocks-text)]">
               Training Blocks
             </h1>
             <p className="max-w-2xl text-base leading-relaxed [color:var(--blocks-muted)]">
@@ -135,9 +122,7 @@ export function BlocksPageContent() {
             <p className="text-sm [color:var(--blocks-muted)]">Total blocks</p>
             <Layers3Icon className="h-4 w-4 [color:#c7c7c7]" />
           </div>
-          <p
-            className={`${displayFont.className} mt-3 text-3xl [color:var(--blocks-text)]`}
-          >
+          <p className="font-[var(--font-display)] mt-3 text-3xl [color:var(--blocks-text)]">
             {sortedBlocks.length}
           </p>
         </div>
@@ -151,9 +136,7 @@ export function BlocksPageContent() {
             </p>
             <CalendarRangeIcon className="h-4 w-4 [color:#c7c7c7]" />
           </div>
-          <p
-            className={`${displayFont.className} mt-3 text-3xl [color:var(--blocks-text)]`}
-          >
+          <p className="font-[var(--font-display)] mt-3 text-3xl [color:var(--blocks-text)]">
             {totalWorkouts}
           </p>
         </div>
@@ -167,9 +150,7 @@ export function BlocksPageContent() {
             </p>
             <DumbbellIcon className="h-4 w-4 [color:#c7c7c7]" />
           </div>
-          <p
-            className={`${displayFont.className} mt-3 text-3xl [color:var(--blocks-text)]`}
-          >
+          <p className="font-[var(--font-display)] mt-3 text-3xl [color:var(--blocks-text)]">
             {totalExercises}
           </p>
         </div>
@@ -186,9 +167,7 @@ export function BlocksPageContent() {
         </div>
       ) : sortedBlocks.length === 0 ? (
         <div className="mt-8 rounded-[1.5rem] border border-dashed px-6 py-16 text-center [background:var(--blocks-surface)] [border-color:var(--blocks-border)]">
-          <p
-            className={`${displayFont.className} text-xl [color:var(--blocks-text)]`}
-          >
+          <p className="font-[var(--font-display)] text-xl [color:var(--blocks-text)]">
             No blocks yet
           </p>
           <p className="mt-2 text-base [color:var(--blocks-muted)]">
@@ -223,9 +202,7 @@ export function BlocksPageContent() {
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2
-                        className={`${displayFont.className} text-xl [color:var(--blocks-text)]`}
-                      >
+                      <h2 className="font-[var(--font-display)] text-xl [color:var(--blocks-text)]">
                         {block.name}
                       </h2>
                       <span className="rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] [border-color:var(--blocks-border)] [color:var(--blocks-muted)]">

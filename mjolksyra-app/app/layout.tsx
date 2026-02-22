@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Spectral, Unbounded } from "next/font/google";
 import { Navigation } from "@/components/Navigation";
 
 import "./globals.css";
@@ -17,6 +18,18 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const displayFont = Unbounded({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-display",
+});
+
+const bodyFont = Spectral({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+});
+
 export const metadata: Metadata = {
   title: "Mjölksyra",
   description: "Community driven coaching platform",
@@ -30,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col overflow-hidden dark bg-black h-[100vh]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} ${bodyFont.variable} antialiased flex flex-col overflow-hidden dark bg-black h-[100vh]`}
       >
         <CookiesProvider>
           <Providers>
