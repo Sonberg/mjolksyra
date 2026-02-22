@@ -28,20 +28,20 @@ const benefits: Point[] = [
 
 export const BenefitsSection = () => {
   return (
-    <section className="bg-zinc-950/30 py-20 lg:py-32">
+    <section className="bg-zinc-950/40 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
           Start earning today
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {benefits.map((benefit) => (
             <div
               key={benefit.title}
-              className="rounded-2xl border border-white/10 bg-zinc-950/70 p-6 backdrop-blur-sm transition-colors hover:border-emerald-200/25"
+              className="rounded-2xl border border-zinc-800 bg-zinc-950/90 p-6 transition-colors hover:border-zinc-500"
             >
               {benefit.icon && (
-                <div className="mb-4 inline-flex rounded-lg border border-emerald-200/20 bg-emerald-300/10 p-2.5">
-                  <benefit.icon className="h-5 w-5 text-emerald-100" />
+                <div className="mb-4 inline-flex rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
+                  <benefit.icon className="h-5 w-5 text-zinc-200" />
                 </div>
               )}
               <h3 className="mb-2 text-xl font-semibold text-white">

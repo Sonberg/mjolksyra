@@ -16,11 +16,11 @@ export function BlockBuilderPreviewSection() {
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100">
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-300">
               <Layers3Icon className="h-3.5 w-3.5" />
               New Preview
             </p>
-            <h2 className="bg-gradient-to-r from-stone-100 to-white bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
+            <h2 className="font-[var(--font-display)] bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
               Build Multi-Week Training Blocks
             </h2>
             <p className="mt-3 max-w-2xl text-base text-zinc-400">
@@ -30,25 +30,25 @@ export function BlockBuilderPreviewSection() {
           </div>
           <Link
             href="/app/coach/blocks"
-            className="inline-flex items-center gap-2 self-start rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-white/10"
+            className="inline-flex items-center gap-2 self-start rounded-xl border border-zinc-500 bg-zinc-100 px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-300"
           >
             Open Block Builder
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm md:p-6">
+        <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/90 p-4 md:p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {previewWeeks.map((item) => (
               <article
                 key={item.week}
-                className="rounded-xl border border-white/10 bg-black/40 p-4"
+                className="rounded-xl border border-zinc-800 bg-black/50 p-4"
               >
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-base font-semibold text-zinc-100">
                     {item.week}
                   </h3>
-                  <span className="rounded-md border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100">
+                  <span className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-300">
                     {item.focus}
                   </span>
                 </div>

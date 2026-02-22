@@ -39,7 +39,7 @@ export const SignupForm = () => {
         className="border-white/15 bg-zinc-900/80 text-white placeholder:text-zinc-500"
       />
       <button
-        className="rounded-xl border border-white/15 bg-white px-6 py-3 font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-50"
+        className="rounded-xl border border-zinc-500 bg-zinc-100 px-6 py-3 font-semibold text-black transition hover:bg-zinc-300 disabled:opacity-50"
         disabled={isSubmitted}
         onClick={onSubmit}
       >

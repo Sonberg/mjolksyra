@@ -112,3 +112,32 @@ width ::-webkit-scrollbar {
   );
   background-size: 50px 50px;
 }
+
+@keyframes blocks-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blocks-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.blocks-rise {
+  animation: blocks-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.blocks-pulse {
+  animation: blocks-pulse 1.6s ease-in-out infinite;
+}

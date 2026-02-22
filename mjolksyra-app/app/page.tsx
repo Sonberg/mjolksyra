@@ -1,5 +1,7 @@
 "use client";
 
+import type { CSSProperties } from "react";
+import { Spectral, Unbounded } from "next/font/google";
 import { HeroSection } from "./components/HeroSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { BenefitsSection } from "./components/BenefitsSection";
@@ -10,10 +12,36 @@ import { StripeSection } from "./components/StripeSection";
 import { FAQSection } from "./components/FAQSection";
 import { CTASection } from "./components/CTASection";
 
+const displayFont = Unbounded({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-display",
+});
+
+const bodyFont = Spectral({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+});
+
 export default function Home() {
+  const themeVars = {
+    "--home-bg": "#090909",
+    "--home-surface": "#111111",
+    "--home-border": "#2b2b2b",
+    "--home-text": "#f3f3f3",
+    "--home-muted": "#9a9a9a",
+    "--home-accent": "#ededed",
+    "--home-accent-2": "#cfcfcf",
+  } as CSSProperties;
+
   return (
-    <div className="relative min-h-screen overflow-y-auto bg-black">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(34,211,238,0.08),transparent_35%),radial-gradient(circle_at_90%_15%,rgba(16,185,129,0.06),transparent_30%)]" />
+    <div
+      style={themeVars}
+      className={`${displayFont.variable} ${bodyFont.variable} font-[var(--font-body)] relative min-h-screen overflow-y-auto [background:var(--home-bg)]`}
+    >
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.09),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(255,255,255,0.05),transparent_30%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.02)_0px,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_13px)]" />
       <HeroSection />
       <FeaturesSection />
       <BenefitsSection />

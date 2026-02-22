@@ -32,14 +32,14 @@ export const FAQSection = () => {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-center text-3xl font-bold text-transparent md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-center text-3xl font-semibold text-transparent md:text-4xl">
           Frequently Asked Questions
         </h2>
         <div className="mx-auto grid max-w-3xl gap-4">
           {faqs.map((faq, index) => (
             <div
               key={faq.question}
-              className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 backdrop-blur-sm"
+              className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/90"
             >
               <button
                 onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}

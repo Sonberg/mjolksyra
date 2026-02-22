@@ -19,7 +19,7 @@ export const CalculatorSection = () => {
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <h2 className="mb-6 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
+            <h2 className="font-[var(--font-display)] mb-6 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
               Calculate your earnings
             </h2>
             <p className="mb-8 text-lg text-zinc-400">
@@ -62,7 +62,7 @@ export const CalculatorSection = () => {
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-zinc-950/70 p-8 backdrop-blur-sm">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/90 p-8">
             <div className="space-y-6">
               <div>
                 <div className="mb-2 text-zinc-400">Monthly Revenue</div>
@@ -78,7 +78,7 @@ export const CalculatorSection = () => {
               </div>
               <div className="border-t border-white/10 pt-6">
                 <div className="mb-2 text-zinc-400">Your Monthly Earnings</div>
-                <div className="bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-4xl font-bold text-transparent">
+                <div className="font-[var(--font-display)] bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-4xl font-semibold text-transparent">
                   {netEarnings} kr
                 </div>
               </div>
