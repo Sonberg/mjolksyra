@@ -36,6 +36,7 @@ public static class Configure
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITraineeRepository, TraineeRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
+        services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<IEmailSender, BrevoEmailSender>();
 

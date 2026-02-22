@@ -46,7 +46,9 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
     data,
   });
 
-  const canDrop = active?.data.current?.type === "week";
+  const canDrop =
+    active?.data.current?.type === "week" ||
+    active?.data.current?.type === "block";
   const groupByName = useMemo(
     () => groupBy(days, (x) => x.format("ddd")),
     [days]

@@ -21,6 +21,7 @@ import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWo
 import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { WorkoutEditor, WorkoutEditorProvider } from "./contexts/WorkoutEditor";
 import { PlannedWorkoutActionsProvider } from "./contexts/PlannedWorkoutActions";
+import { ApplyBlock } from "@/services/blocks/applyBlock";
 
 type Props = {
   traineeId: string;
@@ -32,6 +33,9 @@ type Props = {
     delete: DeletePlannedWorkout;
     get: GetPlannedWorkouts;
   };
+  blocks?: {
+    apply: ApplyBlock;
+  };
 };
 
 export function WorkoutPlanner({
@@ -39,6 +43,7 @@ export function WorkoutPlanner({
   traineeId,
   plannedWorkouts,
   rightSide,
+  blocks,
 }: Props) {
   const listRef = useRef<ViewportListRef | null>(null);
   const today = useMemo(() => dayjs(), []);
@@ -103,6 +108,7 @@ export function WorkoutPlanner({
           <PlannerProvider
             traineeId={traineeId}
             plannedWorkouts={plannedWorkouts}
+            applyBlock={blocks?.apply}
           >
             <ResizablePanelGroup direction="horizontal">
               <ResizablePanel

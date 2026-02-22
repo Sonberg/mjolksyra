@@ -1,5 +1,6 @@
 ﻿{
   ApplicationFee: 100,
   Coach: 900,
-  Total: 1000
+  Total: 1000,
+  Currency: SEK
 }

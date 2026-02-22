@@ -18,6 +18,7 @@ import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWo
 import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
 import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { ApplyBlock } from "@/services/blocks/applyBlock";
 import { useWorkouts } from "../Workouts";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { DraggingExercise } from "@/components/DraggingExercise";
@@ -35,6 +36,7 @@ type Args = {
     create: CreatePlannedWorkout;
     delete: DeletePlannedWorkout;
   };
+  applyBlock?: ApplyBlock;
 };
 
 type Clone = {
@@ -49,6 +51,7 @@ export function PlannerProvider({
   traineeId,
   children,
   plannedWorkouts,
+  applyBlock,
 }: Args) {
   const { dispatch, reload, data } = useWorkouts();
 
@@ -93,6 +96,29 @@ export function PlannerProvider({
         return;
       }
 
+      const activeDataRaw = event.active?.data.current as unknown;
+      const overDataRaw = event.over?.data.current as unknown;
+      const activeData = activeDataRaw as Payload | undefined;
+      const overData = overDataRaw as Payload | undefined;
+
+      type BlockPayload = { type: "block"; block: { id: string; numberOfWeeks: number } };
+      const activeAsBlock = activeDataRaw as BlockPayload | undefined;
+
+      if (activeAsBlock?.type === "block" && overData?.type === "week" && applyBlock) {
+        const weekData = overData as Extract<Payload, { type: "week" }>;
+        const monday = weekData.days[0];
+        const startDate = monday.format(PLANNED_AT);
+        const blockData = activeAsBlock;
+
+        await applyBlock({ blockId: blockData.block.id, traineeId, startDate });
+
+        for (let w = 0; w < blockData.block.numberOfWeeks; w++) {
+          const d = monday.add(w, "week");
+          await reload(`${d.year()}-${d.month()}`);
+        }
+        return;
+      }
+
       const action = parse(event, {
         new: data,
         old: state,
@@ -129,13 +155,17 @@ export function PlannerProvider({
 
       await Promise.all(tasks);
     },
-    [data, cloning, state, traineeId, reload, plannedWorkouts]
+    [data, cloning, state, traineeId, reload, plannedWorkouts, applyBlock]
   );
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
       const overData = event.over?.data.current as Payload | undefined;
       const activeData = event.active?.data.current as Payload | undefined;
+
+      // Block drags don't need live preview
+      if ((event.active?.data.current as { type?: string })?.type === "block") return;
+
       const clone = isCloning(event);
 
       const source =
