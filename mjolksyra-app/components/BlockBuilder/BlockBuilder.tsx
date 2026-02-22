@@ -1,18 +1,13 @@
 "use client";
 
 import {
-  DndContext,
   DragEndEvent,
-  DragOverlay,
-  pointerWithin,
+  useDndMonitor,
 } from "@dnd-kit/core";
-import { createPortal } from "react-dom";
-import { useState } from "react";
 import { v4 } from "uuid";
 
 import { BlockWorkout, BlockExercise } from "@/services/blocks/type";
 import { BlockWeek } from "./BlockWeek";
-import { DraggingExercise } from "../DraggingExercise";
 
 type Props = {
   workouts: BlockWorkout[];
@@ -21,11 +16,7 @@ type Props = {
 };
 
 export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
-  const [dragging, setDragging] = useState<string | null>(null);
-
   const handleDragEnd = (event: DragEndEvent) => {
-    setDragging(null);
-
     const over = event.over;
     const active = event.active;
 
@@ -154,31 +145,20 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
 
   const weeks = Array.from({ length: numberOfWeeks }, (_, i) => i + 1);
 
+  useDndMonitor({
+    onDragEnd: handleDragEnd,
+  });
+
   return (
-    <DndContext
-      collisionDetection={pointerWithin}
-      onDragStart={(e) => setDragging(e.active.data.current?.label ?? null)}
-      onDragEnd={handleDragEnd}
-      onDragCancel={() => setDragging(null)}
-    >
-      <div className="flex flex-col gap-6">
-        {weeks.map((week) => (
-          <BlockWeek
-            key={week}
-            week={week}
-            workouts={workouts}
-            onRemoveExercise={handleRemoveExercise}
-          />
-        ))}
-      </div>
-      {dragging
-        ? createPortal(
-            <DragOverlay>
-              <DraggingExercise name={dragging} />
-            </DragOverlay>,
-            document.body
-          )
-        : null}
-    </DndContext>
+    <div className="flex flex-col gap-6">
+      {weeks.map((week) => (
+        <BlockWeek
+          key={week}
+          week={week}
+          workouts={workouts}
+          onRemoveExercise={handleRemoveExercise}
+        />
+      ))}
+    </div>
   );
 }
