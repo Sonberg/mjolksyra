@@ -161,7 +161,7 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
       onDragEnd={handleDragEnd}
       onDragCancel={() => setDragging(null)}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {weeks.map((week) => (
           <BlockWeek
             key={week}

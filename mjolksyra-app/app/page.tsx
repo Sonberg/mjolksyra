@@ -12,7 +12,8 @@ import { CTASection } from "./components/CTASection";
 
 export default function Home() {
   return (
-    <div className="overflow-y-auto bg-black min-h-screen">
+    <div className="relative min-h-screen overflow-y-auto bg-black">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(34,211,238,0.08),transparent_35%),radial-gradient(circle_at_90%_15%,rgba(16,185,129,0.06),transparent_30%)]" />
       <HeroSection />
       <FeaturesSection />
       <BenefitsSection />

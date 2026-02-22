@@ -33,15 +33,19 @@ export function BlockDayExercise({ exercise, blockWorkoutId, onRemove }: Props) 
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-1 px-1 py-0.5 text-xs group hover:bg-accent rounded"
+      className="group flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 px-2 py-1.5 text-xs transition hover:border-cyan-200/20 hover:bg-zinc-900"
     >
-      <div {...listeners} {...attributes} className="cursor-grab shrink-0 text-muted-foreground">
+      <div
+        {...listeners}
+        {...attributes}
+        className="shrink-0 cursor-grab text-zinc-500 hover:text-zinc-300"
+      >
         <GripVertical className="h-3 w-3" />
       </div>
-      <span className="flex-1 truncate select-none">{exercise.name}</span>
+      <span className="flex-1 select-none truncate text-zinc-200">{exercise.name}</span>
       <button
         onClick={onRemove}
-        className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+        className="shrink-0 text-zinc-500 opacity-0 transition group-hover:opacity-100 hover:text-red-300"
       >
         <X className="h-3 w-3" />
       </button>

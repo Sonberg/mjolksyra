@@ -31,30 +31,30 @@ export const FAQSection = () => {
 
   return (
     <section className="py-20 lg:py-32">
-      <div className="max-w-screen-xl mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent text-center">
+      <div className="mx-auto max-w-screen-xl px-4">
+        <h2 className="mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-center text-3xl font-bold text-transparent md:text-4xl">
           Frequently Asked Questions
         </h2>
-        <div className="grid gap-4 max-w-3xl mx-auto">
+        <div className="mx-auto grid max-w-3xl gap-4">
           {faqs.map((faq, index) => (
             <div
               key={faq.question}
-              className="rounded-xl bg-gray-950/50 border border-gray-800/50 backdrop-blur-sm overflow-hidden"
+              className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 backdrop-blur-sm"
             >
               <button
                 onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                className="w-full px-6 py-4 flex items-center justify-between text-left"
+                className="flex w-full items-center justify-between px-6 py-4 text-left"
               >
                 <span className="text-lg font-semibold text-white">{faq.question}</span>
                 {openFaqIndex === index ? (
-                  <MinusIcon className="w-5 h-5 text-gray-400" />
+                  <MinusIcon className="h-5 w-5 text-zinc-400" />
                 ) : (
-                  <PlusIcon className="w-5 h-5 text-gray-400" />
+                  <PlusIcon className="h-5 w-5 text-zinc-400" />
                 )}
               </button>
               {openFaqIndex === index && (
-                <div className="px-6 pb-4">
-                  <p className="text-gray-400">{faq.answer}</p>
+                <div className="px-6 pb-5">
+                  <p className="text-zinc-400">{faq.answer}</p>
                 </div>
               )}
             </div>

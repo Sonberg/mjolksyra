@@ -77,10 +77,10 @@ export function BlockEditorContent({ blockId }: Props) {
     <TooltipProvider>
       <ResizablePanelGroup direction="horizontal" className="h-screen">
         <ResizablePanel defaultSize={75} minSize={50} className="overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="p-6 md:p-8">
+            <div className="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
               <button
-                className="rounded-full p-2 hover:bg-accent"
+                className="rounded-xl border border-white/15 bg-white/5 p-2 text-zinc-300 transition hover:bg-white/10 hover:text-white"
                 onClick={() => router.push("/app/coach/blocks")}
               >
                 <ChevronLeftIcon className="h-5 w-5" />
@@ -88,11 +88,11 @@ export function BlockEditorContent({ blockId }: Props) {
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="text-lg font-semibold max-w-xs"
+                className="max-w-xs border-white/15 bg-zinc-900/80 text-lg font-semibold text-zinc-100"
                 placeholder="Block name"
               />
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Weeks:</span>
+                <span className="text-sm text-zinc-400">Weeks:</span>
                 <Input
                   type="number"
                   min={1}
@@ -101,13 +101,14 @@ export function BlockEditorContent({ blockId }: Props) {
                   onChange={(e) =>
                     setNumberOfWeeks(Math.max(1, parseInt(e.target.value) || 1))
                   }
-                  className="w-20"
+                  className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
                 />
               </div>
               <Button
                 onClick={handleSave}
                 disabled={saveMutation.isPending}
                 size="sm"
+                className="border border-white/15 bg-white text-black hover:bg-zinc-200"
               >
                 <SaveIcon className="h-4 w-4 mr-2" />
                 {saveMutation.isPending ? "Saving..." : "Save"}

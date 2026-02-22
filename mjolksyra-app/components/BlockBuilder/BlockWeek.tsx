@@ -13,20 +13,23 @@ type Props = {
 
 export function BlockWeek({ week, workouts, onRemoveExercise }: Props) {
   return (
-    <div>
-      <div className="p-1 px-2 text-sm select-none border bg-accent">
-        Week {week}
+    <section className="overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/70 backdrop-blur-sm">
+      <div className="flex select-none items-center justify-between border-b border-white/10 bg-zinc-900/80 px-3 py-2">
+        <div className="text-sm font-semibold text-zinc-100">Week {week}</div>
+        <div className="text-xs uppercase tracking-[0.14em] text-zinc-400">
+          Block plan
+        </div>
       </div>
-      <div className="grid grid-cols-7">
-        <div className="border-l border-b border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Mon</div>
-        <div className="border-l border-b border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Tue</div>
-        <div className="border-l border-b border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Wed</div>
-        <div className="border-l border-b border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Thu</div>
-        <div className="border-l border-b border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Fri</div>
-        <div className="border-l border-b border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Sat</div>
-        <div className="border-l border-b border-r border-t px-1 py-0.5 text-xs text-center font-semibold text-muted-foreground">Sun</div>
+      <div className="grid grid-cols-7 divide-x divide-white/10 border-b border-white/10 bg-zinc-900/40">
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Mon</div>
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Tue</div>
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Wed</div>
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Thu</div>
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Fri</div>
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Sat</div>
+        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Sun</div>
       </div>
-      <div className="grid grid-cols-7 border-r">
+      <div className="grid grid-cols-7 divide-x divide-white/10">
         {DAY_NAMES.map((_, index) => {
           const dayOfWeek = index + 1;
           const workout = workouts.find(
@@ -45,6 +48,6 @@ export function BlockWeek({ week, workouts, onRemoveExercise }: Props) {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

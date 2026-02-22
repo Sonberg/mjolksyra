@@ -2,11 +2,9 @@
 
 import { useDroppable, useDndContext } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { BlockExercise, BlockWorkout } from "@/services/blocks/type";
+import { BlockWorkout } from "@/services/blocks/type";
 import { BlockDayExercise } from "./BlockDayExercise";
 import { cn } from "@/lib/utils";
-
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 type Props = {
   week: number;
@@ -36,9 +34,9 @@ export function BlockDay({ week, dayOfWeek, workout, onRemoveExercise }: Props) 
     <div
       ref={setNodeRef}
       className={cn(
-        "border-l border-b min-h-24 flex flex-col p-1 transition-colors",
+        "flex min-h-32 flex-col p-2 transition-colors",
         {
-          "bg-accent/50": isOver && isExerciseDragging,
+          "bg-cyan-300/10": isOver && isExerciseDragging,
         }
       )}
     >
@@ -59,11 +57,11 @@ export function BlockDay({ week, dayOfWeek, workout, onRemoveExercise }: Props) 
       ) : (
         <div
           className={cn(
-            "flex-1 grid place-items-center text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-all text-center",
+            "grid flex-1 place-items-center rounded-lg border border-dashed border-white/10 text-center text-xs text-zinc-500 opacity-0 transition-all hover:opacity-100",
             { "opacity-100": isOver && isExerciseDragging }
           )}
         >
-          {DAY_NAMES[dayOfWeek - 1]}
+          Drop exercises
         </div>
       )}
     </div>

@@ -85,11 +85,12 @@ export function DayExercise({
       <>
         <div
           className={cn({
-            "border-b-0": isLast,
             "opacity-40": isDragging || isGhost,
-            "bg-background": isDragging || isGhost,
-            "hover:bg-accent/80": true,
-            "bg-accent/40": isOpen,
+            "bg-zinc-900/50": isDragging || isGhost,
+            "bg-cyan-300/10": isOpen,
+            "group flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 px-2 py-1.5 text-xs transition hover:border-cyan-200/20 hover:bg-zinc-900":
+              true,
+            "mb-1.5": !isLast,
           })}
           ref={setNodeRef}
           style={{ transform: CSS.Translate.toString(transform), transition }}
@@ -98,14 +99,14 @@ export function DayExercise({
         >
           <div
             onClick={() => setOpen((open) => !open)}
-            className="grid grid-cols-[auto_1fr_auto] justify-between w-full text-sm  py-2  items-center gap-1"
+            className="grid w-full grid-cols-[auto_1fr_auto] items-center justify-between gap-1 text-sm"
           >
             <DraggingToolTip
               listeners={listeners}
-              icon={<EllipsisVertical className="h-4" />}
+              icon={<EllipsisVertical className="h-4 text-zinc-500" />}
               onDelete={onDelete}
             />
-            <div className="text-sm select-none text-left overflow-hidden whitespace-nowrap text-ellipsis">
+            <div className="select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-zinc-200">
               {plannedExercise.name}
             </div>
           </div>

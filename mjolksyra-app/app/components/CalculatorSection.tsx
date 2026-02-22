@@ -16,19 +16,19 @@ export const CalculatorSection = () => {
 
   return (
     <section className="py-20 lg:py-32">
-      <div className="max-w-screen-xl mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="mx-auto max-w-screen-xl px-4">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
+            <h2 className="mb-6 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
               Calculate your earnings
             </h2>
-            <p className="text-gray-400 text-lg mb-8">
+            <p className="mb-8 text-lg text-zinc-400">
               See how much you could earn as a coach. Adjust the number of
               athletes and monthly fee to calculate your potential earnings.
             </p>
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-400 mb-2">
+                <label className="mb-2 block text-zinc-400">
                   Number of athletes
                 </label>
                 <input
@@ -37,14 +37,14 @@ export const CalculatorSection = () => {
                   max="20"
                   value={athleteCount}
                   onChange={(e) => setAthleteCount(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-800"
                 />
-                <div className="text-white font-semibold mt-2">
+                <div className="mt-2 font-semibold text-white">
                   {athleteCount} athletes
                 </div>
               </div>
               <div>
-                <label className="block text-gray-400 mb-2">
+                <label className="mb-2 block text-zinc-400">
                   Monthly fee per athlete
                 </label>
                 <input
@@ -54,31 +54,31 @@ export const CalculatorSection = () => {
                   step="30"
                   value={monthlyFee}
                   onChange={(e) => setMonthlyFee(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-800"
                 />
-                <div className="text-white font-semibold mt-2">
+                <div className="mt-2 font-semibold text-white">
                   {monthlyFee} kr per month
                 </div>
               </div>
             </div>
           </div>
-          <div className="bg-gray-950/50 border border-gray-800/50 backdrop-blur-sm rounded-xl p-8">
+          <div className="rounded-2xl border border-white/10 bg-zinc-950/70 p-8 backdrop-blur-sm">
             <div className="space-y-6">
               <div>
-                <div className="text-gray-400 mb-2">Monthly Revenue</div>
+                <div className="mb-2 text-zinc-400">Monthly Revenue</div>
                 <div className="text-3xl font-bold text-white">
                   {monthlyEarnings} kr
                 </div>
               </div>
               <div>
-                <div className="text-gray-400 mb-2">Platform Fee (10%)</div>
-                <div className="text-xl font-semibold text-gray-300">
+                <div className="mb-2 text-zinc-400">Platform Fee (10%)</div>
+                <div className="text-xl font-semibold text-zinc-300">
                   -{platformFee} kr
                 </div>
               </div>
-              <div className="pt-6 border-t border-gray-800">
-                <div className="text-gray-400 mb-2">Your Monthly Earnings</div>
-                <div className="text-4xl font-bold bg-gradient-to-r from-stone-100 to-white bg-clip-text text-transparent">
+              <div className="border-t border-white/10 pt-6">
+                <div className="mb-2 text-zinc-400">Your Monthly Earnings</div>
+                <div className="bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-4xl font-bold text-transparent">
                   {netEarnings} kr
                 </div>
               </div>
