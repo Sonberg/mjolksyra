@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { NavigationUser } from "./NavigationUser";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
@@ -8,7 +9,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ArrowRightIcon, ChevronDownIcon, LogOutIcon } from "lucide-react";
+import { ArrowRightIcon, ChevronDownIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -150,14 +151,7 @@ export function Navigation() {
             </Link>
           </nav>
           {auth.isAuthenticated ? (
-            <button
-              type="button"
-              aria-label="Logout"
-              onClick={auth.logout}
-              className="grid h-8 w-8 place-items-center rounded-lg border border-zinc-700 bg-zinc-900/80 text-zinc-300 transition hover:bg-zinc-800 hover:text-zinc-100"
-            >
-              <LogOutIcon className="h-4 w-4" />
-            </button>
+            <NavigationUser />
           ) : (
             <>
               <Link
