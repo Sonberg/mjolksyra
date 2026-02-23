@@ -32,7 +32,7 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue>({
-  login(_req: LoginRequest) {},
+  login(req: LoginRequest) {},
   logout() {},
   getAccessToken: async () => Promise.any(""),
   isAuthenticated: false,
@@ -62,11 +62,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
 
   const [accessToken, setAccessToken] = useState<string | null>(
-    () => cookies.get("accessToken") ?? null
+    () => cookies.get("accessToken") ?? null,
   );
 
   const [refreshToken, setRefreshToken] = useState<string | null>(
-    () => cookies.get("refreshToken") ?? null
+    () => cookies.get("refreshToken") ?? null,
   );
 
   const content = useMemo(() => {
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const getDiff = useCallback(
     () => (content ? content.exp! * 1000 - Date.now() : 0),
-    [content]
+    [content],
   );
 
   const login = useCallback(
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         expires: req.refreshTokenExpiresAt,
       });
     },
-    [cookies]
+    [cookies],
   );
 
   const logout = useCallback(() => {
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     cookies.remove("accessToken");
     cookies.remove("refreshToken");
     router.replace("/");
-  }, [cookies]);
+  }, [cookies, router]);
 
   const getAccessToken = useCallback(async () => {
     if (!accessToken) {

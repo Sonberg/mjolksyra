@@ -69,7 +69,7 @@ export function Navigation() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex flex-col bg-[#090909] transition-colors",
+        "sticky top-0 z-50 flex flex-col bg-[linear-gradient(180deg,rgba(18,18,20,0.98)_0%,rgba(10,10,11,0.97)_55%,rgba(8,8,9,0.95)_100%)] transition-colors",
         {
           "border-b border-zinc-900": showBorder,
         },
