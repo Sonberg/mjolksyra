@@ -28,7 +28,7 @@ public class TraineeInvitationsController : Controller
     {
         return Ok(await _mediator.Send(new GetTraineeInvitationsRequest
         {
-            UserId = _userContext.UserId!.Value,
+            UserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken),
             Type = TraineeInvitationsType.Coach
         }, cancellationToken));
     }
@@ -38,40 +38,41 @@ public class TraineeInvitationsController : Controller
     {
         return Ok(await _mediator.Send(new GetTraineeInvitationsRequest
         {
-            UserId = _userContext.UserId!.Value,
+            UserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken),
             Type = TraineeInvitationsType.Athlete
         }, cancellationToken));
     }
 
     [HttpPost]
-    public async Task<ActionResult<TraineeInvitationsResponse>> Invite(InviteTraineeRequest request)
+    public async Task<ActionResult<TraineeInvitationsResponse>> Invite(InviteTraineeRequest request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return BadRequest();
         }
 
         var command = request.ToCommand(userId);
-        return Ok(await _mediator.Send(command));
+        return Ok(await _mediator.Send(command, cancellationToken));
     }
 
 
     [HttpPut("{traineeInvitationId:guid}/accept")]
-    public async Task Accept(Guid traineeInvitationId)
+    public async Task Accept(Guid traineeInvitationId, CancellationToken cancellationToken)
     {
         await _mediator.Send(new AcceptTraineeInvitationCommand
         {
             TraineeInvitationId = traineeInvitationId,
-            AthleteUserId = _userContext.UserId!.Value
-        });
+            AthleteUserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken)
+        }, cancellationToken);
     }
 
     [HttpPut("{traineeInvitationId:guid}/decline")]
-    public async Task Decline(Guid traineeInvitationId)
+    public async Task Decline(Guid traineeInvitationId, CancellationToken cancellationToken)
     {
         await _mediator.Send(new DeclineTraineeInvitationCommand
         {
-            TraineeInvitationId = traineeInvitationId
-        });
+            TraineeInvitationId = traineeInvitationId,
+            AthleteUserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken)
+        }, cancellationToken);
     }
 }

@@ -17,9 +17,9 @@ public class GetBlocksRequestHandler : IRequestHandler<GetBlocksRequest, ICollec
 
     public async Task<ICollection<BlockResponse>> Handle(GetBlocksRequest request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
-            return Array.Empty<BlockResponse>();
+            return [];
         }
 
         var blocks = await _blockRepository.GetByCoach(userId, cancellationToken);

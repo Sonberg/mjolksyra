@@ -12,6 +12,8 @@ type Props = {
 };
 
 export function CoachDashboard({ trainees }: Props) {
+  const includedAthletes = 10;
+  const overageAthletes = Math.max(0, trainees.length - includedAthletes);
   const invitaions = useQuery({
     queryKey: ["invitations"],
     queryFn: ({ signal }) => getTraineeInvitations({ signal, type: "coach" }),
@@ -31,6 +33,10 @@ export function CoachDashboard({ trainees }: Props) {
             </h2>
             <p className="text-sm text-zinc-400">
               {trainees.length} active athlete{trainees.length === 1 ? "" : "s"}
+            </p>
+            <p className="text-sm text-zinc-500">
+              $39/mo includes {includedAthletes} athletes. Overage: ${overageAthletes * 4}/mo
+              ({overageAthletes} x $4).
             </p>
           </div>
           <InviteTraineeDialog

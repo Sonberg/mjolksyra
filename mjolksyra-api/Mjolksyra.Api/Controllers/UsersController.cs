@@ -25,34 +25,34 @@ public class UsersController : Controller
     [HttpPost("me")]
     public async Task<ActionResult<EnsureUserResponse>> EnsureUser(CancellationToken cancellationToken)
     {
-        if (_userContext.ClerkSubject is not { } clerkSubject)
+        if (await _userContext.GetUser(cancellationToken) is not { } user)
         {
             return BadRequest();
         }
 
         var response = await _mediator.Send(new EnsureUserCommand
         {
-            ClerkUserId = clerkSubject,
-            Email = _userContext.Email ?? string.Empty,
-            GivenName = _userContext.GivenName,
-            FamilyName = _userContext.FamilyName,
+            ClerkUserId = user.ClerkUserId!,
+            Email = user.Email,
+            GivenName = user.GivenName,
+            FamilyName = user.FamilyName,
         }, cancellationToken);
 
         return Ok(response);
     }
 
     [HttpGet("me")]
-    public async Task<ActionResult<UserResponse>> GetUserMe()
+    public async Task<ActionResult<UserResponse>> GetUserMe(CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUser(cancellationToken) is not { } user)
         {
             return BadRequest();
         }
 
         var response = await _mediator.Send(new GetUserRequest
         {
-            UserId = userId
-        });
+            UserId = user.Id
+        }, cancellationToken);
 
         return Ok(response);
     }

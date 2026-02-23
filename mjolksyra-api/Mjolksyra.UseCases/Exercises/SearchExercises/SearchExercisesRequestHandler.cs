@@ -24,16 +24,18 @@ public class SearchExercisesRequestHandler : IRequestHandler<SearchExercisesRequ
             return new PaginatedResponse<ExerciseResponse>
             {
                 Next = null,
-                Data = Array.Empty<ExerciseResponse>()
+                Data = []
             };
         }
+
+        var userId = await _userContext.GetUserId(cancellationToken);
 
         return new PaginatedResponse<ExerciseResponse>
         {
             Next = null,
             Data = await _exerciseRepository
                 .Search(request.FreeText, cancellationToken)
-                .ContinueWith(t => t.Result.Select(x => ExerciseResponse.From(x, _userContext.UserId)).ToList(), cancellationToken)
+                .ContinueWith(t => t.Result.Select(x => ExerciseResponse.From(x, userId)).ToList(), cancellationToken)
         };
     }
 }

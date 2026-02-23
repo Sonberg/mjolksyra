@@ -1,17 +1,14 @@
 "use client";
 
-import { useCookies } from "next-client-cookies";
-import { jwtDecode, JwtPayload } from "jwt-decode";
 import {
   createContext,
   useCallback,
   useContext,
   useMemo,
-  useState,
+  type ReactNode,
 } from "react";
-import type { ReactNode } from "react";
-import { refresh } from "@/services/auth/refresh";
-import { redirect, useRouter } from "next/navigation";
+import { useAuth as useClerkAuth, useClerk, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 type LoginRequest = {
   accessToken: string | null;
@@ -32,9 +29,9 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue>({
-  login(req: LoginRequest) {},
+  login() {},
   logout() {},
-  getAccessToken: async () => Promise.any(""),
+  getAccessToken: async () => null,
   isAuthenticated: false,
   userId: null,
   name: null,
@@ -43,109 +40,47 @@ const AuthContext = createContext<AuthContextValue>({
   familyName: null,
 });
 
+export const useAuth = () => useContext(AuthContext);
+
 type AuthProviderProps = {
   children: ReactNode;
 };
 
-type Jwt = JwtPayload & {
-  userId: string | null;
-  name: string | null;
-  email: string | null;
-  givenName: string | null;
-  familyName: string | null;
-};
-
-export const useAuth = () => useContext(AuthContext);
-
 export function AuthProvider({ children }: AuthProviderProps) {
-  const cookies = useCookies();
   const router = useRouter();
+  const clerk = useClerk();
+  const { isSignedIn, getToken, userId } = useClerkAuth();
+  const { user } = useUser();
 
-  const [accessToken, setAccessToken] = useState<string | null>(
-    () => cookies.get("accessToken") ?? null,
-  );
-
-  const [refreshToken, setRefreshToken] = useState<string | null>(
-    () => cookies.get("refreshToken") ?? null,
-  );
-
-  const content = useMemo(() => {
-    return accessToken ? jwtDecode<Jwt>(accessToken) : null;
-  }, [accessToken]);
-
-  const getDiff = useCallback(
-    () => (content ? content.exp! * 1000 - Date.now() : 0),
-    [content],
-  );
-
-  const login = useCallback(
-    (req: LoginRequest) => {
-      if (!req.accessToken) return;
-      if (!req.refreshToken) return;
-      if (!req.refreshTokenExpiresAt) return;
-
-      setAccessToken(req.accessToken);
-      setRefreshToken(req.refreshToken);
-
-      console.log("Setting new token");
-
-      cookies.set("accessToken", req.accessToken, {
-        secure: location.hostname !== "localhost",
-        expires: req.refreshTokenExpiresAt,
-      });
-
-      cookies.set("refreshToken", req.refreshToken, {
-        secure: location.hostname !== "localhost",
-        expires: req.refreshTokenExpiresAt,
-      });
-    },
-    [cookies],
-  );
+  const login = useCallback((req: LoginRequest) => {
+    void req;
+    // Clerk owns login state; existing callers can keep invoking login safely.
+  }, []);
 
   const logout = useCallback(() => {
-    console.log("logout");
-
-    setAccessToken(null);
-    setRefreshToken(null);
-    cookies.remove("accessToken");
-    cookies.remove("refreshToken");
+    void clerk.signOut({ redirectUrl: "/" });
     router.replace("/");
-  }, [cookies, router]);
+  }, [clerk, router]);
 
   const getAccessToken = useCallback(async () => {
-    if (!accessToken) {
-      redirect("/");
-    }
+    const token = await getToken();
+    return token ?? null;
+  }, [getToken]);
 
-    if (getDiff() > 5000) {
-      return accessToken;
-    }
-
-    const res = await refresh({ refreshToken: refreshToken! });
-
-    if (!res?.isSuccessful) {
-      redirect("/");
-    }
-
-    login(res);
-
-    return res.accessToken;
-  }, [accessToken, getDiff, refreshToken, login]);
-
-  return (
-    <AuthContext.Provider
-      value={{
-        login,
-        logout,
-        getAccessToken,
-        userId: content?.userId ?? null,
-        name: content?.name ?? null,
-        email: content?.email ?? null,
-        givenName: content?.givenName ?? null,
-        familyName: content?.familyName ?? null,
-        isAuthenticated: !!content?.userId,
-      }}
-      children={children}
-    />
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      login,
+      logout,
+      getAccessToken,
+      userId: userId ?? null,
+      name: user?.fullName ?? null,
+      email: user?.primaryEmailAddress?.emailAddress ?? null,
+      givenName: user?.firstName ?? null,
+      familyName: user?.lastName ?? null,
+      isAuthenticated: !!isSignedIn,
+    }),
+    [login, logout, getAccessToken, userId, user, isSignedIn],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

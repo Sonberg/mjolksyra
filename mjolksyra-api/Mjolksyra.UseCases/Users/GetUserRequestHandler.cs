@@ -15,6 +15,7 @@ public class GetUserRequestHandler(
         var user = await userRepository.GetById(request.UserId, cancellationToken);
         var invitations = await traineeInvitationsRepository.GetAsync(user.Email, cancellationToken);
         var trainees = await traineeRepository.Get(request.UserId, cancellationToken);
+        var activeTrainees = trainees.Where(x => x.Status == Domain.Database.Models.TraineeStatus.Active).ToList();
         var userIds = trainees
             .SelectMany(x => (Guid[]) [x.CoachUserId, x.AthleteUserId])
             .Concat(invitations.Select(x => x.CoachUserId))
@@ -39,11 +40,12 @@ public class GetUserRequestHandler(
                 Coach = user.Coach?.Stripe switch
                 {
                     null => UserOnboardingStatus.NotStarted,
+                    { Status: StripeStatus.Succeeded } => UserOnboardingStatus.Completed,
                     { AccountId: not null } => UserOnboardingStatus.Started,
-                    _ => UserOnboardingStatus.Completed
+                    _ => UserOnboardingStatus.NotStarted
                 },
             },
-            Athletes = trainees
+            Athletes = activeTrainees
                 .Where(x => x.CoachUserId == request.UserId)
                 .Select(x => new UserTraineeResponse
                 {
@@ -53,20 +55,13 @@ public class GetUserRequestHandler(
                     Status = UserTraineeStatus.Active
                 })
                 .ToList(),
-            Coaches = trainees
+            Coaches = activeTrainees
                 .Where(x => x.AthleteUserId == request.UserId)
                 .Select(x => new UserTraineeResponse
                 {
                     TraineeId = x.Id,
                     GivenName = traineeUsersLookup[x.CoachUserId].GivenName,
                     FamilyName = traineeUsersLookup[x.CoachUserId].FamilyName,
-                    Status = UserTraineeStatus.Active
-                })
-                .Append(new UserTraineeResponse
-                {
-                    TraineeId = Guid.NewGuid(),
-                    GivenName = "Natalie",
-                    FamilyName = "Sleiers",
                     Status = UserTraineeStatus.Active
                 })
                 .ToList(),

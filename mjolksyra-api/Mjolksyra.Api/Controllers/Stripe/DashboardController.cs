@@ -25,7 +25,7 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<ActionResult> Dashboard(CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return BadRequest();
         }

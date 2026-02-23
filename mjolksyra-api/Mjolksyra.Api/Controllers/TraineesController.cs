@@ -59,7 +59,7 @@ public class TraineesController : Controller
         await _mediator.Send(new CancelTraineeRequest
         {
             TraineeId = traineeId,
-            UserId = _userContext.UserId!.Value
+            UserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken)
         }, cancellationToken);
     }
 
@@ -67,7 +67,15 @@ public class TraineesController : Controller
     [HttpPut("{traineeId:guid}/cost")]
     public async Task UpdateCost(Guid traineeId, UpdateTraineeCostRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(request.ToCommand(traineeId, _userContext.UserId!.Value), cancellationToken);
+        await _mediator.Send(
+            request.ToCommand(
+                traineeId,
+                await _userContext
+                    .GetUserId(cancellationToken)
+                    .ContinueWith(x => x.Result!.Value, cancellationToken)
+            ),
+            cancellationToken
+        );
     }
 
     [HttpPost]

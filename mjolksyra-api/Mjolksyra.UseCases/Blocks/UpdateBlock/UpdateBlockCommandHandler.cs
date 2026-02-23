@@ -18,7 +18,7 @@ public class UpdateBlockCommandHandler : IRequestHandler<UpdateBlockCommand, Blo
 
     public async Task<BlockResponse?> Handle(UpdateBlockCommand request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return null;
         }

@@ -23,7 +23,7 @@ public class GetTraineesRequestHandler : IRequestHandler<GetTraineesRequest, ICo
 
     public async Task<ICollection<TraineeResponse>> Handle(GetTraineesRequest request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return [];
         }

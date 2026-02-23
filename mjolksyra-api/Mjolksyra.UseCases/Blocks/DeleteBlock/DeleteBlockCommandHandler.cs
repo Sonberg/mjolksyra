@@ -17,7 +17,7 @@ public class DeleteBlockCommandHandler : IRequestHandler<DeleteBlockCommand>
 
     public async Task Handle(DeleteBlockCommand request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return;
         }

@@ -20,7 +20,7 @@ public class StarExerciseCommandHandler : IRequestHandler<StarExerciseCommand, O
 
     public async Task<OneOf<Success, Error>> Handle(StarExerciseCommand request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return new Error();
         }

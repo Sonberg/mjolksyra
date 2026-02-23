@@ -4,6 +4,8 @@ import { getTrainee } from "@/services/trainees/getTrainee";
 import { WorkoutViewer } from "@/components/WorkoutViewer";
 import { useState, type ReactNode } from "react";
 import { CreditCardIcon, DumbbellIcon, SettingsIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 
 type Tabs = "workouts" | "transactions" | "settings";
 type Props = {
@@ -12,6 +14,11 @@ type Props = {
 
 export function AthleteDashboard({ coach }: Props) {
   const [selectedTab, setSelectedTab] = useState<Tabs>("workouts");
+  const cancel = useMutation({
+    mutationKey: ["trainees", coach.traineeId, "cancel"],
+    mutationFn: () => cancelTrainee({ traineeId: coach.traineeId }),
+    onSettled: () => location.reload(),
+  });
   const { data } = useQuery({
     queryKey: ["trainees", coach.traineeId],
     queryFn: ({ signal }) => getTrainee({ id: coach.traineeId, signal }),
@@ -78,6 +85,16 @@ export function AthleteDashboard({ coach }: Props) {
           <p className="mt-2 text-sm text-zinc-400">
             Coach relationship and preferences will be available here.
           </p>
+          <div className="mt-6">
+            <button
+              type="button"
+              disabled={cancel.isPending}
+              onClick={() => cancel.mutateAsync()}
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
+            </button>
+          </div>
         </div>
       ) : null}
     </div>

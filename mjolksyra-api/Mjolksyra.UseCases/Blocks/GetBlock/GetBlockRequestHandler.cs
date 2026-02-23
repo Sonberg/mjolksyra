@@ -17,7 +17,7 @@ public class GetBlockRequestHandler : IRequestHandler<GetBlockRequest, BlockResp
 
     public async Task<BlockResponse?> Handle(GetBlockRequest request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return null;
         }

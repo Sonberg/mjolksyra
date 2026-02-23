@@ -56,7 +56,9 @@ public class SetupIntentController : Controller
             Metadata = new Dictionary<string, string>
             {
                 {
-                    "UserId", _userContext.UserId!.Value.ToString()
+                    "UserId", await _userContext
+                        .GetUserId(cancellationToken)
+                        .ContinueWith(x => x.Result!.Value.ToString(), cancellationToken)
                 }
             }
         };
@@ -71,8 +73,8 @@ public class SetupIntentController : Controller
 
     private async Task<string> GetCustomerId(CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetById(_userContext.UserId!.Value, cancellationToken);
-        if (user.Athlete?.Stripe?.CustomerId is { } customerId)
+        var user = await _userContext.GetUser(cancellationToken);
+        if (user?.Athlete?.Stripe?.CustomerId is { } customerId)
         {
             return customerId;
         }
@@ -80,7 +82,7 @@ public class SetupIntentController : Controller
         var service = new CustomerService(_stripeClient);
         var options = new CustomerCreateOptions
         {
-            Email = user.Email,
+            Email = user!.Email,
             Name = $"{user.GivenName} {user.FamilyName}",
             Metadata = new Dictionary<string, string>
             {

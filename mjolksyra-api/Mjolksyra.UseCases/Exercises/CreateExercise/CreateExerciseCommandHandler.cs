@@ -21,7 +21,7 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
 
     public async Task<OneOf<ExerciseResponse, Error>> Handle(CreateExerciseCommand request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return new Error();
         }

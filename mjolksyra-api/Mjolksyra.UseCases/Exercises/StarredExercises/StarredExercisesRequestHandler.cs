@@ -10,7 +10,7 @@ public class StarredExercisesRequestHandler : IRequestHandler<StarredExercisesRe
     private readonly IExerciseRepository _exerciseRepository;
 
     private readonly IUserContext _userContext;
-    
+
     public StarredExercisesRequestHandler(IExerciseRepository exerciseRepository, IUserContext userContext)
     {
         _exerciseRepository = exerciseRepository;
@@ -19,12 +19,13 @@ public class StarredExercisesRequestHandler : IRequestHandler<StarredExercisesRe
 
     public async Task<PaginatedResponse<ExerciseResponse>> Handle(StarredExercisesRequest request, CancellationToken cancellationToken)
     {
+        var userId = await _userContext.GetUserId(cancellationToken);
         return await _exerciseRepository
-            .Starred(_userContext.UserId!.Value, cancellationToken)
+            .Starred(userId!.Value, cancellationToken)
             .ContinueWith(t => new PaginatedResponse<ExerciseResponse>
             {
                 Next = t.Result.Cursor,
-                Data = t.Result.Data.Select(x => ExerciseResponse.From(x, _userContext.UserId)).ToList()
+                Data = t.Result.Data.Select(x => ExerciseResponse.From(x, userId)).ToList()
             }, cancellationToken);
     }
 }

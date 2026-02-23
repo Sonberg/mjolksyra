@@ -30,11 +30,11 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
     public async Task<PaginatedResponse<PlannedWorkoutResponse>> Handle(GetPlannedWorkoutsRequest request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return new PaginatedResponse<PlannedWorkoutResponse>
             {
-                Data = Array.Empty<PlannedWorkoutResponse>(),
+                Data = [],
                 Next = null
             };
         }
@@ -43,7 +43,7 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
         {
             return new PaginatedResponse<PlannedWorkoutResponse>
             {
-                Data = Array.Empty<PlannedWorkoutResponse>(),
+                Data = [],
                 Next = null
             };
         }

@@ -18,8 +18,7 @@ public class CreateBlockCommandHandler : IRequestHandler<CreateBlockCommand, Blo
 
     public async Task<BlockResponse> Handle(CreateBlockCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.UserId ?? throw new UnauthorizedAccessException();
-
+        var userId = await _userContext.GetUserId(cancellationToken) ?? throw new UnauthorizedAccessException();
         var block = await _blockRepository.Create(new Block
         {
             Id = Guid.NewGuid(),

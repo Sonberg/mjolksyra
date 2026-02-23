@@ -43,14 +43,14 @@ public class AccountController : Controller
 
         return Ok(account);
     }
-    
+
     [HttpPost]
     public async Task<ActionResult> Create(CancellationToken cancellationToken)
     {
         try
         {
-            var user = await _userRepository.GetById(_userContext.UserId!.Value, cancellationToken);
-            if (user.Coach?.Stripe?.AccountId is { } accountId)
+            var user = await _userContext.GetUser(cancellationToken);
+            if (user?.Coach?.Stripe?.AccountId is { } accountId)
             {
                 return Json(new
                 {
@@ -92,7 +92,7 @@ public class AccountController : Controller
                     }
                 },
                 Country = "SE",
-                Email = user.Email,
+                Email = user!.Email,
                 Metadata = new Dictionary<string, string>
                 {
                     {

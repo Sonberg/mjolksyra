@@ -151,6 +151,7 @@ builder.Services
     {
         var clerk = builder.Configuration.GetSection(ClerkOptions.SectionName).Get<ClerkOptions>()!;
         opt.Authority = $"https://{clerk.Domain}";
+        opt.MapInboundClaims = false;
         opt.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
@@ -189,7 +190,7 @@ if (app.Environment.IsProduction())
 
 app.MapOpenApi();
 app.MapScalarApiReference();
-app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 app.Run();

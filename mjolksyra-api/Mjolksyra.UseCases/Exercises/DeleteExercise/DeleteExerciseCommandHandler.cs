@@ -18,7 +18,7 @@ public class DeleteExerciseCommandHandler : IRequestHandler<DeleteExerciseComman
 
     public async Task Handle(DeleteExerciseCommand request, CancellationToken cancellationToken)
     {
-        if (_userContext.UserId is not { } userId)
+        if (await _userContext.GetUserId(cancellationToken) is not { } userId)
         {
             return;
         }

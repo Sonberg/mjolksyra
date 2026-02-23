@@ -27,7 +27,11 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
     public async Task Handle(CancelTraineeRequest request, CancellationToken cancellationToken)
     {
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
-        if (trainee?.CoachUserId != request.UserId) return;
+        if (trainee is null) return;
+
+        var canCancel = trainee.CoachUserId == request.UserId || trainee.AthleteUserId == request.UserId;
+        if (!canCancel) return;
+        if (trainee.Status == TraineeStatus.Cancelled) return;
 
         if (trainee.StripeSubscriptionId is not null)
         {
@@ -37,6 +41,7 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
         }
 
         trainee.Status = TraineeStatus.Cancelled;
+        trainee.DeletedAt = DateTimeOffset.UtcNow;
 
         await _traineeRepository.Update(trainee, cancellationToken);
     }

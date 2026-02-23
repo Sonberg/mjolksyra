@@ -73,4 +73,20 @@ public class TraineeRepository : ITraineeRepository
             },
             cancellationToken: cancellationToken);
     }
+
+    public async Task<int> CountActiveByCoachId(Guid coachUserId, CancellationToken ct)
+    {
+        return (int)await _context.Trainees.CountDocumentsAsync(
+            x => x.CoachUserId == coachUserId && x.Status == TraineeStatus.Active,
+            cancellationToken: ct);
+    }
+
+    public async Task<bool> ExistsActiveRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct)
+    {
+        return await _context.Trainees.Find(x =>
+                x.CoachUserId == coachUserId &&
+                x.AthleteUserId == athleteUserId &&
+                x.Status == TraineeStatus.Active)
+            .AnyAsync(ct);
+    }
 }

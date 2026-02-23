@@ -6,7 +6,7 @@ import { useState } from "react";
 const faqs = [
   {
     question: "How do payments work?",
-    answer: "We handle all payments through Stripe, ensuring secure transactions. You'll receive weekly payouts directly to your bank account, with just a 10% platform fee deducted.",
+    answer: "Coaches pay a platform subscription of $39/month, which includes up to 10 athletes. Additional active athletes cost $4 per athlete per month. Athlete invitations and billing setup are handled through secure flows.",
   },
   {
     question: "Do I need to be a certified trainer?",
@@ -14,7 +14,7 @@ const faqs = [
   },
   {
     question: "How many athletes can I coach?",
-    answer: "There's no limit! You can coach as many athletes as you can effectively manage. Our platform scales with your business.",
+    answer: "Your plan includes 10 athletes. You can add more anytime for $4 per additional active athlete per month.",
   },
   {
     question: "Can I customize workout plans?",

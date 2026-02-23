@@ -19,6 +19,7 @@ public class GetExercisesRequestHandler : IRequestHandler<GetExercisesRequest, P
 
     public async Task<PaginatedResponse<ExerciseResponse>> Handle(GetExercisesRequest request, CancellationToken cancellationToken)
     {
+        var userId = await _userContext.GetUserId(cancellationToken);
         var result = request.Cursor is { } cursor
             ? await _exerciseRepository.Get(cursor, cancellationToken)
             : await _exerciseRepository.Get(request.Limit, cancellationToken);
@@ -26,7 +27,7 @@ public class GetExercisesRequestHandler : IRequestHandler<GetExercisesRequest, P
         return new PaginatedResponse<ExerciseResponse>
         {
             Next = result.Cursor,
-            Data = result.Data.Select(x => ExerciseResponse.From(x, _userContext.UserId)).ToList()
+            Data = result.Data.Select(x => ExerciseResponse.From(x, userId)).ToList()
         };
     }
 }

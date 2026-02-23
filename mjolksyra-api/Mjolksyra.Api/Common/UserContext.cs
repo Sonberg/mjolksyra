@@ -1,48 +1,79 @@
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.UserContext;
+using System.Security.Claims;
+using Mjolksyra.Domain.Database.Models;
 
 namespace Mjolksyra.Api.Common;
 
 public class UserContext : IUserContext
 {
-    private readonly Lazy<Guid?> _userId;
+    private readonly IUserRepository _userRepository;
 
     public UserContext(IHttpContextAccessor accessor, IUserRepository userRepository)
     {
         IsAuthenticated = accessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-        Email = accessor.GetClaimValue("email");
-        Name = accessor.GetClaimValue("name");
-        GivenName = accessor.GetClaimValue("given_name");
-        FamilyName = accessor.GetClaimValue("family_name");
         ClerkSubject = accessor.GetClaimValue("sub");
 
-        _userId = new Lazy<Guid?>(() =>
-        {
-            if (ClerkSubject is null) return null;
-            return userRepository.GetByClerkId(ClerkSubject, CancellationToken.None)
-                .GetAwaiter().GetResult()?.Id;
-        });
+        _userRepository = userRepository;
     }
 
     public bool IsAuthenticated { get; }
 
-    public string? Email { get; }
-
-    public string? Name { get; }
-
-    public string? GivenName { get; }
-
-    public string? FamilyName { get; }
-
     public string? ClerkSubject { get; }
 
-    public Guid? UserId => _userId.Value;
+
+    public async Task<User?> GetUser(CancellationToken cancellationToken = default)
+    {
+        if (ClerkSubject is null)
+        {
+            return null;
+        }
+
+        return await _userRepository.GetByClerkId(ClerkSubject, cancellationToken);
+    }
+
+    public async Task<Guid?> GetUserId(CancellationToken cancellationToken = default)
+    {
+        return (await GetUser(cancellationToken))?.Id;
+    }
 }
 
 file static class HttpContextAccessorExtensions
 {
     public static string? GetClaimValue(this IHttpContextAccessor accessor, string type)
     {
-        return accessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == type)?.Value;
+        var claims = accessor.HttpContext?.User.Claims;
+        if (claims is null) return null;
+
+        // Prefer raw JWT claim names (used by Clerk), but support ASP.NET mapped claim types too.
+        var aliases = type switch
+        {
+            "sub" => new[]
+            {
+                "sub", ClaimTypes.NameIdentifier
+            },
+            "email" => new[]
+            {
+                "email", ClaimTypes.Email
+            },
+            "name" => new[]
+            {
+                "name", ClaimTypes.Name
+            },
+            "given_name" => new[]
+            {
+                "given_name", ClaimTypes.GivenName
+            },
+            "family_name" => new[]
+            {
+                "family_name", ClaimTypes.Surname
+            },
+            _ => new[]
+            {
+                type
+            }
+        };
+
+        return claims.FirstOrDefault(x => aliases.Contains(x.Type))?.Value;
     }
 }

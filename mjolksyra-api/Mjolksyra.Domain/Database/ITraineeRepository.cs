@@ -15,4 +15,8 @@ public interface ITraineeRepository
     Task<bool> HasAccess(Guid traineeId, Guid userId, CancellationToken cancellationToken);
 
     Task<Trainee?> GetBySubscriptionId(string subscriptionId, CancellationToken ct);
+
+    Task<int> CountActiveByCoachId(Guid coachUserId, CancellationToken ct);
+
+    Task<bool> ExistsActiveRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct);
 }

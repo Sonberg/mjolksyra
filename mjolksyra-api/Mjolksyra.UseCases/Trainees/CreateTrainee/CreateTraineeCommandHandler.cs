@@ -24,11 +24,19 @@ public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand,
         var coach = await _userRepository.GetById(request.CoachUserId, cancellationToken);
         var athlete = await _userRepository.GetById(request.AthleteUserId, cancellationToken);
 
+        var exists = await _traineeRepository.ExistsActiveRelationship(coach.Id, athlete.Id, cancellationToken);
+        if (exists)
+        {
+            throw new InvalidOperationException("Athlete is already connected to this coach.");
+        }
+
         var trainee = await _traineeRepository.Create(new Trainee
         {
+            Id = Guid.NewGuid(),
             AthleteUserId = athlete.Id,
             CoachUserId = coach.Id,
-            Status = TraineeStatus.Active
+            Status = TraineeStatus.Active,
+            CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
 
         return await _traineeResponseBuilder.Build(trainee, cancellationToken);

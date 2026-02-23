@@ -1,18 +1,14 @@
+using Mjolksyra.Domain.Database.Models;
+
 namespace Mjolksyra.Domain.UserContext;
 
 public interface IUserContext
 {
     public bool IsAuthenticated { get; }
 
-    public string? Email { get; }
-
-    public string? Name { get; }
-
-    public string? GivenName { get; }
-
-    public string? FamilyName { get; }
-
     public string? ClerkSubject { get; }
-
-    public Guid? UserId { get; }
+    
+    public Task<User?> GetUser(CancellationToken cancellationToken = default);
+    
+    public Task<Guid?> GetUserId(CancellationToken cancellationToken = default);
 }

@@ -1,13 +1,13 @@
 "use client";
 
 import { Trainee } from "@/services/trainees/type";
-import { DumbbellIcon, WalletIcon, BadgeEuroIcon } from "lucide-react";
+import { DumbbellIcon, XIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useGravatar } from "@/hooks/useGravatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { chargeTrainee } from "@/services/trainees/chargeTrainee";
+import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 
 type TraineeCardProps = {
   trainee: Trainee;
@@ -16,9 +16,10 @@ type TraineeCardProps = {
 export function TraineeCard({ trainee }: TraineeCardProps) {
   const router = useRouter();
   const url = useGravatar(trainee.athlete.email ?? "", 56);
-  const charge = useMutation({
-    mutationKey: ["trainee", trainee.id, "charge"],
-    mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
+  const cancel = useMutation({
+    mutationKey: ["trainee", trainee.id, "cancel"],
+    mutationFn: () => cancelTrainee({ traineeId: trainee.id }),
+    onSettled: () => router.refresh(),
   });
 
   const metrics = [
@@ -41,8 +42,8 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
         : "--",
     },
     {
-      label: "Monthly price",
-      value: "1000 kr",
+      label: "Billing",
+      value: "Coach plan",
     },
   ];
 
@@ -92,19 +93,12 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
           Plan workouts
         </button>
         <button
-          className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10"
-          onClick={() => null}
-        >
-          <BadgeEuroIcon className="h-4 w-4" />
-          Change price
-        </button>
-        <button
           className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={charge.isPending}
-          onClick={() => charge.mutateAsync()}
+          disabled={cancel.isPending}
+          onClick={() => cancel.mutateAsync()}
         >
-          <WalletIcon className="h-4 w-4" />
-          Pay now
+          <XIcon className="h-4 w-4" />
+          Cancel relationship
         </button>
       </div>
     </article>
