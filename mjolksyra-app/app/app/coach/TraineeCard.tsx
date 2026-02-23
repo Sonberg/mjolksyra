@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
+import { updateTraineeCost } from "@/services/trainees/updateTraineeCost";
+import { useMemo, useState } from "react";
 
 type TraineeCardProps = {
   trainee: Trainee;
@@ -16,9 +18,25 @@ type TraineeCardProps = {
 export function TraineeCard({ trainee }: TraineeCardProps) {
   const router = useRouter();
   const url = useGravatar(trainee.athlete.email ?? "", 56);
+  const initialCoachPrice = useMemo(
+    () => (trainee.cost?.coach != null ? `${trainee.cost.coach}` : ""),
+    [trainee.cost?.coach]
+  );
+  const [price, setPrice] = useState(initialCoachPrice);
   const cancel = useMutation({
     mutationKey: ["trainee", trainee.id, "cancel"],
     mutationFn: () => cancelTrainee({ traineeId: trainee.id }),
+    onSettled: () => router.refresh(),
+  });
+  const savePrice = useMutation({
+    mutationKey: ["trainee", trainee.id, "cost"],
+    mutationFn: async () => {
+      const amount = Number.parseInt(price, 10);
+      if (!Number.isFinite(amount) || amount < 0) {
+        throw new Error("Invalid price");
+      }
+      await updateTraineeCost({ traineeId: trainee.id, amount });
+    },
     onSettled: () => router.refresh(),
   });
 
@@ -48,9 +66,9 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
   ];
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/80 transition-all duration-300 hover:border-cyan-200/20 hover:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+    <article className="group overflow-hidden rounded-[1.5rem] border border-zinc-800 bg-zinc-950 transition-all duration-300 hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)]">
       <div className="flex flex-wrap items-center gap-4 px-5 py-5 md:px-6">
-        <Avatar className="h-12 w-12 border border-white/15">
+        <Avatar className="h-12 w-12 border border-zinc-700">
           <AvatarImage src={url} alt={trainee.athlete.name} />
           <AvatarFallback className="bg-zinc-800 text-zinc-100">
             {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
@@ -68,11 +86,11 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 border-y border-white/10 bg-zinc-950/70 px-5 py-4 md:grid-cols-4 md:px-6">
+      <div className="grid grid-cols-2 gap-3 border-y border-zinc-800 bg-zinc-950 px-5 py-4 md:grid-cols-4 md:px-6">
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3 text-center"
+            className="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-3 text-center"
           >
             <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
               {metric.label}
@@ -84,7 +102,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-3 bg-zinc-950/70 px-5 py-4 md:px-6">
+      <div className="flex flex-wrap gap-3 bg-zinc-950 px-5 py-4 md:px-6">
         <button
           className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-200"
           onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
@@ -93,13 +111,39 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
           Plan workouts
         </button>
         <button
-          className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={cancel.isPending}
           onClick={() => cancel.mutateAsync()}
         >
           <XIcon className="h-4 w-4" />
           Cancel relationship
         </button>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <label
+            htmlFor={`trainee-price-${trainee.id}`}
+            className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500"
+          >
+            Price
+          </label>
+          <input
+            id={`trainee-price-${trainee.id}`}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={price}
+            onChange={(e) => setPrice(e.target.value.replace(/[^\d]/g, ""))}
+            placeholder="1000"
+            className="w-28 rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600 focus:bg-zinc-900"
+          />
+          <span className="text-sm text-zinc-400">SEK/mo</span>
+          <button
+            type="button"
+            disabled={savePrice.isPending || price.trim() === ""}
+            onClick={() => savePrice.mutateAsync()}
+            className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {savePrice.isPending ? "Saving..." : "Save price"}
+          </button>
+        </div>
       </div>
     </article>
   );

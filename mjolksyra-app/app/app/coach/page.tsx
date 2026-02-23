@@ -1,12 +1,14 @@
-import { getAuth } from "@/context/Auth";
-import { PageContent } from "./pageContent";
-import { getUserMe } from "@/services/users/getUserMe";
-import { getTrainees } from "@/services/trainees/getTrainees";
+import { redirect } from "next/navigation";
 
-export default async function Page() {
-  const auth = await getAuth({ redirect: true });
-  const user = await getUserMe({ accessToken: auth!.accessToken! });
-  const trainees = await getTrainees({ accessToken: auth!.accessToken! });
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  if (params.tab === "athletes") {
+    redirect("/app/coach/athletes");
+  }
 
-  return <PageContent user={user} trainees={trainees} />;
+  redirect("/app/coach/dashboard");
 }

@@ -40,19 +40,19 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
   ) : null;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-zinc-950/80 p-6 backdrop-blur-sm">
+    <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6">
       <div
         className="flex cursor-pointer items-center justify-between"
         onClick={() => setOpen((state) => !state)}
       >
         <div>
           <h2 className="text-xl font-semibold text-zinc-100">Your coaches</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-zinc-500">
             {user.coaches.length} active connection
             {user.coaches.length === 1 ? "" : "s"}
           </p>
         </div>
-        <div className="text-zinc-300">
+        <div className="text-zinc-400">
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </div>
       </div>

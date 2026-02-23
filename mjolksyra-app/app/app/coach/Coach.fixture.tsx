@@ -1,5 +1,5 @@
 import { User } from "@/services/users/type";
-import { PageContent } from "./pageContent";
+import { DashboardPageContent } from "./dashboard/pageContent";
 import dayjs from "dayjs";
 
 const user: User = {
@@ -16,9 +16,9 @@ const user: User = {
 };
 
 export default {
-  NotOnboarded: () => <PageContent trainees={[]} user={user} />,
+  NotOnboarded: () => <DashboardPageContent trainees={[]} user={user} />,
   Onboarded: () => (
-    <PageContent
+    <DashboardPageContent
       trainees={[]}
       user={{
         ...user,
@@ -27,7 +27,7 @@ export default {
     />
   ),
   AthleteOnboarded: () => (
-    <PageContent
+    <DashboardPageContent
       trainees={[
         {
           id: "1",

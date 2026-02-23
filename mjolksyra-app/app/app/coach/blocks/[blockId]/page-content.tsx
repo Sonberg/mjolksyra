@@ -32,6 +32,7 @@ import { getExercises } from "@/services/exercises/getExercises";
 import { searchExercises } from "@/services/exercises/searchExercises";
 import { starExercises } from "@/services/exercises/starExercise";
 import { starredExercises } from "@/services/exercises/starredExercises";
+import { CoachWorkspaceShell } from "../../CoachWorkspaceShell";
 
 type Props = {
   blockId: string;
@@ -79,22 +80,38 @@ export function BlockEditorContent({ blockId }: Props) {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-muted-foreground">Loading...</div>;
+    return (
+      <CoachWorkspaceShell>
+        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-zinc-400">
+          Loading...
+        </div>
+      </CoachWorkspaceShell>
+    );
   }
 
   if (!block) {
-    return <div className="p-8 text-muted-foreground">Block not found.</div>;
+    return (
+      <CoachWorkspaceShell>
+        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-zinc-400">
+          Block not found.
+        </div>
+      </CoachWorkspaceShell>
+    );
   }
 
   return (
-    <TooltipProvider>
-      <DndContext
-        collisionDetection={pointerWithin}
-        onDragStart={onDragStart}
-        onDragEnd={() => setDraggingLabel(null)}
-        onDragCancel={() => setDraggingLabel(null)}
-      >
-        <ResizablePanelGroup direction="horizontal" className="h-screen">
+    <CoachWorkspaceShell>
+      <TooltipProvider>
+        <DndContext
+          collisionDetection={pointerWithin}
+          onDragStart={onDragStart}
+          onDragEnd={() => setDraggingLabel(null)}
+          onDragCancel={() => setDraggingLabel(null)}
+        >
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="min-h-[680px] h-[calc(100vh-16rem)]"
+          >
           <ResizablePanel defaultSize={75} minSize={50} className="overflow-hidden">
             <div className="flex h-full min-h-0 flex-col">
               <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
@@ -160,16 +177,17 @@ export function BlockEditorContent({ blockId }: Props) {
               }}
             />
           </ResizablePanel>
-        </ResizablePanelGroup>
-        {draggingLabel
-          ? createPortal(
-              <DragOverlay>
-                <DraggingExercise name={draggingLabel} />
-              </DragOverlay>,
-              document.body
-            )
-          : null}
-      </DndContext>
-    </TooltipProvider>
+          </ResizablePanelGroup>
+          {draggingLabel
+            ? createPortal(
+                <DragOverlay>
+                  <DraggingExercise name={draggingLabel} />
+                </DragOverlay>,
+                document.body
+              )
+            : null}
+        </DndContext>
+      </TooltipProvider>
+    </CoachWorkspaceShell>
   );
 }

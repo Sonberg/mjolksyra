@@ -6,31 +6,16 @@ import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ArrowRightIcon, ChevronDownIcon } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
-import { getTrainees } from "@/services/trainees/getTrainees";
+import { ArrowRightIcon } from "lucide-react";
 
 export function Navigation() {
   const auth = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
   const isCoachActive = pathname.startsWith("/app/coach");
   const isAthleteActive = pathname.startsWith("/app/athlete");
-  const { data: trainees = [] } = useQuery({
-    queryKey: ["trainees", "nav"],
-    queryFn: ({ signal }) => getTrainees({ signal }),
-    enabled: auth.isAuthenticated,
-  });
-  const hasAthletes = trainees.length > 0;
 
   const [showBorder, setShowBorder] = useState(() =>
     pathname === "/" ? false : true,
@@ -93,47 +78,17 @@ export function Navigation() {
 
         <div className="ml-auto flex items-center space-x-3">
           <nav className="hidden items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950/80 p-1 md:flex">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-semibold transition",
-                    isCoachActive
-                      ? "bg-zinc-100 text-black"
-                      : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
-                  )}
-                >
-                  Coach
-                  <ChevronDownIcon className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="border-zinc-700 bg-zinc-950 text-zinc-100"
-              >
-                <DropdownMenuItem
-                  className="focus:bg-zinc-900 focus:text-zinc-100"
-                  onSelect={() => router.push("/app/coach")}
-                >
-                  Dashboard
-                </DropdownMenuItem>
-                {hasAthletes ? (
-                  <DropdownMenuItem
-                    className="focus:bg-zinc-900 focus:text-zinc-100"
-                    onSelect={() => router.push("/app/coach")}
-                  >
-                    Athletes ({trainees.length})
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem
-                  className="focus:bg-zinc-900 focus:text-zinc-100"
-                  onSelect={() => router.push("/app/coach/blocks")}
-                >
-                  Blocks
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              href="/app/coach/dashboard"
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
+                isCoachActive
+                  ? "bg-zinc-100 text-black"
+                  : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
+              )}
+            >
+              Coach
+            </Link>
 
             <Link
               href="/app/athlete"
@@ -152,7 +107,7 @@ export function Navigation() {
           ) : (
             <>
               <Link
-                href="/app/coach"
+                href="/app/coach/dashboard"
                 className="hidden items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-400 transition hover:bg-zinc-900 hover:text-zinc-200 sm:inline-flex"
               >
                 Explore

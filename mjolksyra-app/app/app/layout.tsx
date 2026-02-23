@@ -1,18 +1,9 @@
 "use client";
 
 import { ReactNode } from "react";
-import {
-  usePathname,
-  useRouter,
-  useSelectedLayoutSegment,
-} from "next/navigation";
-import { useAuth } from "@/context/Auth";
-import { LogOutIcon } from "lucide-react";
-import { CustomTab } from "@/components/CustomTab";
+import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const auth = useAuth();
-  const router = useRouter();
   const segment = useSelectedLayoutSegment() ?? "";
   const pathname = usePathname();
   const showLayout = pathname.endsWith(segment);
@@ -23,8 +14,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="bg-black min-h-screen overflow-y-auto">
-      <div className="mt-12 px-6 mx-auto w-full container mb-32">
-
+      <div className="mx-auto mb-32 w-full max-w-6xl px-4 py-8 md:px-6 md:py-10">
         {children}
       </div>
     </div>

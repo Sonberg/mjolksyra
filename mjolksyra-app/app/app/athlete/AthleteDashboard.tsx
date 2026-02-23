@@ -45,7 +45,7 @@ export function AthleteDashboard({ coach }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-3">
+      <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-3">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => {
             const isActive = selectedTab === tab.key;
@@ -57,7 +57,7 @@ export function AthleteDashboard({ coach }: Props) {
                 className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
                   isActive
                     ? "bg-white text-black"
-                    : "bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white"
+                    : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
                 }`}
               >
                 {tab.icon}
@@ -72,17 +72,17 @@ export function AthleteDashboard({ coach }: Props) {
         <WorkoutViewer traineeId={data.id} />
       ) : null}
       {selectedTab === "transactions" ? (
-        <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-8">
+        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
           <h3 className="text-lg font-semibold text-white">Transactions</h3>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-zinc-500">
             Billing and payment history will appear here.
           </p>
         </div>
       ) : null}
       {selectedTab === "settings" ? (
-        <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-8">
+        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
           <h3 className="text-lg font-semibold text-white">Settings</h3>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-zinc-500">
             Coach relationship and preferences will be available here.
           </p>
           <div className="mt-6">
@@ -90,7 +90,7 @@ export function AthleteDashboard({ coach }: Props) {
               type="button"
               disabled={cancel.isPending}
               onClick={() => cancel.mutateAsync()}
-              className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
             </button>
