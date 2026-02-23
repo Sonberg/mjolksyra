@@ -1,0 +1,81 @@
+name: Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mjolksyra-api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore API solution
+        run: dotnet restore Mjolksyra.sln
+
+      - name: Run domain tests
+        run: dotnet test Mjolksyra.Domain.Tests/Mjolksyra.Domain.Tests.csproj --no-restore --verbosity normal
+
+      - name: Run API integration tests
+        run: dotnet test Mjolksyra.Api.IntegrationTests/Mjolksyra.Api.IntegrationTests.csproj --no-restore --verbosity normal
+
+  app-e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mjolksyra-app
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      API_URL: http://127.0.0.1:9999
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: mjolksyra-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Next app
+        run: npm run dev -- --hostname 127.0.0.1 --port 3000 > /tmp/mjolksyra-next.log 2>&1 &
+
+      - name: Wait for app
+        run: |
+          for i in {1..60}; do
+            curl -sf http://127.0.0.1:3000/ >/dev/null && exit 0
+            sleep 2
+          done
+          echo "Next app failed to start"
+          cat /tmp/mjolksyra-next.log
+          exit 1
+
+      - name: Run Playwright smoke tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: mjolksyra-app/playwright-report
+          if-no-files-found: ignore
