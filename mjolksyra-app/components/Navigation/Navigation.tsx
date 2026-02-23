@@ -69,9 +69,9 @@ export function Navigation() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex flex-col bg-black/95 backdrop-blur-md transition-colors",
+        "sticky top-0 z-50 flex flex-col bg-[#090909] transition-colors",
         {
-          "border-b border-zinc-800": showBorder,
+          "border-b border-zinc-900": showBorder,
         },
       )}
     >
@@ -80,7 +80,7 @@ export function Navigation() {
           href="/"
           className="group text-base font-medium transition-colors"
         >
-          <div className="mr-3 flex items-centerpx-2.5 py-1.5">
+          <div className="mr-3 flex items-center px-2.5 py-1.5">
             <Image
               className="mr-2 h-7 w-7"
               alt="Logo"
