@@ -98,7 +98,6 @@ export function PlannerProvider({
 
       const activeDataRaw = event.active?.data.current as unknown;
       const overDataRaw = event.over?.data.current as unknown;
-      const activeData = activeDataRaw as Payload | undefined;
       const overData = overDataRaw as Payload | undefined;
 
       type BlockPayload = { type: "block"; block: { id: string; numberOfWeeks: number } };

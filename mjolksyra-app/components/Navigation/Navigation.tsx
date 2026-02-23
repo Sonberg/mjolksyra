@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { NavigationUser } from "./NavigationUser";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
