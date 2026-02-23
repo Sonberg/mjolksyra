@@ -1,7 +1,9 @@
+using MongoDB.Bson.Serialization.Attributes;
 using Mjolksyra.Domain.Database.Enum;
 
 namespace Mjolksyra.Domain.Database.Models;
 
+[BsonIgnoreExtraElements]
 public class User
 {
     public Guid Id { get; set; }

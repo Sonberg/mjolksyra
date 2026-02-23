@@ -13,6 +13,7 @@ using Mjolksyra.Api.Common;
 using Mjolksyra.Api.Converters;
 using Mjolksyra.Api.Migration;
 using Mjolksyra.Api.Options;
+using Mjolksyra.Domain.Clerk;
 using Mjolksyra.Domain;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;

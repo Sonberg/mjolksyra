@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Mjolksyra.Domain.Clerk;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Infrastructure.Clerk;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
 using MongoDB.Bson;
@@ -32,6 +34,10 @@ public static class Configure
         services.AddSingleton<IMongoDbContext, MongoDbContext>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddHttpClient<IClerkRepository, ClerkRepository>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.clerk.com/");
+        });
         services.AddScoped<ITraineeRepository, TraineeRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();

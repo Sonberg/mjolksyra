@@ -1,4 +1,4 @@
-namespace Mjolksyra.Api.Options;
+namespace Mjolksyra.Domain.Clerk;
 
 public class ClerkOptions
 {
