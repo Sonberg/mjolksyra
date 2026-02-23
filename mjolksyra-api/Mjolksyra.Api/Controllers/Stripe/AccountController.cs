@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 using Stripe;
@@ -12,6 +13,17 @@ public class AccountLinkPostBody
     public required string AccountId { get; set; }
 
     public required string BaseUrl { get; set; }
+}
+
+public class AccountSyncResponse
+{
+    public required bool HasAccount { get; set; }
+
+    public required bool Completed { get; set; }
+
+    public string? Status { get; set; }
+
+    public string? Message { get; set; }
 }
 
 [Authorize]
@@ -106,6 +118,8 @@ public class AccountController : Controller
             user.Coach ??= new UserCoach();
             user.Coach.Stripe ??= new UserCoachStripe();
             user.Coach.Stripe.AccountId = account.Id;
+            user.Coach.Stripe.Status = StripeStatus.RequiresAction;
+            user.Coach.Stripe.Message = "Please complete the onboarding process";
 
             await _userRepository.Update(user, cancellationToken);
 
@@ -159,6 +173,43 @@ public class AccountController : Controller
         }
     }
 
+    [HttpPost("sync")]
+    public async Task<ActionResult<AccountSyncResponse>> Sync(CancellationToken cancellationToken)
+    {
+        var user = await _userContext.GetUser(cancellationToken);
+        if (user?.Coach?.Stripe?.AccountId is not { } accountId)
+        {
+            return Ok(new AccountSyncResponse
+            {
+                HasAccount = false,
+                Completed = false,
+            });
+        }
+
+        var service = new AccountService(_stripeClient);
+        var account = await service.GetAsync(accountId, cancellationToken: cancellationToken);
+        var status = MapCoachStripeStatus(account);
+        var message = account.Requirements?.CurrentlyDue?.Count > 0
+            ? "Please complete the onboarding process"
+            : "Onboarding completed";
+
+        user.Coach ??= new UserCoach();
+        user.Coach.Stripe ??= new UserCoachStripe();
+        user.Coach.Stripe.AccountId = account.Id;
+        user.Coach.Stripe.Status = status;
+        user.Coach.Stripe.Message = message;
+
+        await _userRepository.Update(user, cancellationToken);
+
+        return Ok(new AccountSyncResponse
+        {
+            HasAccount = true,
+            Completed = status == StripeStatus.Succeeded,
+            Status = status.ToString(),
+            Message = message,
+        });
+    }
+
     private async Task Charge()
     {
         var options = new SubscriptionCreateOptions
@@ -181,4 +232,11 @@ public class AccountController : Controller
         var service = new SubscriptionService();
         await service.CreateAsync(options);
     }
+
+    private static StripeStatus MapCoachStripeStatus(Account account) =>
+        account switch
+        {
+            { PayoutsEnabled: true, ChargesEnabled: true } => StripeStatus.Succeeded,
+            _ => StripeStatus.RequiresAction
+        };
 }
