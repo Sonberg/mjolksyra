@@ -32,7 +32,7 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue>({
-  login(req: LoginRequest) {},
+  login(_req: LoginRequest) {},
   logout() {},
   getAccessToken: async () => Promise.any(""),
   isAuthenticated: false,
