@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
 import { Week } from "./Week";
-import { WeekDayNames } from "./WeekDayNames";
 
 import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
@@ -62,9 +61,10 @@ export function Month({ value }: Props) {
             "opacity-30": !workouts,
           })}
         >
-          <div className="text-3xl font-bold mb-8 select-none">{monthName}</div>
-          <WeekDayNames />
-          <div className="flex flex-col gap-8 ">
+          <div className="mb-8 select-none text-3xl font-bold text-zinc-100">
+            {monthName}
+          </div>
+          <div className="flex flex-col gap-8">
             {groupedByWeek.map(renderWeek)}
           </div>
         </div>

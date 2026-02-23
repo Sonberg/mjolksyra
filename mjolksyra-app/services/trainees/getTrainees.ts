@@ -10,9 +10,11 @@ type Args = {
 export async function getTrainees({ signal, accessToken }: Args) {
   const response = await ApiClient.get(`/api/trainees`, {
     signal,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: accessToken
+      ? {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      : undefined,
   });
 
   const parsed = await z.array(schema).safeParseAsync(response.data);

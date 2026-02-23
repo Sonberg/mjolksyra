@@ -101,25 +101,30 @@ export function Day({ date, plannedWorkout }: Props) {
   return useMemo(
     () => (
       <>
-        <div className="border-l border-r border-b flex flex-col ">
+        <div className="flex min-h-32 min-w-0 flex-col p-2">
           <div
-            className="font-bold text-xs h-9 border-b flex items-center justify-between"
+            className="flex h-9 min-w-0 items-center justify-between rounded-lg border border-white/10 bg-zinc-900/70 px-1.5 text-xs font-bold"
             ref={setDraggableNodeRef}
           >
-            <div
-              className={cn({
-                "py-1 px-2 rounded-full select-none": true,
-                "bg-red-800 text-white": isToday,
-              })}
-            >
-              {date.date()}
+            <div className="flex min-w-0 items-center gap-1.5">
+              <div className="select-none text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
+                {date.format("dd")}
+              </div>
+              <div
+                className={cn({
+                  "select-none rounded-full px-1.5 py-0.5 text-zinc-300": true,
+                  "bg-red-800 text-white": isToday,
+                })}
+              >
+                {date.date()}
+              </div>
             </div>
             {plannedWorkout ? (
-              <div className="flex items-center cursor-pointer">
+              <div className="flex shrink-0 items-center gap-1">
                 <DraggingToolTip
                   icon={
-                    <div className="hover:bg-accent grid place-content-center px-2 h-9">
-                      <RectangleEllipsisIcon className="h-4" />
+                    <div className="grid h-6 w-6 place-content-center rounded-md text-zinc-400 transition hover:bg-white/10 hover:text-zinc-200">
+                      <RectangleEllipsisIcon className="h-3.5 w-3.5" />
                     </div>
                   }
                   listeners={listeners}
@@ -136,13 +141,12 @@ export function Day({ date, plannedWorkout }: Props) {
                 />
                 <div
                   className={cn({
-                    "grid place-content-center px-2 h-9 ": true,
-
-                    "bg-green-600":
+                    "grid h-6 w-6 place-content-center rounded-md text-zinc-300 transition": true,
+                    "bg-emerald-600 text-white":
                       editor.plannedWorkoutId === plannedWorkout.id,
-                    "hover:bg-green-600/40":
+                    "hover:bg-emerald-600/40":
                       editor.plannedWorkoutId !== plannedWorkout.id,
-                    "hover:bg-green-500":
+                    "hover:bg-emerald-500":
                       editor.plannedWorkoutId === plannedWorkout.id,
                   })}
                   onClick={() =>
@@ -151,7 +155,7 @@ export function Day({ date, plannedWorkout }: Props) {
                       : editor.open(plannedWorkout.id)
                   }
                 >
-                  <PencilIcon className="h-4 " />
+                  <PencilIcon className="h-3.5 w-3.5" />
                 </div>
               </div>
             ) : null}
@@ -159,7 +163,7 @@ export function Day({ date, plannedWorkout }: Props) {
           <div
             ref={setDroppableNodeRef}
             className={cn({
-              "flex flex-1 h-full min-h-24 flex-col": true,
+              "mt-2 flex h-full min-h-24 flex-1 flex-col rounded-lg border border-transparent": true,
               ...draggingStyle({ canDrop, isOver: isOverContainer }),
             })}
           >
@@ -181,7 +185,7 @@ export function Day({ date, plannedWorkout }: Props) {
                 ))}
               </SortableContext>
             ) : (
-              <div className="text-muted-foreground text-sm  place-items-center grid transition-all min-h-32 px-4 text-center opacity-0 hover:opacity-100">
+              <div className="grid min-h-32 place-items-center rounded-lg border border-dashed border-white/10 px-4 text-center text-sm text-zinc-500 opacity-0 transition-all hover:opacity-100">
                 <div className="select-none">
                   Drag & drop exercises to start planning
                 </div>

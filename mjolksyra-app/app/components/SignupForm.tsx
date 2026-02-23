@@ -31,15 +31,15 @@ export const SignupForm = () => {
 
   return (
     <div className="w-full flex flex-col items-start gap-4">
-      <div className="text-sm text-gray-400">Want to stay in touch?</div>
+      <div className="text-sm text-zinc-400">Want to stay in touch?</div>
       <Input
         value={email}
         onChange={(ev) => setEmail(ev.target.value)}
         placeholder="Your email"
-        className="bg-white/10 border-gray-800/50 text-white placeholder:text-gray-500"
+        className="border-white/15 bg-zinc-900/80 text-white placeholder:text-zinc-500"
       />
       <button
-        className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors disabled:opacity-50"
+        className="rounded-xl border border-zinc-500 bg-zinc-100 px-6 py-3 font-semibold text-black transition hover:bg-zinc-300 disabled:opacity-50"
         disabled={isSubmitted}
         onClick={onSubmit}
       >

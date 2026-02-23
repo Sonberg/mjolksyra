@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 export default async function Page() {
   const auth = await getAuth({ redirect: true });
   const trainees = await getTrainees({ accessToken: auth?.accessToken });
-  const traiee = trainees.find((x) => x.athlete.id === auth?.userId);
+  const trainee = trainees.find((x) => x.athlete.id === auth?.userId);
 
-  if (traiee) {
-    redirect(`/${traiee.id}/workouts`);
+  if (trainee) {
+    redirect(`/app/athlete/${trainee.id}/workouts`);
   }
 
   return redirect("/");

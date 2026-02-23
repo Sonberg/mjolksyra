@@ -39,19 +39,28 @@ export function ExerciseBrowser({ exercies }: Props) {
   }
 
   return (
-    <div className="mb-24">
-      <div className="font-bold">Browser</div>
-      {browser.data.map((x) => (
-        <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
-      ))}
-      <div ref={end.measureRef} className="text-black">
+    <section className="mb-24">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-zinc-100">
+          Browser
+        </h3>
+        <span className="text-xs text-zinc-500">{browser.data.length}</span>
+      </div>
+
+      <div className="rounded-xl border border-zinc-800 bg-zinc-950/80">
+        {browser.data.map((x) => (
+          <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
+        ))}
+      </div>
+
+      <div ref={end.measureRef} className="h-1 text-transparent">
         end
       </div>
       {browser.hasNextPage ? (
-        <div className="grid place-items-center py-4">
-          <Spinner size={24} />
+        <div className="grid place-items-center py-4 text-zinc-500">
+          <Spinner size={20} />
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

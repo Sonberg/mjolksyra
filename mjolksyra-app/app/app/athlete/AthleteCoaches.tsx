@@ -15,8 +15,10 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
 
   const active =
     user.coaches?.length > 0 ? (
-      <div className="space-y-4 mt-4">
-        <h3 className="text-sm font-medium text-gray-400 mb-3">Active</h3>
+      <div className="mt-5 space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+          Active
+        </h3>
         {user.coaches.map((x) => (
           <AthleteCoach
             key={x.traineeId}
@@ -29,20 +31,30 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
     ) : null;
 
   const invitations = user.invitations.length ? (
-    <div className="mt-4">
-      <h3 className="text-sm font-medium text-gray-400">Pending Invitations</h3>
+    <div className="mt-5">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+        Pending invitations
+      </h3>
       <AthleteInvitations invitations={user.invitations} />
     </div>
   ) : null;
 
   return (
-    <section className="rounded-xl border border-white/10 bg-black backdrop-blur-sm p-6">
+    <section className="rounded-2xl border border-white/10 bg-zinc-950/80 p-6 backdrop-blur-sm">
       <div
-        className="flex justify-between items-center"
+        className="flex cursor-pointer items-center justify-between"
         onClick={() => setOpen((state) => !state)}
       >
-        <h2 className="text-xl font-semibold text-gray-100">Your Coaches</h2>
-        <div>{isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}</div>
+        <div>
+          <h2 className="text-xl font-semibold text-zinc-100">Your coaches</h2>
+          <p className="mt-1 text-sm text-zinc-400">
+            {user.coaches.length} active connection
+            {user.coaches.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="text-zinc-300">
+          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        </div>
       </div>
       {isOpen ? (
         <>

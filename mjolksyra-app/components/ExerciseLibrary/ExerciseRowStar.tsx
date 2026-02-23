@@ -21,16 +21,16 @@ export function ExerciseRowStar({ exercise, exercises }: Props) {
     [exercise, starred.data]
   );
   const className = cn({
-    "h-4": true,
-    "hover:text-accent-foreground": !isStarred,
-    "text-accent-foreground": isStarred,
-    "text-accent": !isStarred,
+    "h-4 w-4": true,
+    "hover:text-zinc-100": !isStarred,
+    "text-zinc-100": isStarred,
+    "text-zinc-500": !isStarred,
     "cursor-pointer": true,
   });
 
   return (
     <Star
-      fill={isStarred ? "#FFF" : "transparent"}
+      fill={isStarred ? "#f5f5f5" : "transparent"}
       className={className}
       onClick={() =>
         isStarred ? starred.unstar(exercise.id) : starred.star(exercise.id)

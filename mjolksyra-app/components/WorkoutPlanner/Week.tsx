@@ -46,7 +46,9 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
     data,
   });
 
-  const canDrop = active?.data.current?.type === "week";
+  const canDrop =
+    active?.data.current?.type === "week" ||
+    active?.data.current?.type === "block";
   const groupByName = useMemo(
     () => groupBy(days, (x) => x.format("ddd")),
     [days]
@@ -76,16 +78,19 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
 
   return useMemo(
     () => (
-      <div ref={setDroppableNodeRef}>
+      <section
+        ref={setDroppableNodeRef}
+        className="overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/70 backdrop-blur-sm"
+      >
         <div
           className={cn(
-            "p-1 px-2 text-sm select-none flex items-center justify-between border bg-accent",
+            "flex select-none items-center justify-between border-b border-white/10 bg-zinc-900/80 px-3 py-2",
             {
               ...draggingStyle({ canDrop, isOver }),
             }
           )}
         >
-          <div>w{weekNumber}</div>
+          <div className="text-sm font-semibold text-zinc-100">Week {weekNumber}</div>
           <div ref={setDraggableNodeRef}>
             {plannedWorkouts.length ? (
               <DraggingToolTip
@@ -119,7 +124,8 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
             ) : null}
           </div>
         </div>
-        <div className="grid grid-cols-7 border">
+
+        <div className="grid grid-cols-7 divide-x divide-white/10">
           {day("Mon")}
           {day("Tue")}
           {day("Wed")}
@@ -128,7 +134,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
           {day("Sat")}
           {day("Sun")}
         </div>
-      </div>
+      </section>
     ),
     [
       setDroppableNodeRef,
