@@ -40,7 +40,6 @@ export const HeroSection = () => {
           </div>
         </div>
         <div className="relative hidden lg:col-span-5 lg:mt-0 lg:flex">
-          <div className="absolute inset-0 rounded-3xl border border-white/10 bg-zinc-950/80" />
           <img
             src="/images/landing-page/healthy-habit.svg"
             alt="hero image"
