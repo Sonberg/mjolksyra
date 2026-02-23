@@ -29,9 +29,63 @@ const bodyFont = Spectral({
   variable: "--font-body",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Mjölksyra",
-  description: "Community driven coaching platform",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Mjolksyra | Coaching Platform for Athletes and Coaches",
+    template: "%s | Mjolksyra",
+  },
+  description:
+    "Mjolksyra helps coaches manage athletes, build training blocks, and deliver structured programming.",
+  applicationName: "Mjolksyra",
+  keywords: [
+    "coaching platform",
+    "athlete coaching",
+    "training blocks",
+    "workout planner",
+    "strength coach software",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Mjolksyra",
+    title: "Mjolksyra | Coaching Platform for Athletes and Coaches",
+    description:
+      "Manage athletes, build training blocks, and deliver structured coaching in one workspace.",
+    images: [
+      {
+        url: "/images/logo-dark.png",
+        width: 1200,
+        height: 630,
+        alt: "Mjolksyra",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mjolksyra | Coaching Platform for Athletes and Coaches",
+    description:
+      "Manage athletes, build training blocks, and deliver structured coaching in one workspace.",
+    images: ["/images/logo-dark.png"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  manifest: "/site.webmanifest",
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

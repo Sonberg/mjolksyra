@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { HeroSection } from "./components/HeroSection";
 import { FeaturesSection } from "./components/FeaturesSection";
@@ -10,6 +9,15 @@ import { BlockBuilderPreviewSection } from "./components/BlockBuilderPreviewSect
 import { StripeSection } from "./components/StripeSection";
 import { FAQSection } from "./components/FAQSection";
 import { CTASection } from "./components/CTASection";
+
+export const metadata: Metadata = {
+  title: "Coaching Platform for Athletes and Coaches",
+  description:
+    "Build training blocks, manage athletes, and run your coaching business with Mjolksyra.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
   const themeVars = {
