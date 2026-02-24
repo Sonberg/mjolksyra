@@ -9,9 +9,20 @@ type Props = {
   week: number;
   workouts: BlockWorkout[];
   onRemoveExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
+  onUpdateExerciseNote: (
+    week: number,
+    dayOfWeek: number,
+    exerciseId: string,
+    note: string | null
+  ) => void;
 };
 
-export function BlockWeek({ week, workouts, onRemoveExercise }: Props) {
+export function BlockWeek({
+  week,
+  workouts,
+  onRemoveExercise,
+  onUpdateExerciseNote,
+}: Props) {
   return (
     <section className="overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/70 backdrop-blur-sm">
       <div className="flex select-none items-center justify-between border-b border-white/10 bg-zinc-900/80 px-3 py-2">
@@ -43,6 +54,9 @@ export function BlockWeek({ week, workouts, onRemoveExercise }: Props) {
               workout={workout}
               onRemoveExercise={(exerciseId) =>
                 onRemoveExercise(week, dayOfWeek, exerciseId)
+              }
+              onUpdateExerciseNote={(exerciseId, note) =>
+                onUpdateExerciseNote(week, dayOfWeek, exerciseId, note)
               }
             />
           );

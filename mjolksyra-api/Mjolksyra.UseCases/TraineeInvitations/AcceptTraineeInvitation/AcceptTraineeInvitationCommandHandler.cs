@@ -34,6 +34,11 @@ public class AcceptTraineeInvitationCommandHandler(
             AthleteUserId = request.AthleteUserId,
             CoachUserId = invitation.CoachUserId,
             TraineeInvitationId = invitation.Id,
+            Cost = new TraineeCost
+            {
+                Amount = Math.Max(0, invitation.MonthlyPriceAmount ?? 0),
+                Currency = "SEK"
+            },
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
 

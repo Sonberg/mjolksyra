@@ -17,6 +17,11 @@ import { inviteTrainee } from "@/services/traineeInvitations/inviteTrainee";
 
 const schema = z.object({
   email: z.string().email(),
+  monthlyPriceAmount: z
+    .string()
+    .optional()
+    .transform((v) => (v ?? "").trim())
+    .refine((v) => v === "" || /^\d+$/.test(v), "Must be a whole number"),
 });
 
 type Props = {
@@ -26,9 +31,10 @@ type Props = {
 
 export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
   const [email, setEmail] = useState("");
+  const [monthlyPriceAmount, setMonthlyPriceAmount] = useState("");
   const [isOpen, setOpen] = useState(false);
 
-  const validation = useValidation({ schema, values: { email } });
+  const validation = useValidation({ schema, values: { email, monthlyPriceAmount } });
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
@@ -54,6 +60,21 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
               }}
             />
           </div>
+          <div className="grid items-center gap-4">
+            <Label htmlFor="monthlyPriceAmount">Monthly price (SEK)</Label>
+            <Input
+              id="monthlyPriceAmount"
+              value={monthlyPriceAmount}
+              onChange={(ev) =>
+                setMonthlyPriceAmount(ev.target.value.replace(/[^\d]/g, ""))
+              }
+              className="col-span-3"
+              placeholder="Optional, e.g. 1000"
+              onBlur={(ev) => {
+                validation.showError(ev.target.id);
+              }}
+            />
+          </div>
         </div>
         <DialogFooter>
           <Button
@@ -63,10 +84,17 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
                 return;
               }
 
-              await inviteTrainee({ email });
+              await inviteTrainee({
+                email,
+                monthlyPriceAmount:
+                  monthlyPriceAmount.trim() === ""
+                    ? null
+                    : Number.parseInt(monthlyPriceAmount, 10),
+              });
               await onCompletion();
               setOpen(false);
               setEmail("");
+              setMonthlyPriceAmount("");
             }}
           >
             Send invitation

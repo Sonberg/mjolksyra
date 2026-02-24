@@ -77,7 +77,7 @@ export function PageContent({ traineeId }: Props) {
   );
 
   return (
-    <>
+    <div className="w-[calc(100vw-2rem)] max-w-none -mx-4 md:w-[calc(100vw-3rem)] md:-mx-6">
       <TooltipProvider>
         <WorkoutPlanner
           traineeId={traineeId}
@@ -91,6 +91,6 @@ export function PageContent({ traineeId }: Props) {
           rightSide={rightSide}
         />
       </TooltipProvider>
-    </>
+    </div>
   );
 }

@@ -100,7 +100,7 @@ export function BlockEditorContent({ blockId }: Props) {
   }
 
   return (
-    <CoachWorkspaceShell>
+    <CoachWorkspaceShell className="w-[calc(100vw-2rem)] max-w-none -mx-4 md:w-[calc(100vw-3rem)] md:-mx-6">
       <TooltipProvider>
         <DndContext
           collisionDetection={pointerWithin}
@@ -110,7 +110,7 @@ export function BlockEditorContent({ blockId }: Props) {
         >
           <ResizablePanelGroup
             direction="horizontal"
-            className="min-h-[680px] h-[calc(100vh-16rem)]"
+            className="min-h-[680px] h-[calc(100vh-14rem)]"
           >
           <ResizablePanel defaultSize={75} minSize={50} className="overflow-hidden">
             <div className="flex h-full min-h-0 flex-col">

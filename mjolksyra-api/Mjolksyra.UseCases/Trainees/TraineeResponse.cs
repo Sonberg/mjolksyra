@@ -14,5 +14,7 @@ public class TraineeResponse
 
     public required DateTimeOffset? NextWorkoutAt { get; set; }
 
+    public required TraineeBillingResponse Billing { get; set; }
+
     public required DateTimeOffset CreatedAt { get; set; }
 }

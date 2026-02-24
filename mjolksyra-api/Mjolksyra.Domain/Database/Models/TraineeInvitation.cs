@@ -8,6 +8,8 @@ public class TraineeInvitation
 
     public required Email Email { get; set; }
 
+    public int? MonthlyPriceAmount { get; set; }
+
     public DateTimeOffset? AcceptedAt { get; set; }
 
     public DateTimeOffset? RejectedAt { get; set; }

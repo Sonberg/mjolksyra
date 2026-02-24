@@ -3,14 +3,16 @@ import { schema } from "./schema";
 
 type Args = {
   email: string;
+  monthlyPriceAmount?: number | null;
   signal?: AbortSignal;
 };
 
-export async function inviteTrainee({ email, signal }: Args) {
+export async function inviteTrainee({ email, monthlyPriceAmount, signal }: Args) {
   const response = await ApiClient.post(
     `/api/trainee-invitations`,
     {
       email,
+      monthlyPriceAmount,
     },
     {
       signal,

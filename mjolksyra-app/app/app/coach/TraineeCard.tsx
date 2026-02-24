@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { updateTraineeCost } from "@/services/trainees/updateTraineeCost";
 import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type TraineeCardProps = {
   trainee: Trainee;
@@ -40,6 +41,22 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
     onSettled: () => router.refresh(),
   });
 
+  const billingBadge = useMemo(() => {
+    switch (trainee.billing.status) {
+      case "SubscriptionActive":
+        return { label: "Subscription active", className: "border-emerald-800 bg-emerald-950 text-emerald-200" };
+      case "AwaitingAthletePaymentMethod":
+        return { label: "Awaiting athlete payment", className: "border-amber-800 bg-amber-950 text-amber-200" };
+      case "AwaitingCoachStripeSetup":
+        return { label: "Awaiting coach Stripe", className: "border-amber-800 bg-amber-950 text-amber-200" };
+      case "PriceSet":
+        return { label: "Price set", className: "border-zinc-700 bg-zinc-900 text-zinc-200" };
+      case "PriceNotSet":
+      default:
+        return { label: "Price not set", className: "border-zinc-800 bg-zinc-900 text-zinc-300" };
+    }
+  }, [trainee.billing.status]);
+
   const metrics = [
     {
       label: "Next workout",
@@ -55,8 +72,8 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
     },
     {
       label: "Last charged",
-      value: trainee.lastWorkoutAt
-        ? format(new Date(trainee.lastWorkoutAt), "MMM d")
+      value: trainee.billing.lastChargedAt
+        ? format(new Date(trainee.billing.lastChargedAt), "MMM d")
         : "--",
     },
     {
@@ -83,6 +100,16 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
               : trainee.athlete.name}
           </h3>
           <p className="truncate text-sm text-zinc-400">{trainee.athlete.email}</p>
+          <div className="mt-2">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold",
+                billingBadge.className
+              )}
+            >
+              {billingBadge.label}
+            </span>
+          </div>
         </div>
       </div>
 

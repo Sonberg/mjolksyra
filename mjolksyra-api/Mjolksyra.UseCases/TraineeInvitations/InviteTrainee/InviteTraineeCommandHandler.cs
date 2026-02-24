@@ -33,6 +33,7 @@ public class InviteTraineeCommandHandler(
             Id = Guid.NewGuid(),
             Email = Email.From(request.Email),
             CoachUserId = request.CoachUserId,
+            MonthlyPriceAmount = request.MonthlyPriceAmount,
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
 

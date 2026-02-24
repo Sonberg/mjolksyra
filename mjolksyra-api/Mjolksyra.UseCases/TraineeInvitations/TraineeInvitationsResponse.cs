@@ -10,6 +10,8 @@ public class TraineeInvitationsResponse
 
     public required TraineeInvitationCoach Coach { get; set; }
 
+    public int? MonthlyPriceAmount { get; set; }
+
     public DateTimeOffset? AcceptedAt { get; set; }
 
     public DateTimeOffset? RejectedAt { get; set; }
@@ -29,6 +31,7 @@ public class TraineeInvitationsResponse
                 FamilyName = coach.FamilyName!,
                 GivenName = coach.GivenName!
             },
+            MonthlyPriceAmount = invitation.MonthlyPriceAmount,
             AcceptedAt = invitation.AcceptedAt,
             RejectedAt = invitation.RejectedAt,
             CreatedAt = invitation.CreatedAt

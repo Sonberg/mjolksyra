@@ -15,11 +15,25 @@ const costSchema = z.object({
   total: z.number(),
 });
 
+const billingSchema = z.object({
+  status: z.enum([
+    "PriceNotSet",
+    "AwaitingAthletePaymentMethod",
+    "AwaitingCoachStripeSetup",
+    "SubscriptionActive",
+    "PriceSet",
+  ]),
+  hasPrice: z.boolean(),
+  hasSubscription: z.boolean(),
+  lastChargedAt: z.coerce.date().nullable(),
+});
+
 export const schema = z.object({
   id: z.string(),
   athlete: userSchema,
   coach: userSchema,
   cost: costSchema.nullable(),
+  billing: billingSchema,
   nextWorkoutAt: z.coerce.date().nullable(),
   lastWorkoutAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),

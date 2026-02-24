@@ -29,6 +29,14 @@ export function AthleteDashboard({ coach }: Props) {
     return null;
   }
 
+  const billingStatusText = {
+    PriceNotSet: "Your coach has not set a monthly price yet.",
+    AwaitingAthletePaymentMethod: "Add a payment method to activate billing.",
+    AwaitingCoachStripeSetup: "Your coach needs to finish Stripe setup before billing can start.",
+    PriceSet: "Price is set. Billing will activate when setup is complete.",
+    SubscriptionActive: "Monthly billing is active.",
+  }[data.billing.status];
+
   const tabs: Array<{
     key: Tabs;
     label: string;
@@ -45,6 +53,18 @@ export function AthleteDashboard({ coach }: Props) {
 
   return (
     <div className="space-y-6">
+      <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          Billing status
+        </p>
+        <p className="mt-2 text-sm text-zinc-200">{billingStatusText}</p>
+        {data.billing.lastChargedAt ? (
+          <p className="mt-1 text-xs text-zinc-500">
+            Last charge: {new Date(data.billing.lastChargedAt).toLocaleDateString()}
+          </p>
+        ) : null}
+      </div>
+
       <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-3">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => {

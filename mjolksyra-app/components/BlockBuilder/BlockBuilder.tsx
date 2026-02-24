@@ -143,6 +143,28 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
     onChange(updated);
   };
 
+  const handleUpdateExerciseNote = (
+    week: number,
+    dayOfWeek: number,
+    exerciseId: string,
+    note: string | null
+  ) => {
+    onChange(
+      workouts.map((w) => {
+        if (w.week !== week || w.dayOfWeek !== dayOfWeek) {
+          return w;
+        }
+
+        return {
+          ...w,
+          exercises: w.exercises.map((e) =>
+            e.id === exerciseId ? { ...e, note } : e
+          ),
+        };
+      })
+    );
+  };
+
   const weeks = Array.from({ length: numberOfWeeks }, (_, i) => i + 1);
 
   useDndMonitor({
@@ -157,6 +179,7 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
           week={week}
           workouts={workouts}
           onRemoveExercise={handleRemoveExercise}
+          onUpdateExerciseNote={handleUpdateExerciseNote}
         />
       ))}
     </div>

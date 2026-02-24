@@ -11,9 +11,16 @@ type Props = {
   dayOfWeek: number;
   workout: BlockWorkout | undefined;
   onRemoveExercise: (exerciseId: string) => void;
+  onUpdateExerciseNote: (exerciseId: string, note: string | null) => void;
 };
 
-export function BlockDay({ week, dayOfWeek, workout, onRemoveExercise }: Props) {
+export function BlockDay({
+  week,
+  dayOfWeek,
+  workout,
+  onRemoveExercise,
+  onUpdateExerciseNote,
+}: Props) {
   const id = `block-day-${week}-${dayOfWeek}`;
   const { active } = useDndContext();
 
@@ -51,6 +58,7 @@ export function BlockDay({ week, dayOfWeek, workout, onRemoveExercise }: Props) 
               exercise={exercise}
               blockWorkoutId={workout.id}
               onRemove={() => onRemoveExercise(exercise.id)}
+              onUpdateNote={(note) => onUpdateExerciseNote(exercise.id, note)}
             />
           ))}
         </SortableContext>
