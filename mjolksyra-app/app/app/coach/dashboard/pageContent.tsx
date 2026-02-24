@@ -16,7 +16,7 @@ export function DashboardPageContent({ user, trainees }: Props) {
 
   return onboardingComplete ? (
     <CoachWorkspaceShell>
-      <CoachDashboardOverview trainees={trainees} />
+      <CoachDashboardOverview user={user} trainees={trainees} />
     </CoachWorkspaceShell>
   ) : (
     <CoachWorkspaceShell showTabs={false}>
