@@ -1,7 +1,7 @@
 "use client";
 
 import { Trainee } from "@/services/trainees/type";
-import { DumbbellIcon, XIcon } from "lucide-react";
+import { DumbbellIcon, MoreHorizontalIcon, PencilIcon, XIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useGravatar } from "@/hooks/useGravatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +11,21 @@ import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { updateTraineeCost } from "@/services/trainees/updateTraineeCost";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type TraineeCardProps = {
   trainee: Trainee;
@@ -24,6 +39,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
     [trainee.cost?.coach]
   );
   const [price, setPrice] = useState(initialCoachPrice);
+  const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
   const cancel = useMutation({
     mutationKey: ["trainee", trainee.id, "cancel"],
     mutationFn: () => cancelTrainee({ traineeId: trainee.id }),
@@ -42,20 +58,46 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
   });
 
   const billingBadge = useMemo(() => {
-    switch (trainee.billing.status) {
+    const fallbackHasPrice = (trainee.cost?.coach ?? 0) > 0;
+    const effectiveStatus =
+      trainee.billing.status === "PriceNotSet" && fallbackHasPrice
+        ? "PriceSet"
+        : trainee.billing.status;
+
+    switch (effectiveStatus) {
       case "SubscriptionActive":
-        return { label: "Subscription active", className: "border-emerald-800 bg-emerald-950 text-emerald-200" };
+        return {
+          label: "Subscription active",
+          hint: "Recurring billing is active.",
+          className: "border-emerald-800 bg-emerald-950 text-emerald-200",
+        };
       case "AwaitingAthletePaymentMethod":
-        return { label: "Awaiting athlete payment", className: "border-amber-800 bg-amber-950 text-amber-200" };
+        return {
+          label: "Payment method not setup",
+          hint: "Athlete must complete payment setup to start billing.",
+          className: "border-amber-800 bg-amber-950 text-amber-200",
+        };
       case "AwaitingCoachStripeSetup":
-        return { label: "Awaiting coach Stripe", className: "border-amber-800 bg-amber-950 text-amber-200" };
+        return {
+          label: "Coach Stripe not setup",
+          hint: "Complete Stripe onboarding to enable billing.",
+          className: "border-amber-800 bg-amber-950 text-amber-200",
+        };
       case "PriceSet":
-        return { label: "Price set", className: "border-zinc-700 bg-zinc-900 text-zinc-200" };
+        return {
+          label: "Price set (waiting setup)",
+          hint: "Price is saved. Billing starts when payment and Stripe setup are ready.",
+          className: "border-zinc-700 bg-zinc-900 text-zinc-200",
+        };
       case "PriceNotSet":
       default:
-        return { label: "Price not set", className: "border-zinc-800 bg-zinc-900 text-zinc-300" };
+        return {
+          label: "Price not set",
+          hint: "Set a monthly price to prepare billing.",
+          className: "border-zinc-800 bg-zinc-900 text-zinc-300",
+        };
     }
-  }, [trainee.billing.status]);
+  }, [trainee.billing.status, trainee.cost?.coach]);
 
   const metrics = [
     {
@@ -84,7 +126,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
 
   return (
     <article className="group overflow-hidden rounded-[1.5rem] border border-zinc-800 bg-zinc-950 transition-all duration-300 hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)]">
-      <div className="flex flex-wrap items-center gap-4 px-5 py-5 md:px-6">
+      <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
         <Avatar className="h-12 w-12 border border-zinc-700">
           <AvatarImage src={url} alt={trainee.athlete.name} />
           <AvatarFallback className="bg-zinc-800 text-zinc-100">
@@ -109,8 +151,40 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
             >
               {billingBadge.label}
             </span>
+            <p className="mt-1 text-xs text-zinc-500">{billingBadge.hint}</p>
           </div>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 transition hover:bg-zinc-800"
+              aria-label="Open actions"
+            >
+              <MoreHorizontalIcon className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-52 border-zinc-700 bg-zinc-950 text-zinc-100"
+          >
+            <DropdownMenuItem
+              onSelect={() => setPriceEditorOpen(true)}
+              className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+            >
+              <PencilIcon className="mr-2 h-4 w-4" />
+              Change price
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              disabled={cancel.isPending}
+              onSelect={() => cancel.mutateAsync()}
+              className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+            >
+              <XIcon className="mr-2 h-4 w-4" />
+              {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid grid-cols-2 gap-3 border-y border-zinc-800 bg-zinc-950 px-5 py-4 md:grid-cols-4 md:px-6">
@@ -137,41 +211,58 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
           <DumbbellIcon className="h-4 w-4" />
           Plan workouts
         </button>
-        <button
-          className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={cancel.isPending}
-          onClick={() => cancel.mutateAsync()}
-        >
-          <XIcon className="h-4 w-4" />
-          Cancel relationship
-        </button>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <label
-            htmlFor={`trainee-price-${trainee.id}`}
-            className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500"
-          >
-            Price
-          </label>
-          <input
-            id={`trainee-price-${trainee.id}`}
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={price}
-            onChange={(e) => setPrice(e.target.value.replace(/[^\d]/g, ""))}
-            placeholder="1000"
-            className="w-28 rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600 focus:bg-zinc-900"
-          />
-          <span className="text-sm text-zinc-400">SEK/mo</span>
-          <button
-            type="button"
-            disabled={savePrice.isPending || price.trim() === ""}
-            onClick={() => savePrice.mutateAsync()}
-            className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {savePrice.isPending ? "Saving..." : "Save price"}
-          </button>
-        </div>
       </div>
+
+      <Dialog open={isPriceEditorOpen} onOpenChange={setPriceEditorOpen}>
+        <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change price</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Set the monthly coaching price for this athlete.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <label
+              htmlFor={`trainee-price-dialog-${trainee.id}`}
+              className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500"
+            >
+              Monthly price (SEK)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                id={`trainee-price-dialog-${trainee.id}`}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={price}
+                onChange={(e) => setPrice(e.target.value.replace(/[^\d]/g, ""))}
+                placeholder="1000"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600"
+              />
+              <span className="text-sm text-zinc-400">SEK/mo</span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPriceEditorOpen(false)}
+              className="border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={savePrice.isPending || price.trim() === ""}
+              onClick={() =>
+                savePrice.mutateAsync().then(() => setPriceEditorOpen(false))
+              }
+              className="bg-zinc-100 text-black hover:bg-zinc-300"
+            >
+              {savePrice.isPending ? "Saving..." : "Save price"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </article>
   );
 }

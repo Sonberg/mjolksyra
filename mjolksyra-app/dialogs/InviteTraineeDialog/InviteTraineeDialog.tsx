@@ -19,9 +19,10 @@ const schema = z.object({
   email: z.string().email(),
   monthlyPriceAmount: z
     .string()
-    .optional()
-    .transform((v) => (v ?? "").trim())
-    .refine((v) => v === "" || /^\d+$/.test(v), "Must be a whole number"),
+    .trim()
+    .min(1, "Required")
+    .refine((v) => /^\d+$/.test(v), "Must be a whole number")
+    .refine((v) => Number.parseInt(v, 10) > 0, "Must be greater than zero"),
 });
 
 type Props = {
@@ -86,10 +87,7 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
 
               await inviteTrainee({
                 email,
-                monthlyPriceAmount:
-                  monthlyPriceAmount.trim() === ""
-                    ? null
-                    : Number.parseInt(monthlyPriceAmount, 10),
+                monthlyPriceAmount: Number.parseInt(monthlyPriceAmount, 10),
               });
               await onCompletion();
               setOpen(false);

@@ -16,6 +16,11 @@ public class InviteTraineeCommandHandler(
 {
     public async Task<TraineeInvitationsResponse> Handle(InviteTraineeCommand request, CancellationToken cancellationToken)
     {
+        if (request.MonthlyPriceAmount <= 0)
+        {
+            throw new InvalidOperationException("Monthly price must be greater than zero.");
+        }
+
         var athlete = await userRepository.GetByEmail(request.Email, cancellationToken);
         var coach = await userRepository.GetById(request.CoachUserId, cancellationToken);
 

@@ -9,5 +9,5 @@ public class InviteTraineeCommand : IRequest<TraineeInvitationsResponse>
 
     public required string Email { get; set; }
 
-    public int? MonthlyPriceAmount { get; set; }
+    public required int MonthlyPriceAmount { get; set; }
 }

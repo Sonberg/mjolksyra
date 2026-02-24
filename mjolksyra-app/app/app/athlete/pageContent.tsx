@@ -14,6 +14,7 @@ export function PageContent({ user }: Props) {
   const [coach, setCoach] = useState<UserTrainee | null>(user.coaches[0]);
   const needsOnboarding = user.onboarding.athlete !== "Completed" || false;
   const athleteName = user.givenName || user.name || "Athlete";
+  const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
 
   return (
     <div className="relative space-y-8">
@@ -21,7 +22,46 @@ export function PageContent({ user }: Props) {
       <div className="pointer-events-none absolute top-24 right-0 h-48 w-48 rotate-12 rounded-[1.5rem] border border-zinc-800 bg-white/[0.02]" />
 
       {needsOnboarding ? (
-        <AthleteOnboardingFlow />
+        <div className="space-y-8">
+          <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 md:p-10">
+            <div className="pointer-events-none absolute -right-24 -top-10 h-40 w-40 rotate-12 rounded-[1.5rem] border border-zinc-800 bg-white/[0.02]" />
+            <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-zinc-800" />
+            <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div className="space-y-2">
+                <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                  Athlete
+                </p>
+                <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                  {athleteName}
+                </h1>
+                <p className="max-w-2xl text-sm text-zinc-400 md:text-base">
+                  Accept your coach invitation and prepare billing setup to get started.
+                </p>
+              </div>
+              <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-900 px-5 py-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                  Pending invitations
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-white">
+                  {user.invitations.length}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {hasCoachData ? (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <div className="lg:col-span-4">
+                <AthleteCoaches user={user} selected={coach} onSelect={setCoach} />
+              </div>
+              <div className="lg:col-span-8">
+                <AthleteOnboardingFlow />
+              </div>
+            </div>
+          ) : (
+            <AthleteOnboardingFlow />
+          )}
+        </div>
       ) : (
         <>
           <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 md:p-10">

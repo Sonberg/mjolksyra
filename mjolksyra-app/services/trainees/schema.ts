@@ -28,12 +28,19 @@ const billingSchema = z.object({
   lastChargedAt: z.coerce.date().nullable(),
 });
 
+const defaultBilling = {
+  status: "PriceNotSet" as const,
+  hasPrice: false,
+  hasSubscription: false,
+  lastChargedAt: null,
+};
+
 export const schema = z.object({
   id: z.string(),
   athlete: userSchema,
   coach: userSchema,
   cost: costSchema.nullable(),
-  billing: billingSchema,
+  billing: billingSchema.optional().default(defaultBilling),
   nextWorkoutAt: z.coerce.date().nullable(),
   lastWorkoutAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),

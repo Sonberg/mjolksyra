@@ -3,7 +3,7 @@ import { schema } from "./schema";
 
 type Args = {
   email: string;
-  monthlyPriceAmount?: number | null;
+  monthlyPriceAmount: number;
   signal?: AbortSignal;
 };
 
