@@ -9,7 +9,11 @@ import { Spinner } from "../Spinner";
 
 type Step = "welcome" | "payment";
 
-export function AthleteOnboardingFlow() {
+type Props = {
+  hasCoachContext?: boolean;
+};
+
+export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
 
   const { data: clientSecret } = useQuery({
@@ -31,7 +35,12 @@ export function AthleteOnboardingFlow() {
 
   const steps = {
     welcome: {
-      component: <WelcomeStep onNext={() => setCurrentStep("payment")} />,
+      component: (
+        <WelcomeStep
+          onNext={() => setCurrentStep("payment")}
+          hasCoachContext={hasCoachContext}
+        />
+      ),
     },
     payment: {
       component: clientSecret ? (

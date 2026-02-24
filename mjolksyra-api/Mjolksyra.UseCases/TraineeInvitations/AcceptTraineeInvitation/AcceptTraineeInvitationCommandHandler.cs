@@ -13,12 +13,9 @@ public class AcceptTraineeInvitationCommandHandler(
     public async Task Handle(AcceptTraineeInvitationCommand request, CancellationToken cancellationToken)
     {
         var invitation = await traineeInvitationsRepository.GetByIdAsync(request.TraineeInvitationId, cancellationToken);
-        if (invitation is null) return;
         if (invitation.AcceptedAt is not null || invitation.RejectedAt is not null) return;
 
         var athlete = await userRepository.GetById(request.AthleteUserId, cancellationToken);
-        if (athlete is null) return;
-
         if (invitation.Email.Normalized != athlete.Email.Normalized) return;
 
         if (await traineeRepository.ExistsActiveRelationship(invitation.CoachUserId, request.AthleteUserId, cancellationToken))
@@ -36,8 +33,7 @@ public class AcceptTraineeInvitationCommandHandler(
             TraineeInvitationId = invitation.Id,
             Cost = new TraineeCost
             {
-                Amount = Math.Max(0, invitation.MonthlyPriceAmount ?? 0),
-                Currency = "SEK"
+                Amount = Math.Max(0, invitation.MonthlyPriceAmount ?? 0)
             },
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);

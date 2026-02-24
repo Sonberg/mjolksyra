@@ -61,6 +61,7 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
             {
                 Customer = athlete.Athlete!.Stripe!.CustomerId,
                 DefaultPaymentMethod = athlete.Athlete.Stripe.PaymentMethodId,
+                OnBehalfOf = coach.Coach!.Stripe!.AccountId,
                 Items =
                 [
                     new SubscriptionItemOptions
@@ -70,9 +71,10 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
                 ],
                 TransferData = new SubscriptionTransferDataOptions
                 {
-                    Destination = coach.Coach!.Stripe!.AccountId,
+                    Destination = coach.Coach.Stripe.AccountId,
                 },
-                ApplicationFeePercent = 10,
+                // Use an explicit decimal percent so Stripe applies the platform fee on each invoice.
+                ApplicationFeePercent = 10m,
             }, cancellationToken: cancellationToken);
 
             trainee.StripeSubscriptionId = subscription.Id;

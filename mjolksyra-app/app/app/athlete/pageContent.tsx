@@ -55,11 +55,11 @@ export function PageContent({ user }: Props) {
                 <AthleteCoaches user={user} selected={coach} onSelect={setCoach} />
               </div>
               <div className="lg:col-span-8">
-                <AthleteOnboardingFlow />
+                <AthleteOnboardingFlow hasCoachContext />
               </div>
             </div>
           ) : (
-            <AthleteOnboardingFlow />
+            <AthleteOnboardingFlow hasCoachContext={false} />
           )}
         </div>
       ) : (

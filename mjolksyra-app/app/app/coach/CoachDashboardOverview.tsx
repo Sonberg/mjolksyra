@@ -1,16 +1,27 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/Spinner";
 import { ApiClient } from "@/services/client";
 import { Trainee } from "@/services/trainees/type";
 import { User } from "@/services/users/type";
 import { useCallback, useState } from "react";
-import { cn } from "@/lib/utils";
+import { AlertTriangleIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } from "lucide-react";
+import { CoachDashboardMetrics } from "./CoachDashboardMetrics";
+import {
+  CoachDashboardTodoSection,
+  type CoachTodoItem,
+} from "./CoachDashboardTodoSection";
+import { CoachDashboardSubscriptionSection } from "./CoachDashboardSubscriptionSection";
 
 type Props = {
   user: User;
   trainees: Trainee[];
+};
+
+const formatNames = (items: Trainee[], limit = 3) => {
+  const names = items.slice(0, limit).map((x) => x.athlete.name);
+  const rest = Math.max(0, items.length - limit);
+  if (names.length === 0) return null;
+  return rest > 0 ? `${names.join(", ")} +${rest} more` : names.join(", ");
 };
 
 export function CoachDashboardOverview({ user, trainees }: Props) {
@@ -40,6 +51,86 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       setIsOpeningStripe(false);
     }
   }, []);
+  const paymentBlocked = trainees.filter(
+    (x) =>
+      x.billing.status === "AwaitingAthletePaymentMethod" ||
+      x.billing.status === "AwaitingCoachStripeSetup"
+  );
+  const needsPrice = trainees.filter((x) => (x.cost?.coach ?? 0) <= 0);
+  const programEndingSoon = trainees.filter((x) => {
+    if (!x.nextWorkoutAt) return true;
+    const daysUntilNext =
+      (new Date(x.nextWorkoutAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    return daysUntilNext >= 0 && daysUntilNext <= 7;
+  });
+  const needsFeedback = trainees.filter((x) => {
+    if (!x.lastWorkoutAt) return false;
+    const hoursSince =
+      (Date.now() - new Date(x.lastWorkoutAt).getTime()) / (1000 * 60 * 60);
+    return hoursSince >= 0 && hoursSince <= 72;
+  });
+  const todoItems: CoachTodoItem[] = [
+    {
+      key: "payments",
+      title: "Athletes need payment setup",
+      text:
+        paymentBlocked.length > 0
+          ? `${paymentBlocked.length} athlete${paymentBlocked.length === 1 ? "" : "s"} blocked by payment/Stripe setup.`
+          : "No payment setup blockers right now.",
+      names: formatNames(paymentBlocked),
+      count: paymentBlocked.length,
+      icon: WalletIcon,
+      tone:
+        paymentBlocked.length > 0
+          ? "border-amber-800 bg-amber-950/40 text-amber-200"
+          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+    },
+    {
+      key: "feedback",
+      title: "Recent workouts to review",
+      text:
+        needsFeedback.length > 0
+          ? `${needsFeedback.length} athlete${needsFeedback.length === 1 ? "" : "s"} trained recently and may need feedback.`
+          : "No recent workouts waiting for feedback.",
+      names: formatNames(needsFeedback),
+      count: needsFeedback.length,
+      icon: MessageSquareIcon,
+      tone:
+        needsFeedback.length > 0
+          ? "border-zinc-700 bg-zinc-900 text-zinc-100"
+          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+    },
+    {
+      key: "pricing",
+      title: "Athletes missing price",
+      text:
+        needsPrice.length > 0
+          ? `${needsPrice.length} athlete${needsPrice.length === 1 ? "" : "s"} need a monthly price before billing can start.`
+          : "All active athletes have a price set.",
+      names: formatNames(needsPrice),
+      count: needsPrice.length,
+      icon: AlertTriangleIcon,
+      tone:
+        needsPrice.length > 0
+          ? "border-zinc-700 bg-zinc-900 text-zinc-100"
+          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+    },
+    {
+      key: "program",
+      title: "Programs ending soon",
+      text:
+        programEndingSoon.length > 0
+          ? `${programEndingSoon.length} athlete${programEndingSoon.length === 1 ? "" : "s"} need a fresh plan or next workout soon.`
+          : "No programs need renewal this week.",
+      names: formatNames(programEndingSoon),
+      count: programEndingSoon.length,
+      icon: CheckCircle2Icon,
+      tone:
+        programEndingSoon.length > 0
+          ? "border-zinc-700 bg-zinc-900 text-zinc-100"
+          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+    },
+  ];
   const coachPaymentStatus =
     user.onboarding.coach === "Completed"
       ? {
@@ -61,130 +152,19 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
 
   return (
     <div className="space-y-8">
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Monthly recurring
-          </p>
-          <p className="mt-3 text-2xl font-semibold text-white">
-            {revenue.gross.toLocaleString("sv-SE")} kr
-          </p>
-          <p className="mt-1 text-sm text-zinc-400">Projected athlete billing</p>
-        </div>
-        <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Coach payout
-          </p>
-          <p className="mt-3 text-2xl font-semibold text-white">
-            {revenue.coach.toLocaleString("sv-SE")} kr
-          </p>
-          <p className="mt-1 text-sm text-zinc-400">Before Stripe transfer timing</p>
-        </div>
-        <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Platform fee
-          </p>
-          <p className="mt-3 text-2xl font-semibold text-white">
-            {revenue.fee.toLocaleString("sv-SE")} kr
-          </p>
-          <p className="mt-1 text-sm text-zinc-400">Current trainee-based model</p>
-        </div>
-        <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Priced athletes
-          </p>
-          <p className="mt-3 text-2xl font-semibold text-white">
-            {billedTrainees.length}/{trainees.length}
-          </p>
-          <p className="mt-1 text-sm text-zinc-400">
-            Billing starts after setting a price
-          </p>
-        </div>
-      </section>
-
-      <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6 md:p-7">
-        <div className="space-y-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
-                Payments
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-white md:text-3xl">
-                Coach subscription
-              </h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                Manage your Stripe connection, payouts, and monthly platform charge.
-              </p>
-            </div>
-            <span
-              className={cn(
-                "inline-flex w-fit items-center rounded-md border px-2.5 py-1 text-xs font-semibold",
-                coachPaymentStatus.badgeClass
-              )}
-            >
-              {coachPaymentStatus.label}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                Monthly platform charge
-              </p>
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
-                    Base plan
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-white">$39</p>
-                </div>
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
-                    Overage
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-white">
-                    ${overageAthletes * 4}
-                  </p>
-                  <p className="mt-1 text-xs text-zinc-500">
-                    {overageAthletes} x $4
-                  </p>
-                </div>
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
-                    Estimated total
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-white">
-                    ${39 + overageAthletes * 4}
-                  </p>
-                </div>
-              </div>
-              <p className="mt-3 text-sm text-zinc-400">
-                Includes {includedAthletes} athletes. Athlete roster management lives in the Athletes tab.
-              </p>
-            </div>
-
-            <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                Stripe account
-              </p>
-              <p className="mt-2 text-sm text-zinc-300">
-                {coachPaymentStatus.text}
-              </p>
-              <Button
-                type="button"
-                onClick={openStripeDashboard}
-                disabled={isOpeningStripe}
-                className="mt-4 w-full rounded-xl border border-zinc-700 bg-zinc-100 font-semibold text-black hover:bg-zinc-300 disabled:opacity-60"
-              >
-                {isOpeningStripe ? <Spinner size={14} /> : "Open Stripe"}
-              </Button>
-              <p className="mt-2 text-xs text-zinc-500">
-                Use Stripe to review payouts and update account settings.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CoachDashboardMetrics
+        revenue={revenue}
+        billedTraineesCount={billedTrainees.length}
+        traineesCount={trainees.length}
+      />
+      <CoachDashboardTodoSection items={todoItems} />
+      <CoachDashboardSubscriptionSection
+        coachPaymentStatus={coachPaymentStatus}
+        includedAthletes={includedAthletes}
+        overageAthletes={overageAthletes}
+        isOpeningStripe={isOpeningStripe}
+        onOpenStripeDashboard={openStripeDashboard}
+      />
     </div>
   );
 }
