@@ -59,10 +59,10 @@ export const metadata: Metadata = {
       "Manage athletes, build training blocks, and deliver structured coaching in one workspace.",
     images: [
       {
-        url: "/images/logo-dark.png",
+        url: "/images/og/mjolksyra-og.svg",
         width: 1200,
         height: 630,
-        alt: "Mjolksyra",
+        alt: "Mjolksyra coaching platform overview",
       },
     ],
   },
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     title: "Mjolksyra | Coaching Platform for Athletes and Coaches",
     description:
       "Manage athletes, build training blocks, and deliver structured coaching in one workspace.",
-    images: ["/images/logo-dark.png"],
+    images: ["/images/og/mjolksyra-og.svg"],
   },
   icons: {
     icon: [

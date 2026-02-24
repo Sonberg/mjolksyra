@@ -11,8 +11,8 @@ export const CTASection = () => {
           Ready to start your coaching journey?
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-zinc-400">
-            Join our community of successful coaches and start building your
-            fitness business today.
+            Create your coach account, connect Stripe, and start inviting
+            athletes to your training workspace.
           </p>
           <RegisterDialog
             trigger={

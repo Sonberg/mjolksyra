@@ -10,18 +10,18 @@ type Point = {
 
 const benefits: Point[] = [
   {
-    title: "Weekly Payments",
-    text: "Secure payments powered by Stripe, directly to your account.",
+    title: "Coach plan pricing",
+    text: "$39/month includes 10 athletes, then $4 per additional athlete.",
     icon: DollarSignIcon,
   },
   {
-    title: "No upfront costs",
-    text: "We only take 10% per transaction—no hidden fees.",
+    title: "Stripe-powered payouts",
+    text: "Manage payouts and account settings securely through Stripe.",
     icon: CheckCircle2Icon,
   },
   {
     title: "Build your business",
-    text: "Perfect for personal trainers, powerlifters, and fitness enthusiasts.",
+    text: "Organize athletes, plan training blocks, and deliver structured coaching.",
     icon: ArrowRightIcon,
   },
 ];
@@ -31,7 +31,7 @@ export const BenefitsSection = () => {
     <section className="bg-zinc-950/40 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
         <h2 className="font-[var(--font-display)] mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
-          Start earning today
+          Coach with a clear pricing model
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {benefits.map((benefit) => (
