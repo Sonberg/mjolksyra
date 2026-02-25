@@ -56,6 +56,7 @@ export default {
             hasPrice: true,
             hasSubscription: true,
             lastChargedAt: null,
+            nextChargedAt: dayjs().add(1, "month").toDate(),
           },
           nextWorkoutAt: dayjs().add(1, "day").toDate(),
           lastWorkoutAt: dayjs().subtract(1, "day").toDate(),
