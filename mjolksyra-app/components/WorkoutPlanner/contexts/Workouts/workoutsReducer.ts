@@ -1,4 +1,7 @@
-import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
+import {
+  PlannedExercise,
+  PlannedWorkout,
+} from "@/services/plannedWorkouts/type";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { insertAt } from "@/lib/insertAt";
 import { arrayMove } from "@dnd-kit/sortable";
@@ -57,7 +60,7 @@ export type Action =
 
 export function workoutsReducer(
   state: MonthWorkouts,
-  action: Action
+  action: Action,
 ): MonthWorkouts {
   switch (action.type) {
     case "SET_MONTH":
@@ -78,12 +81,12 @@ export function workoutsReducer(
                 exercises: arrayMove(
                   x.exercises,
                   x.exercises.findIndex(
-                    (y) => y.id === action.payload.plannedExerciseId
+                    (y) => y.id === action.payload.plannedExerciseId,
                   ),
-                  action.payload.index ?? x.exercises.length - 1
+                  action.payload.index ?? x.exercises.length - 1,
                 ),
               }
-            : x
+            : x,
         ),
       };
 
@@ -91,7 +94,7 @@ export function workoutsReducer(
       const targetMonth = state[action.payload.targetMonthId] ?? [];
       const targetDate = action.payload.targetDate.format(PLANNED_AT);
       const existingWorkout = targetMonth.find(
-        (x) => x.plannedAt === targetDate
+        (x) => x.plannedAt === targetDate,
       );
 
       const workout = existingWorkout
@@ -100,7 +103,7 @@ export function workoutsReducer(
             exercises: insertAt(
               existingWorkout.exercises,
               action.payload.index,
-              action.payload.exercise
+              action.payload.exercise,
             ),
           }
         : {
@@ -111,6 +114,7 @@ export function workoutsReducer(
             plannedAt: targetDate,
             exercises: [action.payload.exercise],
             createdAt: null,
+            appliedBlock: null,
           };
 
       return {
@@ -130,10 +134,10 @@ export function workoutsReducer(
             ? {
                 ...x,
                 exercises: x.exercises.filter(
-                  (y) => y.id !== action.payload.plannedExerciseId
+                  (y) => y.id !== action.payload.plannedExerciseId,
                 ),
               }
-            : x
+            : x,
         ),
       };
 
@@ -143,7 +147,7 @@ export function workoutsReducer(
         [action.payload.monthId]: state[action.payload.monthId].map((x) =>
           x.id === action.payload.plannedWorkout.id
             ? action.payload.plannedWorkout
-            : x
+            : x,
         ),
       };
 
@@ -151,7 +155,7 @@ export function workoutsReducer(
       return {
         ...state,
         [action.payload.monthId]: state[action.payload.monthId].filter(
-          (x) => x.id !== action.payload.plannedWorkoutId
+          (x) => x.id !== action.payload.plannedWorkoutId,
         ),
       };
 
