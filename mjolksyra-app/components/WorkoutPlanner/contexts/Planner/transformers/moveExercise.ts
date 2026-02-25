@@ -8,7 +8,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
   const sourceWorkout = action.sourceWorkout;
   const targetWorkout = action.targetWorkout;
   const existingExercise = sourceWorkout!.exercises.find(
-    (x) => x.id === action.plannedExercise.id
+    (x) => x.id === action.plannedExercise.id,
   )!;
 
   const exercise = {
@@ -21,7 +21,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
     : {
         ...sourceWorkout,
         exercises: sourceWorkout.exercises.filter(
-          (x) => x.id !== existingExercise.id
+          (x) => x.id !== existingExercise.id,
         ),
       };
 
@@ -31,7 +31,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
       exercises: insertAt(
         targetWorkout!.exercises.filter((x) => x.id !== existingExercise.id),
         action.index,
-        exercise
+        exercise,
       ),
     };
 
@@ -60,6 +60,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
           note: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
           exercises: [exercise],
+          appliedBlock: null,
           createdAt: null,
         },
       ],
