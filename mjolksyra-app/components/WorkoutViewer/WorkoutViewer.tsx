@@ -39,7 +39,9 @@ export function WorkoutViewer({ traineeId }: Props) {
   const data = useMemo(
     () =>
       sortBy(
-        uniqBy(mode === "future" ? future.data : past.data, (x) => x.id),
+        uniqBy(mode === "future" ? future.data : past.data, (x) => x.id).filter(
+          (x) => x.exercises.length > 0 || !!x.note?.trim(),
+        ),
         (x) => {
           const [year, month, day] = x.plannedAt.split("-");
 
@@ -52,8 +54,6 @@ export function WorkoutViewer({ traineeId }: Props) {
       ),
     [past.data, future.data, mode]
   );
-
-  console.log(data);
 
   useEffect(() => {
     if (!end.isIntersecting) {
