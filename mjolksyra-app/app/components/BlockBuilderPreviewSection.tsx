@@ -33,11 +33,11 @@ export function BlockBuilderPreviewSection() {
               New Preview
             </p>
             <h2 className="font-[var(--font-display)] bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
-              Build Multi-Week Training Blocks
+              Create Reusable Training Blocks
             </h2>
             <p className="mt-3 max-w-2xl text-base text-zinc-400">
-              Plan progression week by week and keep athlete workloads aligned
-              from foundation to deload.
+              Build week-by-week block templates in one place, then apply them in
+              the athlete planner and adjust sessions as needed.
             </p>
           </div>
         </div>
