@@ -1,5 +1,5 @@
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { Card, CardHeader, CardDescription, CardContent } from "../ui/card";
+import { Card, CardHeader, CardContent } from "../ui/card";
 import dayjs from "dayjs";
 import { useMemo } from "react";
 
@@ -51,14 +51,28 @@ export function Workout({ workout }: Props) {
           )}
         </div>
       </CardHeader>
-      <CardDescription>{workout.note}</CardDescription>
       <CardContent className="p-4 grid gap-4 bg-black rounded-t-lg">
+        {workout.note?.trim() ? (
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Note
+            </p>
+            <p className="mt-1 text-sm text-zinc-200">{workout.note}</p>
+          </div>
+        ) : null}
         {workout.exercises.map((exercise, index) => (
-          <div key={exercise.id} className="flex gap-4 items-center">
-            <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">
-              {index + 1}
+          <div key={exercise.id} className="grid gap-2">
+            <div className="flex items-center gap-4">
+              <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">
+                {index + 1}
+              </div>
+              <div className="font-bold text-sm">{exercise.name}</div>
             </div>
-            <div className="font-bold text-sm">{exercise.name}</div>
+            {exercise.note?.trim() ? (
+              <div className="ml-12 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300">
+                {exercise.note}
+              </div>
+            ) : null}
           </div>
         ))}
       </CardContent>
