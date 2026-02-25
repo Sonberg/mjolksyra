@@ -44,7 +44,19 @@ async function Send(request: NextRequest) {
     method: request.method,
     body: hasBody ? await request.text() : undefined,
     headers,
+    cache: "no-store",
   });
+
+  const contentType = res.headers.get("content-type") ?? "";
+  if (request.method === "GET" && contentType.includes("text/event-stream")) {
+    const streamHeaders = new Headers(res.headers);
+    streamHeaders.delete("content-length");
+
+    return new Response(res.body, {
+      status: res.status,
+      headers: streamHeaders,
+    });
+  }
 
   return new Response(res.status !== 204 ? await res.text() : null, {
     status: res.status,

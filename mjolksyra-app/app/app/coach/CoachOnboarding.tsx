@@ -59,6 +59,26 @@ export function CoachOnboarding({ user }: Props) {
     return () => window.clearInterval(timer);
   }, [isStarted, syncCoachStatus]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const source = new EventSource("/api/events/stream");
+    const onUserUpdated = () => {
+      void syncCoachStatus();
+      router.refresh();
+    };
+
+    source.addEventListener("user.updated", onUserUpdated);
+    source.onerror = () => {
+      // Let EventSource auto-retry.
+    };
+
+    return () => {
+      source.removeEventListener("user.updated", onUserUpdated);
+      source.close();
+    };
+  }, [router, syncCoachStatus]);
+
   const dashboard = useCallback(async () => {
     setLoading(true);
     try {

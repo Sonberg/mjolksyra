@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Mjolksyra.Api.Options;
+using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
@@ -19,17 +20,20 @@ public class WebhookController : Controller
     private readonly IUserRepository _userRepository;
 
     private readonly ITraineeRepository _traineeRepository;
+    private readonly IUserEventPublisher _userEvents;
 
     public WebhookController(
         IOptions<StripeOptions> options,
         IStripeClient stripeClient,
         IUserRepository userRepository,
-        ITraineeRepository traineeRepository)
+        ITraineeRepository traineeRepository,
+        IUserEventPublisher userEvents)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
+        _userEvents = userEvents;
     }
 
     [HttpPost]
@@ -94,6 +98,11 @@ public class WebhookController : Controller
         }
 
         await _userRepository.Update(user, CancellationToken.None);
+        await _userEvents.Publish(user.Id, "user.updated", new
+        {
+            scope = "athlete-stripe",
+            status = user.Athlete!.Stripe!.Status.ToString()
+        });
     }
 
     private async Task Handle(Account account)
@@ -112,6 +121,11 @@ public class WebhookController : Controller
             : "Onboarding completed";
 
         await _userRepository.Update(user, CancellationToken.None);
+        await _userEvents.Publish(user.Id, "user.updated", new
+        {
+            scope = "coach-stripe",
+            status = user.Coach!.Stripe!.Status.ToString()
+        });
     }
 
     private async Task HandleInvoiceSucceeded(Invoice invoice)

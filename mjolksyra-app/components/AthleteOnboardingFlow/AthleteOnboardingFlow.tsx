@@ -88,6 +88,23 @@ export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
     };
   }, [router, searchParams]);
 
+  useEffect(() => {
+    const source = new EventSource("/api/events/stream");
+    const onUserUpdated = () => {
+      router.refresh();
+    };
+
+    source.addEventListener("user.updated", onUserUpdated);
+    source.onerror = () => {
+      // Keep default browser retry behavior for SSE.
+    };
+
+    return () => {
+      source.removeEventListener("user.updated", onUserUpdated);
+      source.close();
+    };
+  }, [router]);
+
   const steps = {
     welcome: {
       component: (

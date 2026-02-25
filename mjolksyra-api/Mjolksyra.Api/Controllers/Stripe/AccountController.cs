@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
@@ -36,12 +37,14 @@ public class AccountController : Controller
     private readonly IUserContext _userContext;
 
     private readonly IUserRepository _userRepository;
+    private readonly IUserEventPublisher _userEvents;
 
-    public AccountController(IStripeClient stripeClient, IUserContext userContext, IUserRepository userRepository)
+    public AccountController(IStripeClient stripeClient, IUserContext userContext, IUserRepository userRepository, IUserEventPublisher userEvents)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
         _userRepository = userRepository;
+        _userEvents = userEvents;
     }
 
     [AllowAnonymous]
@@ -122,6 +125,11 @@ public class AccountController : Controller
             user.Coach.Stripe.Message = "Please complete the onboarding process";
 
             await _userRepository.Update(user, cancellationToken);
+            await _userEvents.Publish(user.Id, "user.updated", new
+            {
+                scope = "coach-stripe",
+                status = user.Coach.Stripe.Status.ToString()
+            }, cancellationToken);
 
             return Json(new
             {
@@ -200,6 +208,11 @@ public class AccountController : Controller
         user.Coach.Stripe.Message = message;
 
         await _userRepository.Update(user, cancellationToken);
+        await _userEvents.Publish(user.Id, "user.updated", new
+        {
+            scope = "coach-stripe",
+            status = user.Coach.Stripe.Status.ToString()
+        }, cancellationToken);
 
         return Ok(new AccountSyncResponse
         {

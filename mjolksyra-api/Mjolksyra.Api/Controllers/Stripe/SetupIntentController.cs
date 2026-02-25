@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
@@ -17,15 +18,18 @@ public class SetupIntentController : Controller
     private readonly IUserContext _userContext;
 
     private readonly IUserRepository _userRepository;
+    private readonly IUserEventPublisher _userEvents;
 
     public SetupIntentController(
         IStripeClient stripeClient,
         IUserContext userContext,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IUserEventPublisher userEvents)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
         _userRepository = userRepository;
+        _userEvents = userEvents;
     }
 
     [AllowAnonymous]
@@ -109,6 +113,11 @@ public class SetupIntentController : Controller
         user.Athlete.Stripe.Message = setupIntent.LastSetupError?.Message;
 
         await _userRepository.Update(user, cancellationToken);
+        await _userEvents.Publish(user.Id, "user.updated", new
+        {
+            scope = "athlete-stripe",
+            status = user.Athlete.Stripe.Status.ToString()
+        }, cancellationToken);
 
         return Ok(new
         {
