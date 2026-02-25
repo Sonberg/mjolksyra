@@ -2,6 +2,7 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 
 namespace Mjolksyra.UseCases.Trainees.ChargeNowTrainee;
@@ -12,17 +13,20 @@ public class ChargeNowTraineeCommandHandler : IRequestHandler<ChargeNowTraineeCo
     private readonly IUserRepository _userRepository;
     private readonly IMediator _mediator;
     private readonly IEmailSender _emailSender;
+    private readonly INotificationService _notificationService;
 
     public ChargeNowTraineeCommandHandler(
         ITraineeRepository traineeRepository,
         IUserRepository userRepository,
         IMediator mediator,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        INotificationService notificationService)
     {
         _traineeRepository = traineeRepository;
         _userRepository = userRepository;
         _mediator = mediator;
         _emailSender = emailSender;
+        _notificationService = notificationService;
     }
 
     public async Task Handle(ChargeNowTraineeCommand request, CancellationToken cancellationToken)
@@ -66,6 +70,20 @@ public class ChargeNowTraineeCommandHandler : IRequestHandler<ChargeNowTraineeCo
             Date = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
             NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
         }, cancellationToken);
+
+        await _notificationService.Notify(coach.Id,
+            "billing.charge-now",
+            "Charged athlete now",
+            $"Charged {DisplayName(athlete)} {trainee.Cost.Amount} SEK and reset billing cycle.",
+            "/app/coach/athletes",
+            cancellationToken);
+
+        await _notificationService.Notify(athlete.Id,
+            "billing.charge-now",
+            "You were charged",
+            $"{DisplayName(coach)} charged {trainee.Cost.Amount} SEK today and reset your monthly billing cycle.",
+            "/app/athlete",
+            cancellationToken);
     }
 
     private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)

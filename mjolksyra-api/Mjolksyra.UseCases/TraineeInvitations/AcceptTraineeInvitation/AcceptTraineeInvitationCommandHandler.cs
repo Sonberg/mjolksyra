@@ -3,6 +3,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.AcceptTraineeInvitation;
 
@@ -10,7 +11,8 @@ public class AcceptTraineeInvitationCommandHandler(
     ITraineeRepository traineeRepository,
     ITraineeInvitationsRepository traineeInvitationsRepository,
     IUserRepository userRepository,
-    IEmailSender emailSender
+    IEmailSender emailSender,
+    INotificationService notificationService
 ) : IRequestHandler<AcceptTraineeInvitationCommand>
 {
     public async Task Handle(AcceptTraineeInvitationCommand request, CancellationToken cancellationToken)
@@ -68,6 +70,30 @@ public class AcceptTraineeInvitationCommandHandler(
                 PriceSek = invitation.MonthlyPriceAmount,
                 Link = "/app/athlete"
             }, cancellationToken);
+        }
+
+        await notificationService.Notify(coach.Id,
+            "invite.accepted",
+            "Invitation accepted",
+            $"{DisplayName(athlete)} accepted your invitation.",
+            "/app/coach/athletes",
+            cancellationToken);
+
+        await notificationService.Notify(athlete.Id,
+            "invite.accepted",
+            "Coach connection active",
+            $"You are now connected with {DisplayName(coach)}.",
+            "/app/athlete",
+            cancellationToken);
+
+        if (athleteNeedsPaymentSetup)
+        {
+            await notificationService.Notify(athlete.Id,
+                "billing.setup-required",
+                "Payment setup required",
+                "Add your payment method to enable coaching billing.",
+                "/app/athlete",
+                cancellationToken);
         }
     }
 

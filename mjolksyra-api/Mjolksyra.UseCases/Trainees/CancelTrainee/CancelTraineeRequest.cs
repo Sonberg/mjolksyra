@@ -2,6 +2,7 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 using Stripe;
 
 namespace Mjolksyra.UseCases.Trainees.CancelTrainee;
@@ -20,17 +21,20 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
     private readonly IStripeClient _stripeClient;
     private readonly IUserRepository _userRepository;
     private readonly IEmailSender _emailSender;
+    private readonly INotificationService _notificationService;
 
     public CancelTraineeRequestHandler(
         ITraineeRepository traineeRepository,
         IStripeClient stripeClient,
         IUserRepository userRepository,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        INotificationService notificationService)
     {
         _traineeRepository = traineeRepository;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
         _emailSender = emailSender;
+        _notificationService = notificationService;
     }
 
     public async Task Handle(CancelTraineeRequest request, CancellationToken cancellationToken)
@@ -74,6 +78,10 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
             CancelledBy = emailModel.CancelledBy,
             Email = coach.Email.Value
         }, cancellationToken);
+
+        var body = $"{emailModel.Athlete} and {emailModel.Coach} relationship was cancelled by {cancelledBy}.";
+        await _notificationService.Notify(athlete.Id, "relationship.cancelled", "Relationship cancelled", body, "/app/athlete", cancellationToken);
+        await _notificationService.Notify(coach.Id, "relationship.cancelled", "Relationship cancelled", body, "/app/coach/athletes", cancellationToken);
     }
 
     private static string DisplayName(User user)

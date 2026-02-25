@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
+import { NavigationNotifications } from "./NavigationNotifications";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
@@ -107,7 +108,10 @@ export function Navigation() {
             </nav>
           ) : null}
           {auth.isAuthenticated ? (
-            <NavigationUser />
+            <>
+              <NavigationNotifications />
+              <NavigationUser />
+            </>
           ) : (
             <>
               <LoginDialog

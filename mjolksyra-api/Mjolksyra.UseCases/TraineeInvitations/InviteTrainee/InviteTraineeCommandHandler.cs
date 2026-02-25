@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.InviteTrainee;
 
@@ -10,6 +11,7 @@ public class InviteTraineeCommandHandler(
     ITraineeInvitationsRepository invitationsRepository,
     IUserRepository userRepository,
     IEmailSender emailSender,
+    INotificationService notificationService,
     IConfiguration configuration,
     ITraineeRepository traineeRepository
 ) : IRequestHandler<InviteTraineeCommand, TraineeInvitationsResponse>
@@ -51,6 +53,33 @@ public class InviteTraineeCommandHandler(
             PriceSek = request.MonthlyPriceAmount
         }, cancellationToken);
 
+        await notificationService.Notify(request.CoachUserId,
+            "invite.sent",
+            "Invitation sent",
+            $"Sent invite to {request.Email} for {request.MonthlyPriceAmount} SEK/mo.",
+            "/app/coach/athletes",
+            cancellationToken);
+
+        if (athlete is not null)
+        {
+            await notificationService.Notify(athlete.Id,
+                "invite.received",
+                "New coach invitation",
+                $"{DisplayName(coach)} invited you to coaching for {request.MonthlyPriceAmount} SEK/mo.",
+                "/app/athlete",
+                cancellationToken);
+        }
+
         return TraineeInvitationsResponse.From(invitation, [coach]);
     }
+
+    private static string DisplayName(User user)
+        => string.Join(" ", new[]
+            {
+                user.GivenName, user.FamilyName
+            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
+            {
+                "" => user.Email.Value,
+                var value => value
+            };
 }

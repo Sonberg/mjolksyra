@@ -20,6 +20,8 @@ public interface IMongoDbContext
     IMongoCollection<CompletedWorkout> CompletedWorkout { get; }
 
     IMongoCollection<Block> Blocks { get; }
+
+    IMongoCollection<Notification> Notifications { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -41,6 +43,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<CompletedWorkout> CompletedWorkout => Database.GetCollection<CompletedWorkout>("completed-workouts");
 
     public IMongoCollection<Block> Blocks => Database.GetCollection<Block>("blocks");
+
+    public IMongoCollection<Notification> Notifications => Database.GetCollection<Notification>("notifications");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

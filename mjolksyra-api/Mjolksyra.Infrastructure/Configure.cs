@@ -3,9 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.Domain.Clerk;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Infrastructure.Clerk;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
+using Mjolksyra.Infrastructure.Notifications;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -34,6 +36,7 @@ public static class Configure
         services.AddSingleton<IMongoDbContext, MongoDbContext>();
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddHttpClient<IClerkRepository, ClerkRepository>(client =>
         {
             client.BaseAddress = new Uri("https://api.clerk.com/");
@@ -43,6 +46,7 @@ public static class Configure
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<IEmailSender, BrevoEmailSender>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

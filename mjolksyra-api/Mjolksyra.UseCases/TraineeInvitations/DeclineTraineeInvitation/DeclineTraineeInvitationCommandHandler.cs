@@ -2,13 +2,15 @@ using MediatR;
 using Mjolksyra.Domain;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.DeclineTraineeInvitation;
 
 public class DeclineTraineeInvitationCommandHandler(
     ITraineeInvitationsRepository repository,
     IUserRepository userRepository,
-    IEmailSender emailSender
+    IEmailSender emailSender,
+    INotificationService notificationService
 ) : IRequestHandler<DeclineTraineeInvitationCommand>
 {
     public async Task Handle(DeclineTraineeInvitationCommand request, CancellationToken cancellationToken)
@@ -32,6 +34,13 @@ public class DeclineTraineeInvitationCommandHandler(
             Email = athlete.Email.Value,
             PriceSek = invitation.MonthlyPriceAmount
         }, cancellationToken);
+
+        await notificationService.Notify(coach.Id,
+            "invite.declined",
+            "Invitation declined",
+            $"{DisplayName(athlete)} declined your invitation.",
+            "/app/coach/athletes",
+            cancellationToken);
     }
 
     private static string DisplayName(Domain.Database.Models.User user)

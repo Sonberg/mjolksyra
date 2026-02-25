@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 using Stripe;
 
 namespace Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
@@ -13,17 +14,20 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
 
     private readonly IStripeClient _stripeClient;
     private readonly IEmailSender _emailSender;
+    private readonly INotificationService _notificationService;
 
     public UpdateTraineeCostCommandHandler(
         ITraineeRepository traineeRepository,
         IUserRepository userRepository,
         IStripeClient stripeClient,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        INotificationService notificationService)
     {
         _traineeRepository = traineeRepository;
         _userRepository = userRepository;
         _stripeClient = stripeClient;
         _emailSender = emailSender;
+        _notificationService = notificationService;
     }
 
     public async Task Handle(UpdateTraineeCostCommand request, CancellationToken cancellationToken)
@@ -94,6 +98,20 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
                 PriceSek = trainee.Cost.Amount
             }, cancellationToken);
         }
+
+        await _notificationService.Notify(coach.Id,
+            "billing.price-changed",
+            "Price updated",
+            $"Monthly coaching price set to {trainee.Cost.Amount} SEK for {DisplayName(athlete)}.",
+            "/app/coach/athletes",
+            cancellationToken);
+
+        await _notificationService.Notify(athlete.Id,
+            "billing.price-changed",
+            "Price updated",
+            $"{DisplayName(coach)} set your monthly coaching price to {trainee.Cost.Amount} SEK.",
+            "/app/athlete",
+            cancellationToken);
     }
 
     private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)

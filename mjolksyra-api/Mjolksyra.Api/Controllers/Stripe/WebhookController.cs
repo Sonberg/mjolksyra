@@ -7,6 +7,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -25,6 +26,7 @@ public class WebhookController : Controller
     private readonly IUserEventPublisher _userEvents;
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
+    private readonly INotificationService _notificationService;
 
     public WebhookController(
         IOptions<StripeOptions> options,
@@ -33,7 +35,8 @@ public class WebhookController : Controller
         ITraineeRepository traineeRepository,
         IUserEventPublisher userEvents,
         IEmailSender emailSender,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        INotificationService notificationService)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
@@ -42,6 +45,7 @@ public class WebhookController : Controller
         _userEvents = userEvents;
         _emailSender = emailSender;
         _configuration = configuration;
+        _notificationService = notificationService;
     }
 
     [HttpPost]
@@ -145,6 +149,13 @@ public class WebhookController : Controller
                 Status = user.Coach.Stripe.Status.ToString(),
                 Message = user.Coach.Stripe.Message
             }, CancellationToken.None);
+
+            await _notificationService.Notify(user.Id,
+                "coach.stripe-status",
+                "Stripe account status updated",
+                user.Coach.Stripe.Message,
+                "/app/coach/dashboard",
+                CancellationToken.None);
         }
     }
 
@@ -179,6 +190,20 @@ public class WebhookController : Controller
             Date = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
             NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
         }, CancellationToken.None);
+
+        await _notificationService.Notify(athlete.Id,
+            "billing.payment-succeeded",
+            "Payment succeeded",
+            $"Payment for {trainee.Cost.Amount} SEK to {DisplayName(coach)} was successful.",
+            "/app/athlete",
+            CancellationToken.None);
+
+        await _notificationService.Notify(coach.Id,
+            "billing.payment-succeeded",
+            "Athlete payment succeeded",
+            $"{DisplayName(athlete)} payment of {trainee.Cost.Amount} SEK succeeded.",
+            "/app/coach/athletes",
+            CancellationToken.None);
     }
 
     private async Task HandleInvoiceFailed(Invoice invoice)
@@ -215,6 +240,20 @@ public class WebhookController : Controller
 
         await _emailSender.SendPaymentFailedToAthlete(athlete.Email.Value, billingEmail, CancellationToken.None);
         await _emailSender.SendPaymentFailedToCoach(coach.Email.Value, billingEmail, CancellationToken.None);
+
+        await _notificationService.Notify(athlete.Id,
+            "billing.payment-failed",
+            "Payment failed",
+            "Your coaching payment failed. Update your payment method to continue.",
+            "/app/athlete",
+            CancellationToken.None);
+
+        await _notificationService.Notify(coach.Id,
+            "billing.payment-failed",
+            "Athlete payment failed",
+            $"{DisplayName(athlete)} payment failed.",
+            "/app/coach/athletes",
+            CancellationToken.None);
     }
 
     private async Task HandleSubscriptionDeleted(Subscription subscription)
@@ -226,6 +265,14 @@ public class WebhookController : Controller
         trainee.StripeSubscriptionId = null;
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
+
+        await _notificationService.NotifyMany(
+            [trainee.CoachUserId, trainee.AthleteUserId],
+            "billing.subscription-ended",
+            "Subscription ended",
+            "Recurring billing subscription was cancelled.",
+            trainee.CoachUserId == trainee.AthleteUserId ? "/app" : null,
+            CancellationToken.None);
     }
 
     private string GetAppBaseUrl() => _configuration["App:BaseUrl"] ?? "http://localhost:3000";
