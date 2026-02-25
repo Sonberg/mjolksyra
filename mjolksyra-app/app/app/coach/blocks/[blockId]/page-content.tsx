@@ -1,10 +1,9 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeftIcon, SaveIcon } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -39,7 +38,6 @@ type Props = {
 };
 
 export function BlockEditorContent({ blockId }: Props) {
-  const router = useRouter();
   const client = useQueryClient();
 
   const { data: block, isLoading } = useQuery({
@@ -108,16 +106,17 @@ export function BlockEditorContent({ blockId }: Props) {
           onDragEnd={() => setDraggingLabel(null)}
           onDragCancel={() => setDraggingLabel(null)}
         >
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="h-[calc(100vh-14rem)] min-h-[680px]"
-          >
-            <ResizablePanel
-              defaultSize={75}
-              minSize={50}
-              className="min-h-0 overflow-hidden"
+          <div className="h-[calc(100vh-7.5rem)] min-h-[680px] overflow-hidden">
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="h-full min-h-0"
             >
-              <div className="flex h-full min-h-0 flex-col">
+              <ResizablePanel
+                defaultSize={75}
+                minSize={50}
+                className="min-h-0 overflow-hidden"
+              >
+                <div className="flex h-full min-h-0 flex-col">
                 <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
                   <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
                     <Input
@@ -153,36 +152,37 @@ export function BlockEditorContent({ blockId }: Props) {
                   </div>
                 </div>
 
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 md:px-8">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-8 md:px-8">
                   <BlockBuilder
                     workouts={workouts}
                     numberOfWeeks={numberOfWeeks}
                     onChange={setWorkouts}
                   />
                 </div>
-              </div>
-            </ResizablePanel>
+                </div>
+              </ResizablePanel>
 
-            <ResizableHandle withHandle />
+              <ResizableHandle withHandle />
 
-            <ResizablePanel
-              defaultSize={25}
-              minSize={0}
-              maxSize={50}
-              className="min-h-0 overflow-hidden"
-            >
-              <ExerciseLibrary
-                exercies={{
-                  starred: starredExercises,
-                  star: starExercises,
-                  search: searchExercises,
-                  get: getExercises,
-                  delete: deleteExercise,
-                  create: createExercise,
-                }}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              <ResizablePanel
+                defaultSize={25}
+                minSize={0}
+                maxSize={50}
+                className="min-h-0 overflow-hidden"
+              >
+                <ExerciseLibrary
+                  exercies={{
+                    starred: starredExercises,
+                    star: starExercises,
+                    search: searchExercises,
+                    get: getExercises,
+                    delete: deleteExercise,
+                    create: createExercise,
+                  }}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
           {draggingLabel
             ? createPortal(
                 <DragOverlay>

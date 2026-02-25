@@ -86,7 +86,7 @@ export function PageContent({ traineeId }: Props) {
   );
 
   return (
-    <div className="h-[calc(100vh-9.5rem)] min-h-[680px] w-full">
+    <div className="h-[calc(100vh-7.5rem)] min-h-[680px] w-full">
       <TooltipProvider>
         <WorkoutPlanner
           traineeId={traineeId}

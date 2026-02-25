@@ -24,7 +24,7 @@ export function CoachWorkspaceShell({
     <div
       style={style}
       className={cn(
-        "font-[var(--font-body)] relative mx-auto w-full overflow-hidden",
+        "font-[var(--font-body)] relative mx-auto w-full overflow-visible",
         showTabs && "-mt-8 md:-mt-10",
         className,
       )}
@@ -33,7 +33,7 @@ export function CoachWorkspaceShell({
       <div className="pointer-events-none absolute top-20 -left-6 h-24 w-24 -rotate-6 rounded-[1rem] border border-zinc-800 bg-white/[0.015]" />
 
       {showTabs ? (
-        <div className="border-b border-zinc-800 bg-zinc-950 px-4 py-2">
+        <div className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/85">
           <CoachSectionTabs />
         </div>
       ) : null}

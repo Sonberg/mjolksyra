@@ -72,7 +72,7 @@ export function ExerciseLibrary({ exercies }: Props) {
               />
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-28">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-28">
             {isSearching ? (
               <>
                 <ExerciseSearch freeText={freeText} exercises={exercies} />
