@@ -18,7 +18,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
               exerciseId: action.exercise.id,
               name: action.exercise.name,
               note: "",
-              images: []
+              images: [],
             },
           ],
         },
@@ -38,13 +38,14 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
           note: null,
           createdAt: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
+          appliedBlock: null,
           exercises: [
             {
               id: v4(),
               exerciseId: action.exercise.id,
               name: action.exercise.name,
               note: "",
-              images: []
+              images: [],
             },
           ],
         },
