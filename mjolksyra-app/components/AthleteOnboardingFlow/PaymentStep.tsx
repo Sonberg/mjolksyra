@@ -18,6 +18,7 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setReady] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,13 +31,19 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
       return;
     }
 
-    const cardElement = elements.getElement(PaymentElement);
-    if (!cardElement) {
-      setError("Card Element is not loaded.");
+    const paymentElement = elements.getElement(PaymentElement);
+    if (!paymentElement) {
+      setError("Payment form is not loaded.");
       setIsLoading(false);
       return;
     }
-    await elements.submit();
+    const submitResult = await elements.submit();
+    if (submitResult.error) {
+      setError(submitResult.error.message || "Please review your payment details.");
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await stripe.confirmSetup({
       clientSecret,
       elements,
@@ -48,7 +55,7 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
     if (error) {
       setError(error.message || "An unexpected error occurred.");
     } else {
-      console.log("Setup Intent successful");
+      setIsComplete(true);
     }
 
     setIsLoading(false);
@@ -61,31 +68,37 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
         text="To complete your registration, please add a payment method. You won't be charged until your coach confirms the subscription."
       />
 
-      <div className="p-8 bg-slate-500/20 rounded-xl space-y-4">
+      <div className="rounded-xl bg-slate-500/20 p-8">
         <form onSubmit={handleSubmit}>
           <PaymentElement
             onReady={() => setReady(true)}
             options={{
               layout: {
                 type: "tabs",
-                radios: true,
-                spacedAccordionItems: true,
               },
             }}
           />
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {error ? (
+            <p className="mt-4 text-sm text-red-400">{error}</p>
+          ) : null}
+          {isComplete ? (
+            <p className="mt-4 text-sm text-emerald-400">
+              Payment method submitted. You can close this step after redirect/confirmation.
+            </p>
+          ) : null}
+
+          {isReady ? (
+            <div className="mb-16 mt-6 flex justify-between">
+              <Button type="button" variant="outline" onClick={onBack}>
+                Back
+              </Button>
+              <Button type="submit" disabled={isLoading} className="font-bold">
+                {isLoading ? "Saving..." : "Complete Setup"}
+              </Button>
+            </div>
+          ) : null}
         </form>
       </div>
-      {isReady && (
-        <div className="flex justify-between mb-16">
-          <Button type="button" variant="outline" onClick={onBack}>
-            Back
-          </Button>
-          <Button type="submit" disabled={isLoading} className="font-bold">
-            Complete Setup
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

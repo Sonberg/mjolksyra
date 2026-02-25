@@ -71,6 +71,53 @@ public class SetupIntentController : Controller
         });
     }
 
+    [HttpPost("sync")]
+    public async Task<ActionResult> Sync([FromBody] SyncSetupIntentRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.SetupIntentId))
+        {
+            return BadRequest();
+        }
+
+        var user = await _userContext.GetUser(cancellationToken);
+        if (user?.Athlete?.Stripe?.CustomerId is not { } customerId)
+        {
+            return BadRequest();
+        }
+
+        var setupIntentService = new SetupIntentService(_stripeClient);
+        var setupIntent = await setupIntentService.GetAsync(request.SetupIntentId, cancellationToken: cancellationToken);
+
+        if (setupIntent.CustomerId != customerId)
+        {
+            return Forbid();
+        }
+
+        user.Athlete ??= new UserAthlete();
+        user.Athlete.Stripe ??= new UserAthleteStripe();
+
+        user.Athlete.Stripe.Status = setupIntent.Status switch
+        {
+            "succeeded" => Domain.Database.Enum.StripeStatus.Succeeded,
+            "processing" => Domain.Database.Enum.StripeStatus.Processing,
+            "requires_action" => Domain.Database.Enum.StripeStatus.RequiresAction,
+            "requires_confirmation" => Domain.Database.Enum.StripeStatus.RequiresConfirmation,
+            "canceled" => Domain.Database.Enum.StripeStatus.Canceled,
+            _ => Domain.Database.Enum.StripeStatus.RequiresPaymentMethod,
+        };
+        user.Athlete.Stripe.PaymentMethodId = setupIntent.PaymentMethodId ?? user.Athlete.Stripe.PaymentMethodId;
+        user.Athlete.Stripe.Message = setupIntent.LastSetupError?.Message;
+
+        await _userRepository.Update(user, cancellationToken);
+
+        return Ok(new
+        {
+            status = setupIntent.Status,
+            paymentMethodId = setupIntent.PaymentMethodId,
+            completed = setupIntent.Status == "succeeded"
+        });
+    }
+
     private async Task<string> GetCustomerId(CancellationToken cancellationToken)
     {
         var user = await _userContext.GetUser(cancellationToken);
@@ -102,4 +149,9 @@ public class SetupIntentController : Controller
 
         return customer.Id;
     }
+}
+
+public class SyncSetupIntentRequest
+{
+    public required string SetupIntentId { get; set; }
 }
