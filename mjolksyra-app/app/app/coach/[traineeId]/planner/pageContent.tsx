@@ -40,7 +40,7 @@ export function PageContent({ traineeId }: Props) {
 
   const rightSide = useMemo(
     () => (
-      <>
+      <div className="flex h-full min-h-0 flex-col">
         <div className="px-4 pt-2 flex gap-2 items-center">
           <div
             className="rounded-full p-2 hover:bg-zinc-800 cursor-pointer"
@@ -50,12 +50,18 @@ export function PageContent({ traineeId }: Props) {
           </div>
           <div className="font-semibold text-lg text-zinc-100">{athleteName}</div>
         </div>
-        <Tabs defaultValue="exercises" className="flex-1 overflow-hidden flex flex-col">
+        <Tabs
+          defaultValue="exercises"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+        >
           <TabsList className="mx-4 mb-0">
             <TabsTrigger value="exercises">Exercises</TabsTrigger>
             <TabsTrigger value="blocks">Blocks</TabsTrigger>
           </TabsList>
-          <TabsContent value="exercises" className="flex-1 overflow-hidden mt-0">
+          <TabsContent
+            value="exercises"
+            className="mt-0 min-h-0 flex-1 overflow-hidden"
+          >
             <ExerciseLibrary
               exercies={{
                 starred: starredExercises,
@@ -67,17 +73,20 @@ export function PageContent({ traineeId }: Props) {
               }}
             />
           </TabsContent>
-          <TabsContent value="blocks" className="flex-1 overflow-y-auto mt-0">
+          <TabsContent
+            value="blocks"
+            className="mt-0 min-h-0 flex-1 overflow-y-auto"
+          >
             <BlocksPanel getBlocks={getBlocks} />
           </TabsContent>
         </Tabs>
-      </>
+      </div>
     ),
     [router, athleteName]
   );
 
   return (
-    <div className="w-[calc(100vw-2rem)] max-w-none -mx-4 md:w-[calc(100vw-3rem)] md:-mx-6">
+    <div className="h-[calc(100vh-9.5rem)] min-h-[680px] w-full">
       <TooltipProvider>
         <WorkoutPlanner
           traineeId={traineeId}

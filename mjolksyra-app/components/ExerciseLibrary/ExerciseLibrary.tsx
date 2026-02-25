@@ -36,7 +36,7 @@ export function ExerciseLibrary({ exercies }: Props) {
   return useMemo(
     () => (
       <TooltipProvider>
-        <div className="relative h-full border-l border-zinc-900 bg-black">
+        <div className="relative flex h-full min-h-0 flex-col border-l border-zinc-900 bg-black">
           <div className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/95 p-4">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
@@ -72,7 +72,7 @@ export function ExerciseLibrary({ exercies }: Props) {
               />
             </div>
           </div>
-          <div className="flex h-full flex-col gap-5 overflow-y-auto p-4 pb-28">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-28">
             {isSearching ? (
               <>
                 <ExerciseSearch freeText={freeText} exercises={exercies} />

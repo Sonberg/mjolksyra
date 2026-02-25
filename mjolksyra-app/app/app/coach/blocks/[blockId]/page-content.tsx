@@ -100,7 +100,7 @@ export function BlockEditorContent({ blockId }: Props) {
   }
 
   return (
-    <CoachWorkspaceShell className="w-[calc(100vw-2rem)] max-w-none -mx-4 md:w-[calc(100vw-3rem)] md:-mx-6">
+    <CoachWorkspaceShell fullBleed>
       <TooltipProvider>
         <DndContext
           collisionDetection={pointerWithin}
@@ -110,9 +110,9 @@ export function BlockEditorContent({ blockId }: Props) {
         >
           <ResizablePanelGroup
             direction="horizontal"
-            className="min-h-[680px] h-[calc(100vh-14rem)]"
+            className="h-[calc(100vh-14rem)] min-h-[680px]"
           >
-          <ResizablePanel defaultSize={75} minSize={50} className="overflow-hidden">
+          <ResizablePanel defaultSize={75} minSize={50} className="min-h-0 overflow-hidden">
             <div className="flex h-full min-h-0 flex-col">
               <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
                 <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
@@ -165,7 +165,12 @@ export function BlockEditorContent({ blockId }: Props) {
 
           <ResizableHandle withHandle />
 
-          <ResizablePanel defaultSize={25} minSize={0} maxSize={50} className="overflow-visible">
+          <ResizablePanel
+            defaultSize={25}
+            minSize={0}
+            maxSize={50}
+            className="min-h-0 overflow-hidden"
+          >
             <ExerciseLibrary
               exercies={{
                 starred: starredExercises,

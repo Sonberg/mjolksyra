@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="bg-black min-h-screen overflow-y-auto">
-      <div className="mx-auto mb-32 w-full max-w-6xl px-4 py-8 md:px-6 md:py-10">
+      <div className="mb-32 w-full py-8 md:py-10">
         {children}
       </div>
     </div>

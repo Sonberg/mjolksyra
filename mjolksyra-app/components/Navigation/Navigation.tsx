@@ -60,7 +60,7 @@ export function Navigation() {
         },
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1380px] items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-[1800px] items-center gap-4 px-4 sm:px-6">
         <Link href="/" className="group text-base font-medium transition-colors">
           <div className="mr-3 flex items-center px-2.5 py-1.5">
             <Image

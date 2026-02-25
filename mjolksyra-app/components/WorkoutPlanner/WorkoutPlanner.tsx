@@ -110,11 +110,11 @@ export function WorkoutPlanner({
             plannedWorkouts={plannedWorkouts}
             applyBlock={blocks?.apply}
           >
-            <ResizablePanelGroup direction="horizontal">
+            <ResizablePanelGroup direction="horizontal" className="h-full min-h-0">
               <ResizablePanel
                 defaultSize={75}
                 minSize={50}
-                className="relative border-collapse"
+                className="relative min-h-0 overflow-hidden border-collapse"
                 children={planner}
               />
 
@@ -123,7 +123,7 @@ export function WorkoutPlanner({
                 defaultSize={25}
                 minSize={0}
                 maxSize={50}
-                className="overflow-visible"
+                className="min-h-0 overflow-hidden"
                 children={<WorkoutEditor children={rightSide} />}
               />
             </ResizablePanelGroup>

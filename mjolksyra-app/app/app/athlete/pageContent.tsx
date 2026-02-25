@@ -17,7 +17,7 @@ export function PageContent({ user }: Props) {
   const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
 
   return (
-    <div className="relative space-y-8">
+    <div className="relative mx-auto w-full max-w-6xl space-y-8">
       <div className="pointer-events-none absolute -top-12 -left-10 h-40 w-40 -rotate-6 rounded-[1.25rem] border border-zinc-800 bg-white/[0.02]" />
       <div className="pointer-events-none absolute top-24 right-0 h-48 w-48 rotate-12 rounded-[1.5rem] border border-zinc-800 bg-white/[0.02]" />
 

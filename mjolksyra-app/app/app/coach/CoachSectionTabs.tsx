@@ -24,26 +24,24 @@ export function CoachSectionTabs() {
   ];
 
   return (
-    <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-2">
-      <div className="flex flex-wrap gap-2">
-        {tabs.map((tab) => {
-          const isActive = tab.key === activeTab;
+    <div className="flex flex-wrap gap-2">
+      {tabs.map((tab) => {
+        const isActive = tab.key === activeTab;
 
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
-              className={`inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                isActive
-                  ? "bg-white text-black"
-                  : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
+        return (
+          <Link
+            key={tab.key}
+            href={tab.href}
+            className={`inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold transition ${
+              isActive
+                ? "bg-white text-black"
+                : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            }`}
+          >
+            {tab.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }
