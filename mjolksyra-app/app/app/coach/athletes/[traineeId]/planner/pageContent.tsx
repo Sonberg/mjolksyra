@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { getTrainee } from "@/services/trainees/getTrainee";
+import { CoachWorkspaceShell } from "../../../CoachWorkspaceShell";
 
 type Props = {
   traineeId: string;
@@ -42,13 +43,9 @@ export function PageContent({ traineeId }: Props) {
     () => (
       <div className="flex h-full min-h-0 flex-col">
         <div className="px-4 pt-2 flex gap-2 items-center">
-          <div
-            className="rounded-full p-2 hover:bg-zinc-800 cursor-pointer"
-            onClick={() => router.push("/app/coach")}
-          >
-            <ChevronLeftIcon />
+          <div className="font-semibold text-lg text-zinc-100">
+            {athleteName}
           </div>
-          <div className="font-semibold text-lg text-zinc-100">{athleteName}</div>
         </div>
         <Tabs
           defaultValue="exercises"
@@ -82,24 +79,26 @@ export function PageContent({ traineeId }: Props) {
         </Tabs>
       </div>
     ),
-    [router, athleteName]
+    [router, athleteName],
   );
 
   return (
-    <div className="h-[calc(100vh-7.5rem)] min-h-[680px] w-full">
-      <TooltipProvider>
-        <WorkoutPlanner
-          traineeId={traineeId}
-          plannedWorkouts={{
-            get: getPlannedWorkouts,
-            create: createPlannedWorkout,
-            update: updatePlannedWorkout,
-            delete: deletePlannedWorkout,
-          }}
-          blocks={{ apply: applyBlock }}
-          rightSide={rightSide}
-        />
-      </TooltipProvider>
-    </div>
+    <CoachWorkspaceShell fullBleed>
+      <div className="h-[calc(100vh-7.5rem)] min-h-[680px] w-full">
+        <TooltipProvider>
+          <WorkoutPlanner
+            traineeId={traineeId}
+            plannedWorkouts={{
+              get: getPlannedWorkouts,
+              create: createPlannedWorkout,
+              update: updatePlannedWorkout,
+              delete: deletePlannedWorkout,
+            }}
+            blocks={{ apply: applyBlock }}
+            rightSide={rightSide}
+          />
+        </TooltipProvider>
+      </div>
+    </CoachWorkspaceShell>
   );
 }
