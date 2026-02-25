@@ -72,7 +72,7 @@ export function ExerciseLibrary({ exercies }: Props) {
               />
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-28">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-24">
             {isSearching ? (
               <>
                 <ExerciseSearch freeText={freeText} exercises={exercies} />
@@ -85,13 +85,13 @@ export function ExerciseLibrary({ exercies }: Props) {
             )}
           </div>
 
-          <div className="absolute bottom-16 left-0 right-0 grid place-items-end bg-gradient-to-b from-transparent via-black/80 to-black px-6 pb-6 pt-2">
+          <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-zinc-800 bg-gradient-to-b from-black/0 via-black/90 to-black px-4 pb-4 pt-3">
             <CreateExerciseDialog
               exercises={exercies}
               trigger={
-                <Button className="h-9 rounded-full border border-zinc-600 bg-zinc-100 px-4 text-xs font-semibold uppercase tracking-[0.1em] text-black transition hover:bg-zinc-300">
-                  <PlusIcon className="mr-1 h-4 w-4" />
-                  New
+                <Button className="h-10 w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 text-sm font-semibold text-zinc-100 transition hover:border-zinc-600 hover:bg-zinc-800">
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  New Exercise
                 </Button>
               }
             />
