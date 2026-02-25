@@ -112,83 +112,83 @@ export function BlockEditorContent({ blockId }: Props) {
             direction="horizontal"
             className="h-[calc(100vh-14rem)] min-h-[680px]"
           >
-          <ResizablePanel defaultSize={75} minSize={50} className="min-h-0 overflow-hidden">
-            <div className="flex h-full min-h-0 flex-col">
-              <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
-                <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
-                  <button
-                    className="rounded-xl border border-white/15 bg-white/5 p-2 text-zinc-300 transition hover:bg-white/10 hover:text-white"
-                    onClick={() => router.push("/app/coach/blocks")}
-                  >
-                    <ChevronLeftIcon className="h-5 w-5" />
-                  </button>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="max-w-xs border-white/15 bg-zinc-900/80 text-lg font-semibold text-zinc-100"
-                    placeholder="Block name"
-                  />
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-zinc-400">Weeks:</span>
+            <ResizablePanel
+              defaultSize={75}
+              minSize={50}
+              className="min-h-0 overflow-hidden"
+            >
+              <div className="flex h-full min-h-0 flex-col">
+                <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
+                  <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
                     <Input
-                      type="number"
-                      min={1}
-                      max={52}
-                      value={numberOfWeeks}
-                      onChange={(e) =>
-                        setNumberOfWeeks(Math.max(1, parseInt(e.target.value) || 1))
-                      }
-                      className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="max-w-xs border-white/15 bg-zinc-900/80 text-lg font-semibold text-zinc-100"
+                      placeholder="Block name"
                     />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-zinc-400">Weeks:</span>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={52}
+                        value={numberOfWeeks}
+                        onChange={(e) =>
+                          setNumberOfWeeks(
+                            Math.max(1, parseInt(e.target.value) || 1),
+                          )
+                        }
+                        className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSave}
+                      disabled={saveMutation.isPending}
+                      size="sm"
+                      className="border border-white/15 bg-white text-black hover:bg-zinc-200"
+                    >
+                      <SaveIcon className="h-4 w-4 mr-2" />
+                      {saveMutation.isPending ? "Saving..." : "Save"}
+                    </Button>
                   </div>
-                  <Button
-                    onClick={handleSave}
-                    disabled={saveMutation.isPending}
-                    size="sm"
-                    className="border border-white/15 bg-white text-black hover:bg-zinc-200"
-                  >
-                    <SaveIcon className="h-4 w-4 mr-2" />
-                    {saveMutation.isPending ? "Saving..." : "Save"}
-                  </Button>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 md:px-8">
+                  <BlockBuilder
+                    workouts={workouts}
+                    numberOfWeeks={numberOfWeeks}
+                    onChange={setWorkouts}
+                  />
                 </div>
               </div>
+            </ResizablePanel>
 
-              <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 md:px-8">
-                <BlockBuilder
-                  workouts={workouts}
-                  numberOfWeeks={numberOfWeeks}
-                  onChange={setWorkouts}
-                />
-              </div>
-            </div>
-          </ResizablePanel>
+            <ResizableHandle withHandle />
 
-          <ResizableHandle withHandle />
-
-          <ResizablePanel
-            defaultSize={25}
-            minSize={0}
-            maxSize={50}
-            className="min-h-0 overflow-hidden"
-          >
-            <ExerciseLibrary
-              exercies={{
-                starred: starredExercises,
-                star: starExercises,
-                search: searchExercises,
-                get: getExercises,
-                delete: deleteExercise,
-                create: createExercise,
-              }}
-            />
-          </ResizablePanel>
+            <ResizablePanel
+              defaultSize={25}
+              minSize={0}
+              maxSize={50}
+              className="min-h-0 overflow-hidden"
+            >
+              <ExerciseLibrary
+                exercies={{
+                  starred: starredExercises,
+                  star: starExercises,
+                  search: searchExercises,
+                  get: getExercises,
+                  delete: deleteExercise,
+                  create: createExercise,
+                }}
+              />
+            </ResizablePanel>
           </ResizablePanelGroup>
           {draggingLabel
             ? createPortal(
                 <DragOverlay>
                   <DraggingExercise name={draggingLabel} />
                 </DragOverlay>,
-                document.body
+                document.body,
               )
             : null}
         </DndContext>

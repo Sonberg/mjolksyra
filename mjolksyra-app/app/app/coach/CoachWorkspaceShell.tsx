@@ -26,8 +26,6 @@ export function CoachWorkspaceShell({
       className={cn(
         "font-[var(--font-body)] relative mx-auto w-full overflow-hidden",
         showTabs && "-mt-8 md:-mt-10",
-        fullBleed &&
-          "w-[calc(100%+2rem)] -mx-4 md:w-[calc(100%+3rem)] md:-mx-6",
         className,
       )}
     >
