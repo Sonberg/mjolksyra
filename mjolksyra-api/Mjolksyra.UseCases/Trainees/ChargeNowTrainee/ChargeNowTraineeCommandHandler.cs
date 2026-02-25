@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Email;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 
 namespace Mjolksyra.UseCases.Trainees.ChargeNowTrainee;
@@ -10,15 +11,18 @@ public class ChargeNowTraineeCommandHandler : IRequestHandler<ChargeNowTraineeCo
     private readonly ITraineeRepository _traineeRepository;
     private readonly IUserRepository _userRepository;
     private readonly IMediator _mediator;
+    private readonly IEmailSender _emailSender;
 
     public ChargeNowTraineeCommandHandler(
         ITraineeRepository traineeRepository,
         IUserRepository userRepository,
-        IMediator mediator)
+        IMediator mediator,
+        IEmailSender emailSender)
     {
         _traineeRepository = traineeRepository;
         _userRepository = userRepository;
         _mediator = mediator;
+        _emailSender = emailSender;
     }
 
     public async Task Handle(ChargeNowTraineeCommand request, CancellationToken cancellationToken)
@@ -49,7 +53,28 @@ public class ChargeNowTraineeCommandHandler : IRequestHandler<ChargeNowTraineeCo
         {
             TraineeId = request.TraineeId,
             UserId = request.UserId,
-            Amount = trainee.Cost.Amount
+            Amount = trainee.Cost.Amount,
+            SuppressPriceChangedNotification = true
+        }, cancellationToken);
+
+        await _emailSender.SendChargeNowToAthlete(athlete.Email.Value, new AthleteBillingEmail
+        {
+            Coach = DisplayName(coach),
+            Athlete = DisplayName(athlete),
+            Email = athlete.Email.Value,
+            PriceSek = trainee.Cost.Amount,
+            Date = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
+            NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
         }, cancellationToken);
     }
+
+    private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)
+        => string.Join(" ", new[]
+            {
+                user.GivenName, user.FamilyName
+            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
+            {
+                "" => user.Email.Value,
+                var value => value
+            };
 }

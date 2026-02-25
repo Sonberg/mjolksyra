@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Email;
 using Stripe;
 
 namespace Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
@@ -11,15 +12,18 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
     private readonly IUserRepository _userRepository;
 
     private readonly IStripeClient _stripeClient;
+    private readonly IEmailSender _emailSender;
 
     public UpdateTraineeCostCommandHandler(
         ITraineeRepository traineeRepository,
         IUserRepository userRepository,
-        IStripeClient stripeClient)
+        IStripeClient stripeClient,
+        IEmailSender emailSender)
     {
         _traineeRepository = traineeRepository;
         _userRepository = userRepository;
         _stripeClient = stripeClient;
+        _emailSender = emailSender;
     }
 
     public async Task Handle(UpdateTraineeCostCommand request, CancellationToken cancellationToken)
@@ -79,5 +83,26 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
         }
 
         await _traineeRepository.Update(trainee, cancellationToken);
+
+        if (!request.SuppressPriceChangedNotification)
+        {
+            await _emailSender.SendPriceChangedToAthlete(athlete.Email.Value, new AthleteBillingEmail
+            {
+                Coach = DisplayName(coach),
+                Athlete = DisplayName(athlete),
+                Email = athlete.Email.Value,
+                PriceSek = trainee.Cost.Amount
+            }, cancellationToken);
+        }
     }
+
+    private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)
+        => string.Join(" ", new[]
+            {
+                user.GivenName, user.FamilyName
+            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
+            {
+                "" => user.Email.Value,
+                var value => value
+            };
 }

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Mjolksyra.Api.Options;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Email;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -21,19 +23,25 @@ public class WebhookController : Controller
 
     private readonly ITraineeRepository _traineeRepository;
     private readonly IUserEventPublisher _userEvents;
+    private readonly IEmailSender _emailSender;
+    private readonly IConfiguration _configuration;
 
     public WebhookController(
         IOptions<StripeOptions> options,
         IStripeClient stripeClient,
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
-        IUserEventPublisher userEvents)
+        IUserEventPublisher userEvents,
+        IEmailSender emailSender,
+        IConfiguration configuration)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
         _userEvents = userEvents;
+        _emailSender = emailSender;
+        _configuration = configuration;
     }
 
     [HttpPost]
@@ -109,6 +117,7 @@ public class WebhookController : Controller
     {
         var userId = Guid.Parse(account.Metadata["UserId"]);
         var user = await _userRepository.GetById(userId, CancellationToken.None);
+        var previousStatus = user.Coach?.Stripe?.Status;
 
         user.Coach!.Stripe!.Status = account switch
         {
@@ -126,6 +135,17 @@ public class WebhookController : Controller
             scope = "coach-stripe",
             status = user.Coach!.Stripe!.Status.ToString()
         });
+
+        if (user.Coach?.Stripe is not null && previousStatus != user.Coach.Stripe.Status)
+        {
+            await _emailSender.SendCoachStripeStatusToCoach(user.Email.Value, new CoachStripeStatusEmail
+            {
+                Coach = DisplayName(user),
+                Email = user.Email.Value,
+                Status = user.Coach.Stripe.Status.ToString(),
+                Message = user.Coach.Stripe.Message
+            }, CancellationToken.None);
+        }
     }
 
     private async Task HandleInvoiceSucceeded(Invoice invoice)
@@ -134,6 +154,8 @@ public class WebhookController : Controller
 
         var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
         if (trainee is null) return;
+        var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
+        var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
 
         var transactionCost = TraineeTransactionCost.From(trainee.Cost);
         trainee.Transactions.Add(new TraineeTransaction
@@ -147,6 +169,16 @@ public class WebhookController : Controller
         });
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
+
+        await _emailSender.SendPaymentSucceededToAthlete(athlete.Email.Value, new AthleteBillingEmail
+        {
+            Coach = DisplayName(coach),
+            Athlete = DisplayName(athlete),
+            Email = athlete.Email.Value,
+            PriceSek = trainee.Cost.Amount,
+            Date = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
+            NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
+        }, CancellationToken.None);
     }
 
     private async Task HandleInvoiceFailed(Invoice invoice)
@@ -155,6 +187,8 @@ public class WebhookController : Controller
 
         var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
         if (trainee is null) return;
+        var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
+        var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
 
         var transactionCost = TraineeTransactionCost.From(trainee.Cost);
         trainee.Transactions.Add(new TraineeTransaction
@@ -168,6 +202,19 @@ public class WebhookController : Controller
         });
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
+
+        var billingEmail = new AthleteBillingEmail
+        {
+            Coach = DisplayName(coach),
+            Athlete = DisplayName(athlete),
+            Email = athlete.Email.Value,
+            PriceSek = trainee.Cost.Amount,
+            Link = $"{GetAppBaseUrl()}/app/athlete",
+            Reason = invoice.Description ?? invoice.Status
+        };
+
+        await _emailSender.SendPaymentFailedToAthlete(athlete.Email.Value, billingEmail, CancellationToken.None);
+        await _emailSender.SendPaymentFailedToCoach(coach.Email.Value, billingEmail, CancellationToken.None);
     }
 
     private async Task HandleSubscriptionDeleted(Subscription subscription)
@@ -180,4 +227,16 @@ public class WebhookController : Controller
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
     }
+
+    private string GetAppBaseUrl() => _configuration["App:BaseUrl"] ?? "http://localhost:3000";
+
+    private static string DisplayName(User user)
+        => string.Join(" ", new[]
+            {
+                user.GivenName, user.FamilyName
+            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
+        {
+            "" => user.Email.Value,
+            var value => value
+        };
 }

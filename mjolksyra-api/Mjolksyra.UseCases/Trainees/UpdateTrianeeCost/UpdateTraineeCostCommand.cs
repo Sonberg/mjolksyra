@@ -22,4 +22,6 @@ public record UpdateTraineeCostCommand : UpdateTraineeCostRequest, IRequest
     public Guid TraineeId { get; set; }
 
     public Guid UserId { get; set; }
+
+    public bool SuppressPriceChangedNotification { get; set; }
 }

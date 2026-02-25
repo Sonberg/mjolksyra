@@ -46,7 +46,9 @@ public class InviteTraineeCommandHandler(
         {
             Coach = coach.GivenName!,
             Text = athlete is not null ? "Log in to your account" : "Create an account",
-            Link = configuration["App:BaseUrl"] ?? "http://localhost:3000"
+            Link = configuration["App:BaseUrl"] ?? "http://localhost:3000",
+            Email = request.Email,
+            PriceSek = request.MonthlyPriceAmount
         }, cancellationToken);
 
         return TraineeInvitationsResponse.From(invitation, [coach]);
