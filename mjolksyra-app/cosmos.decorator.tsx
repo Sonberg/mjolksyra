@@ -1,5 +1,5 @@
 import { Providers } from "./app/providers";
 
-export default function ({ children }: any) {
+export default function CosmosDecorator({ children }: any) {
   return <Providers>{children}</Providers>;
 }

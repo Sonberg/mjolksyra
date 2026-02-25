@@ -51,6 +51,12 @@ export default {
             applicationFee: 100,
             total: 1000,
           },
+          billing: {
+            status: "SubscriptionActive",
+            hasPrice: true,
+            hasSubscription: true,
+            lastChargedAt: null,
+          },
           nextWorkoutAt: dayjs().add(1, "day").toDate(),
           lastWorkoutAt: dayjs().subtract(1, "day").toDate(),
           createdAt: dayjs().subtract(2, "day").toDate(),

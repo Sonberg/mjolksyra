@@ -4,7 +4,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
   callback: T,
   delay: number
 ): (...args: Parameters<T>) => void {
-  const handlerRef = useRef<number | undefined>();
+  const handlerRef = useRef<number | undefined>(undefined);
 
   const debouncedCallback = useCallback(
     (...args: Parameters<T>) => {

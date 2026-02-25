@@ -13,7 +13,7 @@ type Props = {
 export function PageContent({ user }: Props) {
   const [coach, setCoach] = useState<UserTrainee | null>(user.coaches[0]);
   const needsOnboarding = user.onboarding.athlete !== "Completed" || false;
-  const athleteName = user.givenName || user.name || "Athlete";
+  const athleteName = user.givenName || "Athlete";
   const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
 
   return (
