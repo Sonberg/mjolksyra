@@ -61,7 +61,10 @@ export function Navigation() {
       )}
     >
       <div className="mx-auto flex h-16 w-full max-w-[1800px] items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="group text-base font-medium transition-colors">
+        <Link
+          href="/"
+          className="group text-base font-medium transition-colors"
+        >
           <div className="mr-3 flex items-center px-2.5 py-1.5">
             <Image
               className="mr-2 h-7 w-7"
@@ -75,44 +78,38 @@ export function Navigation() {
             </div>
           </div>
         </Link>
-
         <div className="ml-auto flex items-center space-x-3">
-          <nav className="hidden items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950/80 p-1 md:flex">
-            <Link
-              href="/app/coach/dashboard"
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
-                isCoachActive
-                  ? "bg-zinc-100 text-black"
-                  : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
-              )}
-            >
-              Coach
-            </Link>
+          {auth.isAuthenticated ? (
+            <nav className="hidden items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950/80 p-1 md:flex">
+              <Link
+                href="/app/coach/dashboard"
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
+                  isCoachActive
+                    ? "bg-zinc-100 text-black"
+                    : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
+                )}
+              >
+                Coach
+              </Link>
 
-            <Link
-              href="/app/athlete"
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
-                isAthleteActive
-                  ? "bg-zinc-100 text-black"
-                  : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
-              )}
-            >
-              Athlete
-            </Link>
-          </nav>
+              <Link
+                href="/app/athlete"
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
+                  isAthleteActive
+                    ? "bg-zinc-100 text-black"
+                    : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
+                )}
+              >
+                Athlete
+              </Link>
+            </nav>
+          ) : null}
           {auth.isAuthenticated ? (
             <NavigationUser />
           ) : (
             <>
-              <Link
-                href="/app/coach/dashboard"
-                className="hidden items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-400 transition hover:bg-zinc-900 hover:text-zinc-200 sm:inline-flex"
-              >
-                Explore
-                <ArrowRightIcon className="h-4 w-4" />
-              </Link>
               <LoginDialog
                 trigger={
                   <Button

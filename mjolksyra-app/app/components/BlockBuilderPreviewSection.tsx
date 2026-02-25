@@ -5,9 +5,21 @@ import { ArrowRightIcon, Layers3Icon } from "lucide-react";
 
 const previewWeeks = [
   { week: "Week 1", focus: "Foundation", sessions: ["Squat", "Bench", "Pull"] },
-  { week: "Week 2", focus: "Build", sessions: ["Volume", "Power", "Accessories"] },
-  { week: "Week 3", focus: "Peak", sessions: ["Heavy Singles", "Speed Work", "Technique"] },
-  { week: "Week 4", focus: "Deload", sessions: ["Recovery", "Mobility", "Low Intensity"] },
+  {
+    week: "Week 2",
+    focus: "Build",
+    sessions: ["Volume", "Power", "Accessories"],
+  },
+  {
+    week: "Week 3",
+    focus: "Peak",
+    sessions: ["Heavy Singles", "Speed Work", "Technique"],
+  },
+  {
+    week: "Week 4",
+    focus: "Deload",
+    sessions: ["Recovery", "Mobility", "Low Intensity"],
+  },
 ];
 
 export function BlockBuilderPreviewSection() {
@@ -28,13 +40,6 @@ export function BlockBuilderPreviewSection() {
               from foundation to deload.
             </p>
           </div>
-          <Link
-            href="/app/coach/blocks"
-            className="inline-flex items-center gap-2 self-start rounded-xl border border-zinc-500 bg-zinc-100 px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-300"
-          >
-            Open Block Builder
-            <ArrowRightIcon className="h-4 w-4" />
-          </Link>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/90 p-4 md:p-6">
