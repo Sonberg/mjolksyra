@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Trainees;
 using Mjolksyra.UseCases.Trainees.CancelTrainee;
+using Mjolksyra.UseCases.Trainees.ChargeNowTrainee;
 using Mjolksyra.UseCases.Trainees.CreateTrainee;
 using Mjolksyra.UseCases.Trainees.GetTraineeById;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
@@ -76,6 +77,18 @@ public class TraineesController : Controller
             ),
             cancellationToken
         );
+    }
+
+    [HttpPost("{traineeId:guid}/charge-now")]
+    public async Task ChargeNow(Guid traineeId, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new ChargeNowTraineeCommand
+        {
+            TraineeId = traineeId,
+            UserId = await _userContext
+                .GetUserId(cancellationToken)
+                .ContinueWith(x => x.Result!.Value, cancellationToken)
+        }, cancellationToken);
     }
 
     [HttpPost]

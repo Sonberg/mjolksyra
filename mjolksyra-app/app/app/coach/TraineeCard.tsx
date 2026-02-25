@@ -2,6 +2,7 @@
 
 import { Trainee } from "@/services/trainees/type";
 import {
+  CreditCardIcon,
   DumbbellIcon,
   MoreHorizontalIcon,
   PencilIcon,
@@ -13,8 +14,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
+import { chargeTrainee } from "@/services/trainees/chargeTrainee";
 import { updateTraineeCost } from "@/services/trainees/updateTraineeCost";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -39,12 +41,17 @@ type TraineeCardProps = {
 export function TraineeCard({ trainee }: TraineeCardProps) {
   const router = useRouter();
   const url = useGravatar(trainee.athlete.email ?? "", 56);
-  const initialCoachPrice = useMemo(
-    () => (trainee.cost?.coach != null ? `${trainee.cost.coach}` : ""),
-    [trainee.cost?.coach],
+  const initialPrice = useMemo(
+    () => (trainee.cost?.total != null ? `${trainee.cost.total}` : ""),
+    [trainee.cost?.total],
   );
-  const [price, setPrice] = useState(initialCoachPrice);
+  const [price, setPrice] = useState(initialPrice);
   const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
+  const [isActionsOpen, setActionsOpen] = useState(false);
+
+  useEffect(() => {
+    setPrice(initialPrice);
+  }, [initialPrice]);
   const cancel = useMutation({
     mutationKey: ["trainee", trainee.id, "cancel"],
     mutationFn: () => cancelTrainee({ traineeId: trainee.id }),
@@ -59,6 +66,11 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
       }
       await updateTraineeCost({ traineeId: trainee.id, amount });
     },
+    onSettled: () => router.refresh(),
+  });
+  const chargeNow = useMutation({
+    mutationKey: ["trainee", trainee.id, "charge-now"],
+    mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
     onSettled: () => router.refresh(),
   });
 
@@ -104,6 +116,15 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
     }
   }, [trainee.billing.status, trainee.cost?.coach]);
 
+  const canChargeNow = useMemo(() => {
+    const hasPrice = (trainee.cost?.total ?? 0) > 0;
+    const paymentReady =
+      trainee.billing.status === "SubscriptionActive" ||
+      trainee.billing.status === "PriceSet";
+
+    return hasPrice && paymentReady;
+  }, [trainee.billing.status, trainee.cost?.total]);
+
   const metrics = [
     {
       label: "Next workout",
@@ -124,8 +145,10 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
         : "--",
     },
     {
-      label: "Billing",
-      value: "Coach plan",
+      label: "Next charge",
+      value: trainee.billing.nextChargedAt
+        ? format(new Date(trainee.billing.nextChargedAt), "MMM d")
+        : "--",
     },
   ];
 
@@ -161,7 +184,11 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
             <p className="mt-1 text-xs text-zinc-500">{billingBadge.hint}</p>
           </div>
         </div>
-        <DropdownMenu>
+        <DropdownMenu
+          modal={false}
+          open={isActionsOpen}
+          onOpenChange={setActionsOpen}
+        >
           <DropdownMenuTrigger asChild>
             <button
               type="button"
@@ -176,15 +203,32 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
             className="w-52 border-zinc-700 bg-zinc-950 text-zinc-100"
           >
             <DropdownMenuItem
-              onSelect={() => setPriceEditorOpen(true)}
+              onSelect={() => {
+                setActionsOpen(false);
+                setPriceEditorOpen(true);
+              }}
               className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
             >
               <PencilIcon className="mr-2 h-4 w-4" />
               Change price
             </DropdownMenuItem>
             <DropdownMenuItem
+              disabled={chargeNow.isPending || !canChargeNow}
+              onSelect={() => {
+                setActionsOpen(false);
+                chargeNow.mutateAsync();
+              }}
+              className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+            >
+              <CreditCardIcon className="mr-2 h-4 w-4" />
+              {chargeNow.isPending ? "Charging..." : "Charge now (reset cycle)"}
+            </DropdownMenuItem>
+            <DropdownMenuItem
               disabled={cancel.isPending}
-              onSelect={() => cancel.mutateAsync()}
+              onSelect={() => {
+                setActionsOpen(false);
+                cancel.mutateAsync();
+              }}
               className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
             >
               <XIcon className="mr-2 h-4 w-4" />
@@ -227,7 +271,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
           <DialogHeader>
             <DialogTitle>Change price</DialogTitle>
             <DialogDescription className="text-zinc-400">
-              Set the monthly coaching price for this athlete.
+              Set the monthly coaching price charged to the athlete.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -248,6 +292,10 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
                 className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600"
               />
               <span className="text-sm text-zinc-400">SEK/mo</span>
+            </div>
+            <div className="rounded-xl border border-amber-900/70 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
+              Saving a new price charges the athlete immediately and resets the
+              monthly billing date.
             </div>
           </div>
           <DialogFooter>

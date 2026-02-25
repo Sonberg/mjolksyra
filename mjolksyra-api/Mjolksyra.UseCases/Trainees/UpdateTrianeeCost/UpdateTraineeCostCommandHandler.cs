@@ -72,9 +72,7 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
                 TransferData = new SubscriptionTransferDataOptions
                 {
                     Destination = coach.Coach.Stripe.AccountId,
-                },
-                // Use an explicit decimal percent so Stripe applies the platform fee on each invoice.
-                ApplicationFeePercent = 10m,
+                }
             }, cancellationToken: cancellationToken);
 
             trainee.StripeSubscriptionId = subscription.Id;

@@ -26,6 +26,7 @@ const billingSchema = z.object({
   hasPrice: z.boolean(),
   hasSubscription: z.boolean(),
   lastChargedAt: z.coerce.date().nullable(),
+  nextChargedAt: z.coerce.date().nullable(),
 });
 
 const defaultBilling = {
@@ -33,6 +34,7 @@ const defaultBilling = {
   hasPrice: false,
   hasSubscription: false,
   lastChargedAt: null,
+  nextChargedAt: null,
 };
 
 export const schema = z.object({

@@ -57,6 +57,8 @@ public class SetupIntentController : Controller
         var setupIntentOptions = new SetupIntentCreateOptions
         {
             Customer = await GetCustomerId(cancellationToken),
+            Usage = "off_session",
+            PaymentMethodTypes = ["card"],
             Metadata = new Dictionary<string, string>
             {
                 {

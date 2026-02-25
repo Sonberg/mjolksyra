@@ -1,5 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.UseCases.Trainees.GetTrainees;
@@ -28,7 +30,9 @@ public class GetTraineesRequestHandler : IRequestHandler<GetTraineesRequest, ICo
             return [];
         }
 
-        var trainees = await _traineeRepository.Get(userId, cancellationToken);
+        var trainees = (await _traineeRepository.Get(userId, cancellationToken))
+            .Where(x => x.CoachUserId == userId && x.Status == TraineeStatus.Active)
+            .ToList();
         var resultTask = trainees.Select(x => _traineeResponseBuilder.Build(x, cancellationToken)).ToList();
 
         return await Task.WhenAll(resultTask);

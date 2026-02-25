@@ -9,4 +9,6 @@ public class TraineeBillingResponse
     public required bool HasSubscription { get; set; }
 
     public required DateTimeOffset? LastChargedAt { get; set; }
+
+    public required DateTimeOffset? NextChargedAt { get; set; }
 }
