@@ -1,7 +1,12 @@
 "use client";
 
 import { Trainee } from "@/services/trainees/type";
-import { DumbbellIcon, MoreHorizontalIcon, PencilIcon, XIcon } from "lucide-react";
+import {
+  DumbbellIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  XIcon,
+} from "lucide-react";
 import { format } from "date-fns";
 import { useGravatar } from "@/hooks/useGravatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,7 +41,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
   const url = useGravatar(trainee.athlete.email ?? "", 56);
   const initialCoachPrice = useMemo(
     () => (trainee.cost?.coach != null ? `${trainee.cost.coach}` : ""),
-    [trainee.cost?.coach]
+    [trainee.cost?.coach],
   );
   const [price, setPrice] = useState(initialCoachPrice);
   const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
@@ -141,12 +146,14 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
                 }`
               : trainee.athlete.name}
           </h3>
-          <p className="truncate text-sm text-zinc-400">{trainee.athlete.email}</p>
+          <p className="truncate text-sm text-zinc-400">
+            {trainee.athlete.email}
+          </p>
           <div className="mt-2">
             <span
               className={cn(
                 "inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold",
-                billingBadge.className
+                billingBadge.className,
               )}
             >
               {billingBadge.label}
@@ -206,7 +213,9 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
       <div className="flex flex-wrap gap-3 bg-zinc-950 px-5 py-4 md:px-6">
         <button
           className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-200"
-          onClick={() => router.push(`/app/coach/${trainee.id}/planner`)}
+          onClick={() =>
+            router.push(`/app/coach/athletes/${trainee.id}/planner`)
+          }
         >
           <DumbbellIcon className="h-4 w-4" />
           Plan workouts

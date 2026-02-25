@@ -42,19 +42,46 @@ export function PageContent({ traineeId }: Props) {
   const rightSide = useMemo(
     () => (
       <div className="flex h-full min-h-0 flex-col">
-        <div className="px-4 pt-2 flex gap-2 items-center">
-          <div className="font-semibold text-lg text-zinc-100">
-            {athleteName}
+        <div className="border-b border-zinc-800 bg-zinc-950/90 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
+              onClick={() => router.push("/app/coach/athletes")}
+              aria-label="Back to athletes"
+            >
+              <ChevronLeftIcon className="h-4 w-4" />
+            </button>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                Planner
+              </p>
+              <div className="text-lg font-semibold text-zinc-100">
+                {athleteName}
+              </div>
+            </div>
           </div>
         </div>
         <Tabs
           defaultValue="exercises"
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
-          <TabsList className="mx-4 mb-0">
-            <TabsTrigger value="exercises">Exercises</TabsTrigger>
-            <TabsTrigger value="blocks">Blocks</TabsTrigger>
-          </TabsList>
+          <div className="border-b border-zinc-800 bg-zinc-950/70 px-4 py-2">
+            <TabsList className="m-0 inline-flex h-auto items-center justify-start gap-1 rounded-lg border border-zinc-800 bg-zinc-900/80 p-1">
+              <TabsTrigger
+                value="exercises"
+                className="rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
+              >
+                Exercises
+              </TabsTrigger>
+              <TabsTrigger
+                value="blocks"
+                className="rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
+              >
+                Blocks
+              </TabsTrigger>
+            </TabsList>
+          </div>
           <TabsContent
             value="exercises"
             className="mt-0 min-h-0 flex-1 overflow-hidden"
