@@ -53,6 +53,29 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
     () => groupBy(days, (x) => x.format("ddd")),
     [days]
   );
+  const appliedBlockSummary = useMemo(() => {
+    const applied = plannedWorkouts
+      .map((x) => x.appliedBlock)
+      .filter((x): x is NonNullable<PlannedWorkout["appliedBlock"]> => !!x);
+
+    if (applied.length === 0) return null;
+
+    const first = applied[0];
+    const sameBlock = applied.every(
+      (x) =>
+        x.blockId === first.blockId &&
+        x.weekNumber === first.weekNumber &&
+        x.totalWeeks === first.totalWeeks
+    );
+
+    if (!sameBlock) {
+      return { label: "Mixed blocks" };
+    }
+
+    return {
+      label: `${first.blockName} · B${first.weekNumber}/${first.totalWeeks}`,
+    };
+  }, [plannedWorkouts]);
 
   const day = useCallback(
     (dayName: string) => {
@@ -90,7 +113,14 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
             }
           )}
         >
-          <div className="text-sm font-semibold text-zinc-100">Week {weekNumber}</div>
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="text-sm font-semibold text-zinc-100">Week {weekNumber}</div>
+            {appliedBlockSummary ? (
+              <div className="max-w-[14rem] truncate rounded-md border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
+                {appliedBlockSummary.label}
+              </div>
+            ) : null}
+          </div>
           <div ref={setDraggableNodeRef}>
             {plannedWorkouts.length ? (
               <DraggingToolTip
@@ -148,6 +178,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
       groupByName,
       actions,
       workouts,
+      appliedBlockSummary,
     ]
   );
 }

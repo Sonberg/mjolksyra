@@ -19,6 +19,8 @@ public class PlannedWorkoutResponse
 
     public required DateTimeOffset CreatedAt { get; set; }
 
+    public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
+
     public static PlannedWorkoutResponse From(PlannedWorkout workout, ICollection<Exercise> exercises)
     {
         return new PlannedWorkoutResponse
@@ -29,9 +31,32 @@ public class PlannedWorkoutResponse
             Note = workout.Note,
             Exercises = workout.Exercises.Select(x => PlannedExerciseResponse.From(x, exercises)).ToList(),
             CreatedAt = workout.CreatedAt,
-            PlannedAt = workout.PlannedAt
+            PlannedAt = workout.PlannedAt,
+            AppliedBlock = workout.AppliedBlock is null
+                ? null
+                : new PlannedWorkoutAppliedBlockResponse
+                {
+                    BlockId = workout.AppliedBlock.BlockId,
+                    BlockName = workout.AppliedBlock.BlockName,
+                    StartDate = workout.AppliedBlock.StartDate,
+                    WeekNumber = workout.AppliedBlock.WeekNumber,
+                    TotalWeeks = workout.AppliedBlock.TotalWeeks
+                }
         };
     }
+}
+
+public class PlannedWorkoutAppliedBlockResponse
+{
+    public required Guid BlockId { get; set; }
+
+    public required string BlockName { get; set; }
+
+    public required DateOnly StartDate { get; set; }
+
+    public required int WeekNumber { get; set; }
+
+    public required int TotalWeeks { get; set; }
 }
 
 public class PlannedExerciseResponse : IExerciseResponse

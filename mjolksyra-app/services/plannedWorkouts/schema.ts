@@ -16,4 +16,15 @@ export const workoutSchema = z.object({
   plannedAt: z.string(),
   exercises: z.array(exerciseSchema),
   createdAt: z.coerce.date().nullable(),
+  appliedBlock: z
+    .object({
+      blockId: z.string(),
+      blockName: z.string(),
+      startDate: z.string(),
+      weekNumber: z.number(),
+      totalWeeks: z.number(),
+    })
+    .nullable()
+    .optional()
+    .default(null),
 });

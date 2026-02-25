@@ -24,7 +24,7 @@ export function CoachWorkspaceShell({
     <div
       style={style}
       className={cn(
-        "font-[var(--font-body)] relative mx-auto w-full overflow-visible",
+        "font-[var(--font-body)] relative mx-auto w-full overflow-x-clip overflow-y-visible",
         showTabs && "-mt-8 md:-mt-10",
         fullBleed && "-mb-32",
         className,

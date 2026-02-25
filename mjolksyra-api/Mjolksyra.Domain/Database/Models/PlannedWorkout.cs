@@ -18,5 +18,20 @@ public class PlannedWorkout : IDocument
 
     public DateTimeOffset CreatedAt { get; set; }
 
+    public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }
+
     public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;
+}
+
+public class PlannedWorkoutAppliedBlock
+{
+    public Guid BlockId { get; set; }
+
+    public required string BlockName { get; set; }
+
+    public DateOnly StartDate { get; set; }
+
+    public int WeekNumber { get; set; }
+
+    public int TotalWeeks { get; set; }
 }

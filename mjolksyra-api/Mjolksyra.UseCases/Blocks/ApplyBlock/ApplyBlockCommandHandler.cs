@@ -83,7 +83,15 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
                     Name = e.Name,
                     Note = e.Note
                 }).ToList(),
-                CreatedAt = DateTimeOffset.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow,
+                AppliedBlock = new PlannedWorkoutAppliedBlock
+                {
+                    BlockId = block.Id,
+                    BlockName = block.Name,
+                    StartDate = request.StartDate,
+                    WeekNumber = blockWorkout.Week,
+                    TotalWeeks = block.NumberOfWeeks
+                }
             }, cancellationToken);
         });
 

@@ -111,7 +111,7 @@ export function PageContent({ traineeId }: Props) {
 
   return (
     <CoachWorkspaceShell fullBleed>
-      <div className="h-[calc(100vh-7.5rem)] min-h-[680px] w-full">
+      <div className="h-[calc(100vh-7.5rem)] min-h-[680px] min-w-0 w-full overflow-hidden">
         <TooltipProvider>
           <WorkoutPlanner
             traineeId={traineeId}
