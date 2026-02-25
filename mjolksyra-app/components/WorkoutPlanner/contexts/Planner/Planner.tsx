@@ -87,6 +87,7 @@ export function PlannerProvider({
               exercises: [cloning.exercise],
               plannedAt: cloning.targetDate,
               createdAt: null,
+              appliedBlock: null,
             },
           });
         }
