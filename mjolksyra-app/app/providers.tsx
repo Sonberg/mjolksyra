@@ -10,7 +10,7 @@ const client = new QueryClient();
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider waitlistUrl="/waitlist">
       <AuthProvider>
         <QueryClientProvider client={client}>
           <PostHog>{children}</PostHog>
