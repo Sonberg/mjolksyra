@@ -10,12 +10,9 @@ ENV ASPNETCORE_HTTP_PORTS=80
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY ["Mjolksyra.Api/Mjolksyra.Api.csproj", "Mjolksyra.Api/"]
-COPY ["Mjolksyra.Domain/Mjolksyra.Domain.csproj", "Mjolksyra.Domain/"]
-COPY ["Mjolksyra.Infrastructure/Mjolksyra.Infrastructure.csproj", "Mjolksyra.Infrastructure/"]
-COPY ["Mjolksyra.UseCases/Mjolksyra.UseCases.csproj", "Mjolksyra.UseCases/"]
 RUN dotnet restore "Mjolksyra.Api/Mjolksyra.Api.csproj"
 COPY . .
-WORKDIR "/src/Mjolksyra.Api"
+WORKDIR "/Mjolksyra.Api"
 RUN dotnet build "Mjolksyra.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
