@@ -20,14 +20,13 @@ param principalId string
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 var envName = toLower(environmentName)
-var isProd = envName == 'prod'
-var envShort = isProd ? 'p' : (envName == 'preview' ? 'v' : take(replace(envName, '-', ''), 2))
+var envKvSuffix = envName == 'preview' ? 'prev' : (envName == 'prod' ? 'prod' : take(replace(envName, '-', ''), 4))
 var apiContainerAppName = '${envName}-mjolksyra-api'
 var appContainerAppName = '${envName}-mjolksyra-app'
 var apiIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-api-${resourceToken}'
 var appIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-app-${resourceToken}'
-var apiKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envShort}a'
-var appKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envShort}b'
+var apiKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envKvSuffix}a'
+var appKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envKvSuffix}b'
 
 // Monitor application with Azure Monitor
 module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
@@ -122,11 +121,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
         '*'
       ]
     }
-    customDomains: isProd
-      ? [
-          { name: 'a.mjolksyra.com', certificateId: managedCert.id }
-        ]
-      : []
+    customDomains: []
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
@@ -183,15 +178,6 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
     location: location
     tags: union(tags, { 'azd-service-name': 'mjolksyra-api' })
   }
-}
-
-resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = if (isProd) {
-  name: '${abbrs.appManagedEnvironments}${resourceToken}/a.mjolksyra.com-cae-ygx5-250126123357'
-  properties: {
-    domainControlValidation: 'CNAME'
-    subjectName: 'a.mjolksyra.com'
-  }
-  location: location
 }
 
 module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
