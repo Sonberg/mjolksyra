@@ -4,6 +4,9 @@ param location string = resourceGroup().location
 @description('Tags that will be applied to all resources')
 param tags object = {}
 
+@description('Environment name used for environment-specific resource names')
+param environmentName string
+
 param mjolksyraApiExists bool
 @secure()
 param mjolksyraApiDefinition object
@@ -16,6 +19,14 @@ param principalId string
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
+var envName = toLower(environmentName)
+var isProd = envName == 'prod'
+var apiContainerAppName = '${envName}-mjolksyra-api'
+var appContainerAppName = '${envName}-mjolksyra-app'
+var apiIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-api-${resourceToken}'
+var appIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-app-${resourceToken}'
+var apiKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}-${envName}-api'
+var appKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}-${envName}-app'
 
 // Monitor application with Azure Monitor
 module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
@@ -73,7 +84,7 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.4.5
 module mjolksyraApiIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
   name: 'mjolksyraApiidentity'
   params: {
-    name: '${abbrs.managedIdentityUserAssignedIdentities}mjolksyraApi-${resourceToken}'
+    name: apiIdentityName
     location: location
   }
 }
@@ -100,19 +111,21 @@ var mjolksyraApiEnv = map(filter(mjolksyraApiAppSettingsArray, i => i.?secret ==
 module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   name: 'mjolksyraApi'
   params: {
-    name: 'mjolksyra-api'
+    name: apiContainerAppName
     ingressTargetPort: 8080
     corsPolicy: {
       allowedOrigins: [
-        'https://mjolksyra-app.${containerAppsEnvironment.outputs.defaultDomain}'
+        'https://${appContainerAppName}.${containerAppsEnvironment.outputs.defaultDomain}'
       ]
       allowedMethods: [
         '*'
       ]
     }
-    customDomains: [
-      { name: 'a.mjolksyra.com', certificateId: managedCert.id }
-    ]
+    customDomains: isProd
+      ? [
+          { name: 'a.mjolksyra.com', certificateId: managedCert.id }
+        ]
+      : []
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
@@ -171,7 +184,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   }
 }
 
-resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = {
+resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = if (isProd) {
   name: '${abbrs.appManagedEnvironments}${resourceToken}/a.mjolksyra.com-cae-ygx5-250126123357'
   properties: {
     domainControlValidation: 'CNAME'
@@ -183,7 +196,7 @@ resource managedCert 'Microsoft.App/managedEnvironments/managedCertificates@2024
 module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
   name: 'mjolksyraAppidentity'
   params: {
-    name: '${abbrs.managedIdentityUserAssignedIdentities}mjolksyraApp-${resourceToken}'
+    name: appIdentityName
     location: location
   }
 }
@@ -210,7 +223,7 @@ var mjolksyraAppEnv = map(filter(mjolksyraAppAppSettingsArray, i => i.?secret ==
 module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
   name: 'mjolksyraApp'
   params: {
-    name: 'mjolksyra-app'
+    name: appContainerAppName
     scaleMinReplicas: 0
     scaleMaxReplicas: 10
     secrets: {
@@ -242,7 +255,7 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
             }
             {
               name: 'API_URL'
-              value: 'https://mjolksyra-api.${containerAppsEnvironment.outputs.defaultDomain}'
+              value: 'https://${apiContainerAppName}.${containerAppsEnvironment.outputs.defaultDomain}'
             }
             {
               name: 'KEY_VAULT_URL'
@@ -276,7 +289,7 @@ module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
 module keyVaultApi 'br/public:avm/res/key-vault/vault:0.6.1' = {
   name: 'keyvault-api'
   params: {
-    name: '${abbrs.keyVaultVaults}${resourceToken}-api'
+    name: apiKeyVaultName
     location: location
     tags: tags
     enableRbacAuthorization: false
@@ -301,7 +314,7 @@ module keyVaultApi 'br/public:avm/res/key-vault/vault:0.6.1' = {
 module keyVaultApp 'br/public:avm/res/key-vault/vault:0.6.1' = {
   name: 'keyvault-app'
   params: {
-    name: '${abbrs.keyVaultVaults}${resourceToken}-app'
+    name: appKeyVaultName
     location: location
     tags: tags
     enableRbacAuthorization: false

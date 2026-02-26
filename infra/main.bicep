@@ -9,6 +9,9 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+@description('Shared resource group name for all environments')
+param sharedResourceGroupName string = 'rg-mjolksyra'
+
 param mjolksyraApiExists bool
 @secure()
 param mjolksyraApiDefinition object
@@ -30,7 +33,7 @@ var tags = {
 
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-${environmentName}'
+  name: sharedResourceGroupName
   location: location
   tags: tags
 }
@@ -41,6 +44,7 @@ module resources 'resources.bicep' = {
   params: {
     location: location
     tags: tags
+    environmentName: environmentName
     principalId: principalId
     mjolksyraApiExists: mjolksyraApiExists
     mjolksyraApiDefinition: mjolksyraApiDefinition
