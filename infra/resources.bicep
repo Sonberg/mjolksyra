@@ -10,9 +10,11 @@ param environmentName string
 param mjolksyraApiExists bool
 @secure()
 param mjolksyraApiDefinition object
-param mjolksyraAppExists bool
+param mjolksyraAppExists bool = false
 @secure()
-param mjolksyraAppDefinition object
+param mjolksyraAppDefinition object = {
+  settings: []
+}
 
 @description('Id of the user or app to assign application roles')
 param principalId string
@@ -27,6 +29,28 @@ var apiIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-
 var appIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-app-${resourceToken}'
 var apiKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envKvSuffix}a'
 var appKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envKvSuffix}b'
+
+var apiRegistryRoleAssignment = {
+  principalId: mjolksyraApiIdentity.outputs.principalId
+  principalType: 'ServicePrincipal'
+  roleDefinitionIdOrName: subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+  )
+}
+var containerRegistryRoleAssignments = mjolksyraAppExists
+  ? [
+      apiRegistryRoleAssignment
+      {
+        principalId: mjolksyraAppIdentity.outputs.principalId
+        principalType: 'ServicePrincipal'
+        roleDefinitionIdOrName: subscriptionResourceId(
+          'Microsoft.Authorization/roleDefinitions',
+          '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+        )
+      }
+    ]
+  : [apiRegistryRoleAssignment]
 
 // Monitor application with Azure Monitor
 module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
@@ -49,24 +73,7 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' =
     acrAdminUserEnabled: true
     tags: tags
     publicNetworkAccess: 'Enabled'
-    roleAssignments: [
-      {
-        principalId: mjolksyraApiIdentity.outputs.principalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: subscriptionResourceId(
-          'Microsoft.Authorization/roleDefinitions',
-          '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-        )
-      }
-      {
-        principalId: mjolksyraAppIdentity.outputs.principalId
-        principalType: 'ServicePrincipal'
-        roleDefinitionIdOrName: subscriptionResourceId(
-          'Microsoft.Authorization/roleDefinitions',
-          '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-        )
-      }
-    ]
+    roleAssignments: containerRegistryRoleAssignments
   }
 }
 
@@ -180,7 +187,7 @@ module mjolksyraApi 'br/public:avm/res/app/container-app:0.8.0' = {
   }
 }
 
-module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
+module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = if (mjolksyraAppExists) {
   name: 'mjolksyraAppidentity'
   params: {
     name: appIdentityName
@@ -188,7 +195,7 @@ module mjolksyraAppIdentity 'br/public:avm/res/managed-identity/user-assigned-id
   }
 }
 
-module mjolksyraAppFetchLatestImage './modules/fetch-container-image.bicep' = {
+module mjolksyraAppFetchLatestImage './modules/fetch-container-image.bicep' = if (mjolksyraAppExists) {
   name: 'mjolksyraApp-fetch-image'
   params: {
     exists: mjolksyraAppExists
@@ -207,7 +214,7 @@ var mjolksyraAppEnv = map(filter(mjolksyraAppAppSettingsArray, i => i.?secret ==
   value: i.value
 })
 
-module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = {
+module mjolksyraApp 'br/public:avm/res/app/container-app:0.8.0' = if (mjolksyraAppExists) {
   name: 'mjolksyraApp'
   params: {
     name: appContainerAppName
@@ -298,7 +305,7 @@ module keyVaultApi 'br/public:avm/res/key-vault/vault:0.6.1' = {
   }
 }
 
-module keyVaultApp 'br/public:avm/res/key-vault/vault:0.6.1' = {
+module keyVaultApp 'br/public:avm/res/key-vault/vault:0.6.1' = if (mjolksyraAppExists) {
   name: 'keyvault-app'
   params: {
     name: appKeyVaultName
@@ -324,4 +331,4 @@ module keyVaultApp 'br/public:avm/res/key-vault/vault:0.6.1' = {
 }
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.loginServer
 output AZURE_RESOURCE_MJOLKSYRA_API_ID string = mjolksyraApi.outputs.resourceId
-output AZURE_RESOURCE_MJOLKSYRA_APP_ID string = mjolksyraApp.outputs.resourceId
+output AZURE_RESOURCE_MJOLKSYRA_APP_ID string = mjolksyraAppExists ? mjolksyraApp.outputs.resourceId : ''

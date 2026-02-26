@@ -9,7 +9,6 @@ on:
       - "infra/**"
       - "azure.yaml"
       - "mjolksyra-api/**"
-      - "mjolksyra-app/**"
       - ".github/workflows/azure-dev.yml"
 
 permissions:

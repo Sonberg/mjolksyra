@@ -15,9 +15,11 @@ param sharedResourceGroupName string = 'rg-mjolksyra'
 param mjolksyraApiExists bool
 @secure()
 param mjolksyraApiDefinition object
-param mjolksyraAppExists bool
+param mjolksyraAppExists bool = false
 @secure()
-param mjolksyraAppDefinition object
+param mjolksyraAppDefinition object = {
+  settings: []
+}
 
 @description('Id of the user or app to assign application roles')
 param principalId string
