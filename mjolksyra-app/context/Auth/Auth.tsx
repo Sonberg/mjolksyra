@@ -16,7 +16,7 @@ type LoginRequest = {
   refreshTokenExpiresAt: Date | null;
 };
 
-type AuthContextValue = {
+export type AuthContextValue = {
   userId: string | null;
   name: string | null;
   email: string | null;
@@ -28,7 +28,7 @@ type AuthContextValue = {
   getAccessToken: () => Promise<string | null>;
 };
 
-const AuthContext = createContext<AuthContextValue>({
+export const AuthContext = createContext<AuthContextValue>({
   login() {},
   logout() {},
   getAccessToken: async () => null,
