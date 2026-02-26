@@ -84,9 +84,11 @@ export function PlannerProvider({
               traineeId,
               name: null,
               note: null,
+              completionNote: null,
               exercises: [cloning.exercise],
               plannedAt: cloning.targetDate,
               createdAt: null,
+              completedAt: null,
               appliedBlock: null,
             },
           });

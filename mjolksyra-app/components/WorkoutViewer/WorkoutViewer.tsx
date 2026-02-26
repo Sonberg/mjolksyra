@@ -9,10 +9,13 @@ import { CustomTab } from "../CustomTab";
 
 type Props = {
   traineeId: string;
+  mode?: "athlete" | "coach";
 };
 
-export function WorkoutViewer({ traineeId }: Props) {
-  const [mode, setMode] = useState<"past" | "future">("future");
+export function WorkoutViewer({ traineeId, mode: viewerMode = "athlete" }: Props) {
+  const [mode, setMode] = useState<"past" | "future">(
+    viewerMode === "coach" ? "past" : "future",
+  );
   const past = useWorkouts({
     id: "past",
     traineeId,
@@ -40,7 +43,23 @@ export function WorkoutViewer({ traineeId }: Props) {
     () =>
       sortBy(
         uniqBy(mode === "future" ? future.data : past.data, (x) => x.id).filter(
-          (x) => x.exercises.length > 0 || !!x.note?.trim(),
+          (x) => {
+            const visible =
+              x.exercises.length > 0 ||
+              !!x.note?.trim() ||
+              !!x.completionNote?.trim() ||
+              !!x.completedAt;
+
+            if (!visible) {
+              return false;
+            }
+
+            if (viewerMode === "coach" && !x.completedAt) {
+              return false;
+            }
+
+            return true;
+          }
         ),
         (x) => {
           const [year, month, day] = x.plannedAt.split("-");
@@ -52,7 +71,7 @@ export function WorkoutViewer({ traineeId }: Props) {
         },
         mode == "future"
       ),
-    [past.data, future.data, mode]
+    [past.data, future.data, mode, viewerMode]
   );
 
   useEffect(() => {
@@ -69,7 +88,13 @@ export function WorkoutViewer({ traineeId }: Props) {
     <>
       <div className="flex justify-between items-center mb-4">
         <div className="text-3xl font-bold">
-          {mode === "future" ? "Upcoming workouts" : "Past workouts"}
+          {viewerMode === "coach"
+            ? mode === "future"
+              ? "Upcoming workouts"
+              : "Completed workouts"
+            : mode === "future"
+              ? "Upcoming workouts"
+              : "Past workouts"}
         </div>
         <CustomTab
           value={mode}
@@ -82,7 +107,7 @@ export function WorkoutViewer({ traineeId }: Props) {
       </div>
       <div className="grid gap-8">
         {data.map((x) => (
-          <Workout key={x.id} workout={x} />
+          <Workout key={x.id} workout={x} viewerMode={viewerMode} />
         ))}
       </div>
       {!hasNextPage ? (

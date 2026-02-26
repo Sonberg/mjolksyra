@@ -13,7 +13,11 @@ export const workoutSchema = z.object({
   traineeId: z.string(),
   name: z.string().nullable(),
   note: z.string().nullable(),
+  completionNote: z.string().nullable().optional(),
   plannedAt: z.string(),
+  completedAt: z.coerce.date().nullable().optional(),
+  reviewedAt: z.coerce.date().nullable().optional(),
+  reviewNote: z.string().nullable().optional(),
   exercises: z.array(exerciseSchema),
   createdAt: z.coerce.date().nullable(),
   appliedBlock: z

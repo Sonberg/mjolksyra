@@ -24,6 +24,10 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
             Name = request.Workout.Name,
             Note = request.Workout.Note,
             PlannedAt = request.Workout.PlannedAt,
+            CompletedAt = request.Workout.CompletedAt,
+            CompletionNote = request.Workout.CompletionNote,
+            ReviewedAt = request.Workout.ReviewedAt,
+            ReviewNote = request.Workout.ReviewNote,
             Exercises = request.Workout.Exercises
                 .Select(e => new PlannedExercise
                 {

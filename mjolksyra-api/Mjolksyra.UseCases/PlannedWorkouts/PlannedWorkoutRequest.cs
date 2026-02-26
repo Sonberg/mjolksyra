@@ -9,4 +9,12 @@ public class PlannedWorkoutRequest
     public required ICollection<PlannedExerciseRequest> Exercises { get; set; }
 
     public DateOnly PlannedAt { get; set; }
+
+    public DateTimeOffset? CompletedAt { get; set; }
+
+    public string? CompletionNote { get; set; }
+
+    public DateTimeOffset? ReviewedAt { get; set; }
+
+    public string? ReviewNote { get; set; }
 }

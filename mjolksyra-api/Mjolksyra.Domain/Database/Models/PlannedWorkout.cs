@@ -18,6 +18,14 @@ public class PlannedWorkout : IDocument
 
     public DateTimeOffset CreatedAt { get; set; }
 
+    public DateTimeOffset? CompletedAt { get; set; }
+
+    public string? CompletionNote { get; set; }
+
+    public DateTimeOffset? ReviewedAt { get; set; }
+
+    public string? ReviewNote { get; set; }
+
     public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }
 
     public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;

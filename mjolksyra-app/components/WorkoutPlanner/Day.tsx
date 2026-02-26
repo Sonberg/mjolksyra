@@ -9,7 +9,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
+import { CheckCircle2Icon, PencilIcon, RectangleEllipsisIcon } from "lucide-react";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { draggingStyle } from "@/lib/draggingStyle";
 import { PLANNED_AT } from "@/constants/dateFormats";
@@ -121,6 +121,24 @@ export function Day({ date, plannedWorkout }: Props) {
             </div>
             {plannedWorkout ? (
               <div className="flex shrink-0 items-center gap-1">
+                {plannedWorkout.completedAt ? (
+                  <div
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+                      plannedWorkout.reviewedAt
+                        ? "border-emerald-700/60 bg-emerald-900/30 text-emerald-200"
+                        : "border-amber-700/60 bg-amber-900/20 text-amber-200"
+                    )}
+                    title={
+                      plannedWorkout.reviewedAt
+                        ? `Reviewed ${new Date(plannedWorkout.reviewedAt).toLocaleString()}`
+                        : "Athlete completed workout"
+                    }
+                  >
+                    <CheckCircle2Icon className="h-3 w-3" />
+                    {plannedWorkout.reviewedAt ? "Reviewed" : "Done"}
+                  </div>
+                ) : null}
                 <DraggingToolTip
                   icon={
                     <div className="grid h-6 w-6 place-content-center rounded-md text-zinc-400 transition hover:bg-white/10 hover:text-zinc-200">

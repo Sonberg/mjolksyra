@@ -2,6 +2,7 @@
 
 import { Trainee } from "@/services/trainees/type";
 import {
+  ClipboardCheckIcon,
   CreditCardIcon,
   DumbbellIcon,
   MoreHorizontalIcon,
@@ -263,6 +264,15 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
         >
           <DumbbellIcon className="h-4 w-4" />
           Plan workouts
+        </button>
+        <button
+          className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800"
+          onClick={() =>
+            router.push(`/app/coach/athletes/${trainee.id}/workouts`)
+          }
+        >
+          <ClipboardCheckIcon className="h-4 w-4" />
+          Review workouts
         </button>
       </div>
 

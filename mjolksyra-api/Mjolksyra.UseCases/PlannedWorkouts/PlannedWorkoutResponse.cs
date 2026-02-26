@@ -19,6 +19,14 @@ public class PlannedWorkoutResponse
 
     public required DateTimeOffset CreatedAt { get; set; }
 
+    public DateTimeOffset? CompletedAt { get; set; }
+
+    public string? CompletionNote { get; set; }
+
+    public DateTimeOffset? ReviewedAt { get; set; }
+
+    public string? ReviewNote { get; set; }
+
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
     public static PlannedWorkoutResponse From(PlannedWorkout workout, ICollection<Exercise> exercises)
@@ -32,6 +40,10 @@ public class PlannedWorkoutResponse
             Exercises = workout.Exercises.Select(x => PlannedExerciseResponse.From(x, exercises)).ToList(),
             CreatedAt = workout.CreatedAt,
             PlannedAt = workout.PlannedAt,
+            CompletedAt = workout.CompletedAt,
+            CompletionNote = workout.CompletionNote,
+            ReviewedAt = workout.ReviewedAt,
+            ReviewNote = workout.ReviewNote,
             AppliedBlock = workout.AppliedBlock is null
                 ? null
                 : new PlannedWorkoutAppliedBlockResponse
