@@ -21,12 +21,13 @@ var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 var envName = toLower(environmentName)
 var isProd = envName == 'prod'
+var envShort = isProd ? 'p' : (envName == 'preview' ? 'v' : take(replace(envName, '-', ''), 2))
 var apiContainerAppName = '${envName}-mjolksyra-api'
 var appContainerAppName = '${envName}-mjolksyra-app'
 var apiIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-api-${resourceToken}'
 var appIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${envName}-mj-app-${resourceToken}'
-var apiKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}-${envName}-api'
-var appKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}-${envName}-app'
+var apiKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envShort}a'
+var appKeyVaultName = '${abbrs.keyVaultVaults}${resourceToken}${envShort}b'
 
 // Monitor application with Azure Monitor
 module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
@@ -93,7 +94,7 @@ module mjolksyraApiFetchLatestImage './modules/fetch-container-image.bicep' = {
   name: 'mjolksyraApi-fetch-image'
   params: {
     exists: mjolksyraApiExists
-    name: 'mjolksyra-api'
+    name: apiContainerAppName
   }
 }
 
@@ -205,7 +206,7 @@ module mjolksyraAppFetchLatestImage './modules/fetch-container-image.bicep' = {
   name: 'mjolksyraApp-fetch-image'
   params: {
     exists: mjolksyraAppExists
-    name: 'mjolksyra-app'
+    name: appContainerAppName
   }
 }
 
