@@ -29,8 +29,8 @@ jobs:
       cancel-in-progress: true
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
-      RAILWAY_ENVIRONMENT_NAME: ${{ vars.RAILWAY_PREVIEW_ENVIRONMENT_NAME }}
+      RAILWAY_PROJECT_ID: 4b7ad760-d366-4892-a296-126a9fb31eaa
+      RAILWAY_ENVIRONMENT_NAME: preview
       RAILWAY_API_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
       RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
     steps:
@@ -62,8 +62,8 @@ jobs:
       cancel-in-progress: false
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
-      RAILWAY_ENVIRONMENT_NAME: ${{ vars.RAILWAY_PRODUCTION_ENVIRONMENT_NAME }}
+      RAILWAY_PROJECT_ID: 4b7ad760-d366-4892-a296-126a9fb31eaa
+      RAILWAY_ENVIRONMENT_NAME: production
       RAILWAY_API_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
       RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
     steps:

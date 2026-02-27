@@ -147,11 +147,14 @@ Required GitHub credentials:
 - Repository Secret:
   - `RAILWAY_TOKEN` (required if using CLI deploy in Actions)
 - Repository Variables:
-  - `RAILWAY_PROJECT_ID`
   - `RAILWAY_API_SERVICE_ID`
   - `RAILWAY_APP_SERVICE_ID`
-  - `RAILWAY_PREVIEW_ENVIRONMENT_NAME` (example: `preview`)
-  - `RAILWAY_PRODUCTION_ENVIRONMENT_NAME` (example: `production`)
+
+This repo is configured with:
+
+- Railway project id: `4b7ad760-d366-4892-a296-126a9fb31eaa`
+- Preview environment name: `preview`
+- Production environment name: `production`
 
 ### Mongo Dependency in Railway
 
