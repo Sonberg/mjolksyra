@@ -24,6 +24,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "mjolksyra-ui-design-system": [
+        "./packages/mjolksyra-ui-design-system/src/index.ts"
       ]
     },
     "target": "ES2017"

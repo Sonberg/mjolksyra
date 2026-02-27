@@ -7,6 +7,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./dialogs/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./packages/mjolksyra-ui-design-system/src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
   	extend: {

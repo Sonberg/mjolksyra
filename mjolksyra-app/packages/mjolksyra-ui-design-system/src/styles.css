@@ -1,0 +1,12 @@
+:root {
+  --mjolksyra-radius-sm: 0.375rem;
+  --mjolksyra-radius-md: 0.5rem;
+  --mjolksyra-radius-lg: 0.75rem;
+  --mjolksyra-radius-xl: 1rem;
+}
+
+.mjolksyra-card {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  border-radius: var(--mjolksyra-radius-xl);
+}

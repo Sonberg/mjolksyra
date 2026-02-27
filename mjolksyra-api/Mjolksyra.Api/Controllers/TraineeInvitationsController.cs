@@ -6,6 +6,7 @@ using Mjolksyra.UseCases.TraineeInvitations.AcceptTraineeInvitation;
 using Mjolksyra.UseCases.TraineeInvitations.DeclineTraineeInvitation;
 using Mjolksyra.UseCases.TraineeInvitations.GetTraineeInvitations;
 using Mjolksyra.UseCases.TraineeInvitations.InviteTrainee;
+using System.Net;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -52,7 +53,14 @@ public class TraineeInvitationsController : Controller
         }
 
         var command = request.ToCommand(userId);
-        return Ok(await _mediator.Send(command, cancellationToken));
+        var result = await _mediator.Send(command, cancellationToken);
+        
+        return result.Match<ActionResult<TraineeInvitationsResponse>>(
+            response => Ok(response),
+            error => Problem(
+                detail: error.Message,
+                statusCode: GetStatusCode(error.Code),
+                title: "Unable to send invitation"));
     }
 
 
@@ -74,5 +82,17 @@ public class TraineeInvitationsController : Controller
             TraineeInvitationId = traineeInvitationId,
             AthleteUserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken)
         }, cancellationToken);
+    }
+
+    private static int GetStatusCode(InviteTraineeErrorCode code)
+    {
+        return code switch
+        {
+            InviteTraineeErrorCode.InvalidMonthlyPrice => (int)HttpStatusCode.BadRequest,
+            InviteTraineeErrorCode.AthleteNotFound => (int)HttpStatusCode.BadRequest,
+            InviteTraineeErrorCode.RelationshipRequired => (int)HttpStatusCode.Forbidden,
+            InviteTraineeErrorCode.PendingInviteAlreadyExists => (int)HttpStatusCode.Conflict,
+            _ => (int)HttpStatusCode.BadRequest
+        };
     }
 }

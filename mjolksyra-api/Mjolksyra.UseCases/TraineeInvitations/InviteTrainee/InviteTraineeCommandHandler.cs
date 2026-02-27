@@ -4,6 +4,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using OneOf;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.InviteTrainee;
 
@@ -14,13 +15,17 @@ public class InviteTraineeCommandHandler(
     INotificationService notificationService,
     IConfiguration configuration,
     ITraineeRepository traineeRepository
-) : IRequestHandler<InviteTraineeCommand, TraineeInvitationsResponse>
+) : IRequestHandler<InviteTraineeCommand, OneOf<TraineeInvitationsResponse, InviteTraineeError>>
 {
-    public async Task<TraineeInvitationsResponse> Handle(InviteTraineeCommand request, CancellationToken cancellationToken)
+    public async Task<OneOf<TraineeInvitationsResponse, InviteTraineeError>> Handle(InviteTraineeCommand request, CancellationToken cancellationToken)
     {
         if (request.MonthlyPriceAmount <= 0)
         {
-            throw new InvalidOperationException("Monthly price must be greater than zero.");
+            return new InviteTraineeError
+            {
+                Code = InviteTraineeErrorCode.InvalidMonthlyPrice,
+                Message = "Monthly price must be greater than zero."
+            };
         }
 
         var athlete = await userRepository.GetByEmail(request.Email, cancellationToken);
@@ -28,21 +33,33 @@ public class InviteTraineeCommandHandler(
 
         if (athlete is null)
         {
-            throw new InvalidOperationException("Athlete must already exist and be coached by this coach.");
+            return new InviteTraineeError
+            {
+                Code = InviteTraineeErrorCode.AthleteNotFound,
+                Message = "Athlete must already exist and be coached by this coach."
+            };
         }
 
         var hasActiveRelationship =
             await traineeRepository.ExistsActiveRelationship(request.CoachUserId, athlete.Id, cancellationToken);
         if (!hasActiveRelationship)
         {
-            throw new InvalidOperationException("Coach can only invite athletes they are already coaching.");
+            return new InviteTraineeError
+            {
+                Code = InviteTraineeErrorCode.RelationshipRequired,
+                Message = "Coach can only invite athletes they are already coaching."
+            };
         }
 
         var pendingInviteCount =
             await invitationsRepository.CountPendingByCoachAndEmailAsync(request.CoachUserId, request.Email, cancellationToken);
         if (pendingInviteCount >= 1)
         {
-            throw new InvalidOperationException("Coach can only have one pending invite to the same athlete.");
+            return new InviteTraineeError
+            {
+                Code = InviteTraineeErrorCode.PendingInviteAlreadyExists,
+                Message = "Coach can only have one pending invite to the same athlete."
+            };
         }
 
         var invitation = await invitationsRepository.Create(new TraineeInvitation

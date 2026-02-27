@@ -1,3 +1,5 @@
+@import "../packages/mjolksyra-ui-design-system/src/styles.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,7 +44,7 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: var(--mjolksyra-radius-md);
   }
   .dark {
     /* --background: 240 10% 3.9%; */
