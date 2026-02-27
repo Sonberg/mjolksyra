@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "dotnet restore Mjolksyra.Api/Mjolksyra.Api.csproj && dotnet publish Mjolksyra.Api/Mjolksyra.Api.csproj -c Release -o out"
+
+[deploy]
+startCommand = "dotnet out/Mjolksyra.Api.dll --urls http://0.0.0.0:$PORT"
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

@@ -11,19 +11,24 @@ const nextConfig = {
   },
   async rewrites() {
     if (!apiUrl) {
-      return [];
+      return {
+        beforeFiles: [],
+      };
     }
 
-    return [
-      {
-        source: "/api/events/hub",
-        destination: `${apiUrl}/api/events/hub`,
-      },
-      {
-        source: "/api/events/hub/:path*",
-        destination: `${apiUrl}/api/events/hub/:path*`,
-      },
-    ];
+    return {
+      // Must run before app routes so SignalR traffic doesn't hit app/[...api]/route.ts
+      beforeFiles: [
+        {
+          source: "/api/events/hub",
+          destination: `${apiUrl}/api/events/hub`,
+        },
+        {
+          source: "/api/events/hub/:path*",
+          destination: `${apiUrl}/api/events/hub/:path*`,
+        },
+      ],
+    };
   },
 };
 

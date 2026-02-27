@@ -1,130 +1,130 @@
-name: Azure Deploy (Preview -> Prod)
+# name: Azure Deploy (Preview -> Prod)
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "infra/**"
-      - "azure.yaml"
-      - "mjolksyra-api/**"
-      - ".github/workflows/azure-dev.yml"
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - "infra/**"
+#       - "azure.yaml"
+#       - "mjolksyra-api/**"
+#       - ".github/workflows/azure-dev.yml"
 
-permissions:
-  id-token: write
-  contents: read
+# permissions:
+#   id-token: write
+#   contents: read
 
-concurrency:
-  group: azure-release-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: azure-release-${{ github.ref }}
+#   cancel-in-progress: true
 
-jobs:
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    environment: preview-rg
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+# jobs:
+#   deploy-preview:
+#     name: Deploy Preview
+#     runs-on: ubuntu-latest
+#     environment: preview-rg
+#     env:
+#       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+#       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+#       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+#       AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+#       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 2
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "9.x"
+#       - name: Setup .NET
+#         uses: actions/setup-dotnet@v4
+#         with:
+#           dotnet-version: "9.x"
 
-      - name: Install azd
-        uses: Azure/setup-azd@v2
+#       - name: Install azd
+#         uses: Azure/setup-azd@v2
 
-      - name: Detect infra changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            infra:
-              - 'infra/**'
+#       - name: Detect infra changes
+#         id: changes
+#         uses: dorny/paths-filter@v3
+#         with:
+#           filters: |
+#             infra:
+#               - 'infra/**'
 
-      - name: Log in with Azure (Federated Credentials)
-        shell: pwsh
-        run: |
-          azd auth login `
-            --client-id "$Env:AZURE_CLIENT_ID" `
-            --federated-credential-provider "github" `
-            --tenant-id "$Env:AZURE_TENANT_ID"
+#       - name: Log in with Azure (Federated Credentials)
+#         shell: pwsh
+#         run: |
+#           azd auth login `
+#             --client-id "$Env:AZURE_CLIENT_ID" `
+#             --federated-credential-provider "github" `
+#             --tenant-id "$Env:AZURE_TENANT_ID"
 
-      - name: Select or create azd environment
-        shell: bash
-        run: |
-          azd env select "$AZURE_ENV_NAME" || azd env new "$AZURE_ENV_NAME" --no-prompt
+#       - name: Select or create azd environment
+#         shell: bash
+#         run: |
+#           azd env select "$AZURE_ENV_NAME" || azd env new "$AZURE_ENV_NAME" --no-prompt
 
-      - name: Provision Infrastructure (preview)
-        if: steps.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
-        run: azd provision --no-prompt
-        env:
-          AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
+#       - name: Provision Infrastructure (preview)
+#         if: steps.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
+#         run: azd provision --no-prompt
+#         env:
+#           AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
 
-      - name: Deploy Application (preview)
-        run: azd deploy --no-prompt
+#       - name: Deploy Application (preview)
+#         run: azd deploy --no-prompt
 
-  deploy-prod:
-    name: Deploy Prod
-    runs-on: ubuntu-latest
-    needs: deploy-preview
-    environment: prod-rg
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+#   deploy-prod:
+#     name: Deploy Prod
+#     runs-on: ubuntu-latest
+#     needs: deploy-preview
+#     environment: prod-rg
+#     env:
+#       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+#       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+#       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+#       AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+#       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 2
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "9.x"
+#       - name: Setup .NET
+#         uses: actions/setup-dotnet@v4
+#         with:
+#           dotnet-version: "9.x"
 
-      - name: Install azd
-        uses: Azure/setup-azd@v2
+#       - name: Install azd
+#         uses: Azure/setup-azd@v2
 
-      - name: Detect infra changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            infra:
-              - 'infra/**'
+#       - name: Detect infra changes
+#         id: changes
+#         uses: dorny/paths-filter@v3
+#         with:
+#           filters: |
+#             infra:
+#               - 'infra/**'
 
-      - name: Log in with Azure (Federated Credentials)
-        shell: pwsh
-        run: |
-          azd auth login `
-            --client-id "$Env:AZURE_CLIENT_ID" `
-            --federated-credential-provider "github" `
-            --tenant-id "$Env:AZURE_TENANT_ID"
+#       - name: Log in with Azure (Federated Credentials)
+#         shell: pwsh
+#         run: |
+#           azd auth login `
+#             --client-id "$Env:AZURE_CLIENT_ID" `
+#             --federated-credential-provider "github" `
+#             --tenant-id "$Env:AZURE_TENANT_ID"
 
-      - name: Select or create azd environment
-        shell: bash
-        run: |
-          azd env select "$AZURE_ENV_NAME" || azd env new "$AZURE_ENV_NAME" --no-prompt
+#       - name: Select or create azd environment
+#         shell: bash
+#         run: |
+#           azd env select "$AZURE_ENV_NAME" || azd env new "$AZURE_ENV_NAME" --no-prompt
 
-      - name: Provision Infrastructure (prod)
-        if: steps.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
-        run: azd provision --no-prompt
-        env:
-          AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
+#       - name: Provision Infrastructure (prod)
+#         if: steps.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
+#         run: azd provision --no-prompt
+#         env:
+#           AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
 
-      - name: Deploy Application (prod)
-        run: azd deploy --no-prompt
+#       - name: Deploy Application (prod)
+#         run: azd deploy --no-prompt

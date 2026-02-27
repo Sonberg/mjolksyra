@@ -82,3 +82,82 @@ azd up       # provision infrastructure + deploy
 azd provision # infrastructure only
 azd deploy   # code only
 ```
+
+## Railway Deployment
+
+Both services are configured for Railway with service-local manifests:
+
+- `/Users/personberg/Code/Mjolksyra/mjolksyra-app/railway.toml`
+- `/Users/personberg/Code/Mjolksyra/mjolksyra-api/railway.toml`
+
+Create two Railway services from the same repo:
+
+1. `mjolksyra-api` service
+   1. Root directory: `mjolksyra-api`
+   2. Uses Nixpacks and starts API on `$PORT`
+   3. Health check: `/health`
+2. `mjolksyra-app` service
+   1. Root directory: `mjolksyra-app`
+   2. Uses Nixpacks (`npm ci && npm run build`)
+   3. Health check: `/`
+
+### Required Railway Environment Variables
+
+`mjolksyra-api`:
+
+- `MongoDb__ConnectionString`
+- `Clerk__Domain`
+- `Clerk__SecretKey`
+- `Stripe__ApiKey`
+- `Stripe__WebhookSecret`
+- `Brevo__ApiKey`
+- `Cors__AllowedOrigins__0=https://<your-app-domain>`
+- `ASPNETCORE_ENVIRONMENT=Production`
+
+`mjolksyra-app`:
+
+- `API_URL=https://<your-api-domain>`
+- `NEXT_PUBLIC_API_URL=https://<your-api-domain>` (for direct SignalR websocket mode)
+- `JWT_SECRET=<same as API Jwt.Secret if used>`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_POSTHOG_KEY` (optional)
+- `NEXT_PUBLIC_POSTHOG_HOST` (optional)
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+
+### Realtime Notes
+
+- SignalR hub path: `/api/events/hub`
+- Next.js rewrites forward hub traffic before app routes to avoid conflicts with `app/[...api]/route.ts`.
+
+### GitHub Actions for Railway
+
+Workflow file:
+
+- `/Users/personberg/Code/Mjolksyra/.github/workflows/railway-deploy.yml`
+
+Behavior:
+
+- Pull requests to `main` deploy to Railway preview environment.
+- Pushes to `main` deploy to Railway production environment.
+- Production deploy is attached to GitHub Environment `railway-production` (set required reviewers for approval).
+
+Required GitHub credentials:
+
+- Repository Secret:
+  - `RAILWAY_TOKEN` (required if using CLI deploy in Actions)
+- Repository Variables:
+  - `RAILWAY_PROJECT_ID`
+  - `RAILWAY_API_SERVICE_ID`
+  - `RAILWAY_APP_SERVICE_ID`
+  - `RAILWAY_PREVIEW_ENVIRONMENT_NAME` (example: `preview`)
+  - `RAILWAY_PRODUCTION_ENVIRONMENT_NAME` (example: `production`)
+
+### Mongo Dependency in Railway
+
+1. In Railway, add a MongoDB service in the same project.
+2. In API service variables, set:
+   - `MongoDb__ConnectionString=${{Mongo.DATABASE_URL}}`
+3. If your Mongo service exposes a different variable name, use that one (for example `MONGO_URL`) but keep it mapped to `MongoDb__ConnectionString`.
+
+This keeps Mongo as a Railway service dependency and injects the connection string into the API automatically.
