@@ -22,6 +22,8 @@ public interface IMongoDbContext
     IMongoCollection<Block> Blocks { get; }
 
     IMongoCollection<Notification> Notifications { get; }
+
+    IMongoCollection<FeedbackReport> FeedbackReports { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -45,6 +47,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<Block> Blocks => Database.GetCollection<Block>("blocks");
 
     public IMongoCollection<Notification> Notifications => Database.GetCollection<Notification>("notifications");
+
+    public IMongoCollection<FeedbackReport> FeedbackReports => Database.GetCollection<FeedbackReport>("feedback-reports");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

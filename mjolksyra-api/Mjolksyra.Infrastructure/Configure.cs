@@ -37,6 +37,7 @@ public static class Configure
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IFeedbackReportRepository, FeedbackReportRepository>();
         services.AddHttpClient<IClerkRepository, ClerkRepository>(client =>
         {
             client.BaseAddress = new Uri("https://api.clerk.com/");

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { NavigationNotifications } from "./NavigationNotifications";
+import { ReportIssueDialog } from "./ReportIssueDialog";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
@@ -109,6 +110,7 @@ export function Navigation() {
           ) : null}
           {auth.isAuthenticated ? (
             <>
+              <ReportIssueDialog />
               <NavigationNotifications />
               <NavigationUser />
             </>
