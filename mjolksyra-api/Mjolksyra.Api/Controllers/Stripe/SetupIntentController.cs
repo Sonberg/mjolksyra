@@ -8,7 +8,7 @@ using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
 
-// [Authorize]
+[Authorize]
 [ApiController]
 [Route("api/stripe/setup-intent")]
 public class SetupIntentController : Controller
@@ -54,17 +54,27 @@ public class SetupIntentController : Controller
     [HttpPost]
     public async Task<ActionResult> Create(CancellationToken cancellationToken)
     {
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId is null || userId == Guid.Empty)
+        {
+            return Unauthorized();
+        }
+
+        var customerId = await GetCustomerId(cancellationToken);
+        if (string.IsNullOrWhiteSpace(customerId))
+        {
+            return BadRequest("Unable to resolve Stripe customer for current user.");
+        }
+
         var setupIntentOptions = new SetupIntentCreateOptions
         {
-            Customer = await GetCustomerId(cancellationToken),
+            Customer = customerId,
             Usage = "off_session",
             PaymentMethodTypes = ["card"],
             Metadata = new Dictionary<string, string>
             {
                 {
-                    "UserId", await _userContext
-                        .GetUserId(cancellationToken)
-                        .ContinueWith(x => x.Result!.Value.ToString(), cancellationToken)
+                    "UserId", userId.Value.ToString()
                 }
             }
         };
@@ -129,19 +139,26 @@ public class SetupIntentController : Controller
         });
     }
 
-    private async Task<string> GetCustomerId(CancellationToken cancellationToken)
+    private async Task<string?> GetCustomerId(CancellationToken cancellationToken)
     {
         var user = await _userContext.GetUser(cancellationToken);
+        if (user is null || user.Id == Guid.Empty)
+        {
+            return null;
+        }
+
         if (user?.Athlete?.Stripe?.CustomerId is { } customerId)
         {
             return customerId;
         }
 
         var service = new CustomerService(_stripeClient);
+        var fullName = $"{user.GivenName} {user.FamilyName}".Trim();
+
         var options = new CustomerCreateOptions
         {
-            Email = user!.Email,
-            Name = $"{user.GivenName} {user.FamilyName}",
+            Email = user.Email,
+            Name = string.IsNullOrWhiteSpace(fullName) ? null : fullName,
             Metadata = new Dictionary<string, string>
             {
                 {

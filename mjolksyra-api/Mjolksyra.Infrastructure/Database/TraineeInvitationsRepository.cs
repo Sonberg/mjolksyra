@@ -58,6 +58,25 @@ public class TraineeInvitationsRepository : ITraineeInvitationsRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<int> CountPendingByCoachAndEmailAsync(
+        Guid coachUserId,
+        string email,
+        CancellationToken cancellationToken)
+    {
+        var normalized = EmailNormalizer.Normalize(email);
+        var filter = Builders<TraineeInvitation>.Filter.And(
+            Builders<TraineeInvitation>.Filter.Eq(x => x.CoachUserId, coachUserId),
+            Builders<TraineeInvitation>.Filter.Or(
+                Builders<TraineeInvitation>.Filter.Eq(x => x.Email.Value, email),
+                Builders<TraineeInvitation>.Filter.Eq(x => x.Email.Normalized, normalized)
+            ),
+            Builders<TraineeInvitation>.Filter.Eq(x => x.AcceptedAt, null),
+            Builders<TraineeInvitation>.Filter.Eq(x => x.RejectedAt, null)
+        );
+
+        return (int)await _dbContext.TraineeInvitations.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
+    }
+
     public async Task AcceptAsync(Guid id, CancellationToken cancellationToken)
     {
         await _dbContext.TraineeInvitations.FindOneAndUpdateAsync(

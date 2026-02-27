@@ -12,6 +12,8 @@ public interface ITraineeInvitationsRepository
 
     Task<ICollection<TraineeInvitation>> GetByCoachAsync(Guid coachUserId, CancellationToken cancellationToken);
 
+    Task<int> CountPendingByCoachAndEmailAsync(Guid coachUserId, string email, CancellationToken cancellationToken);
+
     Task AcceptAsync(Guid id, CancellationToken cancellationToken);
 
     Task RejectAsync(Guid id, CancellationToken cancellationToken);

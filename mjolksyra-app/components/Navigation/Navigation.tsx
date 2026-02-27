@@ -69,10 +69,10 @@ export function Navigation() {
         >
           <div className="mr-3 flex items-center px-2.5 py-1.5">
             <Image
-              className="mr-2 h-7 w-7"
+              className="mr-2 h-8 w-8"
               alt="Logo"
-              width={28}
-              height={28}
+              width={32}
+              height={32}
               src={"/images/logo.svg"}
             />
             <div className="font-[var(--font-display)] text-xl font-semibold text-zinc-100">

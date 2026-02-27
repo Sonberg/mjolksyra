@@ -26,13 +26,23 @@ public class InviteTraineeCommandHandler(
         var athlete = await userRepository.GetByEmail(request.Email, cancellationToken);
         var coach = await userRepository.GetById(request.CoachUserId, cancellationToken);
 
-        if (athlete is not null)
+        if (athlete is null)
         {
-            var exists = await traineeRepository.ExistsActiveRelationship(request.CoachUserId, athlete.Id, cancellationToken);
-            if (exists)
-            {
-                throw new InvalidOperationException("Athlete is already connected to this coach.");
-            }
+            throw new InvalidOperationException("Athlete must already exist and be coached by this coach.");
+        }
+
+        var hasActiveRelationship =
+            await traineeRepository.ExistsActiveRelationship(request.CoachUserId, athlete.Id, cancellationToken);
+        if (!hasActiveRelationship)
+        {
+            throw new InvalidOperationException("Coach can only invite athletes they are already coaching.");
+        }
+
+        var pendingInviteCount =
+            await invitationsRepository.CountPendingByCoachAndEmailAsync(request.CoachUserId, request.Email, cancellationToken);
+        if (pendingInviteCount >= 1)
+        {
+            throw new InvalidOperationException("Coach can only have one pending invite to the same athlete.");
         }
 
         var invitation = await invitationsRepository.Create(new TraineeInvitation
