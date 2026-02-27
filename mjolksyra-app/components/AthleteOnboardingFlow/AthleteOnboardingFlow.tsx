@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Elements } from "@stripe/react-stripe-js";
 import { Spinner } from "../Spinner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useUserEvents } from "@/context/UserEvents";
 
 type Step = "welcome" | "payment";
 
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
+  const userEvents = useUserEvents();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
@@ -89,21 +91,15 @@ export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
   }, [router, searchParams]);
 
   useEffect(() => {
-    const source = new EventSource("/api/events/stream");
     const onUserUpdated = () => {
       router.refresh();
     };
-
-    source.addEventListener("user.updated", onUserUpdated);
-    source.onerror = () => {
-      // Keep default browser retry behavior for SSE.
-    };
+    const unsubscribe = userEvents.subscribe("user.updated", onUserUpdated);
 
     return () => {
-      source.removeEventListener("user.updated", onUserUpdated);
-      source.close();
+      unsubscribe();
     };
-  }, [router]);
+  }, [router, userEvents]);
 
   const steps = {
     welcome: {

@@ -1,6 +1,6 @@
 {
   "rendererUrl": {
-    "dev": "http://localhost:3000/cosmos/<fixture>",
+    "dev": "http://localhost:8081/cosmos/<fixture>",
     "export": "/cosmos/<fixture>.html"
   }
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useState } from "react";
 import { OnboardingCard } from "@/components/OnboardingCard";
 import { useRouter } from "next/navigation";
+import { useUserEvents } from "@/context/UserEvents";
 
 type Account = { accountId: string };
 type Link = { url: string };
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function CoachOnboarding({ user }: Props) {
+  const userEvents = useUserEvents();
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const isStarted = user.onboarding.coach === "Started";
@@ -60,24 +62,16 @@ export function CoachOnboarding({ user }: Props) {
   }, [isStarted, syncCoachStatus]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const source = new EventSource("/api/events/stream");
     const onUserUpdated = () => {
       void syncCoachStatus();
       router.refresh();
     };
-
-    source.addEventListener("user.updated", onUserUpdated);
-    source.onerror = () => {
-      // Let EventSource auto-retry.
-    };
+    const unsubscribe = userEvents.subscribe("user.updated", onUserUpdated);
 
     return () => {
-      source.removeEventListener("user.updated", onUserUpdated);
-      source.close();
+      unsubscribe();
     };
-  }, [router, syncCoachStatus]);
+  }, [router, syncCoachStatus, userEvents]);
 
   const dashboard = useCallback(async () => {
     setLoading(true);

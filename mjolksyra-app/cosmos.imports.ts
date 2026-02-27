@@ -12,7 +12,7 @@ import * as decorator0 from './cosmos.decorator';
 
 export const rendererConfig: RendererConfig = {
   "webSocketUrl": "ws://192.168.0.126:5001",
-  "rendererUrl": "http://localhost:3000/cosmos/<fixture>"
+  "rendererUrl": "http://localhost:8081/cosmos/<fixture>"
 };
 
 const fixtures = {

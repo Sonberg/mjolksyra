@@ -3,10 +3,12 @@ using Azure.Identity;
 using MassTransit;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
+using Microsoft.Azure.SignalR;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
@@ -16,6 +18,7 @@ using Mjolksyra.Api.Migration;
 using Mjolksyra.Api.Options;
 using Mjolksyra.Domain.Clerk;
 using Mjolksyra.Domain;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
 using Mjolksyra.UseCases;
@@ -147,6 +150,31 @@ builder.Services
     .AddMassTransit(opt => { opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context)); });
 
 builder.Services.AddAuthorization();
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SignalR", policy =>
+    {
+        if (allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+        else
+        {
+            policy.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .SetIsOriginAllowed(_ => true);
+        }
+    });
+});
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -158,6 +186,21 @@ builder.Services
         {
             ValidateAudience = false,
             NameClaimType = "sub",
+        };
+        opt.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments(UserEventsHub.Path))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -179,8 +222,19 @@ builder.Services.AddHostedService<SearchIndexBuilder>();
 builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
 builder.Services.AddHostedService<TraineeIndexBuilder>();
 builder.Services.AddScoped<IUserContext, UserContext>();
-builder.Services.AddSingleton<UserEventStream>();
-builder.Services.AddSingleton<IUserEventPublisher>(sp => sp.GetRequiredService<UserEventStream>());
+
+var azureSignalRConnectionString = builder.Configuration["Azure:SignalR:ConnectionString"];
+var signalR = builder.Services.AddSignalR();
+
+if (!string.IsNullOrWhiteSpace(azureSignalRConnectionString))
+{
+    signalR.AddAzureSignalR(options =>
+    {
+        options.ConnectionString = azureSignalRConnectionString;
+    });
+}
+builder.Services.AddSingleton<IUserEventPublisher, SignalRUserEventPublisher>();
+builder.Services.AddSingleton<INotificationRealtimePublisher, NotificationRealtimePublisher>();
 builder.Services.AddUseCases();
 builder.Services.AddDomain(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -194,7 +248,9 @@ if (app.Environment.IsProduction())
 
 app.MapOpenApi();
 app.MapScalarApiReference();
+app.UseCors("SignalR");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<UserEventsHub>(UserEventsHub.Path);
 app.Run();

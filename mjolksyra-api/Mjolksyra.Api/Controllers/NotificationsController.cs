@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.Api.Controllers;
@@ -10,7 +11,8 @@ namespace Mjolksyra.Api.Controllers;
 [Route("api/notifications")]
 public class NotificationsController(
     IUserContext userContext,
-    INotificationRepository notificationRepository
+    INotificationRepository notificationRepository,
+    INotificationRealtimePublisher notificationRealtimePublisher
 ) : Controller
 {
     [HttpGet]
@@ -52,6 +54,7 @@ public class NotificationsController(
         }
 
         await notificationRepository.MarkRead(userId.Value, notificationId, cancellationToken);
+        await notificationRealtimePublisher.PublishChanged(userId.Value, cancellationToken);
         return NoContent();
     }
 
@@ -65,6 +68,7 @@ public class NotificationsController(
         }
 
         await notificationRepository.MarkAllRead(userId.Value, cancellationToken);
+        await notificationRealtimePublisher.PublishChanged(userId.Value, cancellationToken);
         return NoContent();
     }
 }

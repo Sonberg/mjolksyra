@@ -35,16 +35,35 @@ test.describe("notifications", () => {
       },
     ];
 
-    await page.route("**/api/events/stream", async (route) => {
+    await page.route("**/api/events/hub/negotiate**", async (route) => {
       await route.fulfill({
         status: 200,
-        headers: {
-          "content-type": "text/event-stream",
-          "cache-control": "no-cache",
-          connection: "keep-alive",
-        },
-        body: ":ok\n\n",
+        contentType: "application/json",
+        body: JSON.stringify({
+          connectionId: "e2e-conn",
+          connectionToken: "e2e-token",
+          negotiateVersion: 1,
+          availableTransports: [
+            {
+              transport: "LongPolling",
+              transferFormats: ["Text", "Binary"],
+            },
+          ],
+        }),
       });
+    });
+    await page.route(/.*\/api\/events\/hub(\?.*)?$/, async (route) => {
+      const method = route.request().method();
+      if (method === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({}),
+        });
+        return;
+      }
+
+      await route.fulfill({ status: 202, body: "" });
     });
 
     await page.route("**/api/notifications/read-all", async (route) => {
@@ -114,14 +133,35 @@ test.describe("notifications", () => {
       },
     ];
 
-    await page.route("**/api/events/stream", async (route) => {
+    await page.route("**/api/events/hub/negotiate**", async (route) => {
       await route.fulfill({
         status: 200,
-        headers: {
-          "content-type": "text/event-stream",
-        },
-        body: ":ok\n\n",
+        contentType: "application/json",
+        body: JSON.stringify({
+          connectionId: "e2e-conn",
+          connectionToken: "e2e-token",
+          negotiateVersion: 1,
+          availableTransports: [
+            {
+              transport: "LongPolling",
+              transferFormats: ["Text", "Binary"],
+            },
+          ],
+        }),
       });
+    });
+    await page.route(/.*\/api\/events\/hub(\?.*)?$/, async (route) => {
+      const method = route.request().method();
+      if (method === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({}),
+        });
+        return;
+      }
+
+      await route.fulfill({ status: 202, body: "" });
     });
 
     await page.route("**/api/notifications/read-all", async (route) => {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { BellIcon, CheckIcon } from "lucide-react";
 import { useAuth } from "@/context/Auth";
+import { useUserEvents } from "@/context/UserEvents";
 import { cn } from "@/lib/utils";
 import { getNotifications } from "@/services/notifications/getNotifications";
 import { markAllNotificationsRead } from "@/services/notifications/markAllNotificationsRead";
@@ -20,12 +21,14 @@ import {
 
 export function NavigationNotifications() {
   const auth = useAuth();
+  const userEvents = useUserEvents();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [showArrivalPulse, setShowArrivalPulse] = useState(false);
+  const [showBellRing, setShowBellRing] = useState(false);
   const prevUnreadCountRef = useRef(0);
 
   const unread = useMemo(() => items.filter((x) => !x.readAt), [items]);
@@ -52,16 +55,15 @@ export function NavigationNotifications() {
       void refresh();
     }, 30000);
 
-    const eventSource = new EventSource("/api/events/stream");
-    eventSource.addEventListener("user.updated", () => {
+    const unsubscribe = userEvents.subscribe("user.updated", () => {
       void refresh();
     });
 
     return () => {
       window.clearInterval(interval);
-      eventSource.close();
+      unsubscribe();
     };
-  }, [auth.isAuthenticated, refresh]);
+  }, [auth, auth.isAuthenticated, refresh, userEvents]);
 
   useEffect(() => {
     if (open) {
@@ -74,8 +76,10 @@ export function NavigationNotifications() {
 
     if (unreadCount > prev) {
       setShowArrivalPulse(true);
+      setShowBellRing(true);
       const timeout = window.setTimeout(() => {
         setShowArrivalPulse(false);
+        setShowBellRing(false);
       }, 1400);
 
       prevUnreadCountRef.current = unreadCount;
@@ -168,7 +172,9 @@ export function NavigationNotifications() {
           className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/80 text-zinc-200 transition hover:border-zinc-700 hover:bg-zinc-900/90"
           aria-label="Open notifications"
         >
-          <BellIcon className="h-4 w-4" />
+          <BellIcon
+            className={cn("h-4 w-4 origin-top", showBellRing ? "animate-bell-ring" : "")}
+          />
           {unreadCount > 0 ? (
             <span className="absolute right-1 top-1 inline-flex h-2.5 w-2.5">
               <span

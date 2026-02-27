@@ -27,23 +27,6 @@ type MockNotification = {
   readAt: string | null;
 };
 
-class MockEventSource {
-  onopen: ((this: EventSource, ev: Event) => any) | null = null;
-  onmessage: ((this: EventSource, ev: MessageEvent) => any) | null = null;
-  onerror: ((this: EventSource, ev: Event) => any) | null = null;
-
-  constructor(_url: string | URL) {}
-  addEventListener() {}
-  removeEventListener() {}
-  dispatchEvent() {
-    return false;
-  }
-  close() {}
-  readonly readyState = 1;
-  readonly url = "/api/events/stream";
-  readonly withCredentials = false;
-}
-
 function Fixture({
   items,
 }: {
@@ -52,7 +35,6 @@ function Fixture({
   useEffect(() => {
     const originalGet = ApiClient.get.bind(ApiClient);
     const originalPost = ApiClient.post.bind(ApiClient);
-    const OriginalEventSource = window.EventSource;
 
     let notifications = [...items];
 
@@ -92,14 +74,12 @@ function Fixture({
       return originalPost(url, ...(args as [unknown?, unknown?]));
     }) as typeof ApiClient.post;
 
-    // Stub EventSource so the component doesn't attempt a real SSE connection in Cosmos.
-    (window as Window & { EventSource: typeof EventSource }).EventSource =
-      MockEventSource as unknown as typeof EventSource;
+    window.__DISABLE_REALTIME__ = true;
 
     return () => {
       ApiClient.get = originalGet;
       ApiClient.post = originalPost;
-      window.EventSource = OriginalEventSource;
+      window.__DISABLE_REALTIME__ = false;
     };
   }, [items]);
 

@@ -4,7 +4,9 @@ using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.Infrastructure.Notifications;
 
-public class NotificationService(INotificationRepository notificationRepository) : INotificationService
+public class NotificationService(
+    INotificationRepository notificationRepository,
+    INotificationRealtimePublisher notificationRealtimePublisher) : INotificationService
 {
     public async Task Notify(
         Guid userId,
@@ -24,6 +26,8 @@ public class NotificationService(INotificationRepository notificationRepository)
             Href = href,
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
+
+        await notificationRealtimePublisher.PublishChanged(userId, cancellationToken);
     }
 
     public async Task NotifyMany(
