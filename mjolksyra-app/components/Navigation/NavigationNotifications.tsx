@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { BellIcon, CheckIcon } from "lucide-react";
@@ -25,6 +25,8 @@ export function NavigationNotifications() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [showArrivalPulse, setShowArrivalPulse] = useState(false);
+  const prevUnreadCountRef = useRef(0);
 
   const unread = useMemo(() => items.filter((x) => !x.readAt), [items]);
   const read = useMemo(() => items.filter((x) => !!x.readAt), [items]);
@@ -66,6 +68,22 @@ export function NavigationNotifications() {
       void refresh();
     }
   }, [open, refresh]);
+
+  useEffect(() => {
+    const prev = prevUnreadCountRef.current;
+
+    if (unreadCount > prev) {
+      setShowArrivalPulse(true);
+      const timeout = window.setTimeout(() => {
+        setShowArrivalPulse(false);
+      }, 1400);
+
+      prevUnreadCountRef.current = unreadCount;
+      return () => window.clearTimeout(timeout);
+    }
+
+    prevUnreadCountRef.current = unreadCount;
+  }, [unreadCount]);
 
   if (!auth.isAuthenticated) {
     return null;
@@ -151,6 +169,17 @@ export function NavigationNotifications() {
           aria-label="Open notifications"
         >
           <BellIcon className="h-4 w-4" />
+          {unreadCount > 0 ? (
+            <span className="absolute right-1 top-1 inline-flex h-2.5 w-2.5">
+              <span
+                className={cn(
+                  "absolute inline-flex h-full w-full rounded-full bg-red-500/70",
+                  showArrivalPulse ? "animate-ping" : "opacity-0",
+                )}
+              />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-zinc-950 bg-red-500" />
+            </span>
+          ) : null}
           {unreadCount > 0 ? (
             <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full border border-zinc-900 bg-zinc-100 px-1.5 text-[10px] font-bold text-black">
               {unreadCount > 9 ? "9+" : unreadCount}
