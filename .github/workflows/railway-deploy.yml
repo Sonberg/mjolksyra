@@ -1,108 +1,108 @@
-name: Railway Deploy (Preview + Production)
+# name: Railway Deploy (Preview + Production)
 
-on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "mjolksyra-app/**"
-      - "mjolksyra-api/**"
-      - ".github/workflows/railway-deploy.yml"
-  push:
-    branches: [main]
-    paths:
-      - "mjolksyra-app/**"
-      - "mjolksyra-api/**"
-      - ".github/workflows/railway-deploy.yml"
-  workflow_dispatch:
+# on:
+#   pull_request:
+#     branches: [main]
+#     paths:
+#       - "mjolksyra-app/**"
+#       - "mjolksyra-api/**"
+#       - ".github/workflows/railway-deploy.yml"
+#   push:
+#     branches: [main]
+#     paths:
+#       - "mjolksyra-app/**"
+#       - "mjolksyra-api/**"
+#       - ".github/workflows/railway-deploy.yml"
+#   workflow_dispatch:
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
-jobs:
-  deploy-preview:
-    name: Deploy Preview
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: ubuntu-latest
-    environment: railway-preview
-    concurrency:
-      group: railway-preview-${{ github.event.pull_request.number || github.ref_name }}
-      cancel-in-progress: true
-    env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_PROJECT_ID: 4b7ad760-d366-4892-a296-126a9fb31eaa
-      RAILWAY_ENVIRONMENT_NAME: preview
-      RAILWAY_API_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
-      RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+# jobs:
+#   deploy-preview:
+#     name: Deploy Preview
+#     if: |
+#       github.event_name == 'workflow_dispatch' ||
+#       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+#     runs-on: ubuntu-latest
+#     environment: railway-preview
+#     concurrency:
+#       group: railway-preview-${{ github.event.pull_request.number || github.ref_name }}
+#       cancel-in-progress: true
+#     env:
+#       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+#       RAILWAY_PROJECT_ID: 4b7ad760-d366-4892-a296-126a9fb31eaa
+#       RAILWAY_ENVIRONMENT_NAME: preview
+#       RAILWAY_API_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
+#       RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Validate Railway token
-        run: |
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "::error::RAILWAY_TOKEN is missing. For pull_request events from forks, GitHub does not expose secrets."
-            exit 1
-          fi
+#       - name: Validate Railway token
+#         run: |
+#           if [ -z "$RAILWAY_TOKEN" ]; then
+#             echo "::error::RAILWAY_TOKEN is missing. For pull_request events from forks, GitHub does not expose secrets."
+#             exit 1
+#           fi
 
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
+#       - name: Install Railway CLI
+#         run: npm i -g @railway/cli
 
-      - name: Validate Railway auth
-        run: railway whoami
+#       - name: Validate Railway auth
+#         run: railway whoami
 
-      - name: Deploy API (preview)
-        working-directory: ${{ github.workspace }}/mjolksyra-api
-        run: |
-          railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_API_SERVICE_ID"
-          railway up --ci
+#       - name: Deploy API (preview)
+#         working-directory: ${{ github.workspace }}/mjolksyra-api
+#         run: |
+#           railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_API_SERVICE_ID"
+#           railway up --ci
 
-      - name: Deploy App (preview)
-        working-directory: ${{ github.workspace }}/mjolksyra-app
-        run: |
-          railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_APP_SERVICE_ID"
-          railway up --ci
+#       - name: Deploy App (preview)
+#         working-directory: ${{ github.workspace }}/mjolksyra-app
+#         run: |
+#           railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_APP_SERVICE_ID"
+#           railway up --ci
 
-  deploy-production:
-    name: Deploy Production
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: railway-production
-    concurrency:
-      group: railway-production
-      cancel-in-progress: false
-    env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_PROJECT_ID: 4b7ad760-d366-4892-a296-126a9fb31eaa
-      RAILWAY_ENVIRONMENT_NAME: production
-      RAILWAY_API_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
-      RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+#   deploy-production:
+#     name: Deploy Production
+#     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#     runs-on: ubuntu-latest
+#     environment: railway-production
+#     concurrency:
+#       group: railway-production
+#       cancel-in-progress: false
+#     env:
+#       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+#       RAILWAY_PROJECT_ID: 4b7ad760-d366-4892-a296-126a9fb31eaa
+#       RAILWAY_ENVIRONMENT_NAME: production
+#       RAILWAY_API_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
+#       RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Validate Railway token
-        run: |
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "::error::RAILWAY_TOKEN is missing."
-            exit 1
-          fi
+#       - name: Validate Railway token
+#         run: |
+#           if [ -z "$RAILWAY_TOKEN" ]; then
+#             echo "::error::RAILWAY_TOKEN is missing."
+#             exit 1
+#           fi
 
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
+#       - name: Install Railway CLI
+#         run: npm i -g @railway/cli
 
-      - name: Validate Railway auth
-        run: railway whoami
+#       - name: Validate Railway auth
+#         run: railway whoami
 
-      - name: Deploy API (production)
-        working-directory: ${{ github.workspace }}/mjolksyra-api
-        run: |
-          railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_API_SERVICE_ID"
-          railway up --ci
+#       - name: Deploy API (production)
+#         working-directory: ${{ github.workspace }}/mjolksyra-api
+#         run: |
+#           railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_API_SERVICE_ID"
+#           railway up --ci
 
-      - name: Deploy App (production)
-        working-directory: ${{ github.workspace }}/mjolksyra-app
-        run: |
-          railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_APP_SERVICE_ID"
-          railway up --ci
+#       - name: Deploy App (production)
+#         working-directory: ${{ github.workspace }}/mjolksyra-app
+#         run: |
+#           railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_NAME" --service "$RAILWAY_APP_SERVICE_ID"
+#           railway up --ci
