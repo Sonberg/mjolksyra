@@ -28,6 +28,8 @@ using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables();
+
 if (Environment.GetEnvironmentVariable("KEY_VAULT_URL") is { } keyVaultUrl)
 {
     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
