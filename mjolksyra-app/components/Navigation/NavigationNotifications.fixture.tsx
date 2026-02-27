@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import type { AxiosRequestConfig } from "axios";
 import { NavigationNotifications } from "./NavigationNotifications";
 import { AuthContext, type AuthContextValue } from "@/context/Auth/Auth";
 import { ApiClient } from "@/services/client";
@@ -51,7 +52,11 @@ function Fixture({
       return originalGet(url);
     }) as typeof ApiClient.get;
 
-    ApiClient.post = (async (url: string, ...args: unknown[]) => {
+    ApiClient.post = (async (
+      url: string,
+      data?: unknown,
+      config?: AxiosRequestConfig<unknown>,
+    ) => {
       const path = String(url);
 
       if (path === "/api/notifications/read-all") {
@@ -71,7 +76,7 @@ function Fixture({
         return { data: null };
       }
 
-      return originalPost(url, ...(args as [unknown?, unknown?]));
+      return originalPost(url, data, config);
     }) as typeof ApiClient.post;
 
     window.__DISABLE_REALTIME__ = true;
