@@ -21,7 +21,9 @@ permissions:
 jobs:
   deploy-preview:
     name: Deploy Preview
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     environment: railway-preview
     concurrency:
@@ -37,8 +39,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::RAILWAY_TOKEN is missing. For pull_request events from forks, GitHub does not expose secrets."
+            exit 1
+          fi
+
       - name: Install Railway CLI
         run: npm i -g @railway/cli
+
+      - name: Validate Railway auth
+        run: railway whoami
 
       - name: Deploy API (preview)
         working-directory: ${{ github.workspace }}/mjolksyra-api
@@ -70,8 +82,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::RAILWAY_TOKEN is missing."
+            exit 1
+          fi
+
       - name: Install Railway CLI
         run: npm i -g @railway/cli
+
+      - name: Validate Railway auth
+        run: railway whoami
 
       - name: Deploy API (production)
         working-directory: ${{ github.workspace }}/mjolksyra-api
