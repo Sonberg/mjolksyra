@@ -1,10 +1,11 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using OneOf;
 
 namespace Mjolksyra.UseCases.Trainees.CreateTrainee;
 
-public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand, TraineeResponse>
+public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand, OneOf<TraineeResponse, CreateTraineeError>>
 {
     private readonly IUserRepository _userRepository;
 
@@ -19,7 +20,7 @@ public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand,
         _userRepository = userRepository;
     }
 
-    public async Task<TraineeResponse> Handle(CreateTraineeCommand request, CancellationToken cancellationToken)
+    public async Task<OneOf<TraineeResponse, CreateTraineeError>> Handle(CreateTraineeCommand request, CancellationToken cancellationToken)
     {
         var coach = await _userRepository.GetById(request.CoachUserId, cancellationToken);
         var athlete = await _userRepository.GetById(request.AthleteUserId, cancellationToken);
@@ -27,7 +28,11 @@ public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand,
         var exists = await _traineeRepository.ExistsActiveRelationship(coach.Id, athlete.Id, cancellationToken);
         if (exists)
         {
-            throw new InvalidOperationException("Athlete is already connected to this coach.");
+            return new CreateTraineeError
+            {
+                Code = CreateTraineeErrorCode.AlreadyConnected,
+                Message = "Athlete is already connected to this coach."
+            };
         }
 
         var trainee = await _traineeRepository.Create(new Trainee

@@ -8,6 +8,7 @@ using Mjolksyra.UseCases.Trainees.CreateTrainee;
 using Mjolksyra.UseCases.Trainees.GetTraineeById;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
+using System.Net;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -94,6 +95,21 @@ public class TraineesController : Controller
     [HttpPost]
     public async Task<ActionResult<TraineeResponse>> Create([FromBody] CreateTraineeCommand request, CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(request, cancellationToken));
+        var result = await _mediator.Send(request, cancellationToken);
+        return result.Match<ActionResult<TraineeResponse>>(
+            response => Ok(response),
+            error => Problem(
+                detail: error.Message,
+                statusCode: GetStatusCode(error.Code),
+                title: "Unable to create trainee"));
+    }
+
+    private static int GetStatusCode(CreateTraineeErrorCode code)
+    {
+        return code switch
+        {
+            CreateTraineeErrorCode.AlreadyConnected => (int)HttpStatusCode.Conflict,
+            _ => (int)HttpStatusCode.BadRequest
+        };
     }
 }

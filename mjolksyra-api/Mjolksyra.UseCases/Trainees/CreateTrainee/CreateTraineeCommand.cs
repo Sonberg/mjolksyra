@@ -1,8 +1,9 @@
 using MediatR;
+using OneOf;
 
 namespace Mjolksyra.UseCases.Trainees.CreateTrainee;
 
-public class CreateTraineeCommand : IRequest<TraineeResponse>
+public class CreateTraineeCommand : IRequest<OneOf<TraineeResponse, CreateTraineeError>>
 {
     public required Guid AthleteUserId { get; set; }
 
