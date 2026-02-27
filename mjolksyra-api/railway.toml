@@ -1,8 +1,9 @@
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
+dockerfilePath = "Mjolksyra.Api/Dockerfile"
 
 [deploy]
-startCommand = "dotnet out/Mjolksyra.Api.dll --urls http://0.0.0.0:$PORT"
+startCommand = "dotnet Mjolksyra.Api.dll"
 healthcheckPath = "/health"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10

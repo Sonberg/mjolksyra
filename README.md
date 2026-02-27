@@ -94,7 +94,7 @@ Create two Railway services from the same repo:
 
 1. `mjolksyra-api` service
    1. Root directory: `mjolksyra-api`
-   2. Uses Nixpacks and starts API on `$PORT`
+   2. Uses Dockerfile build (`Mjolksyra.Api/Dockerfile`)
    3. Health check: `/health`
 2. `mjolksyra-app` service
    1. Root directory: `mjolksyra-app`
