@@ -10,20 +10,16 @@ export async function register() {
     return;
   }
 
-  if (process.env.NODE_ENV === "development") {
-    process.env.OTEL_SERVICE_NAME ??= "mjolksyra-app";
-    process.env.OTEL_EXPORTER_OTLP_ENDPOINT ??= "http://localhost:18889";
-    process.env.OTEL_EXPORTER_OTLP_PROTOCOL ??= "http/protobuf";
-  }
+  process.env.OTEL_SERVICE_NAME ??= "mjolksyra-app";
+  process.env.OTEL_EXPORTER_OTLP_ENDPOINT ??= "http://localhost:18890";
+  process.env.OTEL_EXPORTER_OTLP_PROTOCOL ??= "http/protobuf";
 
   try {
     const { registerOTel } = await importModule("@vercel/otel");
-
     registerOTel({
-      serviceName: process.env.OTEL_SERVICE_NAME ?? "mjolksyra-app",
+      serviceName: process.env.OTEL_SERVICE_NAME,
     });
   } catch (error) {
-    // Keep app startup resilient in environments where @vercel/otel is not installed yet.
-    console.warn("[otel] @vercel/otel is not installed or failed to initialize.", error);
+    console.warn("[otel] @vercel/otel failed to initialize.", error);
   }
 }

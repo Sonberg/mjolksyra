@@ -51,10 +51,10 @@ var stripe = builder.Configuration
     .GetSection(StripeOptions.SectionName)
     .Get<StripeOptions>();
 
-foreach (var variable in oTel!.EnvironmentVariables)
-{
-    Environment.SetEnvironmentVariable(variable.Name, variable.Value);
-}
+// Aspire injects OTEL_EXPORTER_OTLP_ENDPOINT; fall back to appsettings only when absent.
+var otlpEndpoint = new Uri(
+    Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT")
+    ?? oTel!.Endpoint);
 
 builder.Services
     .AddOptions<StripeOptions>()
@@ -65,19 +65,6 @@ builder.Services
     .AddOptions<ClerkOptions>()
     .Bind(builder.Configuration.GetSection(ClerkOptions.SectionName))
     .ValidateOnStart();
-
-builder.Logging.AddOpenTelemetry(logging =>
-{
-    logging.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(oTel.ServiceName));
-    logging.AddOtlpExporter(opt =>
-    {
-        opt.Endpoint = new Uri(oTel.Endpoint);
-        opt.Headers = oTel.Headers;
-    });
-    logging.IncludeFormattedMessage = true;
-    logging.IncludeScopes = true;
-    logging.ParseStateValues = true;
-});
 
 builder.Services.AddSingleton(Options.Create(stripe!));
 builder.Services.ConfigureHttpJsonOptions(opt =>
@@ -106,30 +93,34 @@ builder.Services
         options.AllowInputFormatterExceptionMessages = true;
     });
 
+builder.Services.Configure<OpenTelemetryLoggerOptions>(opt =>
+{
+    opt.IncludeFormattedMessage = true;
+    opt.IncludeScopes = true;
+    opt.ParseStateValues = true;
+});
+
 builder.Services
     .AddOpenTelemetry()
-    .ConfigureResource(x =>
-    {
-        x.Clear();
-        x.AddService(oTel.ServiceName);
-    })
+    .ConfigureResource(x => x.AddService(oTel!.ServiceName))
     .WithLogging(opt =>
     {
         opt.AddOtlpExporter(x =>
         {
-            x.Endpoint = new Uri(oTel.Endpoint);
-            x.Headers = oTel.Headers;
+            x.Endpoint = otlpEndpoint;
+            x.Headers = oTel!.Headers;
         });
     })
     .WithMetrics(opt =>
     {
         opt.AddAspNetCoreInstrumentation();
         opt.AddHttpClientInstrumentation();
+        opt.AddRuntimeInstrumentation();
         opt.AddMeter(InstrumentationOptions.MeterName);
         opt.AddOtlpExporter(x =>
         {
-            x.Endpoint = new Uri(oTel.Endpoint);
-            x.Headers = oTel.Headers;
+            x.Endpoint = otlpEndpoint;
+            x.Headers = oTel!.Headers;
         });
     })
     .WithTracing(opt =>
@@ -140,8 +131,8 @@ builder.Services
         opt.AddHttpClientInstrumentation();
         opt.AddOtlpExporter(x =>
         {
-            x.Endpoint = new Uri(oTel.Endpoint);
-            x.Headers = oTel.Headers;
+            x.Endpoint = otlpEndpoint;
+            x.Headers = oTel!.Headers;
         });
     });
 
@@ -222,15 +213,13 @@ builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
 builder.Services.AddHostedService<TraineeIndexBuilder>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 
-var azureSignalRConnectionString = builder.Configuration["Azure:SignalR:ConnectionString"];
+var redisBackplaneConnectionString = builder.Configuration.GetConnectionString("redis")
+                                    ?? builder.Configuration["Redis:ConnectionString"];
 var signalR = builder.Services.AddSignalR();
 
-if (!string.IsNullOrWhiteSpace(azureSignalRConnectionString))
+if (!string.IsNullOrWhiteSpace(redisBackplaneConnectionString))
 {
-    signalR.AddAzureSignalR(options =>
-    {
-        options.ConnectionString = azureSignalRConnectionString;
-    });
+    signalR.AddStackExchangeRedis(redisBackplaneConnectionString);
 }
 builder.Services.AddSingleton<IUserEventPublisher, SignalRUserEventPublisher>();
 builder.Services.AddSingleton<INotificationRealtimePublisher, NotificationRealtimePublisher>();

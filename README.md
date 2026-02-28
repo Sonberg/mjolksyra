@@ -25,28 +25,29 @@ cd mjolksyra-api
 dotnet run --project Mjolksyra.Api
 ```
 
-The API runs on `http://localhost:5107` by default. Configuration is in `Mjolksyra.Api/appsettings.Development.json`. Required settings:
+The API runs on `http://localhost:5108` by default. Configuration is in `Mjolksyra.Api/appsettings.Development.json`. Required settings:
 
 - `MongoDb.ConnectionString`
 - `Jwt.Secret`
 - `Stripe.ApiKey` / `Stripe.WebhookSecret`
 - `Brevo.ApiKey` (email)
-- `Otel` (OpenTelemetry; local default points to Aspire Dashboard OTLP on `http://localhost:18889`)
+- `Otel` (OpenTelemetry; local default points to Aspire Dashboard OTLP on `http://localhost:18890`)
 
-API docs are available at `http://localhost:5107/scalar`.
+API docs are available at `http://localhost:5108/scalar`.
 
 ### Local Aspire Dashboard
 
 ```bash
 cd mjolksyra-api
-dotnet run --project Mjolksyra.Api.AppHost
+dotnet run --project Mjolksyra.AppHost
 ```
 
 This starts Aspire local orchestration (including dashboard), API, and Next app in one command.
 
-- API: `http://localhost:5107`
+- API: `http://localhost:5108`
 - App: `http://localhost:3000`
-- Aspire OTLP endpoint: `http://localhost:18889`
+- Aspire OTLP endpoint: `http://localhost:18890`
+- Redis backplane: provisioned by Aspire and injected into API as connection string `redis`
 
 Local telemetry for both API and app is configured to send OTLP to the Aspire endpoint above.
 
@@ -61,7 +62,7 @@ npm run dev
 The app runs on `http://localhost:3000`. Create `.env.local`:
 
 ```
-API_URL=http://localhost:5107
+API_URL=http://localhost:5108
 JWT_SECRET=<same value as Jwt.Secret in API config>
 NEXT_PUBLIC_POSTHOG_KEY=...
 NEXT_PUBLIC_POSTHOG_HOST=...

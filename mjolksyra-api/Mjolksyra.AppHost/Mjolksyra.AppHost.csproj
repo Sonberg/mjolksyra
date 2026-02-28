@@ -7,11 +7,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
-    <UserSecretsId>Mjolksyra.Api.AppHost</UserSecretsId>
+    <UserSecretsId>Mjolksyra.AppHost</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.0.0" />
     <ProjectReference Include="..\Mjolksyra.Api\Mjolksyra.Api.csproj" />
   </ItemGroup>
 </Project>

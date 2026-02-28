@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mjolksyra.Domain.Tests", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mjolksyra.UseCases.Tests", "Mjolksyra.UseCases.Tests\Mjolksyra.UseCases.Tests.csproj", "{9AF14842-594C-4D64-93F2-3290D4CA5AD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mjolksyra.Api.AppHost", "Mjolksyra.Api.AppHost\Mjolksyra.Api.AppHost.csproj", "{24A03A78-750D-4E0C-AB93-0D88D46C30FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mjolksyra.AppHost", "Mjolksyra.AppHost\Mjolksyra.AppHost.csproj", "{24A03A78-750D-4E0C-AB93-0D88D46C30FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
