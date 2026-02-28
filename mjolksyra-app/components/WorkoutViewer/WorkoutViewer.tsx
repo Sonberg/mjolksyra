@@ -51,6 +51,13 @@ export function WorkoutViewer({
     order: "asc",
     enabled: mode === "future",
   });
+  const completed = useWorkouts({
+    id: "completed",
+    traineeId,
+    sortBy: "PlannedAt",
+    order: "asc",
+    enabled: mode === "past",
+  });
 
   const focusedWorkout = useQuery({
     queryKey: ["planned-workout", traineeId, focusWorkoutId],
@@ -69,13 +76,30 @@ export function WorkoutViewer({
       ? future.hasNextPage
       : mode === "changes"
         ? changes.hasNextPage
-        : past.hasNextPage;
-  const fetchNextPage =
-    mode === "future"
-      ? future.fetchNextPage
-      : mode === "changes"
-        ? changes.fetchNextPage
-        : past.fetchNextPage;
+        : past.hasNextPage || completed.hasNextPage;
+  const fetchNextPage = async () => {
+    if (mode === "future") {
+      await future.fetchNextPage();
+      return;
+    }
+
+    if (mode === "changes") {
+      await changes.fetchNextPage();
+      return;
+    }
+
+    const actions: Array<Promise<unknown>> = [];
+    if (past.hasNextPage) {
+      actions.push(past.fetchNextPage());
+    }
+    if (completed.hasNextPage) {
+      actions.push(completed.fetchNextPage());
+    }
+
+    if (actions.length > 0) {
+      await Promise.all(actions);
+    }
+  };
 
   const end = useOnScreen();
   const sourceData = useMemo(() => {
@@ -87,11 +111,12 @@ export function WorkoutViewer({
       return changes.data;
     }
 
-    return past.data;
-  }, [mode, future.data, changes.data, past.data]);
+    return [...past.data, ...completed.data];
+  }, [mode, future.data, changes.data, past.data, completed.data]);
 
   const data = useMemo(
     () => {
+      const startOfToday = dayjs().startOf("day");
       const sorted = sortBy(
         uniqBy(
           [
@@ -100,6 +125,10 @@ export function WorkoutViewer({
           ],
           (x) => x.id,
         ).filter((x) => {
+          const plannedAt = dayjs(x.plannedAt).startOf("day");
+          const isBeforeToday = plannedAt.isBefore(startOfToday);
+          const isCompleted = !!x.completedAt;
+
           if (focusWorkoutId && x.id === focusWorkoutId) {
             return true;
           }
@@ -111,6 +140,14 @@ export function WorkoutViewer({
               x.completionNote?.trim() ||
               x.reviewNote?.trim()
             );
+          }
+
+          if (mode === "future") {
+            return !isCompleted && !isBeforeToday;
+          }
+
+          if (mode === "past" && !(isCompleted || isBeforeToday)) {
+            return false;
           }
 
           const visible =
@@ -130,12 +167,7 @@ export function WorkoutViewer({
           return true;
         }),
         (x) => {
-          const [year, month, day] = x.plannedAt.split("-");
-
-          return dayjs()
-            .year(Number(year))
-            .month(Number(month) - 1)
-            .date(Number(day));
+          return dayjs(x.plannedAt);
         },
         mode === "future"
       );
@@ -186,8 +218,8 @@ export function WorkoutViewer({
         <CustomTab
           value={mode}
           options={[
-            { name: "Past", value: "past" },
             { name: "Upcoming", value: "future" },
+             { name: "Past", value: "past" },
             ...(viewerMode === "coach"
               ? [{ name: "Changes", value: "changes" as const }]
               : []),
