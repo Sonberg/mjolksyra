@@ -100,7 +100,7 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                 type: "workout.completed",
                 title: title,
                 body: body,
-                href: $"/app/coach/athletes/{trainee.Id}/workouts",
+                href: $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={plannedWorkout.Id}",
                 cancellationToken: cancellationToken);
         }
 
@@ -119,7 +119,7 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                 type: "workout.reviewed",
                 title: "Coach reviewed your workout",
                 body: body,
-                href: $"/app/athlete/{trainee.Id}/workouts",
+                href: $"/app/athlete/{trainee.Id}/workouts?tab=past&workoutId={plannedWorkout.Id}",
                 cancellationToken: cancellationToken);
         }
 

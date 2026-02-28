@@ -6,6 +6,7 @@ using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 
@@ -53,6 +54,21 @@ public class PlannedWorkoutsController : Controller
             TraineeId = traineeId,
             Workout = request
         }));
+    }
+
+    [HttpGet("{plannedWorkoutId:guid}")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> GetById(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetPlannedWorkoutRequest
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId
+        }, cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
     }
 
     [HttpPut("{plannedWorkoutId:guid}")]

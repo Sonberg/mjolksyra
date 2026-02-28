@@ -9,9 +9,14 @@ import { CheckCircle2Icon, RotateCcwIcon } from "lucide-react";
 type Props = {
   workout: PlannedWorkout;
   viewerMode?: "athlete" | "coach";
+  isHighlighted?: boolean;
 };
 
-export function Workout({ workout, viewerMode = "athlete" }: Props) {
+export function Workout({
+  workout,
+  viewerMode = "athlete",
+  isHighlighted = false,
+}: Props) {
   const queryClient = useQueryClient();
   const [isLogging, setIsLogging] = useState(false);
   const [completionNote, setCompletionNote] = useState(workout.completionNote ?? "");
@@ -95,10 +100,24 @@ export function Workout({ workout, viewerMode = "athlete" }: Props) {
     setReviewNote(workout.reviewNote ?? "");
   }, [workout.completionNote, workout.reviewNote]);
 
+  useEffect(() => {
+    if (!isHighlighted) {
+      return;
+    }
+
+    const element = document.getElementById(`workout-${workout.id}`);
+    element?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [isHighlighted, workout.id]);
+
   return (
     <Card
+      id={`workout-${workout.id}`}
       data-today={displayName === "Today"}
-      className="overflow-hidden bg-white/10"
+      className={
+        isHighlighted
+          ? "overflow-hidden border-zinc-400 bg-zinc-900/90 ring-1 ring-zinc-300/50"
+          : "overflow-hidden bg-white/10"
+      }
     >
       <CardHeader className="font-bold over p-4">
         <div className="flex items-center justify-between">

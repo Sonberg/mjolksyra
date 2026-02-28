@@ -9,9 +9,11 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   traineeId: string;
+  initialTab?: "past" | "future" | "changes";
+  focusWorkoutId?: string | null;
 };
 
-export function PageContent({ traineeId }: Props) {
+export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
   const router = useRouter();
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "workoutReviewHeader"],
@@ -57,7 +59,12 @@ export function PageContent({ traineeId }: Props) {
       </section>
 
       <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-5 md:p-6">
-        <WorkoutViewer traineeId={traineeId} mode="coach" />
+        <WorkoutViewer
+          traineeId={traineeId}
+          mode="coach"
+          initialTab={initialTab}
+          focusWorkoutId={focusWorkoutId}
+        />
       </section>
     </CoachWorkspaceShell>
   );

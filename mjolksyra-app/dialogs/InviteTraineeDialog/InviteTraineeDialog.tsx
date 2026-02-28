@@ -34,11 +34,21 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
   const [email, setEmail] = useState("");
   const [monthlyPriceAmount, setMonthlyPriceAmount] = useState("");
   const [isOpen, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validation = useValidation({ schema, values: { email, monthlyPriceAmount } });
 
   return (
-    <Dialog open={isOpen} onOpenChange={setOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setOpen(open);
+        if (open) {
+          setError(null);
+        }
+      }}
+    >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -54,7 +64,10 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
             <Input
               id="email"
               value={email}
-              onChange={(ev) => setEmail(ev.target.value)}
+              onChange={(ev) => {
+                setEmail(ev.target.value);
+                setError(null);
+              }}
               className="col-span-3"
               onBlur={(ev) => {
                 validation.showError(ev.target.id);
@@ -66,9 +79,10 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
             <Input
               id="monthlyPriceAmount"
               value={monthlyPriceAmount}
-              onChange={(ev) =>
-                setMonthlyPriceAmount(ev.target.value.replace(/[^\d]/g, ""))
-              }
+              onChange={(ev) => {
+                setMonthlyPriceAmount(ev.target.value.replace(/[^\d]/g, ""));
+                setError(null);
+              }}
               className="col-span-3"
               placeholder="Optional, e.g. 1000"
               onBlur={(ev) => {
@@ -76,6 +90,11 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
               }}
             />
           </div>
+          {error ? (
+            <p className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {error}
+            </p>
+          ) : null}
         </div>
         <DialogFooter>
           <Button
@@ -85,17 +104,28 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
                 return;
               }
 
-              await inviteTrainee({
-                email,
-                monthlyPriceAmount: Number.parseInt(monthlyPriceAmount, 10),
-              });
-              await onCompletion();
-              setOpen(false);
-              setEmail("");
-              setMonthlyPriceAmount("");
+              setError(null);
+              setIsSubmitting(true);
+              try {
+                await inviteTrainee({
+                  email,
+                  monthlyPriceAmount: Number.parseInt(monthlyPriceAmount, 10),
+                });
+                await onCompletion();
+                setOpen(false);
+                setEmail("");
+                setMonthlyPriceAmount("");
+              } catch (err) {
+                setError(
+                  err instanceof Error ? err.message : "Unable to send invitation.",
+                );
+              } finally {
+                setIsSubmitting(false);
+              }
             }}
+            disabled={isSubmitting}
           >
-            Send invitation
+            {isSubmitting ? "Sending..." : "Send invitation"}
           </Button>
         </DialogFooter>
       </DialogContent>
