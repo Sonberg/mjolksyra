@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Spectral, Unbounded } from "next/font/google";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { Navigation } from "@/components/Navigation";
 
 import "./globals.css";
@@ -88,18 +89,28 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { userId } = await auth();
+  const user = userId ? await currentUser() : null;
+  const initialAuth = {
+    isAuthenticated: Boolean(userId),
+    name: user?.fullName ?? null,
+    email: user?.emailAddresses.at(0)?.emailAddress ?? null,
+    givenName: user?.firstName ?? null,
+    familyName: user?.lastName ?? null,
+  };
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} ${bodyFont.variable} antialiased flex flex-col overflow-hidden dark bg-black h-[100vh]`}
       >
         <Providers>
-          <Navigation />
+          <Navigation initialAuth={initialAuth} />
           <main className="flex flex-col flex-1 overflow-hidden">
             {children}
           </main>

@@ -19,7 +19,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export function NavigationNotifications() {
+type NavigationNotificationsProps = {
+  forceVisible?: boolean;
+};
+
+export function NavigationNotifications({
+  forceVisible = false,
+}: NavigationNotificationsProps) {
   const auth = useAuth();
   const userEvents = useUserEvents();
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -89,7 +95,7 @@ export function NavigationNotifications() {
     prevUnreadCountRef.current = unreadCount;
   }, [unreadCount]);
 
-  if (!auth.isAuthenticated) {
+  if (!auth.isAuthenticated && !forceVisible) {
     return null;
   }
 

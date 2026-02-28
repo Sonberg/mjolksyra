@@ -10,10 +10,26 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export function NavigationUser() {
+type NavigationUserProps = {
+  user?: {
+    name: string | null;
+    email: string | null;
+    givenName: string | null;
+    familyName: string | null;
+  } | null;
+};
+
+export function NavigationUser({ user }: NavigationUserProps) {
   const auth = useAuth();
-  const initial = (auth.givenName?.[0] ?? "") + (auth.familyName?.[0] ?? "");
-  const url = useGravatar(auth.email ?? "", 32);
+  const resolvedUser = {
+    name: user?.name ?? auth.name ?? null,
+    email: user?.email ?? auth.email ?? null,
+    givenName: user?.givenName ?? auth.givenName ?? null,
+    familyName: user?.familyName ?? auth.familyName ?? null,
+  };
+  const initial =
+    (resolvedUser.givenName?.[0] ?? "") + (resolvedUser.familyName?.[0] ?? "");
+  const url = useGravatar(resolvedUser.email ?? "", 32);
 
   return (
     <DropdownMenu>
@@ -24,14 +40,14 @@ export function NavigationUser() {
           aria-label="Open user menu"
         >
           <Avatar className="h-8 w-8 border border-zinc-700">
-            <AvatarImage src={url} alt={auth.name ?? "User"} />
+            <AvatarImage src={url} alt={resolvedUser.name ?? "User"} />
             <AvatarFallback className="bg-zinc-900 text-zinc-200">
               {initial.toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="hidden min-w-0 sm:block">
             <div className="max-w-28 truncate text-xs font-medium text-zinc-100">
-              {auth.givenName ?? auth.name ?? "User"}
+              {resolvedUser.givenName ?? resolvedUser.name ?? "User"}
             </div>
           </div>
           <ChevronDownIcon className="h-4 w-4 text-zinc-400" />

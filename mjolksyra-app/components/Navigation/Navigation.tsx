@@ -11,13 +11,31 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ArrowRightIcon } from "lucide-react";
 
-export function Navigation() {
+type NavigationAuthSnapshot = {
+  isAuthenticated: boolean;
+  name: string | null;
+  email: string | null;
+  givenName: string | null;
+  familyName: string | null;
+};
+
+type NavigationProps = {
+  initialAuth?: NavigationAuthSnapshot;
+};
+
+export function Navigation({ initialAuth }: NavigationProps) {
   const auth = useAuth();
   const pathname = usePathname();
   const isCoachActive = pathname.startsWith("/app/coach");
   const isAthleteActive = pathname.startsWith("/app/athlete");
+  const isAuthenticated = initialAuth?.isAuthenticated ?? auth.isAuthenticated;
+  const user = {
+    name: initialAuth?.name ?? auth.name ?? null,
+    email: initialAuth?.email ?? auth.email ?? null,
+    givenName: initialAuth?.givenName ?? auth.givenName ?? null,
+    familyName: initialAuth?.familyName ?? auth.familyName ?? null,
+  };
 
   const [showBorder, setShowBorder] = useState(() =>
     pathname === "/" ? false : true,
@@ -81,7 +99,7 @@ export function Navigation() {
           </div>
         </Link>
         <div className="ml-auto flex items-center space-x-3">
-          {auth.isAuthenticated ? (
+          {isAuthenticated ? (
             <nav className="hidden items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950/80 p-1 md:flex">
               <Link
                 href="/app/coach/dashboard"
@@ -108,11 +126,11 @@ export function Navigation() {
               </Link>
             </nav>
           ) : null}
-          {auth.isAuthenticated ? (
+          {isAuthenticated ? (
             <>
               <ReportIssueDialog />
-              <NavigationNotifications />
-              <NavigationUser />
+              <NavigationNotifications forceVisible={isAuthenticated} />
+              <NavigationUser user={user} />
             </>
           ) : (
             <>
