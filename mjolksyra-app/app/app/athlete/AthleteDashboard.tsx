@@ -2,24 +2,27 @@ import { UserTrainee } from "@/services/users/type";
 import { useQuery } from "@tanstack/react-query";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { WorkoutViewer } from "@/components/WorkoutViewer";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { CreditCardIcon, DumbbellIcon, SettingsIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
+import { useRouter } from "next/navigation";
 
 type Tabs = "workouts" | "transactions" | "settings";
 type Props = {
   coach: UserTrainee;
   focusWorkoutId?: string;
   initialWorkoutTab?: "past" | "future";
+  selectedTab: Tabs;
 };
 
 export function AthleteDashboard({
   coach,
   focusWorkoutId,
   initialWorkoutTab,
+  selectedTab,
 }: Props) {
-  const [selectedTab, setSelectedTab] = useState<Tabs>("workouts");
+  const router = useRouter();
   const cancel = useMutation({
     mutationKey: ["trainees", coach.traineeId, "cancel"],
     mutationFn: () => cancelTrainee({ traineeId: coach.traineeId }),
@@ -47,14 +50,26 @@ export function AthleteDashboard({
     key: Tabs;
     label: string;
     icon: ReactNode;
+    href: string;
   }> = [
-    { key: "workouts", label: "Workouts", icon: <DumbbellIcon className="h-4 w-4" /> },
+    {
+      key: "workouts",
+      label: "Workouts",
+      icon: <DumbbellIcon className="h-4 w-4" />,
+      href: `/app/athlete/${coach.traineeId}/workouts`,
+    },
     {
       key: "transactions",
       label: "Transactions",
       icon: <CreditCardIcon className="h-4 w-4" />,
+      href: `/app/athlete/${coach.traineeId}/transactions`,
     },
-    { key: "settings", label: "Settings", icon: <SettingsIcon className="h-4 w-4" /> },
+    {
+      key: "settings",
+      label: "Settings",
+      icon: <SettingsIcon className="h-4 w-4" />,
+      href: `/app/athlete/${coach.traineeId}/settings`,
+    },
   ];
 
   return (
@@ -79,7 +94,7 @@ export function AthleteDashboard({
             return (
               <button
                 key={tab.key}
-                onClick={() => setSelectedTab(tab.key)}
+                onClick={() => router.push(tab.href)}
                 className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
                   isActive
                     ? "bg-white text-black"

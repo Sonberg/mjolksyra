@@ -11,6 +11,7 @@ type Props = {
   initialCoachTraineeId?: string;
   focusWorkoutId?: string;
   initialWorkoutTab?: "past" | "future";
+  initialDashboardTab?: "workouts" | "transactions" | "settings";
 };
 
 export function PageContent({
@@ -18,6 +19,7 @@ export function PageContent({
   initialCoachTraineeId,
   focusWorkoutId,
   initialWorkoutTab,
+  initialDashboardTab = "workouts",
 }: Props) {
   const [coach, setCoach] = useState<UserTrainee | null>(
     user.coaches.find((x) => x.traineeId === initialCoachTraineeId) ??
@@ -112,6 +114,7 @@ export function PageContent({
                   coach={coach}
                   focusWorkoutId={focusWorkoutId}
                   initialWorkoutTab={initialWorkoutTab}
+                  selectedTab={initialDashboardTab}
                 />
               ) : (
                 <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-center">

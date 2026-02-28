@@ -45,7 +45,7 @@ export default async function Page({ searchParams }: Props) {
     }
 
     const suffix = target.toString() ? `?${target.toString()}` : "";
-    redirect(`/app/athlete/${selectedCoachId}${suffix}`);
+    redirect(`/app/athlete/${selectedCoachId}/workouts${suffix}`);
   }
 
   return (

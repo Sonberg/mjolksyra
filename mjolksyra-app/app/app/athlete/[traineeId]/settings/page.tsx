@@ -5,10 +5,9 @@ import { PageContent } from "../../pageContent";
 
 type Props = {
   params: Promise<{ traineeId: string }>;
-  searchParams?: Promise<{ tab?: string; workoutId?: string; workoutTab?: string }>;
 };
 
-export default async function Page({ params, searchParams }: Props) {
+export default async function Page({ params }: Props) {
   const auth = await getAuth({
     redirect: "/",
   });
@@ -22,21 +21,11 @@ export default async function Page({ params, searchParams }: Props) {
     redirect("/app/athlete");
   }
 
-  const query = (await searchParams) ?? {};
-  const initialWorkoutTab =
-    query.workoutTab === "past" || query.workoutTab === "future"
-      ? query.workoutTab
-      : query.tab === "past" || query.tab === "future"
-        ? query.tab
-        : undefined;
-
   return (
     <PageContent
       user={user}
       initialCoachTraineeId={routeParams.traineeId}
-      initialDashboardTab="workouts"
-      initialWorkoutTab={initialWorkoutTab}
-      focusWorkoutId={query.workoutId}
+      initialDashboardTab="settings"
     />
   );
 }
