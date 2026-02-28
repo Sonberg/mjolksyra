@@ -12,6 +12,7 @@ public class UserContext : IUserContext
     private readonly IClerkRepository _clerkRepository;
     private readonly Lazy<Task<User?>> _userTask;
     private readonly Lazy<Task<Guid?>> _userIdTask;
+    private readonly Lazy<Task<bool>> _isAdminTask;
 
     public UserContext(
         IHttpContextAccessor accessor,
@@ -26,6 +27,7 @@ public class UserContext : IUserContext
 
         _userTask = new Lazy<Task<User?>>(LoadUserAsync);
         _userIdTask = new Lazy<Task<Guid?>>(async () => (await _userTask.Value)?.Id);
+        _isAdminTask = new Lazy<Task<bool>>(async () => (await _userTask.Value)?.IsAdmin == true);
     }
 
     public bool IsAuthenticated { get; }
@@ -40,6 +42,11 @@ public class UserContext : IUserContext
     public Task<Guid?> GetUserId(CancellationToken cancellationToken = default)
     {
         return _userIdTask.Value;
+    }
+
+    public Task<bool> IsAdminAsync(CancellationToken cancellationToken = default)
+    {
+        return _isAdminTask.Value;
     }
 
 

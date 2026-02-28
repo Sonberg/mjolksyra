@@ -29,6 +29,7 @@ public class GetUserRequestHandler(
             Id = user.Id,
             GivenName = user.GivenName,
             FamilyName = user.FamilyName,
+            IsAdmin = user.IsAdmin,
             Onboarding = new UserOnboardingResponse
             {
                 Athlete = user.Athlete?.Stripe switch

@@ -1,5 +1,6 @@
 using Mjolksyra.Domain;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
 
@@ -70,5 +71,24 @@ public class UserRepository : IUserRepository
         }, ct);
 
         return user;
+    }
+
+    public async Task<long> CountAsync(CancellationToken ct)
+    {
+        return await _context.Users.CountDocumentsAsync(Builders<User>.Filter.Empty, cancellationToken: ct);
+    }
+
+    public async Task<long> CountCoachesAsync(CancellationToken ct)
+    {
+        return await _context.Users.CountDocumentsAsync(
+            x => x.Coach != null && x.Coach.Stripe != null && x.Coach.Stripe.Status == StripeStatus.Succeeded,
+            cancellationToken: ct);
+    }
+
+    public async Task<long> CountAthletesAsync(CancellationToken ct)
+    {
+        return await _context.Users.CountDocumentsAsync(
+            x => x.Athlete != null && x.Athlete.Stripe != null && x.Athlete.Stripe.Status == StripeStatus.Succeeded,
+            cancellationToken: ct);
     }
 }

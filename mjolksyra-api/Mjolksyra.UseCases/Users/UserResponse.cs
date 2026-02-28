@@ -29,4 +29,6 @@ public class UserResponse
     public required List<UserTraineeResponse> Coaches { get; set; }
 
     public required List<UserInvitationResponse> Invitations { get; set; }
+
+    public required bool IsAdmin { get; set; }
 }

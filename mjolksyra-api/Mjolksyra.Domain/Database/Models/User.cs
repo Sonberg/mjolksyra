@@ -24,5 +24,7 @@ public class User
 
     public UserCoach? Coach { get; set; }
 
+    public bool IsAdmin { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 }

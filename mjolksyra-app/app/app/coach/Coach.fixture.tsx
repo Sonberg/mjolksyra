@@ -12,7 +12,8 @@ const user: User = {
     athlete: "NotStarted",
     coach: "NotStarted",
   },
-  invitations: []
+  invitations: [],
+  isAdmin: false,
 };
 
 export default {

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Spectral, Unbounded } from "next/font/google";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Navigation } from "@/components/Navigation";
+import { getUserMe } from "@/services/users/getUserMe";
 
 import "./globals.css";
 import { Providers } from "./providers";
@@ -94,14 +95,29 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { userId } = await auth();
+  const { userId, getToken } = await auth();
   const user = userId ? await currentUser() : null;
+
+  let isAdmin = false;
+  if (userId) {
+    try {
+      const accessToken = (await getToken()) ?? "";
+      if (accessToken) {
+        const me = await getUserMe({ accessToken });
+        isAdmin = me.isAdmin;
+      }
+    } catch {
+      // non-critical — user may not exist in DB yet
+    }
+  }
+
   const initialAuth = {
     isAuthenticated: Boolean(userId),
     name: user?.fullName ?? null,
     email: user?.emailAddresses.at(0)?.emailAddress ?? null,
     givenName: user?.firstName ?? null,
     familyName: user?.lastName ?? null,
+    isAdmin,
   };
 
   return (

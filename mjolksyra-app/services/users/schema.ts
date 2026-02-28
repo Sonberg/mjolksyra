@@ -31,4 +31,5 @@ export const userSchema = z.object({
     athlete: userOnboardingStatus,
     coach: userOnboardingStatus,
   }),
+  isAdmin: z.boolean().default(false),
 });

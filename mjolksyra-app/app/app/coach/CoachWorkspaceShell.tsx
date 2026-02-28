@@ -40,7 +40,7 @@ export function CoachWorkspaceShell({
       ) : null}
       <div
         className={cn(
-          "mx-auto w-full max-w-6xl space-y-8 pt-8 px-4 md:px-6",
+          "mx-auto w-full max-w-6xl space-y-8 pt-16 px-4 md:px-6",
           fullBleed && "max-w-none pt-0",
           contentClassName,
         )}

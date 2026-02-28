@@ -18,6 +18,7 @@ type NavigationAuthSnapshot = {
   email: string | null;
   givenName: string | null;
   familyName: string | null;
+  isAdmin?: boolean;
 };
 
 type NavigationProps = {
@@ -130,7 +131,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
             <>
               <ReportIssueDialog />
               <NavigationNotifications forceVisible={isAuthenticated} />
-              <NavigationUser user={user} />
+              <NavigationUser user={user} isAdmin={initialAuth?.isAdmin ?? false} />
             </>
           ) : (
             <>

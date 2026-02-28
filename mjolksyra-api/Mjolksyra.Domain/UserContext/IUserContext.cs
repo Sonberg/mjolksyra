@@ -11,4 +11,6 @@ public interface IUserContext
     public Task<User?> GetUser(CancellationToken cancellationToken = default);
     
     public Task<Guid?> GetUserId(CancellationToken cancellationToken = default);
+
+    public Task<bool> IsAdminAsync(CancellationToken cancellationToken = default);
 }

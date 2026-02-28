@@ -15,4 +15,10 @@ public interface IUserRepository
     Task<User> Create(User user, CancellationToken ct);
 
     Task<User> Update(User user, CancellationToken ct);
+
+    Task<long> CountAsync(CancellationToken ct);
+
+    Task<long> CountCoachesAsync(CancellationToken ct);
+
+    Task<long> CountAthletesAsync(CancellationToken ct);
 }

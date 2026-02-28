@@ -2,7 +2,7 @@ import { useAuth } from "@/context/Auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGravatar } from "@/hooks/useGravatar";
 import Link from "next/link";
-import { ChevronDownIcon, LogOutIcon } from "lucide-react";
+import { ChevronDownIcon, LogOutIcon, ShieldIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +17,10 @@ type NavigationUserProps = {
     givenName: string | null;
     familyName: string | null;
   } | null;
+  isAdmin?: boolean;
 };
 
-export function NavigationUser({ user }: NavigationUserProps) {
+export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
   const auth = useAuth();
   const resolvedUser = {
     name: user?.name ?? auth.name ?? null,
@@ -60,6 +61,14 @@ export function NavigationUser({ user }: NavigationUserProps) {
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100">
           <Link href="/app">Profile</Link>
         </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem asChild className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100">
+            <Link href="/app/admin">
+              <ShieldIcon className="mr-2 h-4 w-4" />
+              Admin
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           onSelect={auth.logout}
           className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
