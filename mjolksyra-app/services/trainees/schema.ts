@@ -10,8 +10,6 @@ const userSchema = z.object({
 
 const costSchema = z.object({
   currency: z.string(),
-  applicationFee: z.number(),
-  coach: z.number(),
   total: z.number(),
 });
 

@@ -47,9 +47,7 @@ export default {
             name: "Per Sonberg",
           },
           cost: {
-            coach: 900,
             currency: "SEK",
-            applicationFee: 100,
             total: 1000,
           },
           billing: {

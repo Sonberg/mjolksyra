@@ -76,7 +76,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
   });
 
   const billingBadge = useMemo(() => {
-    const fallbackHasPrice = (trainee.cost?.coach ?? 0) > 0;
+    const fallbackHasPrice = (trainee.cost?.total ?? 0) > 0;
     const effectiveStatus =
       trainee.billing.status === "PriceNotSet" && fallbackHasPrice
         ? "PriceSet"
@@ -115,7 +115,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
           className: "border-zinc-800 bg-zinc-900 text-zinc-300",
         };
     }
-  }, [trainee.billing.status, trainee.cost?.coach]);
+  }, [trainee.billing.status, trainee.cost?.total]);
 
   const canChargeNow = useMemo(() => {
     const hasPrice = (trainee.cost?.total ?? 0) > 0;

@@ -28,18 +28,13 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   const [isOpeningStripe, setIsOpeningStripe] = useState(false);
   const includedAthletes = 10;
   const overageAthletes = Math.max(0, trainees.length - includedAthletes);
+  const coachPlanMonthlySek = 399;
   const billedTrainees = trainees.filter((x) => x.cost);
-  const revenue = billedTrainees.reduce(
-    (acc, trainee) => {
-      if (!trainee.cost) return acc;
-
-      acc.gross += trainee.cost.total;
-      acc.coach += trainee.cost.coach;
-      acc.fee += trainee.cost.applicationFee;
-      return acc;
-    },
-    { gross: 0, coach: 0, fee: 0 },
-  );
+  const recurringAthleteBilling = billedTrainees.reduce((acc, trainee) => {
+    if (!trainee.cost) return acc;
+    return acc + trainee.cost.total;
+  }, 0);
+  const netAfterCoachPlan = Math.max(0, recurringAthleteBilling - coachPlanMonthlySek);
   const openStripeDashboard = useCallback(async () => {
     setIsOpeningStripe(true);
     try {
@@ -153,7 +148,9 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   return (
     <div className="space-y-8">
       <CoachDashboardMetrics
-        revenue={revenue}
+        recurringAthleteBilling={recurringAthleteBilling}
+        coachPlanMonthlySek={coachPlanMonthlySek}
+        netAfterCoachPlan={netAfterCoachPlan}
         billedTraineesCount={billedTrainees.length}
         traineesCount={trainees.length}
       />

@@ -1,19 +1,23 @@
 "use client";
 
 type Revenue = {
-  gross: number;
-  coach: number;
-  fee: number;
+  recurringAthleteBilling: number;
+  coachPlanMonthlySek: number;
+  netAfterCoachPlan: number;
 };
 
 type Props = {
-  revenue: Revenue;
+  recurringAthleteBilling: Revenue["recurringAthleteBilling"];
+  coachPlanMonthlySek: Revenue["coachPlanMonthlySek"];
+  netAfterCoachPlan: Revenue["netAfterCoachPlan"];
   billedTraineesCount: number;
   traineesCount: number;
 };
 
 export function CoachDashboardMetrics({
-  revenue,
+  recurringAthleteBilling,
+  coachPlanMonthlySek,
+  netAfterCoachPlan,
   billedTraineesCount,
   traineesCount,
 }: Props) {
@@ -24,27 +28,27 @@ export function CoachDashboardMetrics({
           Monthly recurring
         </p>
         <p className="mt-3 text-2xl font-semibold text-white">
-          {revenue.gross.toLocaleString("sv-SE")} kr
+          {recurringAthleteBilling.toLocaleString("sv-SE")} kr
         </p>
-        <p className="mt-1 text-sm text-zinc-400">Projected athlete billing</p>
+        <p className="mt-1 text-sm text-zinc-400">Athlete charges / month</p>
       </div>
       <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-          Coach payout
+          Coach plan
         </p>
         <p className="mt-3 text-2xl font-semibold text-white">
-          {revenue.coach.toLocaleString("sv-SE")} kr
+          {coachPlanMonthlySek.toLocaleString("sv-SE")} kr
         </p>
-        <p className="mt-1 text-sm text-zinc-400">Before Stripe transfer timing</p>
+        <p className="mt-1 text-sm text-zinc-400">Your monthly platform subscription</p>
       </div>
       <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-          Platform fee
+          Net after plan
         </p>
         <p className="mt-3 text-2xl font-semibold text-white">
-          {revenue.fee.toLocaleString("sv-SE")} kr
+          {netAfterCoachPlan.toLocaleString("sv-SE")} kr
         </p>
-        <p className="mt-1 text-sm text-zinc-400">Current trainee-based model</p>
+        <p className="mt-1 text-sm text-zinc-400">Athlete billing minus 399 kr plan</p>
       </div>
       <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
