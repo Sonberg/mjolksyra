@@ -1,14 +1,16 @@
 import { cn } from "@/lib/utils";
 import { UserTrainee } from "@/services/users/type";
 import { UserCircle2Icon } from "lucide-react";
+import Link from "next/link";
 
 type Props = {
   coach: UserTrainee;
   isSelected: boolean;
+  href: string;
   onSelect: () => void;
 };
 
-export function AthleteCoach({ coach, isSelected, onSelect }: Props) {
+export function AthleteCoach({ coach, isSelected, href, onSelect }: Props) {
   const classNames = cn({
     "flex items-center gap-3 rounded-xl border p-3 transition-all": true,
     "cursor-pointer border-white/10 bg-white/[0.02] hover:border-cyan-200/20 hover:bg-white/[0.05]":
@@ -16,9 +18,9 @@ export function AthleteCoach({ coach, isSelected, onSelect }: Props) {
     "border-cyan-200/30 bg-cyan-300/10": isSelected,
   });
   return (
-    <div
-      key={coach.traineeId}
+    <Link
       className={classNames}
+      href={href}
       onClick={isSelected ? undefined : onSelect}
     >
       <div className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-zinc-900">
@@ -29,6 +31,6 @@ export function AthleteCoach({ coach, isSelected, onSelect }: Props) {
           {coach.givenName} {coach.familyName}
         </h3>
       </div>
-    </div>
+    </Link>
   );
 }

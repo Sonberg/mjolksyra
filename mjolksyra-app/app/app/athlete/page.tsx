@@ -1,6 +1,7 @@
 import { getUserMe } from "@/services/users/getUserMe";
 import { getAuth } from "@/context/Auth";
 import { PageContent } from "./pageContent";
+import { redirect } from "next/navigation";
 
 type Props = {
   searchParams?: Promise<{
@@ -27,6 +28,25 @@ export default async function Page({ searchParams }: Props) {
       : query.tab === "past" || query.tab === "future"
         ? query.tab
         : undefined;
+
+  if (user.coaches.length > 0) {
+    const selectedCoachId =
+      query.coachTraineeId &&
+      user.coaches.some((x) => x.traineeId === query.coachTraineeId)
+        ? query.coachTraineeId
+        : user.coaches[0].traineeId;
+
+    const target = new URLSearchParams();
+    if (query.workoutId) {
+      target.set("workoutId", query.workoutId);
+    }
+    if (initialWorkoutTab) {
+      target.set("workoutTab", initialWorkoutTab);
+    }
+
+    const suffix = target.toString() ? `?${target.toString()}` : "";
+    redirect(`/app/athlete/${selectedCoachId}${suffix}`);
+  }
 
   return (
     <PageContent

@@ -24,6 +24,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
             key={x.traineeId}
             coach={x}
             isSelected={x.traineeId === selected?.traineeId}
+            href={`/app/athlete/${x.traineeId}`}
             onSelect={() => onSelect(x)}
           />
         ))}

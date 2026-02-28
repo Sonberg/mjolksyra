@@ -31,5 +31,5 @@ export default async function Page({ params, searchParams }: Props) {
     target.set("workoutId", query.workoutId);
   }
 
-  redirect(`/app/athlete?${target.toString()}`);
+  redirect(`/app/athlete/${routeParams.traineeId}?${target.toString()}`);
 }

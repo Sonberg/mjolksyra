@@ -119,7 +119,7 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                 type: "workout.reviewed",
                 title: "Coach reviewed your workout",
                 body: body,
-                href: $"/app/athlete?coachTraineeId={trainee.Id}&workoutTab=past&workoutId={plannedWorkout.Id}",
+                href: $"/app/athlete/{trainee.Id}?workoutTab=past&workoutId={plannedWorkout.Id}",
                 cancellationToken: cancellationToken);
         }
 
