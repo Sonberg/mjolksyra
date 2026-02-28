@@ -10,9 +10,15 @@ import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 type Tabs = "workouts" | "transactions" | "settings";
 type Props = {
   coach: UserTrainee;
+  focusWorkoutId?: string;
+  initialWorkoutTab?: "past" | "future";
 };
 
-export function AthleteDashboard({ coach }: Props) {
+export function AthleteDashboard({
+  coach,
+  focusWorkoutId,
+  initialWorkoutTab,
+}: Props) {
   const [selectedTab, setSelectedTab] = useState<Tabs>("workouts");
   const cancel = useMutation({
     mutationKey: ["trainees", coach.traineeId, "cancel"],
@@ -89,7 +95,11 @@ export function AthleteDashboard({ coach }: Props) {
       </div>
 
       {selectedTab === "workouts" ? (
-        <WorkoutViewer traineeId={data.id} />
+        <WorkoutViewer
+          traineeId={data.id}
+          initialTab={initialWorkoutTab}
+          focusWorkoutId={focusWorkoutId}
+        />
       ) : null}
       {selectedTab === "transactions" ? (
         <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">

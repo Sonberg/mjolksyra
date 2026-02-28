@@ -22,8 +22,9 @@ export function WorkoutViewer({
   initialTab,
   focusWorkoutId,
 }: Props) {
+  const defaultMode = viewerMode === "coach" ? "past" : "future";
   const [mode, setMode] = useState<"past" | "future" | "changes">(
-    initialTab ?? (viewerMode === "coach" ? "past" : "future"),
+    initialTab ?? defaultMode,
   );
   const past = useWorkouts({
     id: "past",
@@ -90,8 +91,8 @@ export function WorkoutViewer({
   }, [mode, future.data, changes.data, past.data]);
 
   const data = useMemo(
-    () =>
-      sortBy(
+    () => {
+      const sorted = sortBy(
         uniqBy(
           [
             ...sourceData,
@@ -137,9 +138,26 @@ export function WorkoutViewer({
             .date(Number(day));
         },
         mode === "future"
-      ),
+      );
+
+      if (!focusWorkoutId) {
+        return sorted;
+      }
+
+      const focusedIndex = sorted.findIndex((x) => x.id === focusWorkoutId);
+      if (focusedIndex <= 0) {
+        return sorted;
+      }
+
+      return [sorted[focusedIndex], ...sorted.filter((x) => x.id !== focusWorkoutId)];
+    },
     [sourceData, focusedWorkout.data, focusWorkoutId, mode, viewerMode]
   );
+
+  useEffect(() => {
+    const next = initialTab ?? defaultMode;
+    setMode(next);
+  }, [initialTab, defaultMode]);
 
   useEffect(() => {
     if (!end.isIntersecting) {

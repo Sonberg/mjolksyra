@@ -24,7 +24,16 @@ export function useWorkouts({
   ...args
 }: Args) {
   const initial = useQuery({
-    queryKey: ["planned-workouts", id, "inital"],
+    queryKey: [
+      "planned-workouts",
+      traineeId,
+      id,
+      "initial",
+      fromDate?.format("YYYY-MM-DD") ?? null,
+      toDate?.format("YYYY-MM-DD") ?? null,
+      args.sortBy,
+      args.order,
+    ],
     queryFn: async ({ signal }) =>
       await getPlannedWorkouts({
         traineeId,
@@ -42,7 +51,16 @@ export function useWorkouts({
   });
 
   const infinit = useInfiniteQuery({
-    queryKey: ["planned-workouts", id, "infinit"],
+    queryKey: [
+      "planned-workouts",
+      traineeId,
+      id,
+      "infinite",
+      fromDate?.format("YYYY-MM-DD") ?? null,
+      toDate?.format("YYYY-MM-DD") ?? null,
+      args.sortBy,
+      args.order,
+    ],
     queryFn: async ({ pageParam, signal }) => {
       return pageParam
         ? await getPlannedWorkouts({ traineeId, next: pageParam, signal })

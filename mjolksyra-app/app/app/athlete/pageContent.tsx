@@ -8,10 +8,21 @@ import { AthleteCoaches } from "./AthleteCoaches";
 
 type Props = {
   user: User;
+  initialCoachTraineeId?: string;
+  focusWorkoutId?: string;
+  initialWorkoutTab?: "past" | "future";
 };
 
-export function PageContent({ user }: Props) {
-  const [coach, setCoach] = useState<UserTrainee | null>(user.coaches[0]);
+export function PageContent({
+  user,
+  initialCoachTraineeId,
+  focusWorkoutId,
+  initialWorkoutTab,
+}: Props) {
+  const [coach, setCoach] = useState<UserTrainee | null>(
+    user.coaches.find((x) => x.traineeId === initialCoachTraineeId) ??
+      user.coaches[0],
+  );
   const needsOnboarding = user.onboarding.athlete !== "Completed" || false;
   const athleteName = user.givenName || "Athlete";
   const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
@@ -97,7 +108,11 @@ export function PageContent({ user }: Props) {
             </div>
             <div className="lg:col-span-8">
               {coach ? (
-                <AthleteDashboard coach={coach} />
+                <AthleteDashboard
+                  coach={coach}
+                  focusWorkoutId={focusWorkoutId}
+                  initialWorkoutTab={initialWorkoutTab}
+                />
               ) : (
                 <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-center">
                   <p className="text-lg font-semibold text-white">
