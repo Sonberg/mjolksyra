@@ -31,9 +31,24 @@ The API runs on `http://localhost:5107` by default. Configuration is in `Mjolksy
 - `Jwt.Secret`
 - `Stripe.ApiKey` / `Stripe.WebhookSecret`
 - `Brevo.ApiKey` (email)
-- `Otel` (OpenTelemetry → Honeycomb)
+- `Otel` (OpenTelemetry; local default points to Aspire Dashboard OTLP on `http://localhost:18889`)
 
 API docs are available at `http://localhost:5107/scalar`.
+
+### Local Aspire Dashboard
+
+```bash
+cd mjolksyra-api
+dotnet run --project Mjolksyra.Api.AppHost
+```
+
+This starts Aspire local orchestration (including dashboard), API, and Next app in one command.
+
+- API: `http://localhost:5107`
+- App: `http://localhost:3000`
+- Aspire OTLP endpoint: `http://localhost:18889`
+
+Local telemetry for both API and app is configured to send OTLP to the Aspire endpoint above.
 
 ### App
 
