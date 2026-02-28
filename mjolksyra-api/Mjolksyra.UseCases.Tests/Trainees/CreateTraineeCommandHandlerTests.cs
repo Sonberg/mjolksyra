@@ -1,3 +1,4 @@
+using MediatR;
 using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
@@ -24,7 +25,12 @@ public class CreateTraineeCommandHandlerTests
             .ReturnsAsync(true);
 
         var responseBuilder = new Mock<ITraineeResponseBuilder>();
-        var sut = new CreateTraineeCommandHandler(traineeRepository.Object, userRepository.Object, responseBuilder.Object);
+        var mediator = new Mock<IMediator>();
+        var sut = new CreateTraineeCommandHandler(
+            traineeRepository.Object,
+            userRepository.Object,
+            responseBuilder.Object,
+            mediator.Object);
 
         var result = await sut.Handle(new CreateTraineeCommand
         {
@@ -61,8 +67,13 @@ public class CreateTraineeCommandHandlerTests
         responseBuilder
             .Setup(x => x.Build(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResponse);
+        var mediator = new Mock<IMediator>();
 
-        var sut = new CreateTraineeCommandHandler(traineeRepository.Object, userRepository.Object, responseBuilder.Object);
+        var sut = new CreateTraineeCommandHandler(
+            traineeRepository.Object,
+            userRepository.Object,
+            responseBuilder.Object,
+            mediator.Object);
 
         var result = await sut.Handle(new CreateTraineeCommand
         {
@@ -73,6 +84,7 @@ public class CreateTraineeCommandHandlerTests
         Assert.True(result.IsT0);
         Assert.Equal(expectedResponse.Id, result.AsT0.Id);
         traineeRepository.Verify(x => x.Create(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Verify(x => x.Send(It.IsAny<IRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static User CreateUser(string email)

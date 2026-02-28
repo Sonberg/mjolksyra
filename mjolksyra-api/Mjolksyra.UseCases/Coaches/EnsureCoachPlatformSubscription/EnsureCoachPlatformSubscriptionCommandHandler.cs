@@ -7,14 +7,18 @@ namespace Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 public sealed class EnsureCoachPlatformSubscriptionCommandHandler
     : IRequestHandler<EnsureCoachPlatformSubscriptionCommand>
 {
+    private const int IncludedAthletes = 10;
     private readonly IUserRepository _userRepository;
+    private readonly ITraineeRepository _traineeRepository;
     private readonly ICoachPlatformBillingStripeGateway _stripeGateway;
 
     public EnsureCoachPlatformSubscriptionCommandHandler(
         IUserRepository userRepository,
+        ITraineeRepository traineeRepository,
         ICoachPlatformBillingStripeGateway stripeGateway)
     {
         _userRepository = userRepository;
+        _traineeRepository = traineeRepository;
         _stripeGateway = stripeGateway;
     }
 
@@ -37,6 +41,11 @@ public sealed class EnsureCoachPlatformSubscriptionCommandHandler
 
             if (hasActiveSubscription)
             {
+                await _stripeGateway.SyncOverageQuantityAsync(
+                    user.Id,
+                    coachStripe.PlatformSubscriptionId,
+                    await ResolveOverageQuantity(user.Id, cancellationToken),
+                    cancellationToken);
                 return;
             }
 
@@ -56,8 +65,15 @@ public sealed class EnsureCoachPlatformSubscriptionCommandHandler
         coachStripe.PlatformSubscriptionId = await _stripeGateway.CreateSubscriptionAsync(
             user.Id,
             coachStripe.PlatformCustomerId,
+            await ResolveOverageQuantity(user.Id, cancellationToken),
             cancellationToken);
 
         await _userRepository.Update(user, cancellationToken);
+    }
+
+    private async Task<int> ResolveOverageQuantity(Guid coachUserId, CancellationToken cancellationToken)
+    {
+        var activeAthleteCount = await _traineeRepository.CountActiveByCoachId(coachUserId, cancellationToken);
+        return Math.Max(0, activeAthleteCount - IncludedAthletes);
     }
 }

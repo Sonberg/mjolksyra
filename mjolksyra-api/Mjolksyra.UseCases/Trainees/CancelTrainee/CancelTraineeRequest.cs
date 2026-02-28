@@ -3,6 +3,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Stripe;
 
 namespace Mjolksyra.UseCases.Trainees.CancelTrainee;
@@ -22,19 +23,22 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
     private readonly IUserRepository _userRepository;
     private readonly IEmailSender _emailSender;
     private readonly INotificationService _notificationService;
+    private readonly IMediator _mediator;
 
     public CancelTraineeRequestHandler(
         ITraineeRepository traineeRepository,
         IStripeClient stripeClient,
         IUserRepository userRepository,
         IEmailSender emailSender,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IMediator mediator)
     {
         _traineeRepository = traineeRepository;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
         _emailSender = emailSender;
         _notificationService = notificationService;
+        _mediator = mediator;
     }
 
     public async Task Handle(CancelTraineeRequest request, CancellationToken cancellationToken)
@@ -57,6 +61,7 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
         trainee.DeletedAt = DateTimeOffset.UtcNow;
 
         await _traineeRepository.Update(trainee, cancellationToken);
+        await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(trainee.CoachUserId), cancellationToken);
 
         var coach = await _userRepository.GetById(trainee.CoachUserId, cancellationToken);
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, cancellationToken);

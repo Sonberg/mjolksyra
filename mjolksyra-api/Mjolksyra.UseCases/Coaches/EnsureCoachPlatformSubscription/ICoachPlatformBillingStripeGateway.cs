@@ -14,5 +14,12 @@ public interface ICoachPlatformBillingStripeGateway
     Task<string> CreateSubscriptionAsync(
         Guid userId,
         string customerId,
+        int overageQuantity,
+        CancellationToken cancellationToken);
+
+    Task SyncOverageQuantityAsync(
+        Guid userId,
+        string subscriptionId,
+        int overageQuantity,
         CancellationToken cancellationToken);
 }

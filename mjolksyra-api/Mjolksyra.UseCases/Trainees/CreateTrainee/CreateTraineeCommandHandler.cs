@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using OneOf;
 
 namespace Mjolksyra.UseCases.Trainees.CreateTrainee;
@@ -12,12 +13,18 @@ public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand,
     private readonly ITraineeRepository _traineeRepository;
 
     private readonly ITraineeResponseBuilder _traineeResponseBuilder;
+    private readonly IMediator _mediator;
 
-    public CreateTraineeCommandHandler(ITraineeRepository traineeRepository, IUserRepository userRepository, ITraineeResponseBuilder traineeResponseBuilder)
+    public CreateTraineeCommandHandler(
+        ITraineeRepository traineeRepository,
+        IUserRepository userRepository,
+        ITraineeResponseBuilder traineeResponseBuilder,
+        IMediator mediator)
     {
         _traineeRepository = traineeRepository;
         _traineeResponseBuilder = traineeResponseBuilder;
         _userRepository = userRepository;
+        _mediator = mediator;
     }
 
     public async Task<OneOf<TraineeResponse, CreateTraineeError>> Handle(CreateTraineeCommand request, CancellationToken cancellationToken)
@@ -43,6 +50,8 @@ public class CreateTraineeCommandHandler : IRequestHandler<CreateTraineeCommand,
             Status = TraineeStatus.Active,
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
+
+        await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(coach.Id), cancellationToken);
 
         return await _traineeResponseBuilder.Build(trainee, cancellationToken);
     }

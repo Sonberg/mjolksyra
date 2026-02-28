@@ -6,8 +6,10 @@ namespace Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStripeGateway
 {
     private const long MonthlyAmountOre = 39900;
+    private const long OverageAmountOre = 3900;
     private const string Currency = "sek";
     private const string ProductName = "Mjolksyra Coach Subscription";
+    private const string OverageProductName = "Mjolksyra Coach Overage";
 
     private readonly IStripeClient _stripeClient;
 
@@ -62,39 +64,28 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
     public async Task<string> CreateSubscriptionAsync(
         Guid userId,
         string customerId,
+        int overageQuantity,
         CancellationToken cancellationToken)
     {
-        var priceService = new PriceService(_stripeClient);
-        var price = await priceService.CreateAsync(
-            new PriceCreateOptions
-            {
-                Currency = Currency,
-                UnitAmount = MonthlyAmountOre,
-                Recurring = new PriceRecurringOptions
-                {
-                    Interval = "month"
-                },
-                ProductData = new PriceProductDataOptions
-                {
-                    Name = ProductName,
-                    Metadata = new Dictionary<string, string>
-                    {
-                        ["Type"] = "coach-platform-subscription"
-                    }
-                },
-                Metadata = new Dictionary<string, string>
-                {
-                    ["UserId"] = userId.ToString(),
-                    ["Type"] = "coach-platform-subscription-price"
-                }
-            },
-            requestOptions: new RequestOptions
-            {
-                IdempotencyKey = $"coach-sub-price-{userId}-{DateTime.UtcNow:yyyyMM}"
-            },
-            cancellationToken: cancellationToken);
+        var basePrice = await CreateMonthlyPriceAsync(
+            userId,
+            ProductName,
+            MonthlyAmountOre,
+            "coach-platform-subscription",
+            "coach-platform-subscription-price",
+            $"coach-sub-price-{userId}-{DateTime.UtcNow:yyyyMM}",
+            cancellationToken);
+        var overagePrice = await CreateMonthlyPriceAsync(
+            userId,
+            OverageProductName,
+            OverageAmountOre,
+            "coach-platform-overage",
+            "coach-platform-overage-price",
+            $"coach-overage-price-{userId}-{DateTime.UtcNow:yyyyMM}",
+            cancellationToken);
 
         var subscriptionService = new SubscriptionService(_stripeClient);
+        var effectiveOverageQuantity = Math.Max(0, overageQuantity);
         var subscription = await subscriptionService.CreateAsync(
             new SubscriptionCreateOptions
             {
@@ -105,7 +96,21 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
                 [
                     new SubscriptionItemOptions
                     {
-                        Price = price.Id
+                        Price = basePrice.Id,
+                        Metadata = new Dictionary<string, string>
+                        {
+                            ["Type"] = "coach-platform-base"
+                        },
+                        Quantity = 1
+                    },
+                    new SubscriptionItemOptions
+                    {
+                        Price = overagePrice.Id,
+                        Metadata = new Dictionary<string, string>
+                        {
+                            ["Type"] = "coach-platform-overage"
+                        },
+                        Quantity = effectiveOverageQuantity
                     }
                 ],
                 Metadata = new Dictionary<string, string>
@@ -122,5 +127,111 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
             cancellationToken: cancellationToken);
 
         return subscription.Id;
+    }
+
+    public async Task SyncOverageQuantityAsync(
+        Guid userId,
+        string subscriptionId,
+        int overageQuantity,
+        CancellationToken cancellationToken)
+    {
+        var subscriptionService = new SubscriptionService(_stripeClient);
+        var subscription = await subscriptionService.GetAsync(
+            subscriptionId,
+            new SubscriptionGetOptions
+            {
+                Expand = ["items.data.price"]
+            },
+            cancellationToken: cancellationToken);
+
+        var effectiveOverageQuantity = Math.Max(0, overageQuantity);
+        var overageItem = subscription.Items.Data.FirstOrDefault(item =>
+            item.Metadata is not null
+            && item.Metadata.TryGetValue("Type", out var type)
+            && type == "coach-platform-overage");
+
+        if (overageItem is not null)
+        {
+            var itemService = new SubscriptionItemService(_stripeClient);
+            await itemService.UpdateAsync(
+                overageItem.Id,
+                new SubscriptionItemUpdateOptions
+                {
+                    Quantity = effectiveOverageQuantity
+                },
+                new RequestOptions
+                {
+                    IdempotencyKey = $"coach-overage-item-{userId}-{subscriptionId}-{effectiveOverageQuantity}"
+                },
+                cancellationToken);
+            return;
+        }
+
+        var overagePrice = await CreateMonthlyPriceAsync(
+            userId,
+            OverageProductName,
+            OverageAmountOre,
+            "coach-platform-overage",
+            "coach-platform-overage-price",
+            $"coach-overage-price-{userId}-{DateTime.UtcNow:yyyyMM}",
+            cancellationToken);
+
+        var itemCreateService = new SubscriptionItemService(_stripeClient);
+        await itemCreateService.CreateAsync(
+            new SubscriptionItemCreateOptions
+            {
+                Subscription = subscriptionId,
+                Price = overagePrice.Id,
+                Quantity = effectiveOverageQuantity,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["Type"] = "coach-platform-overage"
+                }
+            },
+            new RequestOptions
+            {
+                IdempotencyKey = $"coach-overage-create-{userId}-{subscriptionId}-{effectiveOverageQuantity}"
+            },
+            cancellationToken);
+    }
+
+    private async Task<Price> CreateMonthlyPriceAsync(
+        Guid userId,
+        string productName,
+        long amountOre,
+        string productType,
+        string priceType,
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        var priceService = new PriceService(_stripeClient);
+        return await priceService.CreateAsync(
+            new PriceCreateOptions
+            {
+                Currency = Currency,
+                UnitAmount = amountOre,
+                Recurring = new PriceRecurringOptions
+                {
+                    Interval = "month"
+                },
+                ProductData = new PriceProductDataOptions
+                {
+                    Name = productName,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        ["Type"] = productType
+                    }
+                },
+                Metadata = new Dictionary<string, string>
+                {
+                    ["UserId"] = userId.ToString(),
+                    ["Type"] = priceType
+                }
+            },
+            requestOptions: new RequestOptions
+            {
+                IdempotencyKey = idempotencyKey
+            },
+            cancellationToken: cancellationToken);
     }
 }

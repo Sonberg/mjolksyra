@@ -16,12 +16,16 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         user.Coach!.Stripe!.Status = StripeStatus.RequiresAction;
 
         var userRepository = new Mock<IUserRepository>();
+        var traineeRepository = new Mock<ITraineeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
         var stripeGateway = new Mock<ICoachPlatformBillingStripeGateway>();
-        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(userRepository.Object, stripeGateway.Object);
+        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
+            userRepository.Object,
+            traineeRepository.Object,
+            stripeGateway.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -34,7 +38,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         stripeGateway.Verify(
-            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
         userRepository.Verify(x => x.Update(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -47,6 +51,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         user.Coach.Stripe.PlatformCustomerId = "cus_existing";
 
         var userRepository = new Mock<IUserRepository>();
+        var traineeRepository = new Mock<ITraineeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -55,8 +60,14 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         stripeGateway
             .Setup(x => x.HasActiveSubscriptionAsync("sub_active", It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        traineeRepository
+            .Setup(x => x.CountActiveByCoachId(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(13);
 
-        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(userRepository.Object, stripeGateway.Object);
+        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
+            userRepository.Object,
+            traineeRepository.Object,
+            stripeGateway.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -69,8 +80,11 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         stripeGateway.Verify(
-            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        stripeGateway.Verify(
+            x => x.SyncOverageQuantityAsync(user.Id, "sub_active", 3, It.IsAny<CancellationToken>()),
+            Times.Once);
         userRepository.Verify(x => x.Update(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -80,6 +94,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         var user = BuildCoachUser();
 
         var userRepository = new Mock<IUserRepository>();
+        var traineeRepository = new Mock<ITraineeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -87,6 +102,9 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
             .Setup(x => x.Update(It.IsAny<User>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User u, CancellationToken _) => u);
 
+        traineeRepository
+            .Setup(x => x.CountActiveByCoachId(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(12);
         var stripeGateway = new Mock<ICoachPlatformBillingStripeGateway>();
         stripeGateway
             .Setup(x => x.CreateCustomerAsync(
@@ -97,10 +115,13 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("cus_created");
         stripeGateway
-            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_created", It.IsAny<CancellationToken>()))
+            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_created", 2, It.IsAny<CancellationToken>()))
             .ReturnsAsync("sub_created");
 
-        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(userRepository.Object, stripeGateway.Object);
+        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
+            userRepository.Object,
+            traineeRepository.Object,
+            stripeGateway.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -117,6 +138,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         user.Coach.Stripe.PlatformSubscriptionId = "sub_inactive";
 
         var userRepository = new Mock<IUserRepository>();
+        var traineeRepository = new Mock<ITraineeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -124,15 +146,21 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
             .Setup(x => x.Update(It.IsAny<User>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User u, CancellationToken _) => u);
 
+        traineeRepository
+            .Setup(x => x.CountActiveByCoachId(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(11);
         var stripeGateway = new Mock<ICoachPlatformBillingStripeGateway>();
         stripeGateway
             .Setup(x => x.HasActiveSubscriptionAsync("sub_inactive", It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         stripeGateway
-            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_existing", It.IsAny<CancellationToken>()))
+            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_existing", 1, It.IsAny<CancellationToken>()))
             .ReturnsAsync("sub_new");
 
-        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(userRepository.Object, stripeGateway.Object);
+        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
+            userRepository.Object,
+            traineeRepository.Object,
+            stripeGateway.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 

@@ -27,6 +27,7 @@ const formatNames = (items: Trainee[], limit = 3) => {
 export function CoachDashboardOverview({ user, trainees }: Props) {
   const [isOpeningStripe, setIsOpeningStripe] = useState(false);
   const includedAthletes = 10;
+  const overagePriceSek = 39;
   const overageAthletes = Math.max(0, trainees.length - includedAthletes);
   const coachPlanMonthlySek = 399;
   const billedTrainees = trainees.filter((x) => x.cost);
@@ -158,6 +159,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       <CoachDashboardSubscriptionSection
         coachPaymentStatus={coachPaymentStatus}
         includedAthletes={includedAthletes}
+        overagePriceSek={overagePriceSek}
         overageAthletes={overageAthletes}
         isOpeningStripe={isOpeningStripe}
         onOpenStripeDashboard={openStripeDashboard}

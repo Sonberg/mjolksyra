@@ -358,6 +358,7 @@ public class WebhookController : Controller
         trainee.StripeSubscriptionId = null;
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
+        await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(trainee.CoachUserId));
 
         await _notificationService.NotifyMany(
             [trainee.CoachUserId, trainee.AthleteUserId],

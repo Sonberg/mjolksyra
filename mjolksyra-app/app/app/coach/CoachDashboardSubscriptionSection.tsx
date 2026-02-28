@@ -13,6 +13,7 @@ type CoachPaymentStatus = {
 type Props = {
   coachPaymentStatus: CoachPaymentStatus;
   includedAthletes: number;
+  overagePriceSek: number;
   overageAthletes: number;
   isOpeningStripe: boolean;
   onOpenStripeDashboard: () => Promise<void> | void;
@@ -21,10 +22,15 @@ type Props = {
 export function CoachDashboardSubscriptionSection({
   coachPaymentStatus,
   includedAthletes,
+  overagePriceSek,
   overageAthletes,
   isOpeningStripe,
   onOpenStripeDashboard,
 }: Props) {
+  const basePlanSek = 399;
+  const overageTotalSek = overageAthletes * overagePriceSek;
+  const estimatedTotalSek = basePlanSek + overageTotalSek;
+
   return (
     <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6 md:p-7">
       <div className="space-y-6">
@@ -60,29 +66,31 @@ export function CoachDashboardSubscriptionSection({
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
                   Base plan
                 </p>
-                <p className="mt-2 text-lg font-semibold text-white">$39</p>
+                <p className="mt-2 text-lg font-semibold text-white">{basePlanSek} kr</p>
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
                   Overage
                 </p>
                 <p className="mt-2 text-lg font-semibold text-white">
-                  ${overageAthletes * 4}
+                  {overageTotalSek} kr
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">{overageAthletes} x $4</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  {overageAthletes} x {overagePriceSek} kr
+                </p>
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
                   Estimated total
                 </p>
                 <p className="mt-2 text-lg font-semibold text-white">
-                  ${39 + overageAthletes * 4}
+                  {estimatedTotalSek} kr
                 </p>
               </div>
             </div>
             <p className="mt-3 text-sm text-zinc-400">
               Includes {includedAthletes} athletes. Athlete roster management lives in
-              the Athletes tab.
+              the Athletes tab. Overage quantity is synced to Stripe as active athletes above {includedAthletes}.
             </p>
           </div>
 

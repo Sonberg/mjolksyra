@@ -1,3 +1,4 @@
+using MediatR;
 using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
@@ -29,13 +30,15 @@ public class InvitationDecisionHandlersTests
         trainees
             .Setup(x => x.ExistsActiveRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        var mediator = new Mock<IMediator>();
 
         var sut = new AcceptTraineeInvitationCommandHandler(
             trainees.Object,
             invitations.Object,
             users.Object,
             Mock.Of<IEmailSender>(),
-            Mock.Of<INotificationService>());
+            Mock.Of<INotificationService>(),
+            mediator.Object);
 
         await sut.Handle(new AcceptTraineeInvitationCommand
         {

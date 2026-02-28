@@ -4,6 +4,7 @@ using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.AcceptTraineeInvitation;
 
@@ -12,7 +13,8 @@ public class AcceptTraineeInvitationCommandHandler(
     ITraineeInvitationsRepository traineeInvitationsRepository,
     IUserRepository userRepository,
     IEmailSender emailSender,
-    INotificationService notificationService
+    INotificationService notificationService,
+    IMediator mediator
 ) : IRequestHandler<AcceptTraineeInvitationCommand>
 {
     public async Task Handle(AcceptTraineeInvitationCommand request, CancellationToken cancellationToken)
@@ -47,6 +49,8 @@ public class AcceptTraineeInvitationCommandHandler(
         await traineeInvitationsRepository.AcceptAsync(
             invitation.Id,
             cancellationToken);
+
+        await mediator.Send(new EnsureCoachPlatformSubscriptionCommand(invitation.CoachUserId), cancellationToken);
 
         await emailSender.SendInvitationAcceptedToCoach(coach.Email.Value, new InvitationStatusEmail
         {
