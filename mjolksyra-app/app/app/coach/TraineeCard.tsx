@@ -2,6 +2,8 @@
 
 import { Trainee } from "@/services/trainees/type";
 import {
+  CalendarClockIcon,
+  CheckCircle2Icon,
   ClipboardCheckIcon,
   CreditCardIcon,
   DumbbellIcon,
@@ -47,6 +49,9 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
     [trainee.cost?.total],
   );
   const [price, setPrice] = useState(initialPrice);
+  const [billingMode, setBillingMode] = useState<"ChargeNow" | "NextCycle">(
+    "ChargeNow",
+  );
   const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
   const [isActionsOpen, setActionsOpen] = useState(false);
 
@@ -65,7 +70,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
       if (!Number.isFinite(amount) || amount < 0) {
         throw new Error("Invalid price");
       }
-      await updateTraineeCost({ traineeId: trainee.id, amount });
+      await updateTraineeCost({ traineeId: trainee.id, amount, billingMode });
     },
     onSettled: () => router.refresh(),
   });
@@ -119,9 +124,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
 
   const canChargeNow = useMemo(() => {
     const hasPrice = (trainee.cost?.total ?? 0) > 0;
-    const paymentReady =
-      trainee.billing.status === "SubscriptionActive" ||
-      trainee.billing.status === "PriceSet";
+    const paymentReady = trainee.billing.status === "SubscriptionActive";
 
     return hasPrice && paymentReady;
   }, [trainee.billing.status, trainee.cost?.total]);
@@ -206,6 +209,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
             <DropdownMenuItem
               onSelect={() => {
                 setActionsOpen(false);
+                setBillingMode("ChargeNow");
                 setPriceEditorOpen(true);
               }}
               className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
@@ -289,7 +293,7 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
               htmlFor={`trainee-price-dialog-${trainee.id}`}
               className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500"
             >
-              Monthly price (SEK)
+              Monthly price (kr)
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -301,11 +305,85 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
                 placeholder="1000"
                 className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600"
               />
-              <span className="text-sm text-zinc-400">SEK/mo</span>
+              <span className="text-sm text-zinc-400">kr/mo</span>
             </div>
-            <div className="rounded-xl border border-amber-900/70 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
-              Saving a new price charges the athlete immediately and resets the
-              monthly billing date.
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Apply method
+              </p>
+              <p className="mt-1 text-sm text-zinc-300">
+                Choose when the new price should take effect.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => setBillingMode("ChargeNow")}
+                className={cn(
+                  "w-full rounded-xl border px-3 py-3 text-left transition",
+                  billingMode === "ChargeNow"
+                    ? "border-emerald-700 bg-emerald-950/30 text-zinc-100"
+                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800",
+                )}
+              >
+                <span className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-0.5 rounded-md border p-1.5",
+                      billingMode === "ChargeNow"
+                        ? "border-emerald-700 bg-emerald-900/40 text-emerald-200"
+                        : "border-zinc-700 bg-zinc-800 text-zinc-400",
+                    )}
+                  >
+                    <CreditCardIcon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="flex items-center justify-between gap-2 text-sm font-semibold">
+                      Charge now
+                      {billingMode === "ChargeNow" ? (
+                        <CheckCircle2Icon className="h-4 w-4 text-emerald-300" />
+                      ) : null}
+                    </span>
+                    <span className="mt-1 block text-xs text-zinc-400">
+                      Charge immediately and reset the monthly billing cycle.
+                    </span>
+                  </span>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingMode("NextCycle")}
+                className={cn(
+                  "w-full rounded-xl border px-3 py-3 text-left transition",
+                  billingMode === "NextCycle"
+                    ? "border-sky-700 bg-sky-950/30 text-zinc-100"
+                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800",
+                )}
+              >
+                <span className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-0.5 rounded-md border p-1.5",
+                      billingMode === "NextCycle"
+                        ? "border-sky-700 bg-sky-900/40 text-sky-200"
+                        : "border-zinc-700 bg-zinc-800 text-zinc-400",
+                    )}
+                  >
+                    <CalendarClockIcon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="flex items-center justify-between gap-2 text-sm font-semibold">
+                      Next cycle
+                      {billingMode === "NextCycle" ? (
+                        <CheckCircle2Icon className="h-4 w-4 text-sky-300" />
+                      ) : null}
+                    </span>
+                    <span className="mt-1 block text-xs text-zinc-400">
+                      Save now and apply this price on the next scheduled charge.
+                    </span>
+                  </span>
+                </span>
+              </button>
             </div>
           </div>
           <DialogFooter>
@@ -325,7 +403,11 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
               }
               className="bg-zinc-100 text-black hover:bg-zinc-300"
             >
-              {savePrice.isPending ? "Saving..." : "Save price"}
+              {savePrice.isPending
+                ? "Saving..."
+                : billingMode === "ChargeNow"
+                  ? "Save & charge now"
+                  : "Save for next cycle"}
             </Button>
           </DialogFooter>
         </DialogContent>

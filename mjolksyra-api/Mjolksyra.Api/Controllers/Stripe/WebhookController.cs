@@ -152,7 +152,7 @@ public class WebhookController : Controller
             "succeeded" => StripeStatus.Succeeded,
             "requires_action" => StripeStatus.RequiresAction,
             "canceled" => StripeStatus.Canceled,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => StripeStatus.RequiresPaymentMethod
         };
 
         if (intent.Status == "requires_confirmation")
@@ -355,6 +355,7 @@ public class WebhookController : Controller
         if (trainee is null) return;
 
         trainee.Status = TraineeStatus.Cancelled;
+        trainee.DeletedAt = DateTimeOffset.UtcNow;
         trainee.StripeSubscriptionId = null;
 
         await _traineeRepository.Update(trainee, CancellationToken.None);

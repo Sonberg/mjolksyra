@@ -30,8 +30,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   const overagePriceSek = 39;
   const overageAthletes = Math.max(0, trainees.length - includedAthletes);
   const coachPlanMonthlySek = 399;
-  const billedTrainees = trainees.filter((x) => x.cost);
-  const recurringAthleteBilling = billedTrainees.reduce((acc, trainee) => {
+  const pricedAthletes = trainees.filter((x) => x.billing.hasPrice);
+  const recurringAthleteBilling = trainees.reduce((acc, trainee) => {
     if (!trainee.cost) return acc;
     return acc + trainee.cost.total;
   }, 0);
@@ -52,7 +52,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       x.billing.status === "AwaitingAthletePaymentMethod" ||
       x.billing.status === "AwaitingCoachStripeSetup"
   );
-  const needsPrice = trainees.filter((x) => (x.cost?.coach ?? 0) <= 0);
+  const needsPrice = trainees.filter((x) => !x.billing.hasPrice);
   const programEndingSoon = trainees.filter((x) => {
     if (!x.nextWorkoutAt) return true;
     const daysUntilNext =
@@ -152,7 +152,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         recurringAthleteBilling={recurringAthleteBilling}
         coachPlanMonthlySek={coachPlanMonthlySek}
         netAfterCoachPlan={netAfterCoachPlan}
-        billedTraineesCount={billedTrainees.length}
+        billedTraineesCount={pricedAthletes.length}
         traineesCount={trainees.length}
       />
       <CoachDashboardTodoSection items={todoItems} />

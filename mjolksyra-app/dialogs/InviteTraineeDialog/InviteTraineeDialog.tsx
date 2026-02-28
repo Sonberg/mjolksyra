@@ -75,7 +75,7 @@ export function InviteTraineeDialog({ trigger, onCompletion }: Props) {
             />
           </div>
           <div className="grid items-center gap-4">
-            <Label htmlFor="monthlyPriceAmount">Monthly price (SEK)</Label>
+            <Label htmlFor="monthlyPriceAmount">Monthly price (kr)</Label>
             <Input
               id="monthlyPriceAmount"
               value={monthlyPriceAmount}

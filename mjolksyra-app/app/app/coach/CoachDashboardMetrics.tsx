@@ -57,7 +57,7 @@ export function CoachDashboardMetrics({
         <p className="mt-3 text-2xl font-semibold text-white">
           {billedTraineesCount}/{traineesCount}
         </p>
-        <p className="mt-1 text-sm text-zinc-400">Billing starts after setting a price</p>
+        <p className="mt-1 text-sm text-zinc-400">Athletes with a monthly price configured</p>
       </div>
     </section>
   );
