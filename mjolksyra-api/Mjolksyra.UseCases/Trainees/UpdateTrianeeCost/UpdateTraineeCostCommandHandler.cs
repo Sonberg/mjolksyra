@@ -44,7 +44,7 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
             && coach is { IsCoach: true, Coach.Stripe.AccountId: not null })
         {
             var subscriptionService = new SubscriptionService(_stripeClient);
-
+            
             if (trainee.StripeSubscriptionId is not null)
             {
                 await subscriptionService.CancelAsync(trainee.StripeSubscriptionId, cancellationToken: cancellationToken);

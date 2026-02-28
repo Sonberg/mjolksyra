@@ -127,9 +127,35 @@ export function AthleteDashboard({
       {selectedTab === "settings" ? (
         <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
           <h3 className="text-lg font-semibold text-white">Settings</h3>
-          <p className="mt-2 text-sm text-zinc-500">
-            Coach relationship and preferences will be available here.
-          </p>
+
+          <div className="mt-6 divide-y divide-zinc-800 border-t border-zinc-800">
+            <div className="flex items-center justify-between py-4">
+              <div>
+                <p className="text-sm font-medium text-zinc-200">
+                  Monthly price
+                </p>
+                <p className="text-xs text-zinc-500">
+                  Total charged each month
+                </p>
+              </div>
+              {data.cost ? (
+                <p className="text-sm font-semibold text-zinc-100">
+                  {new Intl.NumberFormat("sv-SE", {
+                    style: "currency",
+                    currency: data.cost.currency.toUpperCase(),
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(data.cost.total)}
+                  <span className="ml-1 text-xs font-normal text-zinc-400">
+                    / month
+                  </span>
+                </p>
+              ) : (
+                <p className="text-sm text-zinc-500">Not set</p>
+              )}
+            </div>
+          </div>
+
           <div className="mt-6">
             <button
               type="button"

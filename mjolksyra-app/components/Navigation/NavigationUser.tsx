@@ -2,7 +2,7 @@ import { useAuth } from "@/context/Auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGravatar } from "@/hooks/useGravatar";
 import Link from "next/link";
-import { ChevronDownIcon, LogOutIcon, ShieldIcon } from "lucide-react";
+import { ChevronDownIcon, LogOutIcon, ShieldIcon, UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,7 +59,10 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
         className="w-52 border-zinc-700 bg-zinc-950 text-zinc-100"
       >
         <DropdownMenuItem asChild className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100">
-          <Link href="/app">Profile</Link>
+          <Link href="/app/profile">
+            <UserIcon className="mr-2 h-4 w-4" />
+            Profile
+          </Link>
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem asChild className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100">

@@ -37,13 +37,15 @@ public class AccountController : Controller
     private readonly IUserContext _userContext;
 
     private readonly IUserRepository _userRepository;
+    private readonly ITraineeRepository _traineeRepository;
     private readonly IUserEventPublisher _userEvents;
 
-    public AccountController(IStripeClient stripeClient, IUserContext userContext, IUserRepository userRepository, IUserEventPublisher userEvents)
+    public AccountController(IStripeClient stripeClient, IUserContext userContext, IUserRepository userRepository, ITraineeRepository traineeRepository, IUserEventPublisher userEvents)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
         _userRepository = userRepository;
+        _traineeRepository = traineeRepository;
         _userEvents = userEvents;
     }
 
@@ -221,6 +223,42 @@ public class AccountController : Controller
             Status = status.ToString(),
             Message = message,
         });
+    }
+
+    [HttpDelete]
+    public async Task<ActionResult> Delete(CancellationToken cancellationToken)
+    {
+        var user = await _userContext.GetUser(cancellationToken);
+        if (user is null) return Unauthorized();
+        if (user.Coach is null) return NoContent();
+
+        var trainees = await _traineeRepository.Get(user.Id, cancellationToken);
+        var activeCoachTrainees = trainees
+            .Where(t => t.CoachUserId == user.Id && t.Status == TraineeStatus.Active)
+            .ToList();
+
+        var subscriptionService = new SubscriptionService(_stripeClient);
+        foreach (var trainee in activeCoachTrainees)
+        {
+            if (trainee.StripeSubscriptionId is not null)
+            {
+                await subscriptionService.CancelAsync(trainee.StripeSubscriptionId, cancellationToken: cancellationToken);
+                trainee.StripeSubscriptionId = null;
+            }
+
+            trainee.Status = TraineeStatus.Cancelled;
+            trainee.DeletedAt = DateTimeOffset.UtcNow;
+            await _traineeRepository.Update(trainee, cancellationToken);
+        }
+
+        user.Coach = null;
+        await _userRepository.Update(user, cancellationToken);
+        await _userEvents.Publish(user.Id, "user.updated", new
+        {
+            scope = "coach-offboard"
+        }, cancellationToken);
+
+        return NoContent();
     }
 
     private async Task Charge()
