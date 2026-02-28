@@ -9,4 +9,8 @@ public class UserCoachStripe
     public StripeStatus Status { get; set; }
 
     public string? Message { get; set; }
+
+    public string? PlatformCustomerId { get; set; }
+
+    public string? PlatformSubscriptionId { get; set; }
 }

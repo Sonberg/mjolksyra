@@ -97,8 +97,6 @@ public class CreateTraineeCommandHandlerTests
             Athlete = TraineeUserResponse.From(athlete),
             Cost = new TraineeCostResponse
             {
-                ApplicationFee = 0,
-                Coach = 0,
                 Total = 0,
                 Currency = "sek"
             },

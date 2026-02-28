@@ -15,9 +15,8 @@ public class SimulateTraineeCostResponse : TraineeTransactionCost
 
         return new SimulateTraineeCostResponse
         {
-            ApplicationFee = cost.ApplicationFee,
-            Coach = cost.Coach,
-            Total = cost.Total
+            Total = cost.Total,
+            Currency = cost.Currency 
         };
     }
 }

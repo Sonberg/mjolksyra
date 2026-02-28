@@ -1,5 +1,0 @@
-﻿{
-  ApplicationFee: 50,
-  Total: 50,
-  Currency: SEK
-}

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -39,14 +41,22 @@ public class AccountController : Controller
     private readonly IUserRepository _userRepository;
     private readonly ITraineeRepository _traineeRepository;
     private readonly IUserEventPublisher _userEvents;
+    private readonly IMediator _mediator;
 
-    public AccountController(IStripeClient stripeClient, IUserContext userContext, IUserRepository userRepository, ITraineeRepository traineeRepository, IUserEventPublisher userEvents)
+    public AccountController(
+        IStripeClient stripeClient,
+        IUserContext userContext,
+        IUserRepository userRepository,
+        ITraineeRepository traineeRepository,
+        IUserEventPublisher userEvents,
+        IMediator mediator)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
         _userEvents = userEvents;
+        _mediator = mediator;
     }
 
     [AllowAnonymous]
@@ -216,6 +226,11 @@ public class AccountController : Controller
             status = user.Coach.Stripe.Status.ToString()
         }, cancellationToken);
 
+        if (status == StripeStatus.Succeeded)
+        {
+            await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(user.Id), cancellationToken);
+        }
+
         return Ok(new AccountSyncResponse
         {
             HasAccount = true,
@@ -261,33 +276,8 @@ public class AccountController : Controller
         return NoContent();
     }
 
-    private async Task Charge()
-    {
-        var options = new SubscriptionCreateOptions
-        {
-            Customer = "{{CUSTOMER_ID}}",
-            Items =
-            [
-                new SubscriptionItemOptions
-                {
-                    Price = "{{PRICE_ID}}"
-                }
-            ],
-            Expand = ["latest_invoice.payment_intent"],
-            ApplicationFeePercent = 10M,
-            TransferData = new SubscriptionTransferDataOptions
-            {
-                Destination = "{{CONNECTED_ACCOUNT_ID}}",
-            },
-        };
-        var service = new SubscriptionService();
-        await service.CreateAsync(options);
-    }
-
     private static StripeStatus MapCoachStripeStatus(Account account) =>
-        account switch
-        {
-            { PayoutsEnabled: true, ChargesEnabled: true } => StripeStatus.Succeeded,
-            _ => StripeStatus.RequiresAction
-        };
+        account.PayoutsEnabled && (account.Requirements?.CurrentlyDue?.Count ?? 0) == 0
+            ? StripeStatus.Succeeded
+            : StripeStatus.RequiresAction;
 }

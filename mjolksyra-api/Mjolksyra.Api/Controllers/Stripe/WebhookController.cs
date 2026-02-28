@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MediatR;
 using Mjolksyra.Api.Options;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
@@ -8,6 +10,7 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -27,6 +30,8 @@ public class WebhookController : Controller
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
     private readonly INotificationService _notificationService;
+    private readonly ILogger<WebhookController> _logger;
+    private readonly IMediator _mediator;
 
     public WebhookController(
         IOptions<StripeOptions> options,
@@ -36,7 +41,9 @@ public class WebhookController : Controller
         IUserEventPublisher userEvents,
         IEmailSender emailSender,
         IConfiguration configuration,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        ILogger<WebhookController> logger,
+        IMediator mediator)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
@@ -46,36 +53,70 @@ public class WebhookController : Controller
         _emailSender = emailSender;
         _configuration = configuration;
         _notificationService = notificationService;
+        _logger = logger;
+        _mediator = mediator;
     }
 
     [HttpPost]
     public async Task<ActionResult> Handle()
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-        var stripeEvent = EventUtility.ConstructEvent(json,
-            Request.Headers["Stripe-Signature"],
-            _options.WebhookSecret);
-
-        switch (stripeEvent)
+        Event stripeEvent;
+        try
         {
-            case { Data.Object: SetupIntent intent }:
-                await Handle(intent);
-                break;
+            stripeEvent = EventUtility.ConstructEvent(
+                json,
+                Request.Headers["Stripe-Signature"],
+                _options.WebhookSecret);
+        }
+        catch (Exception ex) when (ex is StripeException or ArgumentException)
+        {
+            _logger.LogWarning(ex, "Rejected Stripe webhook due to invalid payload/signature.");
+            return BadRequest();
+        }
 
-            case { Data.Object: Account account }:
-                await Handle(account);
-                break;
+        switch (stripeEvent.Type)
+        {
+            case "setup_intent.succeeded":
+            case "setup_intent.processing":
+            case "setup_intent.requires_action":
+            case "setup_intent.requires_confirmation":
+            case "setup_intent.requires_payment_method":
+            case "setup_intent.canceled":
+            case "setup_intent.setup_failed":
+                if (stripeEvent.Data.Object is SetupIntent setupIntent)
+                {
+                    await HandleSetupIntent(setupIntent);
+                }
 
-            case { Type: "invoice.payment_succeeded", Data.Object: Invoice invoice }:
-                await HandleInvoiceSucceeded(invoice);
                 break;
+            case "account.updated":
+                if (stripeEvent.Data.Object is Account account)
+                {
+                    await HandleAccountUpdated(account);
+                }
 
-            case { Type: "invoice.payment_failed", Data.Object: Invoice invoice }:
-                await HandleInvoiceFailed(invoice);
                 break;
+            case "invoice.payment_succeeded":
+                if (stripeEvent.Data.Object is Invoice invoiceSucceeded)
+                {
+                    await HandleInvoiceSucceeded(invoiceSucceeded);
+                }
 
-            case { Type: "customer.subscription.deleted", Data.Object: Subscription subscription }:
-                await HandleSubscriptionDeleted(subscription);
+                break;
+            case "invoice.payment_failed":
+                if (stripeEvent.Data.Object is Invoice invoiceFailed)
+                {
+                    await HandleInvoiceFailed(invoiceFailed);
+                }
+
+                break;
+            case "customer.subscription.deleted":
+                if (stripeEvent.Data.Object is Subscription subscription)
+                {
+                    await HandleSubscriptionDeleted(subscription);
+                }
+
                 break;
         }
 
@@ -83,14 +124,27 @@ public class WebhookController : Controller
     }
 
 
-    private async Task Handle(SetupIntent intent)
+    private async Task HandleSetupIntent(SetupIntent intent)
     {
-        var userId = Guid.Parse(intent.Metadata["UserId"]);
+        if (!intent.Metadata.TryGetValue("UserId", out var userIdRaw) || !Guid.TryParse(userIdRaw, out var userId))
+        {
+            _logger.LogInformation(
+                "Skipping setup_intent webhook without valid UserId metadata. SetupIntentId={SetupIntentId}",
+                intent.Id);
+            return;
+        }
+
         var user = await _userRepository.GetById(userId, CancellationToken.None);
+        if (user?.Athlete is null)
+        {
+            return;
+        }
+
         var service = new SetupIntentService(_stripeClient);
 
-        user.Athlete!.Stripe!.PaymentMethodId = intent.PaymentMethodId;
-        user.Athlete!.Stripe!.Status = intent.Status switch
+        user.Athlete.Stripe ??= new UserAthleteStripe();
+        user.Athlete.Stripe.PaymentMethodId = intent.PaymentMethodId;
+        user.Athlete.Stripe.Status = intent.Status switch
         {
             "requires_payment_method" => StripeStatus.RequiresPaymentMethod,
             "requires_confirmation" => StripeStatus.RequiresConfirmation,
@@ -113,23 +167,37 @@ public class WebhookController : Controller
         await _userEvents.Publish(user.Id, "user.updated", new
         {
             scope = "athlete-stripe",
-            status = user.Athlete!.Stripe!.Status.ToString()
+            status = user.Athlete.Stripe.Status.ToString()
         });
     }
 
-    private async Task Handle(Account account)
+    private async Task HandleAccountUpdated(Account account)
     {
-        var userId = Guid.Parse(account.Metadata["UserId"]);
-        var user = await _userRepository.GetById(userId, CancellationToken.None);
-        var previousStatus = user.Coach?.Stripe?.Status;
-
-        user.Coach!.Stripe!.Status = account switch
+        if (!account.Metadata.TryGetValue("UserId", out var userIdRaw) || !Guid.TryParse(userIdRaw, out var userId))
         {
-            { PayoutsEnabled: true, ChargesEnabled: true } => StripeStatus.Succeeded,
-            _ => StripeStatus.RequiresAction
-        };
+            _logger.LogInformation(
+                "Skipping account.updated webhook without valid UserId metadata. AccountId={AccountId}",
+                account.Id);
+            return;
+        }
 
-        user.Coach.Stripe.Message = account.Requirements.CurrentlyDue.Count > 0
+        var user = await _userRepository.GetById(userId, CancellationToken.None);
+        if (user?.Coach is null)
+        {
+            return;
+        }
+
+        var coach = user.Coach;
+        var previousStatus = coach.Stripe?.Status;
+        var currentlyDueCount = account.Requirements?.CurrentlyDue?.Count ?? 0;
+
+        coach.Stripe ??= new UserCoachStripe();
+        coach.Stripe.Status =
+            account.PayoutsEnabled && currentlyDueCount == 0
+                ? StripeStatus.Succeeded
+                : StripeStatus.RequiresAction;
+
+        coach.Stripe.Message = currentlyDueCount > 0
             ? "Please complete the onboarding process"
             : "Onboarding completed";
 
@@ -137,23 +205,28 @@ public class WebhookController : Controller
         await _userEvents.Publish(user.Id, "user.updated", new
         {
             scope = "coach-stripe",
-            status = user.Coach!.Stripe!.Status.ToString()
+            status = coach.Stripe.Status.ToString()
         });
 
-        if (user.Coach?.Stripe is not null && previousStatus != user.Coach.Stripe.Status)
+        if (coach.Stripe.Status == StripeStatus.Succeeded)
+        {
+            await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(user.Id));
+        }
+
+        if (previousStatus != coach.Stripe.Status)
         {
             await _emailSender.SendCoachStripeStatusToCoach(user.Email.Value, new CoachStripeStatusEmail
             {
                 Coach = DisplayName(user),
                 Email = user.Email.Value,
-                Status = user.Coach.Stripe.Status.ToString(),
-                Message = user.Coach.Stripe.Message
+                Status = coach.Stripe.Status.ToString(),
+                Message = coach.Stripe.Message
             }, CancellationToken.None);
 
             await _notificationService.Notify(user.Id,
                 "coach.stripe-status",
                 "Stripe account status updated",
-                user.Coach.Stripe.Message,
+                coach.Stripe.Message,
                 "/app/coach/dashboard",
                 CancellationToken.None);
         }
@@ -168,16 +241,26 @@ public class WebhookController : Controller
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
         var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
 
-        var transactionCost = TraineeTransactionCost.From(trainee.Cost);
-        trainee.Transactions.Add(new TraineeTransaction
+        var existing = trainee.Transactions.FirstOrDefault(x => x.PaymentIntentId == invoice.Id);
+        if (existing is null)
         {
-            Id = Guid.NewGuid(),
-            PaymentIntentId = invoice.Id,
-            Cost = transactionCost,
-            Status = TraineeTransactionStatus.Succeeded,
-            StatusRaw = "invoice.payment_succeeded",
-            CreatedAt = DateTimeOffset.UtcNow,
-        });
+            var transactionCost = TraineeTransactionCost.From(trainee.Cost);
+            trainee.Transactions.Add(new TraineeTransaction
+            {
+                Id = Guid.NewGuid(),
+                PaymentIntentId = invoice.Id,
+                Cost = transactionCost,
+                Status = TraineeTransactionStatus.Succeeded,
+                StatusRaw = "invoice.payment_succeeded",
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
+        }
+        else
+        {
+            existing.Status = TraineeTransactionStatus.Succeeded;
+            existing.StatusRaw = "invoice.payment_succeeded";
+            existing.Cost = TraineeTransactionCost.From(trainee.Cost);
+        }
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
 
@@ -215,16 +298,26 @@ public class WebhookController : Controller
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
         var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
 
-        var transactionCost = TraineeTransactionCost.From(trainee.Cost);
-        trainee.Transactions.Add(new TraineeTransaction
+        var existing = trainee.Transactions.FirstOrDefault(x => x.PaymentIntentId == invoice.Id);
+        if (existing is null)
         {
-            Id = Guid.NewGuid(),
-            PaymentIntentId = invoice.Id,
-            Cost = transactionCost,
-            Status = TraineeTransactionStatus.Failed,
-            StatusRaw = "invoice.payment_failed",
-            CreatedAt = DateTimeOffset.UtcNow,
-        });
+            var transactionCost = TraineeTransactionCost.From(trainee.Cost);
+            trainee.Transactions.Add(new TraineeTransaction
+            {
+                Id = Guid.NewGuid(),
+                PaymentIntentId = invoice.Id,
+                Cost = transactionCost,
+                Status = TraineeTransactionStatus.Failed,
+                StatusRaw = "invoice.payment_failed",
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
+        }
+        else
+        {
+            existing.Status = TraineeTransactionStatus.Failed;
+            existing.StatusRaw = "invoice.payment_failed";
+            existing.Cost = TraineeTransactionCost.From(trainee.Cost);
+        }
 
         await _traineeRepository.Update(trainee, CancellationToken.None);
 

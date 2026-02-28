@@ -4,10 +4,6 @@ namespace Mjolksyra.UseCases.Trainees;
 
 public class TraineeCostResponse
 {
-    public required int ApplicationFee { get; init; }
-
-    public required int Coach { get; init; }
-
     public required int Total { get; init; }
 
     public required string Currency { get; set; }
@@ -16,8 +12,6 @@ public class TraineeCostResponse
     {
         return new TraineeCostResponse
         {
-            ApplicationFee = cost.ApplicationFee,
-            Coach = cost.Coach,
             Total = cost.Total,
             Currency = cost.Currency
         };
