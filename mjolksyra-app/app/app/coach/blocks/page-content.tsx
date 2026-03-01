@@ -20,6 +20,73 @@ import { deleteBlock } from "@/services/blocks/deleteBlock";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/dialogs/ConfirmDialog";
 import { CoachWorkspaceShell } from "../CoachWorkspaceShell";
+import { Block } from "@/services/blocks/type";
+
+const dayLabelByIndex = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function renderBlockPreview(block: Block) {
+  const validWorkouts = block.workouts.filter(
+    (x) =>
+      x.week >= 1 &&
+      x.week <= block.numberOfWeeks &&
+      x.dayOfWeek >= 1 &&
+      x.dayOfWeek <= 7,
+  );
+
+  if (validWorkouts.length === 0) {
+    return (
+      <div className="mt-3 rounded-xl border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+        <p className="text-xs text-zinc-400">No workouts in this block yet.</p>
+      </div>
+    );
+  }
+
+  const grouped = new Map<number, Map<number, string[]>>();
+  for (const workout of validWorkouts) {
+    if (!grouped.has(workout.week)) {
+      grouped.set(workout.week, new Map<number, string[]>());
+    }
+
+    grouped.set(
+      workout.week,
+      (grouped.get(workout.week) ?? new Map<number, string[]>()).set(
+        workout.dayOfWeek,
+        workout.exercises.map((x) => x.name),
+      ),
+    );
+  }
+
+  const sortedWeeks = [...grouped.entries()].sort((a, b) => a[0] - b[0]).slice(0, 2);
+
+  return (
+    <div className="mt-2 grid gap-2 md:grid-cols-2">
+      {sortedWeeks.map(([weekNumber, days]) => {
+        const sortedDays = [...days.entries()].sort((a, b) => a[0] - b[0]).slice(0, 3);
+        return (
+          <div
+            key={weekNumber}
+            className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-3 py-2"
+          >
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-400">
+              Week {weekNumber}
+            </p>
+            <div className="space-y-1">
+              {sortedDays.map(([dayIndex, exercises]) => (
+                <p key={dayIndex} className="text-xs text-zinc-200">
+                  <span className="mr-1 text-zinc-400">
+                    {dayLabelByIndex[dayIndex - 1] ?? `Day ${dayIndex}`}:
+                  </span>
+                  {exercises.slice(0, 2).join(", ")}
+                  {exercises.length > 2 ? ` +${exercises.length - 2}` : ""}
+                </p>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function BlocksPageContent() {
   const router = useRouter();
@@ -179,7 +246,7 @@ export function BlocksPageContent() {
                 className="group rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-5 transition hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
                 style={{ animationDelay: `${120 + index * 70}ms` }}
               >
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-xl font-semibold text-white">
@@ -201,7 +268,7 @@ export function BlocksPageContent() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 lg:justify-self-end">
                     <Button
                       size="sm"
                       onClick={() =>
@@ -238,6 +305,14 @@ export function BlocksPageContent() {
                       }
                     />
                   </div>
+                </div>
+                <div className="mt-4 border-t border-zinc-800 pt-3">
+                  {renderBlockPreview(block)}
+                  {block.workouts.length > 0 && block.numberOfWeeks > 2 ? (
+                    <p className="mt-2 text-[11px] text-zinc-500">
+                      Showing first 2 weeks preview.
+                    </p>
+                  ) : null}
                 </div>
               </div>
             );

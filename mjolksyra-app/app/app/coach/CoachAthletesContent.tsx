@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog";
 import { getTraineeInvitations } from "@/services/traineeInvitations/getTraineeInvitations";
+import { getPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
 import { Trainee } from "@/services/trainees/type";
 import { useQuery } from "@tanstack/react-query";
 import { UserPlusIcon } from "lucide-react";
@@ -20,6 +21,45 @@ export function CoachAthletesContent({ trainees }: Props) {
     queryKey: ["invitations"],
     queryFn: ({ signal }) => getTraineeInvitations({ signal, type: "coach" }),
     initialData: [],
+  });
+  const unpublishedChanges = useQuery({
+    queryKey: ["trainees-unpublished-changes", trainees.map((x) => x.id)],
+    enabled: trainees.length > 0,
+    queryFn: async () => {
+      const hasUnpublishedChangesByTraineeId: Record<string, boolean> = {};
+
+      await Promise.all(
+        trainees.map(async (trainee) => {
+          let next: string | undefined;
+          let hasUnpublished = false;
+
+          for (let page = 0; page < 10 && !hasUnpublished; page += 1) {
+            const response = await getPlannedWorkouts({
+              traineeId: trainee.id,
+              next,
+              limit: 100,
+              sortBy: "plannedAt",
+              order: "desc",
+            });
+
+            hasUnpublished = response.data.some((workout) =>
+              workout.exercises.some((exercise) => !exercise.isPublished),
+            );
+
+            if (!response.next) {
+              break;
+            }
+
+            next = response.next;
+          }
+
+          hasUnpublishedChangesByTraineeId[trainee.id] = hasUnpublished;
+        }),
+      );
+
+      return hasUnpublishedChangesByTraineeId;
+    },
+    initialData: {},
   });
 
   return (
@@ -62,7 +102,11 @@ export function CoachAthletesContent({ trainees }: Props) {
       {trainees.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           {trainees.map((trainee) => (
-            <TraineeCard key={trainee.id} trainee={trainee} />
+            <TraineeCard
+              key={trainee.id}
+              trainee={trainee}
+              hasUnpublishedChanges={unpublishedChanges.data[trainee.id] ?? false}
+            />
           ))}
         </div>
       ) : (

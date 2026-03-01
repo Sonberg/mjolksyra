@@ -39,9 +39,13 @@ import { Button } from "@/components/ui/button";
 
 type TraineeCardProps = {
   trainee: Trainee;
+  hasUnpublishedChanges?: boolean;
 };
 
-export function TraineeCard({ trainee }: TraineeCardProps) {
+export function TraineeCard({
+  trainee,
+  hasUnpublishedChanges = false,
+}: TraineeCardProps) {
   const router = useRouter();
   const url = useGravatar(trainee.athlete.email ?? "", 56);
   const initialPrice = useMemo(
@@ -166,13 +170,21 @@ export function TraineeCard({ trainee }: TraineeCardProps) {
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-lg font-semibold text-zinc-100 transition-colors group-hover:text-white">
-            {trainee.athlete.givenName
-              ? `${trainee.athlete.givenName} ${
-                  trainee.athlete.familyName || ""
-                }`
-              : trainee.athlete.name}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="truncate text-lg font-semibold text-zinc-100 transition-colors group-hover:text-white">
+              {trainee.athlete.givenName
+                ? `${trainee.athlete.givenName} ${
+                    trainee.athlete.familyName || ""
+                  }`
+                : trainee.athlete.name}
+            </h3>
+            {hasUnpublishedChanges ? (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-sky-800/70 bg-sky-950/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sky-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300" />
+                Drafts
+              </span>
+            ) : null}
+          </div>
           <p className="truncate text-sm text-zinc-400">
             {trainee.athlete.email}
           </p>
