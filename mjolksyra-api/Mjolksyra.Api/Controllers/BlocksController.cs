@@ -7,6 +7,8 @@ using Mjolksyra.UseCases.Blocks.DeleteBlock;
 using Mjolksyra.UseCases.Blocks.GetBlock;
 using Mjolksyra.UseCases.Blocks.GetBlocks;
 using Mjolksyra.UseCases.Blocks.UpdateBlock;
+using Zeta;
+using Zeta.AspNetCore;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -15,10 +17,20 @@ namespace Mjolksyra.Api.Controllers;
 public class BlocksController : Controller
 {
     private readonly IMediator _mediator;
+    private readonly IZetaValidator _validator;
 
-    public BlocksController(IMediator mediator)
+    private static readonly ISchema<BlockWorkoutRequest> BlockWorkoutSchema = Z.Object<BlockWorkoutRequest>()
+        .Field(x => x.DayOfWeek, Z.Int().Min(1).Max(7));
+
+    private static readonly ISchema<BlockRequest> BlockRequestSchema = Z.Object<BlockRequest>()
+        .Field(x => x.Name, Z.String().NotEmpty())
+        .Field(x => x.NumberOfWeeks, Z.Int().Min(1))
+        .Field(x => x.Workouts, workouts => workouts.Each(BlockWorkoutSchema));
+
+    public BlocksController(IMediator mediator, IZetaValidator validator)
     {
         _mediator = mediator;
+        _validator = validator;
     }
 
     [HttpGet]
@@ -30,7 +42,10 @@ public class BlocksController : Controller
     [HttpGet("{blockId:guid}")]
     public async Task<ActionResult<BlockResponse>> Get(Guid blockId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetBlockRequest { BlockId = blockId }, cancellationToken);
+        var result = await _mediator.Send(new GetBlockRequest
+        {
+            BlockId = blockId
+        }, cancellationToken);
 
         if (result is null)
         {
@@ -43,16 +58,39 @@ public class BlocksController : Controller
     [HttpPost]
     public async Task<ActionResult<BlockResponse>> Create([FromBody] BlockRequest request)
     {
-        return Ok(await _mediator.Send(new CreateBlockCommand { Block = request }));
+        RemoveOverflowingWeeks(request);
+        var validationResult = await _validator.ValidateAsync(request, BlockRequestSchema);
+        if (validationResult.IsFailure)
+        {
+            return new BadRequestObjectResult(new ValidationProblemDetails(
+                validationResult.Errors.GroupBy(e => e.Path)
+                    .ToDictionary(g => g.Key, g => g.Select(e => e.Message).ToArray())
+            ));
+        }
+
+        return Ok(await _mediator.Send(new CreateBlockCommand
+        {
+            Block = validationResult.Value
+        }));
     }
 
     [HttpPut("{blockId:guid}")]
     public async Task<ActionResult<BlockResponse>> Update(Guid blockId, [FromBody] BlockRequest request)
     {
+        RemoveOverflowingWeeks(request);
+        var validationResult = await _validator.ValidateAsync(request, BlockRequestSchema);
+        if (validationResult.IsFailure)
+        {
+            return new BadRequestObjectResult(new ValidationProblemDetails(
+                validationResult.Errors.GroupBy(e => e.Path)
+                    .ToDictionary(g => g.Key, g => g.Select(e => e.Message).ToArray())
+            ));
+        }
+
         var result = await _mediator.Send(new UpdateBlockCommand
         {
             BlockId = blockId,
-            Block = request
+            Block = validationResult.Value
         });
 
         if (result is null)
@@ -66,7 +104,10 @@ public class BlocksController : Controller
     [HttpDelete("{blockId:guid}")]
     public async Task<ActionResult> Delete(Guid blockId)
     {
-        await _mediator.Send(new DeleteBlockCommand { BlockId = blockId });
+        await _mediator.Send(new DeleteBlockCommand
+        {
+            BlockId = blockId
+        });
 
         return NoContent();
     }
@@ -82,6 +123,13 @@ public class BlocksController : Controller
         });
 
         return NoContent();
+    }
+
+    private static void RemoveOverflowingWeeks(BlockRequest request)
+    {
+        request.Workouts = request.Workouts
+            .Where(x => x.Week >= 1 && x.Week <= request.NumberOfWeeks)
+            .ToList();
     }
 }
 

@@ -132,11 +132,13 @@ export function BlockEditorContent({ blockId }: Props) {
                         min={1}
                         max={52}
                         value={numberOfWeeks}
-                        onChange={(e) =>
-                          setNumberOfWeeks(
-                            Math.max(1, parseInt(e.target.value) || 1),
-                          )
-                        }
+                        onChange={(e) => {
+                          const nextNumberOfWeeks = Math.max(1, parseInt(e.target.value) || 1);
+                          setNumberOfWeeks(nextNumberOfWeeks);
+                          setWorkouts((prev) =>
+                            prev.filter((workout) => workout.week >= 1 && workout.week <= nextNumberOfWeeks)
+                          );
+                        }}
                         className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
                       />
                     </div>

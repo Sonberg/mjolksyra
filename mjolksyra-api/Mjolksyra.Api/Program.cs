@@ -25,6 +25,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Stripe;
+using Zeta.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -207,11 +208,12 @@ builder.Services.AddTransient<IStripeClient, StripeClient>(s =>
 });
 
 builder.Services.AddHttpContextAccessor();
- builder.Services.AddHostedService<ExerciseSeeder>();
+builder.Services.AddHostedService<ExerciseSeeder>();
 builder.Services.AddHostedService<SearchIndexBuilder>();
 builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
 builder.Services.AddHostedService<TraineeIndexBuilder>();
 builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddZeta();
 
 var redisBackplaneConnectionString = builder.Configuration.GetConnectionString("redis")
                                     ?? builder.Configuration["Redis:ConnectionString"];
