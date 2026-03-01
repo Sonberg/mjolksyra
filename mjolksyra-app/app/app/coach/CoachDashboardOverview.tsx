@@ -29,8 +29,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   const includedAthletes = 10;
   const overagePriceSek = 39;
   const overageAthletes = Math.max(0, trainees.length - includedAthletes);
+  const freeAthleteSpotsLeft = Math.max(0, includedAthletes - trainees.length);
   const coachPlanMonthlySek = 399;
-  const pricedAthletes = trainees.filter((x) => x.billing.hasPrice);
   const recurringAthleteBilling = trainees.reduce((acc, trainee) => {
     if (!trainee.cost) return acc;
     return acc + trainee.cost.total;
@@ -152,8 +152,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         recurringAthleteBilling={recurringAthleteBilling}
         coachPlanMonthlySek={coachPlanMonthlySek}
         netAfterCoachPlan={netAfterCoachPlan}
-        billedTraineesCount={pricedAthletes.length}
-        traineesCount={trainees.length}
+        freeAthleteSpotsLeft={freeAthleteSpotsLeft}
+        includedAthletes={includedAthletes}
       />
       <CoachDashboardTodoSection items={todoItems} />
       <CoachDashboardSubscriptionSection

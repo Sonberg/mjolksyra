@@ -10,16 +10,16 @@ type Props = {
   recurringAthleteBilling: Revenue["recurringAthleteBilling"];
   coachPlanMonthlySek: Revenue["coachPlanMonthlySek"];
   netAfterCoachPlan: Revenue["netAfterCoachPlan"];
-  billedTraineesCount: number;
-  traineesCount: number;
+  freeAthleteSpotsLeft: number;
+  includedAthletes: number;
 };
 
 export function CoachDashboardMetrics({
   recurringAthleteBilling,
   coachPlanMonthlySek,
   netAfterCoachPlan,
-  billedTraineesCount,
-  traineesCount,
+  freeAthleteSpotsLeft,
+  includedAthletes,
 }: Props) {
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -52,12 +52,12 @@ export function CoachDashboardMetrics({
       </div>
       <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-          Priced athletes
+          Free athlete spots
         </p>
         <p className="mt-3 text-2xl font-semibold text-white">
-          {billedTraineesCount}/{traineesCount}
+          {freeAthleteSpotsLeft}/{includedAthletes}
         </p>
-        <p className="mt-1 text-sm text-zinc-400">Athletes with a monthly price configured</p>
+        <p className="mt-1 text-sm text-zinc-400">Included plan spots remaining</p>
       </div>
     </section>
   );
