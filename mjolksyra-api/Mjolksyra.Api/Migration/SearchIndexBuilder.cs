@@ -9,7 +9,7 @@ public class SearchIndexBuilder : IndexBuilder
 {
     private const string IndexName = "Search";
 
-    public SearchIndexBuilder(IServiceProvider serviceProvider) : base(serviceProvider)
+    public SearchIndexBuilder(IServiceProvider serviceProvider, ILogger<SearchIndexBuilder> logger) : base(serviceProvider, logger)
     {
     }
 

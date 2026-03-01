@@ -8,7 +8,7 @@ public class PlannedExerciseIndexBuilder : IndexBuilder
 {
     private const string IndexName = "PlannedExercise";
 
-    public PlannedExerciseIndexBuilder(IServiceProvider serviceProvider) : base(serviceProvider)
+    public PlannedExerciseIndexBuilder(IServiceProvider serviceProvider, ILogger<PlannedExerciseIndexBuilder> logger) : base(serviceProvider, logger)
     {
     }
 

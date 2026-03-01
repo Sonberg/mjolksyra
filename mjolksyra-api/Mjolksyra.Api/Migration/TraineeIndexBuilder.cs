@@ -8,7 +8,7 @@ public class TraineeIndexBuilder : IndexBuilder
 {
     private const string IndexName = "Trainee";
 
-    public TraineeIndexBuilder(IServiceProvider serviceProvider) : base(serviceProvider)
+    public TraineeIndexBuilder(IServiceProvider serviceProvider, ILogger<TraineeIndexBuilder> logger) : base(serviceProvider, logger)
     {
     }
 
