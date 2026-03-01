@@ -42,24 +42,74 @@ public class ExerciseRepository : IExerciseRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default)
+    public async Task<ICollection<Exercise>> Search(
+        string? freeText,
+        string? force,
+        string? level,
+        string? mechanic,
+        string? category,
+        Guid? createdBy,
+        CancellationToken cancellationToken = default)
     {
-        var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
-        var filter = Builders<Exercise>.Filter.And([
-            Builders<Exercise>.Filter.Eq(x => x.DeletedAt, null),
-            Builders<Exercise>.Filter.Text(freeText, new TextSearchOptions
+        var filters = new List<FilterDefinition<Exercise>>
+        {
+            Builders<Exercise>.Filter.Eq(x => x.DeletedAt, null)
+        };
+
+        if (!string.IsNullOrWhiteSpace(freeText))
+        {
+            filters.Add(Builders<Exercise>.Filter.Text(freeText, new TextSearchOptions
             {
                 CaseSensitive = false,
                 DiacriticSensitive = false
-            })
-        ]);
+            }));
+        }
 
-        var result = await _mongoDbContext.Exercises
-            .Find(filter)
-            .Project<Exercise>(projection)
-            .SortByDescending(x => x.Score)
-            .ThenBy(x => x.Name)
-            .ToListAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(force))
+        {
+            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Force, force));
+        }
+
+        if (!string.IsNullOrWhiteSpace(level))
+        {
+            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Level, level));
+        }
+
+        if (!string.IsNullOrWhiteSpace(mechanic))
+        {
+            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Mechanic, mechanic));
+        }
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Category, category));
+        }
+
+        if (createdBy.HasValue)
+        {
+            filters.Add(Builders<Exercise>.Filter.Eq(x => x.CreatedBy, createdBy.Value));
+        }
+
+        var filter = Builders<Exercise>.Filter.And(filters);
+
+        List<Exercise> result;
+        if (!string.IsNullOrWhiteSpace(freeText))
+        {
+            var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
+            result = await _mongoDbContext.Exercises
+                .Find(filter)
+                .Project<Exercise>(projection)
+                .SortByDescending(x => x.Score)
+                .ThenBy(x => x.Name)
+                .ToListAsync(cancellationToken);
+        }
+        else
+        {
+            result = await _mongoDbContext.Exercises
+                .Find(filter)
+                .SortBy(x => x.Name)
+                .ToListAsync(cancellationToken);
+        }
 
         return result;
     }

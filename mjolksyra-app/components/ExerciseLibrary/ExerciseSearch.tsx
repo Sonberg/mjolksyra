@@ -8,6 +8,13 @@ import { SearchExercises } from "@/services/exercises/searchExercises";
 
 type Props = {
   freeText: string;
+  filters: {
+    force: string | null;
+    level: string | null;
+    mechanic: string | null;
+    category: string | null;
+    createdByMe: boolean;
+  };
   exercises: {
     starred: StarredExercises;
     star: StarExercise;
@@ -16,9 +23,14 @@ type Props = {
   };
 };
 
-export function ExerciseSearch({ freeText, exercises }: Props) {
-  const { data, isFetching } = useSearchExercises({ freeText, exercises });
-  const hasQuery = freeText.trim().length > 0;
+export function ExerciseSearch({ freeText, filters, exercises }: Props) {
+  const { data, isFetching } = useSearchExercises({ freeText, filters, exercises });
+  const hasQuery = freeText.trim().length > 0
+    || filters.force !== null
+    || filters.level !== null
+    || filters.mechanic !== null
+    || filters.category !== null
+    || filters.createdByMe;
 
   return (
     <section>
@@ -33,7 +45,7 @@ export function ExerciseSearch({ freeText, exercises }: Props) {
 
       {!hasQuery ? (
         <div className="rounded-xl border border-dashed border-zinc-800 px-3 py-4 text-xs text-zinc-500">
-          Type to search exercises.
+          Type or use filters to search exercises.
         </div>
       ) : (
         <div className="rounded-xl border border-zinc-800 bg-zinc-950/80">

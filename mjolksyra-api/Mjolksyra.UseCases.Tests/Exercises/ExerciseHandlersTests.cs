@@ -46,7 +46,53 @@ public class ExerciseHandlersTests
         }, CancellationToken.None);
 
         Assert.Empty(result.Data);
-        exerciseRepository.Verify(x => x.Search(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        exerciseRepository.Verify(x => x.Search(
+            It.IsAny<string>(),
+            It.IsAny<string?>(),
+            It.IsAny<string?>(),
+            It.IsAny<string?>(),
+            It.IsAny<string?>(),
+            It.IsAny<Guid?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SearchExercises_WhenFiltersSet_QueriesRepositoryWithFilterValues()
+    {
+        var userId = Guid.NewGuid();
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.Search(
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Exercise>());
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
+
+        var sut = new SearchExercisesRequestHandler(exerciseRepository.Object, userContext.Object);
+        await sut.Handle(new SearchExercisesRequest
+        {
+            FreeText = "",
+            Force = "pull",
+            Level = "beginner",
+            Mechanic = "compound",
+            Category = "strength",
+            CreatedByMe = true
+        }, CancellationToken.None);
+
+        exerciseRepository.Verify(x => x.Search(
+            "",
+            "pull",
+            "beginner",
+            "compound",
+            "strength",
+            userId,
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-

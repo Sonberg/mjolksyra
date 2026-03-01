@@ -19,7 +19,15 @@ public class SearchExercisesRequestHandler : IRequestHandler<SearchExercisesRequ
 
     public async Task<PaginatedResponse<ExerciseResponse>> Handle(SearchExercisesRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.FreeText))
+        var userId = await _userContext.GetUserId(cancellationToken);
+        var hasText = !string.IsNullOrWhiteSpace(request.FreeText);
+        var hasFilters = request.Force != null
+                         || request.Level != null
+                         || request.Mechanic != null
+                         || request.Category != null
+                         || request.CreatedByMe;
+
+        if (!hasText && !hasFilters)
         {
             return new PaginatedResponse<ExerciseResponse>
             {
@@ -28,13 +36,18 @@ public class SearchExercisesRequestHandler : IRequestHandler<SearchExercisesRequ
             };
         }
 
-        var userId = await _userContext.GetUserId(cancellationToken);
-
         return new PaginatedResponse<ExerciseResponse>
         {
             Next = null,
             Data = await _exerciseRepository
-                .Search(request.FreeText, cancellationToken)
+                .Search(
+                    request.FreeText,
+                    request.Force,
+                    request.Level,
+                    request.Mechanic,
+                    request.Category,
+                    request.CreatedByMe ? userId : null,
+                    cancellationToken)
                 .ContinueWith(t => t.Result.Select(x => ExerciseResponse.From(x, userId)).ToList(), cancellationToken)
         };
     }

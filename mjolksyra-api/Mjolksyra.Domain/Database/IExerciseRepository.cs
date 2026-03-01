@@ -13,7 +13,14 @@ public interface IExerciseRepository
 
     Task<ICollection<Exercise>> GetMany(ICollection<Guid> ids, CancellationToken cancellationToken = default);
 
-    Task<ICollection<Exercise>> Search(string freeText, CancellationToken cancellationToken = default);
+    Task<ICollection<Exercise>> Search(
+        string? freeText,
+        string? force,
+        string? level,
+        string? mechanic,
+        string? category,
+        Guid? createdBy,
+        CancellationToken cancellationToken = default);
 
     Task<Paginated<Exercise>> Get(int limit, CancellationToken cancellationToken = default);
 

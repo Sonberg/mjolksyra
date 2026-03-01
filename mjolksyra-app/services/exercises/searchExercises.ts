@@ -6,16 +6,28 @@ import { paginated } from "../schema";
 
 type Args = {
   freeText: string;
+  filters: {
+    force: string | null;
+    level: string | null;
+    mechanic: string | null;
+    category: string | null;
+    createdByMe: boolean;
+  };
   signal: AbortSignal;
 };
 
 export type SearchExercises = typeof searchExercises;
 
-export async function searchExercises({ freeText, signal }: Args) {
+export async function searchExercises({ freeText, filters, signal }: Args) {
   const response = await ApiClient.post<Exercise>(
     "/api/exercises/search",
     {
       freeText,
+      force: filters.force,
+      level: filters.level,
+      mechanic: filters.mechanic,
+      category: filters.category,
+      createdByMe: filters.createdByMe,
     },
     {
       signal,

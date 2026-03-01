@@ -27,6 +27,7 @@ public class ExerciseSeeder : BackgroundService
         {
             return;
         }
+        
 
         var reader = new StreamReader("./exercises.json");
         var content = await reader.ReadToEndAsync(stoppingToken);
