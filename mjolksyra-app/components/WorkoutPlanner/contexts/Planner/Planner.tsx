@@ -102,9 +102,14 @@ export function PlannerProvider({
       const activeDataRaw = event.active?.data.current as unknown;
       const overDataRaw = event.over?.data.current as unknown;
       const overData = overDataRaw as Payload | undefined;
+      const overCanPlan = (overDataRaw as { canPlan?: boolean } | undefined)?.canPlan;
 
       type BlockPayload = { type: "block"; block: { id: string; numberOfWeeks: number } };
       const activeAsBlock = activeDataRaw as BlockPayload | undefined;
+
+      if (overCanPlan === false) {
+        return;
+      }
 
       if (activeAsBlock?.type === "block" && overData?.type === "week" && applyBlock) {
         const weekData = overData as Extract<Payload, { type: "week" }>;
@@ -164,9 +169,11 @@ export function PlannerProvider({
     (event: DragOverEvent) => {
       const overData = event.over?.data.current as Payload | undefined;
       const activeData = event.active?.data.current as Payload | undefined;
+      const canPlan = (event.over?.data.current as { canPlan?: boolean } | undefined)?.canPlan;
 
       // Block drags don't need live preview
       if ((event.active?.data.current as { type?: string })?.type === "block") return;
+      if (canPlan === false) return;
 
       const clone = isCloning(event);
 

@@ -24,6 +24,10 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
   const id = useId();
   const actions = usePlannedWorkoutActions();
   const workouts = useWorkouts();
+  const isFutureWeek = useMemo(
+    () => days[0]?.startOf("week").isAfter(dayjs().startOf("week")) ?? false,
+    [days]
+  );
   const data = useMemo(
     () => ({
       days,
@@ -31,8 +35,9 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
       weekNumber,
       type: "week",
       label: `w${weekNumber}`,
+      canPlan: isFutureWeek,
     }),
-    [days, plannedWorkouts, weekNumber]
+    [days, plannedWorkouts, weekNumber, isFutureWeek]
   );
 
   const {
@@ -44,11 +49,13 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
   } = useSortable({
     id: `${weekNumber}-${id}`,
     data,
+    disabled: !isFutureWeek,
   });
 
   const canDrop =
-    active?.data.current?.type === "week" ||
-    active?.data.current?.type === "block";
+    isFutureWeek &&
+    (active?.data.current?.type === "week" ||
+      active?.data.current?.type === "block");
   const groupByName = useMemo(
     () => groupBy(days, (x) => x.format("ddd")),
     [days]
@@ -115,6 +122,11 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
         >
           <div className="flex min-w-0 items-center gap-2">
             <div className="text-sm font-semibold text-zinc-100">Week {weekNumber}</div>
+            {!isFutureWeek ? (
+              <div className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-0.5 text-[11px] font-medium text-zinc-400">
+                Locked
+              </div>
+            ) : null}
             {appliedBlockSummary ? (
               <div className="max-w-[14rem] truncate rounded-md border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
                 {appliedBlockSummary.label}
@@ -122,7 +134,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
             ) : null}
           </div>
           <div ref={setDraggableNodeRef}>
-            {plannedWorkouts.length ? (
+            {plannedWorkouts.length && isFutureWeek ? (
               <DraggingToolTip
                 icon={<RectangleEllipsisIcon className="h-4" />}
                 listeners={listeners}
@@ -179,6 +191,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
       actions,
       workouts,
       appliedBlockSummary,
+      isFutureWeek,
     ]
   );
 }

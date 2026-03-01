@@ -19,6 +19,7 @@ type Props = {
   isLast: boolean;
   isGhost: boolean;
   date: dayjs.Dayjs;
+  locked?: boolean;
 };
 
 export function DayExercise({
@@ -27,7 +28,8 @@ export function DayExercise({
   index,
   isLast,
   isGhost,
-  date
+  date,
+  locked = false,
 }: Props) {
   const workouts = useWorkouts();
   const actions = usePlannedWorkoutActions();
@@ -55,6 +57,7 @@ export function DayExercise({
   } = useSortable({
     id: plannedExercise.id,
     data,
+    disabled: locked || isGhost,
   });
 
   const syncWorkout = useCallback(
@@ -72,6 +75,10 @@ export function DayExercise({
   );
 
   const onDelete = useCallback(() => {
+    if (locked) {
+      return;
+    }
+
     if (!plannedWorkout) {
       return;
     }
@@ -84,7 +91,7 @@ export function DayExercise({
     };
 
     syncWorkout(newPlannedWorkout);
-  }, [syncWorkout, plannedExercise, plannedWorkout]);
+  }, [locked, syncWorkout, plannedExercise, plannedWorkout]);
 
   return useMemo(
     () => (
@@ -103,13 +110,18 @@ export function DayExercise({
           role="row"
         >
           <div
-            className="grid w-full grid-cols-[auto_1fr_auto] items-center justify-between gap-1 text-sm"
+            className={cn(
+              "grid w-full items-center justify-between gap-1 text-sm",
+              locked ? "grid-cols-[1fr_auto]" : "grid-cols-[auto_1fr_auto]"
+            )}
           >
-            <DraggingToolTip
-              listeners={listeners}
-              icon={<EllipsisVertical className="h-4 text-zinc-500" />}
-              onDelete={onDelete}
-            />
+            {!locked ? (
+              <DraggingToolTip
+                listeners={listeners}
+                icon={<EllipsisVertical className="h-4 text-zinc-500" />}
+                onDelete={onDelete}
+              />
+            ) : null}
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -137,7 +149,8 @@ export function DayExercise({
       listeners,
       isDragging,
       isGhost,
-      isLast
+      isLast,
+      locked,
     ]
   );
 }

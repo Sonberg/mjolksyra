@@ -9,7 +9,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { CheckCircle2Icon, PencilIcon, RectangleEllipsisIcon } from "lucide-react";
+import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { draggingStyle } from "@/lib/draggingStyle";
 import { PLANNED_AT } from "@/constants/dateFormats";
@@ -37,15 +37,27 @@ export function Day({ date, plannedWorkout }: Props) {
   const workouts = useWorkouts();
   const actions = usePlannedWorkoutActions();
   const id = useMemo(() => date.format(PLANNED_AT), [date]);
+  const isFutureWeek = useMemo(
+    () => date.startOf("week").isAfter(dayjs().startOf("week")),
+    [date]
+  );
+  const isCompleted = !!plannedWorkout?.completedAt;
+  const isLocked = isCompleted || !isFutureWeek;
+  const canPlan = !isLocked;
+
   const data = useMemo(
     () => ({
       date,
       plannedWorkout,
       type: "plannedWorkout",
-      allowedTypes: ["plannedExercise", "plannedWorkout", "exercise"],
+      allowedTypes: canPlan
+        ? ["plannedExercise", "plannedWorkout", "exercise"]
+        : [],
       label: date.format("dddd, D MMM YYYY"),
+      canPlan,
+      isLocked,
     }),
-    [date, plannedWorkout]
+    [date, plannedWorkout, canPlan, isLocked]
   );
 
   const {
@@ -58,6 +70,7 @@ export function Day({ date, plannedWorkout }: Props) {
   } = useSortable({
     id,
     data,
+    disabled: isLocked,
   });
 
   const canDrop = data.allowedTypes.includes(active?.data.current?.type);
@@ -121,67 +134,75 @@ export function Day({ date, plannedWorkout }: Props) {
             </div>
             {plannedWorkout ? (
               <div className="flex shrink-0 items-center gap-1">
-                {plannedWorkout.completedAt ? (
-                  <div
+                {canPlan ? (
+                  <>
+                    <DraggingToolTip
+                      icon={
+                        <div className="grid h-6 w-6 place-content-center rounded-md text-zinc-400 transition hover:bg-white/10 hover:text-zinc-200">
+                          <RectangleEllipsisIcon className="h-3.5 w-3.5" />
+                        </div>
+                      }
+                      listeners={listeners}
+                      onDelete={() => {
+                        actions.delete({ plannedWorkout });
+                        workouts.dispatch({
+                          type: "DELETE_WORKOUT",
+                          payload: {
+                            monthId: monthId(plannedWorkout.plannedAt),
+                            plannedWorkoutId: plannedWorkout.id,
+                          },
+                        });
+                      }}
+                    />
+                    <div
+                      className={cn({
+                        "grid h-6 w-6 place-content-center rounded-md text-zinc-300 transition": true,
+                        "bg-emerald-600 text-white":
+                          editor.plannedWorkoutId === plannedWorkout.id,
+                        "hover:bg-emerald-600/40":
+                          editor.plannedWorkoutId !== plannedWorkout.id,
+                        "hover:bg-emerald-500":
+                          editor.plannedWorkoutId === plannedWorkout.id,
+                      })}
+                      onClick={() =>
+                        editor.plannedWorkoutId === plannedWorkout.id
+                          ? editor.close()
+                          : editor.open(plannedWorkout.id)
+                      }
+                    >
+                      <PencilIcon className="h-3.5 w-3.5" />
+                    </div>
+                  </>
+                ) : (
+                  <span
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
-                      plannedWorkout.reviewedAt
-                        ? "border-emerald-700/60 bg-emerald-900/30 text-emerald-200"
-                        : "border-amber-700/60 bg-amber-900/20 text-amber-200"
+                      "rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+                      isCompleted
+                        ? plannedWorkout?.reviewedAt
+                          ? "border-emerald-700/60 bg-emerald-900/30 text-emerald-200"
+                          : "border-amber-700/60 bg-amber-900/20 text-amber-200"
+                        : "border-zinc-700 bg-zinc-900 text-zinc-400"
                     )}
                     title={
-                      plannedWorkout.reviewedAt
-                        ? `Reviewed ${new Date(plannedWorkout.reviewedAt).toLocaleString()}`
-                        : "Athlete completed workout"
+                      isCompleted
+                        ? "Completed days are locked from planning changes."
+                        : "Planning is available for future weeks only."
                     }
                   >
-                    <CheckCircle2Icon className="h-3 w-3" />
-                    {plannedWorkout.reviewedAt ? "Reviewed" : "Done"}
-                  </div>
-                ) : null}
-                <DraggingToolTip
-                  icon={
-                    <div className="grid h-6 w-6 place-content-center rounded-md text-zinc-400 transition hover:bg-white/10 hover:text-zinc-200">
-                      <RectangleEllipsisIcon className="h-3.5 w-3.5" />
-                    </div>
-                  }
-                  listeners={listeners}
-                  onDelete={() => {
-                    actions.delete({ plannedWorkout });
-                    workouts.dispatch({
-                      type: "DELETE_WORKOUT",
-                      payload: {
-                        monthId: monthId(plannedWorkout.plannedAt),
-                        plannedWorkoutId: plannedWorkout.id,
-                      },
-                    });
-                  }}
-                />
-                <div
-                  className={cn({
-                    "grid h-6 w-6 place-content-center rounded-md text-zinc-300 transition": true,
-                    "bg-emerald-600 text-white":
-                      editor.plannedWorkoutId === plannedWorkout.id,
-                    "hover:bg-emerald-600/40":
-                      editor.plannedWorkoutId !== plannedWorkout.id,
-                    "hover:bg-emerald-500":
-                      editor.plannedWorkoutId === plannedWorkout.id,
-                  })}
-                  onClick={() =>
-                    editor.plannedWorkoutId === plannedWorkout.id
-                      ? editor.close()
-                      : editor.open(plannedWorkout.id)
-                  }
-                >
-                  <PencilIcon className="h-3.5 w-3.5" />
-                </div>
+                    {isCompleted
+                      ? plannedWorkout?.reviewedAt
+                        ? "Reviewed"
+                        : "Done"
+                      : "Past"}
+                  </span>
+                )}
               </div>
             ) : null}
           </div>
           <div
             ref={setDroppableNodeRef}
             className={cn({
-              "mt-2 flex h-full min-h-24 flex-1 flex-col rounded-lg border border-transparent": true,
+              "relative mt-2 flex h-full min-h-24 flex-1 flex-col rounded-lg border border-transparent": true,
               ...draggingStyle({ canDrop, isOver: isOverContainer }),
             })}
           >
@@ -199,13 +220,16 @@ export function Day({ date, plannedWorkout }: Props) {
                     plannedWorkout={plannedWorkout}
                     isLast={index === exercises.length - 1}
                     isGhost={x.isGhost ?? false}
+                    locked={isLocked}
                   />
                 ))}
               </SortableContext>
             ) : (
               <div className="grid min-h-32 place-items-center rounded-lg border border-dashed border-white/10 px-4 text-center text-sm text-zinc-500 opacity-0 transition-all hover:opacity-100">
                 <div className="select-none">
-                  Drag & drop exercises to start planning
+                  {canPlan
+                    ? "Drag & drop exercises to start planning"
+                    : "Planning is available for future weeks only"}
                 </div>
               </div>
             )}
@@ -221,6 +245,9 @@ export function Day({ date, plannedWorkout }: Props) {
       workouts,
       plannedWorkout,
       isToday,
+      isCompleted,
+      isLocked,
+      canPlan,
       isOverContainer,
       canDrop,
       listeners,
