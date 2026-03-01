@@ -1,7 +1,9 @@
 using Mjolksyra.Domain.Database.Common;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mjolksyra.Domain.Database.Models;
 
+[BsonIgnoreExtraElements]
 public class Exercise : IDocument
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -14,15 +16,9 @@ public class Exercise : IDocument
 
     public string? Mechanic { get; set; }
 
-    public string? Equipment { get; set; }
-
     public string? Category { get; set; }
 
     public ICollection<string> Instructions { get; set; } = Array.Empty<string>();
-
-    public ICollection<string> PrimaryMuscles { get; set; } = Array.Empty<string>();
-
-    public ICollection<string> SecondaryMuscles { get; set; } = Array.Empty<string>();
     
     public ICollection<string> Images { get; set; } = Array.Empty<string>();
 

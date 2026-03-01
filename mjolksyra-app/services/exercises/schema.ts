@@ -6,7 +6,6 @@ export const schema = z.object({
   force: z.string().nullable(),
   level: z.string().nullable(),
   mechanic: z.string().nullable(),
-  equipment: z.string().nullable(),
   category: z.string().nullable(),
   starred: z.boolean(),
   canDelete: z.boolean(),

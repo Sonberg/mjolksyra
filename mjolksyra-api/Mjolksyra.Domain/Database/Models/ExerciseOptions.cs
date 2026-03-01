@@ -8,7 +8,5 @@ public class ExerciseOptions
 
     public required ICollection<string> Mechanic { get; set; }
 
-    public required ICollection<string> Equipment { get; set; }
-
     public required ICollection<string> Category { get; set; }
 }

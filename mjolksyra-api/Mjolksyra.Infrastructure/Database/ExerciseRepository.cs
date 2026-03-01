@@ -154,17 +154,15 @@ public class ExerciseRepository : IExerciseRepository
     public async Task<ExerciseOptions> Options(CancellationToken cancellationToken = default)
     {
         var categoryTask = DistinctAsync(x => x.Category, cancellationToken);
-        var equipmentTask = DistinctAsync(x => x.Equipment, cancellationToken);
         var forceTask = DistinctAsync(x => x.Force, cancellationToken);
         var levelTask = DistinctAsync(x => x.Level, cancellationToken);
         var mechanicTask = DistinctAsync(x => x.Mechanic, cancellationToken);
 
-        await Task.WhenAll(categoryTask, equipmentTask, forceTask, levelTask, mechanicTask);
+        await Task.WhenAll(categoryTask, forceTask, levelTask, mechanicTask);
 
         return new ExerciseOptions
         {
             Category = categoryTask.Result,
-            Equipment = equipmentTask.Result,
             Force = forceTask.Result,
             Level = levelTask.Result,
             Mechanic = mechanicTask.Result

@@ -18,12 +18,9 @@ public class SearchIndexBuilder : IndexBuilder
         var indexKeys = Builders<Exercise>.IndexKeys
             .Text(x => x.Name)
             .Text(x => x.Category)
-            .Text(x => x.Equipment)
             .Text(x => x.Level)
             .Text(x => x.Force)
-            .Text(x => x.Mechanic)
-            .Text(x => x.PrimaryMuscles)
-            .Text(x => x.SecondaryMuscles);
+            .Text(x => x.Mechanic);
 
         await context.Exercises.Indexes
             .CreateOneAsync(new CreateIndexModel<Exercise>(indexKeys, new CreateIndexOptions
@@ -42,12 +39,6 @@ public class SearchIndexBuilder : IndexBuilder
                     },
                     {
                         nameof(Exercise.Mechanic), 1
-                    },
-                    {
-                        nameof(Exercise.PrimaryMuscles), 1
-                    },
-                    {
-                        nameof(Exercise.SecondaryMuscles), 1
                     },
                     {
                         nameof(Exercise.Category), 5

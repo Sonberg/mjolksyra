@@ -7,7 +7,6 @@ type Args = {
   force: string | null;
   level: string | null;
   mechanic: string | null;
-  equipment: string | null;
   category: string | null;
 };
 

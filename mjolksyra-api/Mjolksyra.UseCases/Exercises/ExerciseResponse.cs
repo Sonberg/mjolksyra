@@ -15,15 +15,9 @@ public class ExerciseResponse : IExerciseResponse
 
     public required string? Mechanic { get; set; }
 
-    public required string? Equipment { get; set; }
-
     public required string? Category { get; set; }
 
     public required ICollection<string> Instructions { get; set; } 
-
-    public required ICollection<string> PrimaryMuscles { get; set; }
-
-    public required ICollection<string> SecondaryMuscles { get; set; }
 
     public required bool Starred { get; set; }
 
@@ -36,15 +30,12 @@ public class ExerciseResponse : IExerciseResponse
             Id = exercise.Id,
             Name = exercise.Name,
             Category = exercise.Category,
-            Equipment = exercise.Equipment,
             Force = exercise.Force,
             Level = exercise.Level,
             Mechanic = exercise.Mechanic,
             Starred = userId != null && exercise.StarredBy.Contains(userId.Value),
             CanDelete = userId != null && exercise.CreatedBy == userId,
-            Instructions = exercise.Instructions,
-            PrimaryMuscles = exercise.PrimaryMuscles,
-            SecondaryMuscles = exercise.SecondaryMuscles
+            Instructions = exercise.Instructions
         };
     }
 }

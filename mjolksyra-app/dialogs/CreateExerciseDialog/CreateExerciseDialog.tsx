@@ -26,7 +26,6 @@ const schema = z.object({
   force: z.string().nullable(),
   level: z.string().nullable(),
   mechanic: z.string().nullable(),
-  equipment: z.string().nullable(),
   category: z.string().nullable(),
   images: z.array(z.string()),
 });
@@ -66,7 +65,6 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
       force: null,
       level: null,
       mechanic: null,
-      equipment: null,
       category: null,
       images: [],
       ...values,

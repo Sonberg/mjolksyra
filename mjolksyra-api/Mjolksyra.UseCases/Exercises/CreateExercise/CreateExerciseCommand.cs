@@ -14,7 +14,5 @@ public class CreateExerciseCommand : IRequest<OneOf<ExerciseResponse, Error>>
 
     public string? Mechanic { get; set; }
 
-    public string? Equipment { get; set; }
-
     public string? Category { get; set; }
 }

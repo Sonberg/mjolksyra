@@ -89,15 +89,9 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public required string? Mechanic { get; set; }
 
-    public required string? Equipment { get; set; }
-
     public required string? Category { get; set; }
 
     public required ICollection<string> Instructions { get; set; }
-
-    public required ICollection<string> PrimaryMuscles { get; set; }
-
-    public required ICollection<string> SecondaryMuscles { get; set; }
     
     public required ICollection<string> Images { get; set; }
 
@@ -113,14 +107,11 @@ public class PlannedExerciseResponse : IExerciseResponse
             Note = plannedExercise.Note,
             IsPublished = plannedExercise.IsPublished,
             Category = exercise?.Category ?? string.Empty,
-            Equipment = exercise?.Equipment ?? string.Empty,
             Force = exercise?.Force ?? string.Empty,
             Level = exercise?.Level ?? string.Empty,
             Mechanic = exercise?.Mechanic ?? string.Empty,
             Images = exercise?.Images ?? Array.Empty<string>(),
-            Instructions = exercise?.Instructions ?? Array.Empty<string>(),
-            PrimaryMuscles = exercise?.PrimaryMuscles ?? Array.Empty<string>(),
-            SecondaryMuscles = exercise?.SecondaryMuscles ?? Array.Empty<string>()
+            Instructions = exercise?.Instructions ?? Array.Empty<string>()
         };
     }
 }

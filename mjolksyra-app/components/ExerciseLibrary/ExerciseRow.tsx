@@ -84,7 +84,6 @@ export function ExerciseRow({ exercise, exercises }: Props) {
               <div className="mb-4 font-semibold">{exercise.name}</div>
               <div className="grid grid-cols-2 gap-2">
                 {hoverCard("Category", exercise.category)}
-                {hoverCard("Equipment", exercise.equipment)}
                 {hoverCard("Force", exercise.force)}
                 {hoverCard("Level", exercise.level)}
                 {hoverCard("Mechanic", exercise.mechanic)}

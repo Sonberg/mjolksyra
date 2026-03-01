@@ -19,13 +19,6 @@ public class CreateExerciseValidator : AbstractValidator<CreateExerciseCommand>
                     $"Category must be one of {string.Join(", ", options.Category)}");
             }
 
-            if (cmd.Equipment != null && !options.Equipment.Contains(cmd.Equipment))
-            {
-                ctx.AddFailure(
-                    nameof(CreateExerciseCommand.Equipment),
-                    $"Equipment must be one of {string.Join(", ", options.Equipment)}");
-            }
-
             if (cmd.Force != null && !options.Force.Contains(cmd.Force))
             {
                 ctx.AddFailure(
