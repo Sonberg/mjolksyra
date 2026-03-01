@@ -1,3 +1,5 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Mjolksyra.Domain.Database.Models;
 
 public class PlannedExercise
@@ -17,15 +19,21 @@ public class PlannedExercise
     public ExercisePrescription? Prescription { get; set; }
 }
 
+[BsonIgnoreExtraElements]
 public class ExercisePrescription
 {
     public string? TargetType { get; set; }
 
-    public int? Sets { get; set; }
+    public ICollection<ExercisePrescriptionSetTarget>? SetTargets { get; set; }
+}
 
+public class ExercisePrescriptionSetTarget
+{
     public int? Reps { get; set; }
 
     public int? DurationSeconds { get; set; }
 
     public double? DistanceMeters { get; set; }
+
+    public string? Note { get; set; }
 }

@@ -21,11 +21,16 @@ public class PlannedExercisePrescriptionRequest
 {
     public string? TargetType { get; set; }
 
-    public int? Sets { get; set; }
+    public ICollection<PlannedExercisePrescriptionSetTargetRequest>? SetTargets { get; set; }
+}
 
+public class PlannedExercisePrescriptionSetTargetRequest
+{
     public int? Reps { get; set; }
 
     public int? DurationSeconds { get; set; }
 
     public double? DistanceMeters { get; set; }
+
+    public string? Note { get; set; }
 }

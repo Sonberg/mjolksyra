@@ -1,7 +1,7 @@
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useMemo } from "react";
 import { useWorkouts } from "../Workouts";
 import { monthId } from "@/lib/monthId";
@@ -107,11 +107,103 @@ export function WorkoutEditorExercise({
 
   const prescription = plannedExercise.prescription ?? {
     targetType: "sets_reps" as const,
-    sets: 3,
-    reps: 8,
-    durationSeconds: null,
-    distanceMeters: null,
+    setTargets: [
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+    ],
   };
+
+  function targetForType(
+    targetType: ExercisePrescription["targetType"],
+    source?: {
+      reps: number | null;
+      durationSeconds: number | null;
+      distanceMeters: number | null;
+      note: string | null;
+    },
+  ) {
+    if (targetType === "sets_reps") {
+      return {
+        reps: source?.reps ?? 8,
+        durationSeconds: null,
+        distanceMeters: null,
+        note: source?.note ?? null,
+      };
+    }
+
+    if (targetType === "duration_seconds") {
+      return {
+        reps: null,
+        durationSeconds: source?.durationSeconds ?? 30,
+        distanceMeters: null,
+        note: source?.note ?? null,
+      };
+    }
+
+    return {
+      reps: null,
+      durationSeconds: null,
+      distanceMeters: source?.distanceMeters ?? 1000,
+      note: source?.note ?? null,
+    };
+  }
+
+  function normalizedTargets() {
+    if (prescription.setTargets?.length) {
+      return prescription.setTargets;
+    }
+
+    if (prescription.targetType === "sets_reps") {
+      return Array.from({ length: 3 }, () =>
+        targetForType("sets_reps"),
+      );
+    }
+
+    if (prescription.targetType === "duration_seconds") {
+      return [targetForType("duration_seconds")];
+    }
+
+    return [targetForType("distance_meters")];
+  }
+
+  const setTargets = normalizedTargets();
+
+  function patchSetTarget(
+    index: number,
+    patch: Partial<(typeof setTargets)[number]>,
+  ) {
+    const nextTargets = setTargets.map((target, targetIndex) =>
+      targetIndex === index ? { ...target, ...patch } : target,
+    );
+    onUpdatePrescription({
+      ...prescription,
+      setTargets: nextTargets,
+    });
+  }
+
+  function addSetTarget() {
+    const sourceTarget = setTargets[setTargets.length - 1] ?? setTargets[0];
+    const nextTarget = targetForType(prescription.targetType, sourceTarget);
+
+    const nextTargets = [...setTargets, nextTarget];
+    onUpdatePrescription({
+      ...prescription,
+      setTargets: nextTargets,
+    });
+  }
+
+  function removeSetTarget(index: number) {
+    const nextTargets = setTargets.filter((_, targetIndex) => targetIndex !== index);
+    if (!nextTargets.length) {
+      return;
+    }
+
+    onUpdatePrescription({
+      ...prescription,
+      setTargets: nextTargets,
+    });
+  }
 
   return (
     <div>
@@ -154,21 +246,19 @@ export function WorkoutEditorExercise({
         </p>
         <select
           value={prescription.targetType}
-          onChange={(ev) =>
+          onChange={(ev) => {
+            const targetType = ev.target.value as ExercisePrescription["targetType"];
+            const sourceTarget = setTargets[0];
+            const setTargetsForType =
+              targetType === "sets_reps"
+                ? [targetForType(targetType, sourceTarget), targetForType(targetType, sourceTarget), targetForType(targetType, sourceTarget)]
+                : [targetForType(targetType, sourceTarget)];
+
             onUpdatePrescription({
-              targetType: ev.target.value as ExercisePrescription["targetType"],
-              sets: ev.target.value === "sets_reps" ? prescription.sets ?? 3 : null,
-              reps: ev.target.value === "sets_reps" ? prescription.reps ?? 8 : null,
-              durationSeconds:
-                ev.target.value === "duration_seconds"
-                  ? prescription.durationSeconds ?? 30
-                  : null,
-              distanceMeters:
-                ev.target.value === "distance_meters"
-                  ? prescription.distanceMeters ?? 1000
-                  : null,
-            })
-          }
+              targetType,
+              setTargets: setTargetsForType,
+            });
+          }}
           className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
         >
           <option value="sets_reps">Sets + reps</option>
@@ -176,68 +266,92 @@ export function WorkoutEditorExercise({
           <option value="distance_meters">Distance</option>
         </select>
 
-        {prescription.targetType === "sets_reps" ? (
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="number"
-              min={1}
-              value={prescription.sets ?? ""}
-              onChange={(ev) =>
-                onUpdatePrescription({
-                  ...prescription,
-                  sets: ev.target.value ? Number(ev.target.value) : null,
-                })
-              }
-              className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-              placeholder="Sets"
-            />
-            <input
-              type="number"
-              min={1}
-              value={prescription.reps ?? ""}
-              onChange={(ev) =>
-                onUpdatePrescription({
-                  ...prescription,
-                  reps: ev.target.value ? Number(ev.target.value) : null,
-                })
-              }
-              className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-              placeholder="Reps"
-            />
-          </div>
-        ) : null}
+        <div className="space-y-2">
+          {setTargets.map((target, targetIndex) => (
+            <div key={`${plannedExercise.id}-set-${targetIndex}`} className="rounded border border-zinc-800 bg-zinc-900/30 p-2">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-400">
+                  Set {targetIndex + 1}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => removeSetTarget(targetIndex)}
+                  disabled={setTargets.length <= 1}
+                  className="inline-flex items-center gap-1 rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 disabled:opacity-40"
+                >
+                  <Trash2Icon className="h-3 w-3" />
+                  Remove
+                </button>
+              </div>
 
-        {prescription.targetType === "duration_seconds" ? (
-          <input
-            type="number"
-            min={1}
-            value={prescription.durationSeconds ?? ""}
-            onChange={(ev) =>
-              onUpdatePrescription({
-                ...prescription,
-                durationSeconds: ev.target.value ? Number(ev.target.value) : null,
-              })
-            }
-            className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-            placeholder="Time in seconds"
-          />
-        ) : null}
+              {prescription.targetType === "sets_reps" ? (
+                <input
+                  type="number"
+                  min={1}
+                  value={target.reps ?? ""}
+                  onChange={(ev) =>
+                    patchSetTarget(targetIndex, {
+                      reps: ev.target.value ? Number(ev.target.value) : null,
+                    })
+                  }
+                  className="mb-2 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                  placeholder="Reps"
+                />
+              ) : null}
 
-        {prescription.targetType === "distance_meters" ? (
-          <input
-            type="number"
-            min={1}
-            value={prescription.distanceMeters ?? ""}
-            onChange={(ev) =>
-              onUpdatePrescription({
-                ...prescription,
-                distanceMeters: ev.target.value ? Number(ev.target.value) : null,
-              })
-            }
-            className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-            placeholder="Distance in meters"
-          />
-        ) : null}
+              {prescription.targetType === "duration_seconds" ? (
+                <input
+                  type="number"
+                  min={1}
+                  value={target.durationSeconds ?? ""}
+                  onChange={(ev) =>
+                    patchSetTarget(targetIndex, {
+                      durationSeconds: ev.target.value ? Number(ev.target.value) : null,
+                    })
+                  }
+                  className="mb-2 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                  placeholder="Time in seconds"
+                />
+              ) : null}
+
+              {prescription.targetType === "distance_meters" ? (
+                <input
+                  type="number"
+                  min={1}
+                  value={target.distanceMeters ?? ""}
+                  onChange={(ev) =>
+                    patchSetTarget(targetIndex, {
+                      distanceMeters: ev.target.value ? Number(ev.target.value) : null,
+                    })
+                  }
+                  className="mb-2 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                  placeholder="Distance in meters"
+                />
+              ) : null}
+
+              <input
+                type="text"
+                value={target.note ?? ""}
+                onChange={(ev) =>
+                  patchSetTarget(targetIndex, {
+                    note: ev.target.value || null,
+                  })
+                }
+                className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                placeholder="Set note (optional)"
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addSetTarget}
+            className="inline-flex items-center gap-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs font-semibold text-zinc-100"
+          >
+            <PlusIcon className="h-3.5 w-3.5" />
+            Add set
+          </button>
+        </div>
       </div>
     </div>
   );

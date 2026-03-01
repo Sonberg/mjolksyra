@@ -38,12 +38,8 @@ export function workoutChanged(
       exercise.note === oldExercise.note,
       exercise.isDone === oldExercise.isDone,
       exercise.prescription?.targetType === oldExercise.prescription?.targetType,
-      exercise.prescription?.sets === oldExercise.prescription?.sets,
-      exercise.prescription?.reps === oldExercise.prescription?.reps,
-      exercise.prescription?.durationSeconds ===
-        oldExercise.prescription?.durationSeconds,
-      exercise.prescription?.distanceMeters ===
-        oldExercise.prescription?.distanceMeters,
+      JSON.stringify(exercise.prescription?.setTargets ?? null) ===
+        JSON.stringify(oldExercise.prescription?.setTargets ?? null),
     ];
 
     if (exerciseChecks.some((x) => !x)) {

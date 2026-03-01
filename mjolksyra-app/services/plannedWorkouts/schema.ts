@@ -2,10 +2,18 @@ import { z } from "zod";
 
 export const exercisePrescriptionSchema = z.object({
   targetType: z.enum(["sets_reps", "duration_seconds", "distance_meters"]),
-  sets: z.number().nullable(),
-  reps: z.number().nullable(),
-  durationSeconds: z.number().nullable(),
-  distanceMeters: z.number().nullable(),
+  setTargets: z
+    .array(
+      z.object({
+        reps: z.number().nullable(),
+        durationSeconds: z.number().nullable(),
+        distanceMeters: z.number().nullable(),
+        note: z.string().nullable(),
+      }),
+    )
+    .nullable()
+    .optional()
+    .default(null),
 });
 
 export const exerciseSchema = z.object({

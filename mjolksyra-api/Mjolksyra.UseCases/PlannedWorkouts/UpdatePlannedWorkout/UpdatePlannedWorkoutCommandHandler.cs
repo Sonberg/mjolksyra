@@ -80,10 +80,15 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                     : new ExercisePrescription
                     {
                         TargetType = x.Prescription.TargetType,
-                        Sets = x.Prescription.Sets,
-                        Reps = x.Prescription.Reps,
-                        DurationSeconds = x.Prescription.DurationSeconds,
-                        DistanceMeters = x.Prescription.DistanceMeters
+                        SetTargets = x.Prescription.SetTargets
+                            ?.Select(t => new ExercisePrescriptionSetTarget
+                            {
+                                Reps = t.Reps,
+                                DurationSeconds = t.DurationSeconds,
+                                DistanceMeters = t.DistanceMeters,
+                                Note = t.Note
+                            })
+                            .ToList()
                     }
             })
             .ToList();

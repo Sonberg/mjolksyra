@@ -82,7 +82,24 @@ public class GetPlannedWorkoutRequestHandlerTests
                         Id = Guid.NewGuid(),
                         ExerciseId = exerciseId,
                         Name = "Bench press",
-                        Note = "3x5"
+                        Note = "3x5",
+                        Prescription = new ExercisePrescription
+                        {
+                            TargetType = "sets_reps",
+                            SetTargets =
+                            [
+                                new ExercisePrescriptionSetTarget
+                                {
+                                    Reps = 8,
+                                    Note = "Warm-up"
+                                },
+                                new ExercisePrescriptionSetTarget
+                                {
+                                    Reps = 8,
+                                    Note = "Working set"
+                                }
+                            ]
+                        }
                     }
                 ],
                 CreatedAt = DateTimeOffset.UtcNow
@@ -115,6 +132,11 @@ public class GetPlannedWorkoutRequestHandlerTests
         Assert.Equal(workoutId, result.Id);
         Assert.Equal(traineeId, result.TraineeId);
         Assert.Single(result.Exercises);
+        var mappedExercise = Assert.Single(result.Exercises);
+        Assert.NotNull(mappedExercise.Prescription);
+        Assert.NotNull(mappedExercise.Prescription!.SetTargets);
+        Assert.Equal(2, mappedExercise.Prescription.SetTargets.Count);
+        Assert.Equal("Warm-up", mappedExercise.Prescription.SetTargets.First().Note);
     }
 
     [Fact]

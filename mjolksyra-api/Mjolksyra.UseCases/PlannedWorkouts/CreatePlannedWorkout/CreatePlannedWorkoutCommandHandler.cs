@@ -42,10 +42,15 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                         : new ExercisePrescription
                         {
                             TargetType = e.Prescription.TargetType,
-                            Sets = e.Prescription.Sets,
-                            Reps = e.Prescription.Reps,
-                            DurationSeconds = e.Prescription.DurationSeconds,
-                            DistanceMeters = e.Prescription.DistanceMeters
+                            SetTargets = e.Prescription.SetTargets
+                                ?.Select(x => new ExercisePrescriptionSetTarget
+                                {
+                                    Reps = x.Reps,
+                                    DurationSeconds = x.DurationSeconds,
+                                    DistanceMeters = x.DistanceMeters,
+                                    Note = x.Note
+                                })
+                                .ToList()
                         }
                 }).ToList(),
             CreatedAt = DateTimeOffset.UtcNow

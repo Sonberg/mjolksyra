@@ -1,9 +1,11 @@
 export type ExercisePrescription = {
   targetType: "sets_reps" | "duration_seconds" | "distance_meters";
-  sets: number | null;
-  reps: number | null;
-  durationSeconds: number | null;
-  distanceMeters: number | null;
+  setTargets: Array<{
+    reps: number | null;
+    durationSeconds: number | null;
+    distanceMeters: number | null;
+    note: string | null;
+  }> | null;
 };
 
 export function inferPrescriptionFromMechanic(
@@ -18,10 +20,9 @@ export function inferPrescriptionFromMechanic(
   ) {
     return {
       targetType: "duration_seconds",
-      sets: 3,
-      reps: null,
-      durationSeconds: 30,
-      distanceMeters: null,
+      setTargets: [
+        { reps: null, durationSeconds: 30, distanceMeters: null, note: null },
+      ],
     };
   }
 
@@ -32,19 +33,19 @@ export function inferPrescriptionFromMechanic(
   ) {
     return {
       targetType: "distance_meters",
-      sets: null,
-      reps: null,
-      durationSeconds: null,
-      distanceMeters: 1000,
+      setTargets: [
+        { reps: null, durationSeconds: null, distanceMeters: 1000, note: null },
+      ],
     };
   }
 
   return {
     targetType: "sets_reps",
-    sets: 3,
-    reps: 8,
-    durationSeconds: null,
-    distanceMeters: null,
+    setTargets: [
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+    ],
   };
 }
 
@@ -54,40 +55,57 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
   }
 
   if (prescription.targetType === "sets_reps") {
-    if (prescription.sets && prescription.reps) {
-      return `${prescription.sets} x ${prescription.reps}`;
+    if (prescription.setTargets?.length) {
+      const reps = prescription.setTargets
+        .map((x) => x.reps)
+        .filter((x): x is number => typeof x === "number" && x > 0);
+      if (!reps.length) {
+        return `${prescription.setTargets.length} sets`;
+      }
+
+      const uniqueReps = Array.from(new Set(reps));
+      if (uniqueReps.length === 1) {
+        return `${prescription.setTargets.length} x ${uniqueReps[0]}`;
+      }
+
+      return `${prescription.setTargets.length} sets`;
     }
 
     return null;
   }
 
   if (prescription.targetType === "duration_seconds") {
-    if (!prescription.durationSeconds) {
-      return null;
+    if (prescription.setTargets?.length) {
+      const values = prescription.setTargets
+        .map((x) => x.durationSeconds)
+        .filter((x): x is number => typeof x === "number" && x > 0);
+      if (values.length) {
+        if (values.length === 1) {
+          return `${values[0]}s`;
+        }
+        return `${values.length} holds`;
+      }
     }
 
-    const minutes = Math.floor(prescription.durationSeconds / 60);
-    const seconds = prescription.durationSeconds % 60;
-
-    if (minutes > 0 && seconds > 0) {
-      return `${minutes}m ${seconds}s`;
-    }
-
-    if (minutes > 0) {
-      return `${minutes}m`;
-    }
-
-    return `${seconds}s`;
-  }
-
-  if (!prescription.distanceMeters) {
     return null;
   }
 
-  if (prescription.distanceMeters >= 1000) {
-    const km = prescription.distanceMeters / 1000;
-    return `${km % 1 === 0 ? km.toFixed(0) : km.toFixed(1)} km`;
+  if (prescription.setTargets?.length) {
+    const values = prescription.setTargets
+      .map((x) => x.distanceMeters)
+      .filter((x): x is number => typeof x === "number" && x > 0);
+    if (values.length) {
+      if (values.length === 1) {
+        const value = values[0];
+        if (value >= 1000) {
+          const km = value / 1000;
+          return `${km % 1 === 0 ? km.toFixed(0) : km.toFixed(1)} km`;
+        }
+        return `${value} m`;
+      }
+      return `${values.length} intervals`;
+    }
   }
 
-  return `${prescription.distanceMeters} m`;
+  return null;
 }

@@ -116,10 +116,15 @@ public class PlannedExerciseResponse : IExerciseResponse
                 : new PlannedExercisePrescriptionResponse
                 {
                     TargetType = plannedExercise.Prescription.TargetType,
-                    Sets = plannedExercise.Prescription.Sets,
-                    Reps = plannedExercise.Prescription.Reps,
-                    DurationSeconds = plannedExercise.Prescription.DurationSeconds,
-                    DistanceMeters = plannedExercise.Prescription.DistanceMeters
+                    SetTargets = plannedExercise.Prescription.SetTargets
+                        ?.Select(x => new PlannedExercisePrescriptionSetTargetResponse
+                        {
+                            Reps = x.Reps,
+                            DurationSeconds = x.DurationSeconds,
+                            DistanceMeters = x.DistanceMeters,
+                            Note = x.Note
+                        })
+                        .ToList()
                 },
             Category = exercise?.Category ?? string.Empty,
             Force = exercise?.Force ?? string.Empty,
@@ -135,11 +140,16 @@ public class PlannedExercisePrescriptionResponse
 {
     public string? TargetType { get; set; }
 
-    public int? Sets { get; set; }
+    public ICollection<PlannedExercisePrescriptionSetTargetResponse>? SetTargets { get; set; }
+}
 
+public class PlannedExercisePrescriptionSetTargetResponse
+{
     public int? Reps { get; set; }
 
     public int? DurationSeconds { get; set; }
 
     public double? DistanceMeters { get; set; }
+
+    public string? Note { get; set; }
 }
