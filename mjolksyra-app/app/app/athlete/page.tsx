@@ -37,14 +37,15 @@ export default async function Page({ searchParams }: Props) {
         : user.coaches[0].traineeId;
 
     const target = new URLSearchParams();
-    if (query.workoutId) {
-      target.set("workoutId", query.workoutId);
-    }
     if (initialWorkoutTab) {
       target.set("workoutTab", initialWorkoutTab);
     }
 
     const suffix = target.toString() ? `?${target.toString()}` : "";
+    if (query.workoutId) {
+      redirect(`/app/athlete/${selectedCoachId}/workouts/${query.workoutId}${suffix}`);
+    }
+
     redirect(`/app/athlete/${selectedCoachId}/workouts${suffix}`);
   }
 

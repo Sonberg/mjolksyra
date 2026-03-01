@@ -30,13 +30,22 @@ export default async function Page({ params, searchParams }: Props) {
         ? query.tab
         : undefined;
 
+  if (query.workoutId) {
+    const target = new URLSearchParams();
+    if (initialWorkoutTab) {
+      target.set("tab", initialWorkoutTab);
+    }
+
+    const suffix = target.toString() ? `?${target.toString()}` : "";
+    redirect(`/app/athlete/${routeParams.traineeId}/workouts/${query.workoutId}${suffix}`);
+  }
+
   return (
     <PageContent
       user={user}
       initialCoachTraineeId={routeParams.traineeId}
       initialDashboardTab="workouts"
       initialWorkoutTab={initialWorkoutTab}
-      focusWorkoutId={query.workoutId}
     />
   );
 }

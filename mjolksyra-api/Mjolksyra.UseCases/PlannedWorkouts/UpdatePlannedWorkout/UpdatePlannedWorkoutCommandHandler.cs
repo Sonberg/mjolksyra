@@ -73,7 +73,18 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                 Name = x.Name,
                 Note = x.Note,
                 ExerciseId = x.ExerciseId,
-                IsPublished = x.IsPublished
+                IsPublished = x.IsPublished,
+                IsDone = x.IsDone,
+                Prescription = x.Prescription is null
+                    ? null
+                    : new ExercisePrescription
+                    {
+                        TargetType = x.Prescription.TargetType,
+                        Sets = x.Prescription.Sets,
+                        Reps = x.Prescription.Reps,
+                        DurationSeconds = x.Prescription.DurationSeconds,
+                        DistanceMeters = x.Prescription.DistanceMeters
+                    }
             })
             .ToList();
 

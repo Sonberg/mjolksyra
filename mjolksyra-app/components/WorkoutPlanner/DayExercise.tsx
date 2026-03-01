@@ -11,6 +11,7 @@ import { useWorkouts } from "./contexts/Workouts";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
 import { monthId } from "@/lib/monthId";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { formatPrescription } from "@/lib/exercisePrescription";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -120,9 +121,16 @@ export function DayExercise({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="min-w-0 flex-1 select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-zinc-200">
-                    {plannedExercise.name}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <span className="block min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-zinc-200">
+                      {plannedExercise.name}
+                    </span>
+                    {formatPrescription(plannedExercise.prescription) ? (
+                      <span className="block text-[10px] text-zinc-400">
+                        {formatPrescription(plannedExercise.prescription)}
+                      </span>
+                    ) : null}
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-80 break-words">
                   {plannedExercise.name}

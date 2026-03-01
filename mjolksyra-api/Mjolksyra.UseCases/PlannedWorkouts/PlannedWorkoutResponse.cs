@@ -83,6 +83,10 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public required bool IsPublished { get; set; }
 
+    public required bool IsDone { get; set; }
+
+    public PlannedExercisePrescriptionResponse? Prescription { get; set; }
+
     public required string? Force { get; set; }
 
     public required string? Level { get; set; }
@@ -103,9 +107,20 @@ public class PlannedExerciseResponse : IExerciseResponse
         {
             Id = plannedExercise.Id,
             ExerciseId = plannedExercise.ExerciseId,
-            Name = exercise?.Name ?? string.Empty,
+            Name = exercise?.Name ?? plannedExercise.Name,
             Note = plannedExercise.Note,
             IsPublished = plannedExercise.IsPublished,
+            IsDone = plannedExercise.IsDone,
+            Prescription = plannedExercise.Prescription is null
+                ? null
+                : new PlannedExercisePrescriptionResponse
+                {
+                    TargetType = plannedExercise.Prescription.TargetType,
+                    Sets = plannedExercise.Prescription.Sets,
+                    Reps = plannedExercise.Prescription.Reps,
+                    DurationSeconds = plannedExercise.Prescription.DurationSeconds,
+                    DistanceMeters = plannedExercise.Prescription.DistanceMeters
+                },
             Category = exercise?.Category ?? string.Empty,
             Force = exercise?.Force ?? string.Empty,
             Level = exercise?.Level ?? string.Empty,
@@ -114,4 +129,17 @@ public class PlannedExerciseResponse : IExerciseResponse
             Instructions = exercise?.Instructions ?? Array.Empty<string>()
         };
     }
+}
+
+public class PlannedExercisePrescriptionResponse
+{
+    public string? TargetType { get; set; }
+
+    public int? Sets { get; set; }
+
+    public int? Reps { get; set; }
+
+    public int? DurationSeconds { get; set; }
+
+    public double? DistanceMeters { get; set; }
 }

@@ -10,6 +10,8 @@ type Props = {
   user: User;
   initialCoachTraineeId?: string;
   focusWorkoutId?: string;
+  detailWorkoutId?: string;
+  detailBackTab?: "past" | "future";
   initialWorkoutTab?: "past" | "future";
   initialDashboardTab?: "workouts" | "transactions" | "settings";
 };
@@ -18,6 +20,8 @@ export function PageContent({
   user,
   initialCoachTraineeId,
   focusWorkoutId,
+  detailWorkoutId,
+  detailBackTab,
   initialWorkoutTab,
   initialDashboardTab = "workouts",
 }: Props) {
@@ -113,6 +117,8 @@ export function PageContent({
                 <AthleteDashboard
                   coach={coach}
                   focusWorkoutId={focusWorkoutId}
+                  detailWorkoutId={detailWorkoutId}
+                  detailBackTab={detailBackTab}
                   initialWorkoutTab={initialWorkoutTab}
                   selectedTab={initialDashboardTab}
                 />

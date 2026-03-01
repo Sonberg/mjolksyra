@@ -2,6 +2,7 @@ import { UserTrainee } from "@/services/users/type";
 import { useQuery } from "@tanstack/react-query";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { WorkoutViewer } from "@/components/WorkoutViewer";
+import { WorkoutDetails } from "@/components/WorkoutViewer/WorkoutDetails";
 import type { ReactNode } from "react";
 import { CreditCardIcon, DumbbellIcon, SettingsIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
@@ -12,6 +13,8 @@ type Tabs = "workouts" | "transactions" | "settings";
 type Props = {
   coach: UserTrainee;
   focusWorkoutId?: string;
+  detailWorkoutId?: string;
+  detailBackTab?: "past" | "future";
   initialWorkoutTab?: "past" | "future";
   selectedTab: Tabs;
 };
@@ -19,6 +22,8 @@ type Props = {
 export function AthleteDashboard({
   coach,
   focusWorkoutId,
+  detailWorkoutId,
+  detailBackTab,
   initialWorkoutTab,
   selectedTab,
 }: Props) {
@@ -110,11 +115,19 @@ export function AthleteDashboard({
       </div>
 
       {selectedTab === "workouts" ? (
-        <WorkoutViewer
-          traineeId={data.id}
-          initialTab={initialWorkoutTab}
-          focusWorkoutId={focusWorkoutId}
-        />
+        detailWorkoutId ? (
+          <WorkoutDetails
+            traineeId={data.id}
+            workoutId={detailWorkoutId}
+            backTab={detailBackTab ?? initialWorkoutTab}
+          />
+        ) : (
+          <WorkoutViewer
+            traineeId={data.id}
+            initialTab={initialWorkoutTab}
+            focusWorkoutId={focusWorkoutId}
+          />
+        )
       ) : null}
       {selectedTab === "transactions" ? (
         <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">

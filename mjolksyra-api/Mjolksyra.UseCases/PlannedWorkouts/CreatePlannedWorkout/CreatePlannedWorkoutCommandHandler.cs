@@ -35,7 +35,18 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                     ExerciseId = e.ExerciseId,
                     Name = e.Name,
                     Note = e.Note,
-                    IsPublished = e.IsPublished
+                    IsPublished = e.IsPublished,
+                    IsDone = e.IsDone,
+                    Prescription = e.Prescription is null
+                        ? null
+                        : new ExercisePrescription
+                        {
+                            TargetType = e.Prescription.TargetType,
+                            Sets = e.Prescription.Sets,
+                            Reps = e.Prescription.Reps,
+                            DurationSeconds = e.Prescription.DurationSeconds,
+                            DistanceMeters = e.Prescription.DistanceMeters
+                        }
                 }).ToList(),
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);

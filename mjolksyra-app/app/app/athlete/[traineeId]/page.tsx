@@ -20,9 +20,6 @@ export default async function Page({ params, searchParams }: Props) {
   }
 
   const target = new URLSearchParams();
-  if (query.workoutId) {
-    target.set("workoutId", query.workoutId);
-  }
   if (query.workoutTab === "past" || query.workoutTab === "future") {
     target.set("workoutTab", query.workoutTab);
   } else if (query.tab === "past" || query.tab === "future") {
@@ -30,5 +27,9 @@ export default async function Page({ params, searchParams }: Props) {
   }
 
   const suffix = target.toString() ? `?${target.toString()}` : "";
+  if (query.workoutId) {
+    redirect(`/app/athlete/${routeParams.traineeId}/workouts/${query.workoutId}${suffix}`);
+  }
+
   redirect(`/app/athlete/${routeParams.traineeId}/workouts${suffix}`);
 }

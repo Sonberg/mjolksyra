@@ -1,11 +1,21 @@
 import { z } from "zod";
 
+export const exercisePrescriptionSchema = z.object({
+  targetType: z.enum(["sets_reps", "duration_seconds", "distance_meters"]),
+  sets: z.number().nullable(),
+  reps: z.number().nullable(),
+  durationSeconds: z.number().nullable(),
+  distanceMeters: z.number().nullable(),
+});
+
 export const exerciseSchema = z.object({
   id: z.string(),
   exerciseId: z.string().nullable(),
   name: z.string(),
   note: z.string().nullable(),
   isPublished: z.boolean().optional().default(true),
+  isDone: z.boolean().optional().default(false),
+  prescription: exercisePrescriptionSchema.nullable().optional().default(null),
   images: z.array(z.string()),
 });
 

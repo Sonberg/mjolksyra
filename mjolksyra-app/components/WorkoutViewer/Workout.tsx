@@ -4,18 +4,24 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
-import { CheckCircle2Icon, RotateCcwIcon } from "lucide-react";
+import { CheckCircle2Icon, CircleIcon, RotateCcwIcon } from "lucide-react";
+import { formatPrescription } from "@/lib/exercisePrescription";
+import Link from "next/link";
 
 type Props = {
   workout: PlannedWorkout;
   viewerMode?: "athlete" | "coach";
   isHighlighted?: boolean;
+  traineeId?: string;
+  isDetailView?: boolean;
 };
 
 export function Workout({
   workout,
   viewerMode = "athlete",
   isHighlighted = false,
+  traineeId,
+  isDetailView = false,
 }: Props) {
   const queryClient = useQueryClient();
   const [isLogging, setIsLogging] = useState(false);
@@ -60,6 +66,31 @@ export function Workout({
       }),
     onSuccess: async () => {
       setIsReviewing(false);
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+    },
+  });
+  const toggleExerciseDone = useMutation({
+    mutationFn: async ({
+      exerciseId,
+      isDone,
+    }: {
+      exerciseId: string;
+      isDone: boolean;
+    }) =>
+      updatePlannedWorkout({
+        plannedWorkout: {
+          ...workout,
+          exercises: workout.exercises.map((exercise) =>
+            exercise.id === exerciseId
+              ? {
+                  ...exercise,
+                  isDone,
+                }
+              : exercise,
+          ),
+        },
+      }),
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
     },
   });
@@ -121,22 +152,32 @@ export function Workout({
     >
       <CardHeader className="font-bold over p-4">
         <div className="flex items-center justify-between">
-          {displayName}
-          <div className="flex items-center gap-2">
-            {isCompleted ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-200">
-                <CheckCircle2Icon className="h-3 w-3" />
-                Completed
-              </span>
+          <span className="truncate">{displayName}</span>
+          <div className="flex shrink-0 items-center gap-2">
+            {viewerMode === "athlete" && !isDetailView && traineeId ? (
+              <Link
+                href={`/app/athlete/${traineeId}/workouts/${workout.id}`}
+                className="inline-flex items-center rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-100 transition hover:bg-zinc-800"
+              >
+                Open workout
+              </Link>
             ) : null}
-            {viewerMode === "coach" && isReviewed ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-200">
-                Reviewed
-              </span>
-            ) : null}
-            {displayName === "Today" ? (
-              <div className="h-3 w-3 rounded-full bg-red-700" />
-            ) : null}
+            <div className="flex items-center gap-2">
+              {isCompleted ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-200">
+                  <CheckCircle2Icon className="h-3 w-3" />
+                  Completed
+                </span>
+              ) : null}
+              {viewerMode === "coach" && isReviewed ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-200">
+                  Reviewed
+                </span>
+              ) : null}
+              {displayName === "Today" ? (
+                <div className="h-3 w-3 rounded-full bg-red-700" />
+              ) : null}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -144,30 +185,44 @@ export function Workout({
         <div className="flex flex-wrap items-center gap-2">
           {viewerMode === "athlete" ? (
             <>
-              <button
-                type="button"
-                onClick={() => {
-                  setCompletionNote(workout.completionNote ?? "");
-                  setIsLogging((x) => !x);
-                }}
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:bg-zinc-800"
-              >
-                {isCompleted ? "Update log" : "Log workout"}
-              </button>
-              {isCompleted ? (
+              {isDetailView ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCompletionNote(workout.completionNote ?? "");
+                      setIsLogging((x) => !x);
+                    }}
+                    className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:bg-zinc-800"
+                  >
+                    {isCompleted ? "Update log" : "Log workout"}
+                  </button>
+                  {isCompleted ? (
+                    <button
+                      type="button"
+                      disabled={saveCompletion.isPending}
+                      onClick={() =>
+                        saveCompletion.mutate({
+                          completedAt: null,
+                          completionNote: workout.completionNote ?? null,
+                        })
+                      }
+                      className="inline-flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 disabled:opacity-60"
+                    >
+                      <RotateCcwIcon className="h-3.5 w-3.5" />
+                      Reopen
+                    </button>
+                  ) : null}
+                </>
+              ) : null}
+              {!isDetailView && isCompleted ? (
                 <button
                   type="button"
-                  disabled={saveCompletion.isPending}
-                  onClick={() =>
-                    saveCompletion.mutate({
-                      completedAt: null,
-                      completionNote: workout.completionNote ?? null,
-                    })
-                  }
-                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 disabled:opacity-60"
+                  disabled
+                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-700/60 bg-emerald-900/30 px-3 py-2 text-xs font-semibold text-emerald-200"
                 >
-                  <RotateCcwIcon className="h-3.5 w-3.5" />
-                  Reopen
+                  <CheckCircle2Icon className="h-3.5 w-3.5" />
+                  Completed
                 </button>
               ) : null}
             </>
@@ -223,7 +278,7 @@ export function Workout({
           ) : null}
         </div>
 
-        {isLogging ? (
+        {isDetailView && isLogging ? (
           <div className="grid gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
@@ -271,7 +326,7 @@ export function Workout({
             <p className="mt-1 text-sm text-zinc-200">{workout.note}</p>
           </div>
         ) : null}
-        {workout.completionNote?.trim() ? (
+        {(isDetailView || viewerMode === "coach") && workout.completionNote?.trim() ? (
           <div className="rounded-lg border border-emerald-900/60 bg-emerald-950/20 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-300/80">
               {viewerMode === "coach" ? "Athlete log" : "Your log"}
@@ -337,7 +392,53 @@ export function Workout({
               <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">
                 {index + 1}
               </div>
-              <div className="font-bold text-sm">{exercise.name}</div>
+              <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div
+                    className={
+                      exercise.isDone
+                        ? "font-bold text-sm text-zinc-500 line-through"
+                        : "font-bold text-sm"
+                    }
+                  >
+                    {exercise.name}
+                  </div>
+                  {formatPrescription(exercise.prescription) ? (
+                    <div className="text-xs text-zinc-400">
+                      Target: {formatPrescription(exercise.prescription)}
+                    </div>
+                  ) : null}
+                </div>
+                {viewerMode === "athlete" && isDetailView ? (
+                  <button
+                    type="button"
+                    disabled={toggleExerciseDone.isPending}
+                    onClick={() =>
+                      toggleExerciseDone.mutate({
+                        exerciseId: exercise.id,
+                        isDone: !(exercise.isDone ?? false),
+                      })
+                    }
+                    className={
+                      exercise.isDone
+                        ? "inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
+                        : "inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
+                    }
+                    title={exercise.isDone ? "Mark as not done" : "Mark as done"}
+                  >
+                    {exercise.isDone ? (
+                      <CheckCircle2Icon className="h-3.5 w-3.5" />
+                    ) : (
+                      <CircleIcon className="h-3.5 w-3.5" />
+                    )}
+                    {exercise.isDone ? "Done" : "Mark done"}
+                  </button>
+                ) : exercise.isDone ? (
+                  <span className="rounded border border-emerald-700/60 bg-emerald-900/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200">
+                    Done
+                  </span>
+                ) : null}
+              </div>
             </div>
             {exercise.note?.trim() ? (
               <div className="ml-12 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300">

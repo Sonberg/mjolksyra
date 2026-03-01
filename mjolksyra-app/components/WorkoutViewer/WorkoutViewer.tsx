@@ -233,6 +233,7 @@ export function WorkoutViewer({
             key={x.id}
             workout={x}
             viewerMode={viewerMode}
+            traineeId={traineeId}
             isHighlighted={focusWorkoutId === x.id}
           />
         ))}

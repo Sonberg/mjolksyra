@@ -12,7 +12,7 @@ export function workoutChanged(
 
   const workoutChecks = [
     workout.name === oldWorkout.name,
-    workout.note === oldWorkout.name,
+    workout.note === oldWorkout.note,
     workout.plannedAt === oldWorkout.plannedAt,
   ];
 
@@ -36,6 +36,14 @@ export function workoutChanged(
       exercise.exerciseId === oldExercise.exerciseId,
       exercise.name === oldExercise.name,
       exercise.note === oldExercise.note,
+      exercise.isDone === oldExercise.isDone,
+      exercise.prescription?.targetType === oldExercise.prescription?.targetType,
+      exercise.prescription?.sets === oldExercise.prescription?.sets,
+      exercise.prescription?.reps === oldExercise.prescription?.reps,
+      exercise.prescription?.durationSeconds ===
+        oldExercise.prescription?.durationSeconds,
+      exercise.prescription?.distanceMeters ===
+        oldExercise.prescription?.distanceMeters,
     ];
 
     if (exerciseChecks.some((x) => !x)) {

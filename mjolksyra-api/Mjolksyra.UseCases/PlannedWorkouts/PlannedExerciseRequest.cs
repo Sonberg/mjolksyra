@@ -11,4 +11,21 @@ public class PlannedExerciseRequest
     public string? Note { get; set; }
 
     public bool IsPublished { get; set; } = true;
+
+    public bool IsDone { get; set; } = false;
+
+    public PlannedExercisePrescriptionRequest? Prescription { get; set; }
+}
+
+public class PlannedExercisePrescriptionRequest
+{
+    public string? TargetType { get; set; }
+
+    public int? Sets { get; set; }
+
+    public int? Reps { get; set; }
+
+    public int? DurationSeconds { get; set; }
+
+    public double? DistanceMeters { get; set; }
 }
