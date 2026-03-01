@@ -33,6 +33,7 @@ export function getExercise(event: Event, clone: boolean) {
       id: v4(),
       name: activeData.exercise.name,
       exerciseId: activeData.exercise.id,
+      isPublished: false,
     } as PlannedExercise;
   }
 

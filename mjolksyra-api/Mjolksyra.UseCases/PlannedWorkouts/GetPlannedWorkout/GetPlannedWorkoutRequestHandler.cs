@@ -22,10 +22,25 @@ public class GetPlannedWorkoutRequestHandler(
             return null;
         }
 
+        var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
+        var isAthleteViewer = trainee is not null && trainee.AthleteUserId == userId;
+
         var workout = await plannedWorkoutRepository.Get(request.PlannedWorkoutId, cancellationToken);
         if (workout is null || workout.TraineeId != request.TraineeId)
         {
             return null;
+        }
+
+        if (isAthleteViewer)
+        {
+            workout.Exercises = workout.Exercises
+                .Where(x => x.IsPublished)
+                .ToList();
+
+            if (workout.Exercises.Count == 0)
+            {
+                return null;
+            }
         }
 
         var exerciseIds = workout.Exercises

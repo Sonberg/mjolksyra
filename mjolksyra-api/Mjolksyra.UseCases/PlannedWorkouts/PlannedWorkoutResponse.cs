@@ -81,6 +81,8 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public required string? Note { get; set; }
 
+    public required bool IsPublished { get; set; }
+
     public required string? Force { get; set; }
 
     public required string? Level { get; set; }
@@ -109,6 +111,7 @@ public class PlannedExerciseResponse : IExerciseResponse
             ExerciseId = plannedExercise.ExerciseId,
             Name = exercise?.Name ?? string.Empty,
             Note = plannedExercise.Note,
+            IsPublished = plannedExercise.IsPublished,
             Category = exercise?.Category ?? string.Empty,
             Equipment = exercise?.Equipment ?? string.Empty,
             Force = exercise?.Force ?? string.Empty,

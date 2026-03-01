@@ -25,8 +25,8 @@ export function CoachWorkspaceShell({
       style={style}
       className={cn(
         "font-[var(--font-body)] relative mx-auto w-full overflow-x-clip overflow-y-visible",
-        showTabs && "-mt-8 md:-mt-10",
-        fullBleed && "-mb-32",
+        showTabs && !fullBleed && "-mt-8 md:-mt-10",
+        fullBleed && "test",
         className,
       )}
     >
@@ -40,8 +40,9 @@ export function CoachWorkspaceShell({
       ) : null}
       <div
         className={cn(
-          "mx-auto w-full max-w-6xl space-y-8 pt-16 px-4 md:px-6",
+          "mx-auto w-full max-w-6xl space-y-8 pt-16",
           fullBleed && "max-w-none pt-0",
+          !fullBleed && "px-4 md:px-6",
           contentClassName,
         )}
       >

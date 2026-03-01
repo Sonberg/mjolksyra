@@ -109,12 +109,7 @@ export function DayExercise({
           {...attributes}
           role="row"
         >
-          <div
-            className={cn(
-              "grid w-full items-center justify-between gap-1 text-sm",
-              locked ? "grid-cols-[1fr_auto]" : "grid-cols-[auto_1fr_auto]"
-            )}
-          >
+          <div className="flex w-full items-center gap-1 text-sm">
             {!locked ? (
               <DraggingToolTip
                 listeners={listeners}
@@ -125,7 +120,7 @@ export function DayExercise({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-zinc-200">
+                  <span className="min-w-0 flex-1 select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-zinc-200">
                     {plannedExercise.name}
                   </span>
                 </TooltipTrigger>
@@ -134,7 +129,12 @@ export function DayExercise({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <span />
+            {plannedExercise.isPublished ? null : (
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400"
+                title="Draft change"
+              />
+            )}
           </div>
         </div>
       </>

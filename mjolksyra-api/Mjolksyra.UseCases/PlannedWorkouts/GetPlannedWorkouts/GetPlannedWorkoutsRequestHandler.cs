@@ -48,6 +48,9 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
             };
         }
 
+        var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
+        var isAthleteViewer = trainee is not null && trainee.CoachUserId != userId;
+
         var workouts = request switch
         {
             { Cursor: not null } => await _plannedWorkoutRepository.Get(request.Cursor, cancellationToken),
@@ -63,7 +66,14 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
             }, cancellationToken)
         };
 
-        var exerciseIds = workouts.Data.SelectMany(x => x.Exercises)
+        var visibleWorkouts = isAthleteViewer
+            ? workouts.Data
+                .Select(FilterPublishedExercises)
+                .Where(x => x.Exercises.Count > 0)
+                .ToList()
+            : workouts.Data;
+
+        var exerciseIds = visibleWorkouts.SelectMany(x => x.Exercises)
             .Select(x => x.ExerciseId)
             .OfType<Guid>()
             .ToList();
@@ -73,9 +83,31 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
         return new PaginatedResponse<PlannedWorkoutResponse>
         {
             Next = workouts.Cursor,
-            Data = workouts.Data
+            Data = visibleWorkouts
                 .Select(x => PlannedWorkoutResponse.From(x, exercises))
                 .ToList(),
+        };
+    }
+
+    private static Domain.Database.Models.PlannedWorkout FilterPublishedExercises(
+        Domain.Database.Models.PlannedWorkout workout)
+    {
+        return new Domain.Database.Models.PlannedWorkout
+        {
+            Id = workout.Id,
+            TraineeId = workout.TraineeId,
+            Name = workout.Name,
+            Note = workout.Note,
+            PlannedAt = workout.PlannedAt,
+            CreatedAt = workout.CreatedAt,
+            CompletedAt = workout.CompletedAt,
+            CompletionNote = workout.CompletionNote,
+            ReviewedAt = workout.ReviewedAt,
+            ReviewNote = workout.ReviewNote,
+            AppliedBlock = workout.AppliedBlock,
+            Exercises = workout.Exercises
+                .Where(e => e.IsPublished)
+                .ToList()
         };
     }
 }

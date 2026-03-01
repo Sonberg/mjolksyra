@@ -5,6 +5,7 @@ export const exerciseSchema = z.object({
   exerciseId: z.string().nullable(),
   name: z.string(),
   note: z.string().nullable(),
+  isPublished: z.boolean().optional().default(true),
   images: z.array(z.string()),
 });
 

@@ -81,7 +81,8 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
                     Id = Guid.NewGuid(),
                     ExerciseId = e.ExerciseId,
                     Name = e.Name,
-                    Note = e.Note
+                    Note = e.Note,
+                    IsPublished = false
                 }).ToList(),
                 CreatedAt = DateTimeOffset.UtcNow,
                 AppliedBlock = new PlannedWorkoutAppliedBlock

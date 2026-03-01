@@ -34,7 +34,8 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                     Id = e.Id,
                     ExerciseId = e.ExerciseId,
                     Name = e.Name,
-                    Note = e.Note
+                    Note = e.Note,
+                    IsPublished = e.IsPublished
                 }).ToList(),
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);

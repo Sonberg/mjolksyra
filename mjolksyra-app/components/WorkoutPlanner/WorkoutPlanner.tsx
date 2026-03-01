@@ -70,7 +70,7 @@ export function WorkoutPlanner({
     () => (
       <>
         <div
-          className="relative h-full overflow-y-auto overscroll-contain px-4 py-2 will-change-transform"
+          className="relative h-full overflow-y-auto overscroll-contain px-4 py-0 will-change-transform"
           ref={containerRef}
         >
           {oneMonthOnly ? null : (

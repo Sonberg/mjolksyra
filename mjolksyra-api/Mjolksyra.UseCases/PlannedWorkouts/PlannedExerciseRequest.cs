@@ -9,4 +9,6 @@ public class PlannedExerciseRequest
     public required string Name { get; set; }
 
     public string? Note { get; set; }
+
+    public bool IsPublished { get; set; } = true;
 }

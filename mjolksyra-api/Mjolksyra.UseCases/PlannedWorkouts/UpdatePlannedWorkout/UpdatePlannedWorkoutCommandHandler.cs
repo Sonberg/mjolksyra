@@ -72,7 +72,8 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                 Id = x.Id,
                 Name = x.Name,
                 Note = x.Note,
-                ExerciseId = x.ExerciseId
+                ExerciseId = x.ExerciseId,
+                IsPublished = x.IsPublished
             })
             .ToList();
 

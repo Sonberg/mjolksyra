@@ -78,7 +78,6 @@ export function Day({ date, plannedWorkout }: Props) {
   const isToday = useMemo(() => {
     return dayjs().format(DATE_FORMAT) === date?.format(DATE_FORMAT);
   }, [date]);
-
   const exercises = useMemo<Exercise[]>(() => {
     const data = plannedWorkout?.exercises ?? [];
 
