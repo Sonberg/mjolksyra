@@ -56,16 +56,14 @@ public class BlocksController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult<BlockResponse>> Create([FromBody] BlockRequest request)
+    public async Task<IActionResult> Create([FromBody] BlockRequest request)
     {
         RemoveOverflowingWeeks(request);
+        
         var validationResult = await _validator.ValidateAsync(request, BlockRequestSchema);
         if (validationResult.IsFailure)
         {
-            return new BadRequestObjectResult(new ValidationProblemDetails(
-                validationResult.Errors.GroupBy(e => e.Path)
-                    .ToDictionary(g => g.Key, g => g.Select(e => e.Message).ToArray())
-            ));
+            return validationResult.ToActionResult();
         }
 
         return Ok(await _mediator.Send(new CreateBlockCommand
@@ -75,16 +73,13 @@ public class BlocksController : Controller
     }
 
     [HttpPut("{blockId:guid}")]
-    public async Task<ActionResult<BlockResponse>> Update(Guid blockId, [FromBody] BlockRequest request)
+    public async Task<IActionResult> Update(Guid blockId, [FromBody] BlockRequest request)
     {
         RemoveOverflowingWeeks(request);
         var validationResult = await _validator.ValidateAsync(request, BlockRequestSchema);
         if (validationResult.IsFailure)
         {
-            return new BadRequestObjectResult(new ValidationProblemDetails(
-                validationResult.Errors.GroupBy(e => e.Path)
-                    .ToDictionary(g => g.Key, g => g.Select(e => e.Message).ToArray())
-            ));
+            return validationResult.ToActionResult();
         }
 
         var result = await _mediator.Send(new UpdateBlockCommand
