@@ -163,6 +163,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         overageAthletes={overageAthletes}
         isOpeningStripe={isOpeningStripe}
         onOpenStripeDashboard={openStripeDashboard}
+        trialEndsAt={user.onboarding.coachTrialEndsAt ?? null}
       />
     </div>
   );

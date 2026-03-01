@@ -41,12 +41,12 @@ export const HeroSection = () => {
         </div>
         <div className="relative hidden lg:col-span-5 lg:mt-0 lg:flex">
           <img
-            src="/images/landing-page/healthy-habit.svg"
-            alt="hero image"
+            src="/images/landing-page/healthy-habit-custom.svg"
+            alt="Healthy training habit illustration"
             className="relative z-10 h-auto w-full p-6"
           />
         </div>
       </div>
     </section>
   );
-}; 
+};

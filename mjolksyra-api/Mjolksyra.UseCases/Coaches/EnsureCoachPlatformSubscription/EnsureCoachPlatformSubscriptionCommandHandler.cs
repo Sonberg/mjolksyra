@@ -67,6 +67,7 @@ public sealed class EnsureCoachPlatformSubscriptionCommandHandler
             coachStripe.PlatformCustomerId,
             await ResolveOverageQuantity(user.Id, cancellationToken),
             cancellationToken);
+        coachStripe.TrialEndsAt = DateTimeOffset.UtcNow.AddDays(14);
 
         await _userRepository.Update(user, cancellationToken);
     }

@@ -92,6 +92,7 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
                 Customer = customerId,
                 CollectionMethod = "charge_automatically",
                 PaymentBehavior = "allow_incomplete",
+                TrialPeriodDays = 14,
                 Items =
                 [
                     new SubscriptionItemOptions

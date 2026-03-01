@@ -17,6 +17,7 @@ type Props = {
   overageAthletes: number;
   isOpeningStripe: boolean;
   onOpenStripeDashboard: () => Promise<void> | void;
+  trialEndsAt?: Date | null;
 };
 
 export function CoachDashboardSubscriptionSection({
@@ -26,10 +27,17 @@ export function CoachDashboardSubscriptionSection({
   overageAthletes,
   isOpeningStripe,
   onOpenStripeDashboard,
+  trialEndsAt,
 }: Props) {
   const basePlanSek = 399;
   const overageTotalSek = overageAthletes * overagePriceSek;
   const estimatedTotalSek = basePlanSek + overageTotalSek;
+
+  const now = new Date();
+  const isTrialing = trialEndsAt != null && trialEndsAt > now;
+  const trialDaysRemaining = isTrialing
+    ? Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   return (
     <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6 md:p-7">
@@ -55,6 +63,16 @@ export function CoachDashboardSubscriptionSection({
             {coachPaymentStatus.label}
           </span>
         </div>
+
+        {isTrialing && (
+          <div className="rounded-xl border border-amber-700 bg-amber-950/50 px-4 py-3 text-sm text-amber-200">
+            You are on a free trial — your first charge is on{" "}
+            <span className="font-semibold">
+              {trialEndsAt!.toLocaleDateString("sv-SE")}
+            </span>{" "}
+            ({trialDaysRemaining} day{trialDaysRemaining === 1 ? "" : "s"} remaining).
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-900 p-4">

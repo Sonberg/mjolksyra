@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { HeroSection } from "./components/HeroSection";
+import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { CalculatorSection } from "./components/CalculatorSection";
@@ -37,6 +38,7 @@ export default function Home() {
     >
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.09),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(255,255,255,0.05),transparent_30%)]" />
       <HeroSection />
+      <AudienceSection />
       <FeaturesSection />
       <BenefitsSection />
       <CalculatorSection />

@@ -30,6 +30,7 @@ export const userSchema = z.object({
   onboarding: z.object({
     athlete: userOnboardingStatus,
     coach: userOnboardingStatus,
+    coachTrialEndsAt: z.coerce.date().nullable().optional(),
   }),
   isAdmin: z.boolean().default(false),
 });

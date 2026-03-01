@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="620" viewBox="0 0 760 620" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Healthy training habit illustration</title>
+  <desc id="desc">Original monochrome illustration with a coach-focused healthy routine scene: athlete, checklist, bottle, and training cues.</desc>
+  <defs>
+    <linearGradient id="gBg" x1="84" y1="52" x2="676" y2="568" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17171B"/>
+      <stop offset="1" stop-color="#08080A"/>
+    </linearGradient>
+    <linearGradient id="gCard" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#17181F"/>
+      <stop offset="1" stop-color="#111219"/>
+    </linearGradient>
+    <filter id="drop" x="52" y="34" width="656" height="552" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect x="70" y="44" width="620" height="532" rx="30" fill="url(#gBg)" stroke="#2B2C34" stroke-width="2"/>
+  <g filter="url(#drop)">
+    <rect x="94" y="70" width="572" height="480" rx="24" fill="#0D0E12" stroke="#2E303A"/>
+  </g>
+
+  <rect x="94" y="70" width="572" height="56" rx="24" fill="#0A0A0D"/>
+  <path d="M94 112H666" stroke="#2E303A"/>
+  <rect x="120" y="88" width="102" height="20" rx="10" fill="#1D1F26"/>
+  <rect x="136" y="95" width="42" height="6" rx="3" fill="#D6D8DE" fill-opacity="0.75"/>
+  <circle cx="626" cy="98" r="9" fill="#1B1D24" stroke="#343744"/>
+  <circle cx="596" cy="98" r="9" fill="#1B1D24" stroke="#343744"/>
+
+  <rect x="122" y="148" width="262" height="166" rx="18" fill="url(#gCard)" stroke="#313442"/>
+  <text x="144" y="176" fill="#A8ACB8" font-size="11" font-family="Georgia, serif" letter-spacing="1.8">TODAY'S HABITS</text>
+  <g>
+    <rect x="144" y="194" width="218" height="30" rx="10" fill="#12141A" stroke="#2D303C"/>
+    <circle cx="160" cy="209" r="6" fill="#E8EAF0"/>
+    <path d="M157 209L159 211L164 206" stroke="#0C0D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="174" y="213" fill="#E8EAF0" font-size="12" font-family="Georgia, serif">Mobility warm-up</text>
+  </g>
+  <g>
+    <rect x="144" y="232" width="218" height="30" rx="10" fill="#12141A" stroke="#2D303C"/>
+    <circle cx="160" cy="247" r="6" fill="#5C6170"/>
+    <text x="174" y="251" fill="#C9CDD7" font-size="12" font-family="Georgia, serif">Strength session</text>
+  </g>
+  <g>
+    <rect x="144" y="270" width="218" height="30" rx="10" fill="#12141A" stroke="#2D303C"/>
+    <circle cx="160" cy="285" r="6" fill="#5C6170"/>
+    <text x="174" y="289" fill="#C9CDD7" font-size="12" font-family="Georgia, serif">Hydration + recovery</text>
+  </g>
+
+  <rect x="402" y="148" width="242" height="166" rx="18" fill="url(#gCard)" stroke="#313442"/>
+  <text x="424" y="176" fill="#A8ACB8" font-size="11" font-family="Georgia, serif" letter-spacing="1.8">CONSISTENCY</text>
+  <path d="M424 266C443 234 460 245 478 222C496 198 514 214 531 191C548 167 568 180 588 158" stroke="#F3F4F7" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="478" cy="222" r="5" fill="#F3F4F7"/>
+  <circle cx="531" cy="191" r="5" fill="#F3F4F7"/>
+  <circle cx="588" cy="158" r="5" fill="#F3F4F7"/>
+  <rect x="424" y="278" width="198" height="10" rx="5" fill="#1A1D24"/>
+  <rect x="424" y="278" width="148" height="10" rx="5" fill="#E8EAF0" fill-opacity="0.85"/>
+
+  <rect x="122" y="332" width="522" height="194" rx="18" fill="#0C0D11" stroke="#2F3340"/>
+  <text x="146" y="362" fill="#ECEEF3" font-size="17" font-family="Georgia, serif" font-weight="700">Training Day</text>
+  <path d="M122 378H644" stroke="#2F3340"/>
+
+  <g transform="translate(154 398)">
+    <circle cx="66" cy="18" r="18" fill="#1B1E27" stroke="#3A3E4E"/>
+    <rect x="52" y="40" width="28" height="54" rx="12" fill="#1C1F29"/>
+    <rect x="36" y="54" width="16" height="10" rx="5" fill="#1C1F29"/>
+    <rect x="80" y="54" width="16" height="10" rx="5" fill="#1C1F29"/>
+    <rect x="46" y="94" width="12" height="38" rx="6" fill="#1C1F29"/>
+    <rect x="74" y="94" width="12" height="38" rx="6" fill="#1C1F29"/>
+    <rect x="20" y="60" width="12" height="32" rx="4" fill="#EEF0F5"/>
+    <rect x="100" y="60" width="12" height="32" rx="4" fill="#EEF0F5"/>
+    <rect x="14" y="70" width="6" height="14" rx="2" fill="#BFC5D2"/>
+    <rect x="112" y="70" width="6" height="14" rx="2" fill="#BFC5D2"/>
+  </g>
+
+  <g transform="translate(328 392)">
+    <rect width="280" height="56" rx="12" fill="#13151D" stroke="#343949"/>
+    <text x="18" y="24" fill="#D4D8E2" font-size="12" font-family="Georgia, serif">Main set</text>
+    <text x="18" y="42" fill="#EFF1F6" font-size="15" font-family="Georgia, serif" font-weight="700">Front Squat 5 x 3</text>
+    <rect x="198" y="14" width="64" height="28" rx="10" fill="#EEF0F5"/>
+  </g>
+
+  <g transform="translate(328 458)">
+    <rect width="184" height="50" rx="12" fill="#13151D" stroke="#343949"/>
+    <path d="M24 14V34M34 14V34M18 24H40" stroke="#EEF0F5" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="52" y="31" fill="#EFF1F6" font-size="13" font-family="Georgia, serif">Add habit note</text>
+    <rect x="198" y="0" width="82" height="50" rx="12" fill="#1D2029" stroke="#3A3F4F"/>
+    <path d="M233 16C231 12 227 10 222 10C215 10 210 15 210 22V34H234V22C234 20 233 18 233 16Z" fill="#EEF0F5"/>
+    <rect x="218" y="4" width="8" height="8" rx="4" fill="#EEF0F5"/>
+  </g>
+</svg>

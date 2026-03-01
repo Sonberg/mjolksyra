@@ -13,4 +13,6 @@ public class UserCoachStripe
     public string? PlatformCustomerId { get; set; }
 
     public string? PlatformSubscriptionId { get; set; }
+
+    public DateTimeOffset? TrialEndsAt { get; set; }
 }

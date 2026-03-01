@@ -127,6 +127,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
 
         Assert.Equal("cus_created", user.Coach!.Stripe!.PlatformCustomerId);
         Assert.Equal("sub_created", user.Coach.Stripe.PlatformSubscriptionId);
+        Assert.NotNull(user.Coach.Stripe.TrialEndsAt);
         userRepository.Verify(x => x.Update(user, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -174,6 +175,51 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         userRepository.Verify(x => x.Update(user, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenReadyAndNoSubscription_SetsTrialEndsAt()
+    {
+        var user = BuildCoachUser();
+
+        var userRepository = new Mock<IUserRepository>();
+        var traineeRepository = new Mock<ITraineeRepository>();
+        userRepository
+            .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        userRepository
+            .Setup(x => x.Update(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User u, CancellationToken _) => u);
+
+        traineeRepository
+            .Setup(x => x.CountActiveByCoachId(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        var stripeGateway = new Mock<ICoachPlatformBillingStripeGateway>();
+        stripeGateway
+            .Setup(x => x.CreateCustomerAsync(
+                user.Id,
+                user.Email.Value,
+                user.GivenName,
+                user.FamilyName,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_trial");
+        stripeGateway
+            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_trial", 0, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("sub_trial");
+
+        var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
+            userRepository.Object,
+            traineeRepository.Object,
+            stripeGateway.Object);
+
+        var before = DateTimeOffset.UtcNow;
+        await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
+        var after = DateTimeOffset.UtcNow;
+
+        Assert.NotNull(user.Coach!.Stripe!.TrialEndsAt);
+        var trialEndsAt = user.Coach.Stripe.TrialEndsAt!.Value;
+        Assert.True(trialEndsAt >= before.AddDays(14));
+        Assert.True(trialEndsAt <= after.AddDays(14));
     }
 
     private static User BuildCoachUser()

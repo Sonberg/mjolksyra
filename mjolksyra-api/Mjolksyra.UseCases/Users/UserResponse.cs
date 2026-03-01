@@ -12,6 +12,8 @@ public class UserOnboardingResponse
     public required UserOnboardingStatus Coach { get; set; }
 
     public required UserOnboardingStatus Athlete { get; set; }
+
+    public DateTimeOffset? CoachTrialEndsAt { get; set; }
 }
 
 public class UserResponse
