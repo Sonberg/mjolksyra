@@ -25,6 +25,9 @@ export const HeroSection = () => {
             programs with our intuitive platform. Perfect for Personal
             Trainers, Powerlifters, Crossfitters, and Weightlifters.
           </p>
+          <div className="mb-8 inline-flex items-center rounded-xl border border-emerald-900/70 bg-emerald-950/40 px-4 py-2 text-sm font-medium text-emerald-200">
+            14-day free trial. No commitment.
+          </div>
           <div className="space-y-4 sm:flex sm:space-x-4 sm:space-y-0">
             {isBeta ? (
               <SignupForm />

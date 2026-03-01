@@ -17,7 +17,9 @@ export const DemoSection = () => {
       </div>
       <div className="mx-auto max-w-screen-2xl px-4">
         <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/90">
-          <WorkoutPlannerDemo />
+          <div className="pointer-events-none select-none">
+            <WorkoutPlannerDemo />
+          </div>
         </div>
       </div>
     </section>
