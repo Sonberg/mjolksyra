@@ -265,6 +265,9 @@ export function WorkoutEditorExercise({
           <option value="duration_seconds">Static hold time</option>
           <option value="distance_meters">Distance</option>
         </select>
+        <p className="text-[11px] text-zinc-500">
+          Time is entered in seconds (s), distance in meters (m).
+        </p>
 
         <div className="space-y-2">
           {setTargets.map((target, targetIndex) => (
@@ -284,62 +287,66 @@ export function WorkoutEditorExercise({
                 </button>
               </div>
 
-              {prescription.targetType === "sets_reps" ? (
-                <input
-                  type="number"
-                  min={1}
-                  value={target.reps ?? ""}
+              <div className="space-y-2">
+                {prescription.targetType === "sets_reps" ? (
+                  <input
+                    type="number"
+                    min={1}
+                    value={target.reps ?? ""}
+                    onChange={(ev) =>
+                      patchSetTarget(targetIndex, {
+                        reps: ev.target.value ? Number(ev.target.value) : null,
+                      })
+                    }
+                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                    placeholder="Reps"
+                    aria-label="Reps"
+                  />
+                ) : null}
+
+                {prescription.targetType === "duration_seconds" ? (
+                  <input
+                    type="number"
+                    min={1}
+                    value={target.durationSeconds ?? ""}
+                    onChange={(ev) =>
+                      patchSetTarget(targetIndex, {
+                        durationSeconds: ev.target.value ? Number(ev.target.value) : null,
+                      })
+                    }
+                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                    placeholder="Seconds (s)"
+                    aria-label="Seconds"
+                  />
+                ) : null}
+
+                {prescription.targetType === "distance_meters" ? (
+                  <input
+                    type="number"
+                    min={1}
+                    value={target.distanceMeters ?? ""}
+                    onChange={(ev) =>
+                      patchSetTarget(targetIndex, {
+                        distanceMeters: ev.target.value ? Number(ev.target.value) : null,
+                      })
+                    }
+                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                    placeholder="Meters (m)"
+                    aria-label="Meters"
+                  />
+                ) : null}
+
+                <Textarea
+                  value={target.note ?? ""}
                   onChange={(ev) =>
                     patchSetTarget(targetIndex, {
-                      reps: ev.target.value ? Number(ev.target.value) : null,
+                      note: ev.target.value || null,
                     })
                   }
-                  className="mb-2 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                  placeholder="Reps"
+                  className="min-h-[72px] w-full resize-y rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                  placeholder="Set note (optional)"
                 />
-              ) : null}
-
-              {prescription.targetType === "duration_seconds" ? (
-                <input
-                  type="number"
-                  min={1}
-                  value={target.durationSeconds ?? ""}
-                  onChange={(ev) =>
-                    patchSetTarget(targetIndex, {
-                      durationSeconds: ev.target.value ? Number(ev.target.value) : null,
-                    })
-                  }
-                  className="mb-2 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                  placeholder="Time in seconds"
-                />
-              ) : null}
-
-              {prescription.targetType === "distance_meters" ? (
-                <input
-                  type="number"
-                  min={1}
-                  value={target.distanceMeters ?? ""}
-                  onChange={(ev) =>
-                    patchSetTarget(targetIndex, {
-                      distanceMeters: ev.target.value ? Number(ev.target.value) : null,
-                    })
-                  }
-                  className="mb-2 w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                  placeholder="Distance in meters"
-                />
-              ) : null}
-
-              <input
-                type="text"
-                value={target.note ?? ""}
-                onChange={(ev) =>
-                  patchSetTarget(targetIndex, {
-                    note: ev.target.value || null,
-                  })
-                }
-                className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                placeholder="Set note (optional)"
-              />
+              </div>
             </div>
           ))}
 
