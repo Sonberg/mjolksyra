@@ -128,15 +128,18 @@ export function Navigation({ initialAuth }: NavigationProps) {
             <>
               <ReportIssueDialog />
               <NavigationNotifications forceVisible={isAuthenticated} />
-              <NavigationUser user={user} isAdmin={initialAuth?.isAdmin ?? false} />
+              <NavigationUser
+                user={user}
+                isAdmin={initialAuth?.isAdmin ?? false}
+              />
             </>
           ) : (
             <>
               <LoginDialog
                 trigger={
                   <Button
-                    variant="ghost"
-                    className="rounded-xl border border-zinc-700 bg-zinc-100 px-4 font-semibold text-black hover:bg-zinc-300"
+                    variant="outline"
+                    className="rounded-xl borderpx-4 font-semibol"
                   >
                     Login
                   </Button>
@@ -157,7 +160,10 @@ export function Navigation({ initialAuth }: NavigationProps) {
             </Link>
             <Link
               href="/app/athlete"
-              className={cn(roleLinkClass(isAthleteActive), "flex-1 text-center")}
+              className={cn(
+                roleLinkClass(isAthleteActive),
+                "flex-1 text-center",
+              )}
             >
               Athlete
             </Link>
