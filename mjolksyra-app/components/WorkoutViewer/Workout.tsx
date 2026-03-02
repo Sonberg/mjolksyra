@@ -5,12 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
-import { CheckCircle2Icon, CircleIcon, RotateCcwIcon } from "lucide-react";
-import {
-  ExercisePrescriptionTargetType,
-  formatPrescription,
-} from "@/lib/exercisePrescription";
+import { CheckCircle2Icon, RotateCcwIcon } from "lucide-react";
+import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription";
 import Link from "next/link";
+import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
+import {
+  ToggleExerciseDoneInput,
+  ToggleSetDoneInput,
+  UpdateSetActualInput,
+} from "./workout/types";
 
 type Props = {
   workout: PlannedWorkout;
@@ -558,369 +561,27 @@ export function Workout({
           </div>
         ) : null}
         {workout.exercises.map((exercise, index) => (
-          <div key={exercise.id} className="grid gap-2">
-            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
-              <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">
-                {index + 1}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2 sm:gap-3">
-                <div className="min-w-0">
-                  <div
-                    className={
-                      exercise.isDone
-                        ? "font-bold text-sm text-zinc-500 line-through"
-                        : "font-bold text-sm"
-                    }
-                  >
-                    {exercise.name}
-                  </div>
-                  {formatPrescription(exercise.prescription) ? (
-                    <div className="text-xs text-zinc-400">
-                      Target: {formatPrescription(exercise.prescription)}
-                    </div>
-                  ) : null}
-                </div>
-                {viewerMode === "athlete" && isDetailView ? (
-                  <button
-                    type="button"
-                    disabled={toggleExerciseDone.isPending}
-                    onClick={() =>
-                      toggleExerciseDone.mutate({
-                        exerciseId: exercise.id,
-                        isDone: !(exercise.isDone ?? false),
-                      })
-                    }
-                    className={
-                      exercise.isDone
-                        ? "inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
-                        : "inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
-                    }
-                    title={exercise.isDone ? "Undo done" : "Mark done"}
-                  >
-                    {exercise.isDone ? (
-                      <CheckCircle2Icon className="h-3.5 w-3.5" />
-                    ) : (
-                      <CircleIcon className="h-3.5 w-3.5" />
-                    )}
-                    {exercise.isDone ? "Done" : "Mark done"}
-                  </button>
-                ) : exercise.isDone ? (
-                  <span className="rounded border border-emerald-700/60 bg-emerald-900/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200">
-                    Done
-                  </span>
-                ) : null}
-              </div>
-            </div>
-            {exercise.note?.trim() ? (
-              <div className="ml-0 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300 sm:ml-12">
-                {exercise.note}
-              </div>
-            ) : null}
-            {viewerMode === "athlete" &&
-            isDetailView &&
-            exercise.prescription?.sets?.length ? (
-              <div className="ml-0 grid gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-2.5 sm:ml-12 sm:p-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-                  Prescribed sets
-                </div>
-                {exercise.prescription.sets.map((set, setIndex) => (
-                  <div
-                    key={`${exercise.id}-set-target-${setIndex}`}
-                    className="flex items-start justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-2 sm:px-3"
-                  >
-                    <div className="min-w-0">
-                      <div
-                        className={
-                          set.actual?.isDone
-                            ? "text-sm font-semibold text-zinc-500 line-through"
-                            : "text-sm font-semibold text-zinc-200"
-                        }
-                      >
-                        Set {setIndex + 1}:{" "}
-                        {getSetTargetLabel(
-                          exercise.prescription?.targetType,
-                          set.target,
-                        )}
-                      </div>
-                      {set.target?.note?.trim() ? (
-                        <div className="mt-1 text-xs text-zinc-400">
-                          {set.target.note}
-                        </div>
-                      ) : null}
-                      <div className="mt-2 flex items-center gap-3 text-xs text-zinc-400">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                          Target
-                        </span>
-                        <span>
-                          {exercise.prescription?.targetType ===
-                          ExercisePrescriptionTargetType.SetsReps
-                            ? `${set.target?.reps ?? "-"} reps`
-                            : exercise.prescription?.targetType ===
-                                ExercisePrescriptionTargetType.DurationSeconds
-                              ? `${set.target?.durationSeconds ?? "-"} s`
-                              : `${set.target?.distanceMeters ?? "-"} m`}
-                        </span>
-                        {exercise.prescription?.targetType ===
-                          ExercisePrescriptionTargetType.SetsReps &&
-                        typeof set.target?.weightKg === "number" ? (
-                          <>
-                            <span className="text-zinc-600">•</span>
-                            <span>{set.target.weightKg} kg</span>
-                          </>
-                        ) : null}
-                      </div>
-                      <div className="mt-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                          Actual
-                        </span>
-                        <div className="mt-1 flex flex-wrap items-center gap-2">
-                          {exercise.prescription?.targetType ===
-                          ExercisePrescriptionTargetType.SetsReps ? (
-                            <div className="relative">
-                              <input
-                                key={`${exercise.id}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
-                                type="number"
-                                min={0}
-                                defaultValue={
-                                  set.actual?.reps ?? set.target?.reps ?? ""
-                                }
-                                onBlur={(ev) => {
-                                  const rawValue = ev.target.value.trim();
-                                  const nextReps =
-                                    rawValue.length === 0
-                                      ? null
-                                      : Number(rawValue);
-                                  if (Number.isNaN(nextReps)) {
-                                    return;
-                                  }
-                                  const currentReps = set.actual?.reps ?? null;
-                                  if (currentReps === nextReps) {
-                                    return;
-                                  }
-                                  updateSetWeight.mutate({
-                                    exerciseId: exercise.id,
-                                    setIndex,
-                                    weightKg: set.actual?.weightKg ?? null,
-                                    reps: nextReps,
-                                    durationSeconds:
-                                      set.actual?.durationSeconds ?? null,
-                                    distanceMeters:
-                                      set.actual?.distanceMeters ?? null,
-                                    note: set.actual?.note ?? null,
-                                  });
-                                }}
-                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 text-xs text-zinc-100"
-                                aria-label={`Actual reps for set ${setIndex + 1}`}
-                              />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
-                                reps
-                              </span>
-                            </div>
-                          ) : null}
-                          {exercise.prescription?.targetType ===
-                          ExercisePrescriptionTargetType.DurationSeconds ? (
-                            <div className="relative">
-                              <input
-                                key={`${exercise.id}-${setIndex}-duration-${set.actual?.durationSeconds ?? set.target?.durationSeconds ?? "none"}`}
-                                type="number"
-                                min={0}
-                                defaultValue={
-                                  set.actual?.durationSeconds ??
-                                  set.target?.durationSeconds ??
-                                  ""
-                                }
-                                onBlur={(ev) => {
-                                  const rawValue = ev.target.value.trim();
-                                  const nextDuration =
-                                    rawValue.length === 0
-                                      ? null
-                                      : Number(rawValue);
-                                  if (Number.isNaN(nextDuration)) {
-                                    return;
-                                  }
-                                  const currentDuration =
-                                    set.actual?.durationSeconds ?? null;
-                                  if (currentDuration === nextDuration) {
-                                    return;
-                                  }
-                                  updateSetWeight.mutate({
-                                    exerciseId: exercise.id,
-                                    setIndex,
-                                    weightKg: set.actual?.weightKg ?? null,
-                                    reps: set.actual?.reps ?? null,
-                                    durationSeconds: nextDuration,
-                                    distanceMeters:
-                                      set.actual?.distanceMeters ?? null,
-                                    note: set.actual?.note ?? null,
-                                  });
-                                }}
-                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
-                                aria-label={`Actual duration for set ${setIndex + 1}`}
-                              />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
-                                s
-                              </span>
-                            </div>
-                          ) : null}
-                          {exercise.prescription?.targetType ===
-                          ExercisePrescriptionTargetType.DistanceMeters ? (
-                            <div className="relative">
-                              <input
-                                key={`${exercise.id}-${setIndex}-distance-${set.actual?.distanceMeters ?? set.target?.distanceMeters ?? "none"}`}
-                                type="number"
-                                min={0}
-                                defaultValue={
-                                  set.actual?.distanceMeters ??
-                                  set.target?.distanceMeters ??
-                                  ""
-                                }
-                                onBlur={(ev) => {
-                                  const rawValue = ev.target.value.trim();
-                                  const nextDistance =
-                                    rawValue.length === 0
-                                      ? null
-                                      : Number(rawValue);
-                                  if (Number.isNaN(nextDistance)) {
-                                    return;
-                                  }
-                                  const currentDistance =
-                                    set.actual?.distanceMeters ?? null;
-                                  if (currentDistance === nextDistance) {
-                                    return;
-                                  }
-                                  updateSetWeight.mutate({
-                                    exerciseId: exercise.id,
-                                    setIndex,
-                                    weightKg: set.actual?.weightKg ?? null,
-                                    reps: set.actual?.reps ?? null,
-                                    durationSeconds:
-                                      set.actual?.durationSeconds ?? null,
-                                    distanceMeters: nextDistance,
-                                    note: set.actual?.note ?? null,
-                                  });
-                                }}
-                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
-                                aria-label={`Actual distance for set ${setIndex + 1}`}
-                              />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
-                                m
-                              </span>
-                            </div>
-                          ) : null}
-                          {exercise.prescription?.targetType ===
-                          ExercisePrescriptionTargetType.SetsReps ? (
-                            <div className="relative">
-                              <input
-                                key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
-                                type="number"
-                                min={0}
-                                step="0.5"
-                                defaultValue={
-                                  set.actual?.weightKg ??
-                                  set.target?.weightKg ??
-                                  ""
-                                }
-                                onBlur={(ev) => {
-                                  const rawValue = ev.target.value.trim();
-                                  const nextWeight =
-                                    rawValue.length === 0
-                                      ? null
-                                      : Number(rawValue);
-                                  if (Number.isNaN(nextWeight)) {
-                                    return;
-                                  }
-                                  const currentWeight =
-                                    set.actual?.weightKg ?? null;
-                                  if (currentWeight === nextWeight) {
-                                    return;
-                                  }
-                                  updateSetWeight.mutate({
-                                    exerciseId: exercise.id,
-                                    setIndex,
-                                    weightKg: nextWeight,
-                                    reps: set.actual?.reps ?? null,
-                                    durationSeconds:
-                                      set.actual?.durationSeconds ?? null,
-                                    distanceMeters:
-                                      set.actual?.distanceMeters ?? null,
-                                    note: set.actual?.note ?? null,
-                                  });
-                                }}
-                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
-                                aria-label={`Actual weight for set ${setIndex + 1}`}
-                              />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
-                                kg
-                              </span>
-                            </div>
-                          ) : null}
-                          <input
-                            key={`${exercise.id}-${setIndex}-note-${set.actual?.note ?? "none"}`}
-                            type="text"
-                            defaultValue={set.actual?.note ?? ""}
-                            onBlur={(ev) => {
-                              const nextNote = ev.target.value.trim().length
-                                ? ev.target.value.trim()
-                                : null;
-                              const currentNote = set.actual?.note ?? null;
-                              if (currentNote === nextNote) {
-                                return;
-                              }
-                              updateSetWeight.mutate({
-                                exerciseId: exercise.id,
-                                setIndex,
-                                weightKg: set.actual?.weightKg ?? null,
-                                reps: set.actual?.reps ?? null,
-                                durationSeconds:
-                                  set.actual?.durationSeconds ?? null,
-                                distanceMeters:
-                                  set.actual?.distanceMeters ?? null,
-                                note: nextNote,
-                              });
-                            }}
-                            className="h-8 min-w-[180px] flex-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
-                            placeholder="Set note (actual)"
-                            aria-label={`Actual note for set ${setIndex + 1}`}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      disabled={
-                        toggleSetDone.isPending || updateSetWeight.isPending
-                      }
-                      onClick={() =>
-                        toggleSetDone.mutate({
-                          exerciseId: exercise.id,
-                          setIndex,
-                        })
-                      }
-                      className={
-                        set.actual?.isDone
-                          ? "inline-flex items-center justify-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-1 md:px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
-                          : "inline-flex items-center justify-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-1 md:px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
-                      }
-                      title={
-                        set.actual?.isDone
-                          ? "Mark set incomplete"
-                          : "Mark set done"
-                      }
-                    >
-                      {set.actual?.isDone ? (
-                        <CheckCircle2Icon className="h-3.5 w-3.5" />
-                      ) : (
-                        <CircleIcon className="h-3.5 w-3.5" />
-                      )}
-                      <span className="hidden md:inline-flex gap-2">
-                        {set.actual?.isDone ? "Done" : "Mark done"}
-                      </span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
+          <WorkoutExerciseCard
+            key={exercise.id}
+            exercise={exercise}
+            index={index}
+            viewerMode={viewerMode}
+            isDetailView={isDetailView}
+            isToggleExerciseDonePending={toggleExerciseDone.isPending}
+            isSetActionPending={
+              toggleSetDone.isPending || updateSetWeight.isPending
+            }
+            getSetTargetLabel={getSetTargetLabel}
+            onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
+              toggleExerciseDone.mutate(input)
+            }
+            onToggleSetDone={(input: ToggleSetDoneInput) =>
+              toggleSetDone.mutate(input)
+            }
+            onUpdateSetActual={(input: UpdateSetActualInput) =>
+              updateSetWeight.mutate(input)
+            }
+          />
         ))}
       </CardContent>
     </Card>
