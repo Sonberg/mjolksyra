@@ -231,11 +231,6 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
-
 app.MapOpenApi();
 app.MapScalarApiReference();
 app.UseCors("SignalR");
