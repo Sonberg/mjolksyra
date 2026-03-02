@@ -44,10 +44,10 @@ export function Navigation({ initialAuth }: NavigationProps) {
   );
   const roleLinkClass = (isActive: boolean) =>
     cn(
-      "rounded-xl px-3 py-1 text-xs font-semibold transition md:py-1.5 md:text-sm",
+      "rounded-xl px-3 py-1.5 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-zinc-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:text-sm",
       isActive
-        ? "bg-zinc-100 text-black shadow-[0_8px_20px_rgba(255,255,255,0.16)]"
-        : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
+        ? "bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(255,255,255,0.14)]"
+        : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-100",
     );
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
         </Link>
         <div className="ml-auto flex items-center space-x-2 sm:space-x-3">
           {isAuthenticated ? (
-            <nav className="hidden items-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/75 p-1 shadow-[0_10px_30px_rgba(0,0,0,0.35)] md:flex">
+            <nav className="hidden items-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/75 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] md:flex">
               <Link
                 href="/app/coach/dashboard"
                 className={roleLinkClass(isCoachActive)}
@@ -163,7 +163,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
       </div>
       {isAuthenticated ? (
         <div className="border-t border-zinc-800/70 px-3 pb-2 pt-1 md:hidden">
-          <nav className="mx-auto flex w-full max-w-[1800px] items-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/75 p-1 shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
+          <nav className="mx-auto flex w-full max-w-[1800px] items-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/75 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
             <Link
               href="/app/coach/dashboard"
               className={cn(roleLinkClass(isCoachActive), "flex-1 text-center")}
