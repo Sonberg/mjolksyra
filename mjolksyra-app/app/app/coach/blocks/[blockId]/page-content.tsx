@@ -228,31 +228,42 @@ export function BlockEditorContent({ blockId }: Props) {
               >
                 <div className="flex h-full min-h-0 flex-col">
                 <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
-                  <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3">
-                    <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="max-w-xs border-white/15 bg-zinc-900/80 text-lg font-semibold text-zinc-100"
-                      placeholder="Block name"
-                    />
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-zinc-400">Weeks:</span>
+                  <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex min-w-0 items-center gap-3">
                       <Input
-                        type="number"
-                        min={1}
-                        max={52}
-                        value={numberOfWeeks}
-                        onChange={(e) => {
-                          const nextNumberOfWeeks = Math.max(1, parseInt(e.target.value) || 1);
-                          setNumberOfWeeks(nextNumberOfWeeks);
-                          setWorkouts((prev) =>
-                            prev.filter((workout) => workout.week >= 1 && workout.week <= nextNumberOfWeeks)
-                          );
-                        }}
-                        className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="max-w-xs border-white/15 bg-zinc-900/80 text-lg font-semibold text-zinc-100"
+                        placeholder="Block name"
                       />
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-zinc-400">Weeks:</span>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={52}
+                          value={numberOfWeeks}
+                          onChange={(e) => {
+                            const nextNumberOfWeeks = Math.max(1, parseInt(e.target.value) || 1);
+                            setNumberOfWeeks(nextNumberOfWeeks);
+                            setWorkouts((prev) =>
+                              prev.filter((workout) => workout.week >= 1 && workout.week <= nextNumberOfWeeks)
+                            );
+                          }}
+                          className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
+                        />
+                      </div>
+                      <Button
+                        onClick={handleSave}
+                        disabled={saveMutation.isPending}
+                        size="sm"
+                        className="border border-white/15 bg-white text-black hover:bg-zinc-200"
+                      >
+                        <SaveIcon className="h-4 w-4 mr-2" />
+                        {saveMutation.isPending ? "Saving..." : "Save"}
+                      </Button>
                     </div>
-                    <div className="flex items-center overflow-hidden rounded-lg border border-white/15 bg-zinc-900/80">
+                    <div className="flex items-center self-end overflow-hidden rounded-lg border border-white/15 bg-zinc-900/80 md:ml-auto md:self-auto">
                       <button
                         type="button"
                         onClick={() => {
@@ -279,15 +290,6 @@ export function BlockEditorContent({ blockId }: Props) {
                         Edit
                       </button>
                     </div>
-                    <Button
-                      onClick={handleSave}
-                      disabled={saveMutation.isPending}
-                      size="sm"
-                      className="border border-white/15 bg-white text-black hover:bg-zinc-200"
-                    >
-                      <SaveIcon className="h-4 w-4 mr-2" />
-                      {saveMutation.isPending ? "Saving..." : "Save"}
-                    </Button>
                   </div>
                 </div>
 
