@@ -56,7 +56,8 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
             FromDate = request.StartDate,
             ToDate = endDate,
             SortBy = null,
-            Order = SortOrder.Asc
+            Order = SortOrder.Asc,
+            DraftOnly = false
         }, cancellationToken);
 
         // Delete all existing workouts in the range

@@ -91,7 +91,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
             FromDate = today,
             ToDate = null,
             SortBy = ["PlannedAt"],
-            Order = SortOrder.Asc
+            Order = SortOrder.Asc,
+            DraftOnly = false
         }, cancellationToken);
         var lastWorkoutTask = _plannedWorkoutRepository.Get(new Domain.Database.Common.PlannedWorkoutCursor
         {
@@ -101,7 +102,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
             FromDate = null,
             ToDate = today,
             SortBy = ["PlannedAt"],
-            Order = SortOrder.Desc
+            Order = SortOrder.Desc,
+            DraftOnly = false
         }, cancellationToken);
 
         await Task.WhenAll(nextWorkoutTask, lastWorkoutTask);

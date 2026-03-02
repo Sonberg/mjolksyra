@@ -33,6 +33,13 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
             filters.Add(Builders<PlannedWorkout>.Filter.Lte(x => x.PlannedAt, toDate));
         }
 
+        if (cursor.DraftOnly)
+        {
+            filters.Add(Builders<PlannedWorkout>.Filter.ElemMatch(
+                x => x.Exercises,
+                exercise => !exercise.IsPublished));
+        }
+
         if (cursor.SortBy is { } sortBy)
         {
             sort.AddRange(sortBy.Select(field => cursor.Order == SortOrder.Desc

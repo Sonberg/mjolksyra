@@ -69,7 +69,8 @@ public class GetPlannedWorkoutsRequestHandlerTests
             FromDate = null,
             ToDate = null,
             SortBy = null,
-            Order = SortOrder.Asc
+            Order = SortOrder.Asc,
+            DraftOnly = false
         };
 
         var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
@@ -104,6 +105,43 @@ public class GetPlannedWorkoutsRequestHandlerTests
 
         Assert.Single(result.Data);
         Assert.NotNull(result.Next);
+    }
+
+    [Fact]
+    public async Task Handle_WhenDraftOnlyRequest_UsesDraftOnlyCursor()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository.Setup(x => x.HasAccess(traineeId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        PlannedWorkoutCursor? capturedCursor = null;
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .Callback<PlannedWorkoutCursor, CancellationToken>((cursor, _) => capturedCursor = cursor)
+            .ReturnsAsync(new Paginated<PlannedWorkout>
+            {
+                Data = [],
+                Cursor = null
+            });
+
+        var sut = new GetPlannedWorkoutsRequestHandler(
+            plannedWorkoutRepository.Object,
+            Mock.Of<IExerciseRepository>(),
+            traineeRepository.Object,
+            userContext.Object);
+
+        await sut.Handle(CreateRequest(traineeId, draftOnly: true), CancellationToken.None);
+
+        Assert.NotNull(capturedCursor);
+        Assert.True(capturedCursor.DraftOnly);
+        Assert.Equal(traineeId, capturedCursor.TraineeId);
     }
 
     [Fact]
@@ -207,7 +245,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
         Assert.True(exercise.IsPublished);
     }
 
-    private static GetPlannedWorkoutsRequest CreateRequest(Guid? traineeId = null)
+    private static GetPlannedWorkoutsRequest CreateRequest(Guid? traineeId = null, bool draftOnly = false)
     {
         return new GetPlannedWorkoutsRequest
         {
@@ -217,7 +255,8 @@ public class GetPlannedWorkoutsRequestHandlerTests
             Cursor = null,
             Limit = 20,
             SortBy = null,
-            Order = SortOrder.Asc
+            Order = SortOrder.Asc,
+            DraftOnly = draftOnly
         };
     }
 }

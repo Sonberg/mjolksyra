@@ -20,6 +20,8 @@ public record PlannedWorkoutCursor : Cursor
 
     public required SortOrder Order { get; set; }
 
+    public required bool DraftOnly { get; set; }
+
     public override string ToString()
     {
         var str = JsonSerializer.Serialize(this);

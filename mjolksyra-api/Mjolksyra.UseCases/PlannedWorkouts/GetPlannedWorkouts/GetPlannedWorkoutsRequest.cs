@@ -20,4 +20,6 @@ public class GetPlannedWorkoutsRequest : IRequest<PaginatedResponse<PlannedWorko
     public required string[]? SortBy { get; set; }
 
     public required SortOrder Order { get; set; } = SortOrder.Asc;
+
+    public bool DraftOnly { get; set; }
 }

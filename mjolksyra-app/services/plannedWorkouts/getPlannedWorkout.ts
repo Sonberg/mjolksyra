@@ -16,6 +16,7 @@ type Args = {
 };
 
 export type GetPlannedWorkouts = typeof getPlannedWorkouts;
+export type GetDraftPlannedExercises = typeof getDraftPlannedExercises;
 
 export async function getPlannedWorkouts({
   traineeId,
@@ -27,6 +28,53 @@ export async function getPlannedWorkouts({
   sortBy,
   order,
 }: Args) {
+  return getPlannedWorkoutsByPath({
+    traineeId,
+    fromDate,
+    toDate,
+    next,
+    limit,
+    signal,
+    sortBy,
+    order,
+    path: "planned-workouts",
+  });
+}
+
+export async function getDraftPlannedExercises({
+  traineeId,
+  fromDate,
+  toDate,
+  next,
+  limit,
+  signal,
+  sortBy,
+  order,
+}: Args) {
+  return getPlannedWorkoutsByPath({
+    traineeId,
+    fromDate,
+    toDate,
+    next,
+    limit,
+    signal,
+    sortBy,
+    order,
+    path: "planned-exercises/draft",
+  });
+}
+
+async function getPlannedWorkoutsByPath({
+  traineeId,
+  fromDate,
+  toDate,
+  next,
+  limit,
+  signal,
+  sortBy,
+  order,
+  path,
+}: Args & { path: string }) {
   const from = fromDate?.format(PLANNED_AT) ?? "";
   const to = toDate?.format(PLANNED_AT) ?? "";
   const query = {
@@ -49,7 +97,7 @@ export async function getPlannedWorkouts({
     }, [])
     .join("&");
 
-  const url = `/api/trainees/${traineeId}/planned-workouts?${queryString}`;
+  const url = `/api/trainees/${traineeId}/${path}?${queryString}`;
   const response = await ApiClient.get(url, {
     signal,
   });

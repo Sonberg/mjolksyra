@@ -35,16 +35,25 @@ public class PlannedWorkoutsController : Controller
         [FromQuery] SortOrder order,
         CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new GetPlannedWorkoutsRequest
-        {
-            TraineeId = traineeId,
-            From = from,
-            To = to,
-            Limit = limit,
-            SortBy = sortBy,
-            Order = order,
-            Cursor = Cursor.Parse<PlannedWorkoutCursor>(next),
-        }, cancellationToken));
+        return Ok(await _mediator.Send(
+            CreateGetRequest(traineeId, from, to, next, limit, sortBy, order, draftOnly: false),
+            cancellationToken));
+    }
+
+    [HttpGet("/api/trainees/{traineeId:guid}/planned-exercises/draft")]
+    public async Task<ActionResult<PaginatedResponse<PlannedWorkoutResponse>>> GetDraftExercises(
+        Guid traineeId,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to,
+        [FromQuery] string? next,
+        [FromQuery] int limit,
+        [FromQuery] string[] sortBy,
+        [FromQuery] SortOrder order,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(
+            CreateGetRequest(traineeId, from, to, next, limit, sortBy, order, draftOnly: true),
+            cancellationToken));
     }
 
     [HttpPost]
@@ -107,5 +116,28 @@ public class PlannedWorkoutsController : Controller
         });
 
         return NoContent();
+    }
+
+    private static GetPlannedWorkoutsRequest CreateGetRequest(
+        Guid traineeId,
+        DateOnly? from,
+        DateOnly? to,
+        string? next,
+        int limit,
+        string[] sortBy,
+        SortOrder order,
+        bool draftOnly)
+    {
+        return new GetPlannedWorkoutsRequest
+        {
+            TraineeId = traineeId,
+            From = from,
+            To = to,
+            Limit = limit,
+            SortBy = sortBy,
+            Order = order,
+            Cursor = Cursor.Parse<PlannedWorkoutCursor>(next),
+            DraftOnly = draftOnly
+        };
     }
 }

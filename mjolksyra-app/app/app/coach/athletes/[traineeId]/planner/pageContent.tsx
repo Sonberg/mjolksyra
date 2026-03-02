@@ -8,7 +8,10 @@ import { starExercises } from "@/services/exercises/starExercise";
 import { starredExercises } from "@/services/exercises/starredExercises";
 import { createPlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
 import { deletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
-import { getPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
+import {
+  getDraftPlannedExercises,
+  getPlannedWorkouts,
+} from "@/services/plannedWorkouts/getPlannedWorkout";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { applyBlock } from "@/services/blocks/applyBlock";
 import { getBlocks } from "@/services/blocks/getBlocks";
@@ -33,18 +36,7 @@ type Props = {
   traineeId: string;
 };
 
-function PlannerChangesTabLabel() {
-  const { data } = useWorkouts();
-
-  const pendingWorkoutCount = useMemo(
-    () =>
-      Object.values(data)
-        .flatMap((month) => month)
-        .filter((workout) => workout.exercises.some((exercise) => !exercise.isPublished))
-        .length,
-    [data]
-  );
-
+function PlannerChangesTabLabel({ pendingWorkoutCount }: { pendingWorkoutCount: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       Changes
@@ -57,19 +49,15 @@ function PlannerChangesTabLabel() {
   );
 }
 
-function PlannerChangesPanel() {
-  const { data, dispatch } = useWorkouts();
+type PlannerChangesPanelProps = {
+  draftWorkouts: PlannedWorkout[];
+  onDraftsChanged: () => Promise<unknown>;
+};
+
+function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesPanelProps) {
+  const { dispatch } = useWorkouts();
   const { update, delete: deleteWorkout } = usePlannedWorkoutActions();
   const [isSaving, setIsSaving] = useState(false);
-
-  const draftWorkouts = useMemo(
-    () =>
-      Object.values(data)
-        .flatMap((month) => month)
-        .filter((workout) => workout.exercises.some((exercise) => !exercise.isPublished))
-        .sort((a, b) => dayjs(a.plannedAt).valueOf() - dayjs(b.plannedAt).valueOf()),
-    [data]
-  );
 
   async function onPublishAll() {
     if (isSaving) {
@@ -96,6 +84,7 @@ function PlannerChangesPanel() {
           },
         });
       }
+      await onDraftsChanged();
     } finally {
       setIsSaving(false);
     }
@@ -137,6 +126,7 @@ function PlannerChangesPanel() {
           },
         });
       }
+      await onDraftsChanged();
     } finally {
       setIsSaving(false);
     }
@@ -157,7 +147,7 @@ function PlannerChangesPanel() {
           <button
             type="button"
             className="inline-flex items-center gap-1 rounded-md border border-sky-700/60 bg-sky-900/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-sky-200 transition hover:bg-sky-900/35 disabled:cursor-not-allowed disabled:opacity-60"
-            title="Publish all draft changes in loaded workouts"
+            title="Publish all draft changes"
             onClick={onPublishAll}
             disabled={isSaving || draftWorkouts.length === 0}
           >
@@ -222,6 +212,41 @@ export function PageContent({ traineeId }: Props) {
       ? `${trainee?.athlete?.givenName ?? ""} ${trainee?.athlete?.familyName ?? ""}`.trim()
       : trainee?.athlete?.name || "Athlete";
 
+  const {
+    data: draftWorkouts = [],
+    refetch: refetchDraftWorkouts,
+  } = useQuery({
+    queryKey: ["planned-workouts", "drafts", traineeId],
+    queryFn: async ({ signal }) => {
+      const workouts: PlannedWorkout[] = [];
+      let next: string | undefined;
+      let pageCount = 0;
+
+      while (pageCount < 50) {
+        const response = await getDraftPlannedExercises({
+          traineeId,
+          limit: 200,
+          next,
+          sortBy: "plannedAt",
+          order: "asc",
+          signal,
+        });
+
+        workouts.push(...response.data);
+        pageCount += 1;
+        if (!response.next) {
+          break;
+        }
+
+        next = response.next;
+      }
+
+      return workouts.sort(
+        (a, b) => dayjs(a.plannedAt).valueOf() - dayjs(b.plannedAt).valueOf(),
+      );
+    },
+  });
+
   const rightSide = useMemo(
     () => (
       <div className="flex h-full min-h-0 flex-col">
@@ -269,7 +294,7 @@ export function PageContent({ traineeId }: Props) {
                 value="changes"
                 className="rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
               >
-                <PlannerChangesTabLabel />
+                <PlannerChangesTabLabel pendingWorkoutCount={draftWorkouts.length} />
               </TabsTrigger>
             </TabsList>
           </div>
@@ -298,12 +323,15 @@ export function PageContent({ traineeId }: Props) {
             value="changes"
             className="mt-0 min-h-0 flex-1 overflow-hidden"
           >
-            <PlannerChangesPanel />
+            <PlannerChangesPanel
+              draftWorkouts={draftWorkouts}
+              onDraftsChanged={refetchDraftWorkouts}
+            />
           </TabsContent>
         </Tabs>
       </div>
     ),
-    [router, athleteName],
+    [router, athleteName, draftWorkouts, refetchDraftWorkouts],
   );
 
   return (

@@ -51,10 +51,14 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
         var isAthleteViewer = trainee is not null && trainee.CoachUserId != userId;
 
-        var workouts = request switch
+        var cursor = request.Cursor switch
         {
-            { Cursor: not null } => await _plannedWorkoutRepository.Get(request.Cursor, cancellationToken),
-            _ => await _plannedWorkoutRepository.Get(new PlannedWorkoutCursor
+            not null => request.Cursor with
+            {
+                TraineeId = request.TraineeId,
+                DraftOnly = request.DraftOnly
+            },
+            _ => new PlannedWorkoutCursor
             {
                 Page = 0,
                 TraineeId = request.TraineeId,
@@ -62,9 +66,12 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
                 ToDate = request.To,
                 Size = request.Limit,
                 SortBy = request.SortBy,
-                Order = request.Order
-            }, cancellationToken)
+                Order = request.Order,
+                DraftOnly = request.DraftOnly
+            }
         };
+
+        var workouts = await _plannedWorkoutRepository.Get(cursor, cancellationToken);
 
         var visibleWorkouts = isAthleteViewer
             ? workouts.Data
