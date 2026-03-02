@@ -574,93 +574,111 @@ export function Workout({
                       {set.target?.note?.trim() ? (
                         <div className="mt-1 text-xs text-zinc-400">{set.target.note}</div>
                       ) : null}
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        {typeof set.target?.weightKg === "number" ? (
-                          <span className="text-xs text-zinc-400">
-                            Coach target: {set.target.weightKg} kg
-                          </span>
+                      <div className="mt-2 flex items-center gap-3 text-xs text-zinc-400">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Target</span>
+                        <span>
+                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps
+                            ? `${set.target?.reps ?? "-"} reps`
+                            : exercise.prescription?.targetType === ExercisePrescriptionTargetType.DurationSeconds
+                              ? `${set.target?.durationSeconds ?? "-"} s`
+                              : `${set.target?.distanceMeters ?? "-"} m`}
+                        </span>
+                        {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps && typeof set.target?.weightKg === "number" ? (
+                          <>
+                            <span className="text-zinc-600">•</span>
+                            <span>{set.target.weightKg} kg</span>
+                          </>
                         ) : null}
-                        {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Actual</span>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                            <div className="relative">
+                              <input
+                                key={`${exercise.id}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
+                                type="number"
+                                min={0}
+                                defaultValue={set.actual?.reps ?? set.target?.reps ?? ""}
+                                onBlur={(ev) => {
+                                  const rawValue = ev.target.value.trim();
+                                  const nextReps = rawValue.length === 0 ? null : Number(rawValue);
+                                  if (Number.isNaN(nextReps)) {
+                                    return;
+                                  }
+                                  const currentReps = set.actual?.reps ?? null;
+                                  if (currentReps === nextReps) {
+                                    return;
+                                  }
+                                  updateSetWeight.mutate({
+                                    exerciseId: exercise.id,
+                                    setIndex,
+                                    weightKg: set.actual?.weightKg ?? null,
+                                    reps: nextReps,
+                                    note: set.actual?.note ?? null,
+                                  });
+                                }}
+                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 text-xs text-zinc-100"
+                                aria-label={`Actual reps for set ${setIndex + 1}`}
+                              />
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">reps</span>
+                            </div>
+                          ) : null}
+                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                            <div className="relative">
+                              <input
+                                key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
+                                type="number"
+                                min={0}
+                                step="0.5"
+                                defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
+                                onBlur={(ev) => {
+                                  const rawValue = ev.target.value.trim();
+                                  const nextWeight = rawValue.length === 0 ? null : Number(rawValue);
+                                  if (Number.isNaN(nextWeight)) {
+                                    return;
+                                  }
+                                  const currentWeight = set.actual?.weightKg ?? null;
+                                  if (currentWeight === nextWeight) {
+                                    return;
+                                  }
+                                  updateSetWeight.mutate({
+                                    exerciseId: exercise.id,
+                                    setIndex,
+                                    weightKg: nextWeight,
+                                    reps: set.actual?.reps ?? null,
+                                    note: set.actual?.note ?? null,
+                                  });
+                                }}
+                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                                aria-label={`Actual weight for set ${setIndex + 1}`}
+                              />
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">kg</span>
+                            </div>
+                          ) : null}
                           <input
-                            key={`${exercise.id}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
-                            type="number"
-                            min={0}
-                            defaultValue={set.actual?.reps ?? set.target?.reps ?? ""}
+                            key={`${exercise.id}-${setIndex}-note-${set.actual?.note ?? "none"}`}
+                            type="text"
+                            defaultValue={set.actual?.note ?? ""}
                             onBlur={(ev) => {
-                              const rawValue = ev.target.value.trim();
-                              const nextReps = rawValue.length === 0 ? null : Number(rawValue);
-                              if (Number.isNaN(nextReps)) {
-                                return;
-                              }
-                              const currentReps = set.actual?.reps ?? null;
-                              if (currentReps === nextReps) {
+                              const nextNote = ev.target.value.trim().length ? ev.target.value.trim() : null;
+                              const currentNote = set.actual?.note ?? null;
+                              if (currentNote === nextNote) {
                                 return;
                               }
                               updateSetWeight.mutate({
                                 exerciseId: exercise.id,
                                 setIndex,
                                 weightKg: set.actual?.weightKg ?? null,
-                                reps: nextReps,
-                                note: set.actual?.note ?? null,
-                              });
-                            }}
-                            className="h-8 w-28 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
-                            placeholder="Actual reps"
-                            aria-label={`Actual reps for set ${setIndex + 1}`}
-                          />
-                        ) : null}
-                        {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
-                          <input
-                            key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
-                            type="number"
-                            min={0}
-                            step="0.5"
-                            defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
-                            onBlur={(ev) => {
-                              const rawValue = ev.target.value.trim();
-                              const nextWeight = rawValue.length === 0 ? null : Number(rawValue);
-                              if (Number.isNaN(nextWeight)) {
-                                return;
-                              }
-                              const currentWeight = set.actual?.weightKg ?? null;
-                              if (currentWeight === nextWeight) {
-                                return;
-                              }
-                              updateSetWeight.mutate({
-                                exerciseId: exercise.id,
-                                setIndex,
-                                weightKg: nextWeight,
                                 reps: set.actual?.reps ?? null,
-                                note: set.actual?.note ?? null,
+                                note: nextNote,
                               });
                             }}
-                            className="h-8 w-36 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
-                            placeholder="Actual kg"
-                            aria-label={`Actual weight for set ${setIndex + 1}`}
+                            className="h-8 min-w-[180px] flex-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                            placeholder="Set note (actual)"
+                            aria-label={`Actual note for set ${setIndex + 1}`}
                           />
-                        ) : null}
-                        <input
-                          key={`${exercise.id}-${setIndex}-note-${set.actual?.note ?? "none"}`}
-                          type="text"
-                          defaultValue={set.actual?.note ?? ""}
-                          onBlur={(ev) => {
-                            const nextNote = ev.target.value.trim().length ? ev.target.value.trim() : null;
-                            const currentNote = set.actual?.note ?? null;
-                            if (currentNote === nextNote) {
-                              return;
-                            }
-                            updateSetWeight.mutate({
-                              exerciseId: exercise.id,
-                              setIndex,
-                              weightKg: set.actual?.weightKg ?? null,
-                              reps: set.actual?.reps ?? null,
-                              note: nextNote,
-                            });
-                          }}
-                          className="h-8 min-w-[180px] flex-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
-                          placeholder="Set note (actual)"
-                          aria-label={`Actual note for set ${setIndex + 1}`}
-                        />
+                        </div>
                       </div>
                     </div>
                     <button

@@ -293,10 +293,6 @@ export function WorkoutEditorExercise({
           <option value={ExercisePrescriptionTargetType.DurationSeconds}>Static hold time</option>
           <option value={ExercisePrescriptionTargetType.DistanceMeters}>Distance</option>
         </select>
-        <p className="text-[11px] text-zinc-500">
-          Time is entered in seconds (s), distance in meters (m).
-        </p>
-
         <div className="space-y-2">
           {sets.map((set, setIndex) => (
             <div key={`${plannedExercise.id}-set-${setIndex}`} className="rounded border border-zinc-800 bg-zinc-900/30 p-2">
@@ -317,68 +313,79 @@ export function WorkoutEditorExercise({
 
               <div className="space-y-2">
                 {prescription.targetType === ExercisePrescriptionTargetType.SetsReps ? (
-                  <input
-                    type="number"
-                    min={1}
-                    value={set.target?.reps ?? ""}
-                    onChange={(ev) =>
-                      patchSetTarget(setIndex, {
-                        reps: ev.target.value ? Number(ev.target.value) : null,
-                      })
-                    }
-                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                    placeholder="Reps"
-                    aria-label="Reps"
-                  />
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        min={1}
+                        value={set.target?.reps ?? ""}
+                        onChange={(ev) =>
+                          patchSetTarget(setIndex, {
+                            reps: ev.target.value ? Number(ev.target.value) : null,
+                          })
+                        }
+                        className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 py-1 text-sm"
+                        placeholder="0"
+                        aria-label="Reps"
+                      />
+                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">reps</span>
+                    </div>
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.5"
+                        value={set.target?.weightKg ?? ""}
+                        onChange={(ev) =>
+                          patchSetTarget(setIndex, {
+                            weightKg: ev.target.value ? Number(ev.target.value) : null,
+                          })
+                        }
+                        className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 py-1 text-sm"
+                        placeholder="0"
+                        aria-label="Target weight in kilograms"
+                      />
+                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">kg</span>
+                    </div>
+                  </div>
                 ) : null}
 
                 {prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds ? (
-                  <input
-                    type="number"
-                    min={1}
-                    value={set.target?.durationSeconds ?? ""}
-                    onChange={(ev) =>
-                      patchSetTarget(setIndex, {
-                        durationSeconds: ev.target.value ? Number(ev.target.value) : null,
-                      })
-                    }
-                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                    placeholder="Seconds (s)"
-                    aria-label="Seconds"
-                  />
+                  <div className="relative w-40">
+                    <input
+                      type="number"
+                      min={1}
+                      value={set.target?.durationSeconds ?? ""}
+                      onChange={(ev) =>
+                        patchSetTarget(setIndex, {
+                          durationSeconds: ev.target.value ? Number(ev.target.value) : null,
+                        })
+                      }
+                      className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 py-1 text-sm"
+                      placeholder="0"
+                      aria-label="Seconds"
+                    />
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">s</span>
+                  </div>
                 ) : null}
 
                 {prescription.targetType === ExercisePrescriptionTargetType.DistanceMeters ? (
-                  <input
-                    type="number"
-                    min={1}
-                    value={set.target?.distanceMeters ?? ""}
-                    onChange={(ev) =>
-                      patchSetTarget(setIndex, {
-                        distanceMeters: ev.target.value ? Number(ev.target.value) : null,
-                      })
-                    }
-                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                    placeholder="Meters (m)"
-                    aria-label="Meters"
-                  />
-                ) : null}
-
-                {prescription.targetType === ExercisePrescriptionTargetType.SetsReps ? (
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.5"
-                    value={set.target?.weightKg ?? ""}
-                    onChange={(ev) =>
-                      patchSetTarget(setIndex, {
-                        weightKg: ev.target.value ? Number(ev.target.value) : null,
-                      })
-                    }
-                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                    placeholder="Target weight (kg, optional)"
-                    aria-label="Target weight in kilograms"
-                  />
+                  <div className="relative w-40">
+                    <input
+                      type="number"
+                      min={1}
+                      value={set.target?.distanceMeters ?? ""}
+                      onChange={(ev) =>
+                        patchSetTarget(setIndex, {
+                          distanceMeters: ev.target.value ? Number(ev.target.value) : null,
+                        })
+                      }
+                      className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 py-1 text-sm"
+                      placeholder="0"
+                      aria-label="Meters"
+                    />
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">m</span>
+                  </div>
                 ) : null}
 
                 <Textarea
