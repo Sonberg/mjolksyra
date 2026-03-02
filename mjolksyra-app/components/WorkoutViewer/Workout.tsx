@@ -42,6 +42,8 @@ export function Workout({
       isDone?: boolean;
       weightKg?: number | null;
       reps?: number | null;
+      durationSeconds?: number | null;
+      distanceMeters?: number | null;
       note?: string | null;
       toggleSetDone?: boolean;
     };
@@ -58,8 +60,8 @@ export function Workout({
               return {
                 reps: override.reps !== undefined ? override.reps : (s.actual?.reps ?? null),
                 weightKg: override.weightKg !== undefined ? override.weightKg : (s.actual?.weightKg ?? null),
-                durationSeconds: s.actual?.durationSeconds ?? null,
-                distanceMeters: s.actual?.distanceMeters ?? null,
+                durationSeconds: override.durationSeconds !== undefined ? override.durationSeconds : (s.actual?.durationSeconds ?? null),
+                distanceMeters: override.distanceMeters !== undefined ? override.distanceMeters : (s.actual?.distanceMeters ?? null),
                 note: override.note !== undefined ? override.note : (s.actual?.note ?? null),
                 isDone: override.toggleSetDone ? !(s.actual?.isDone ?? false) : (override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false)),
               };
@@ -168,18 +170,22 @@ export function Workout({
       setIndex,
       weightKg,
       reps,
+      durationSeconds,
+      distanceMeters,
       note,
     }: {
       exerciseId: string;
       setIndex: number;
       weightKg: number | null;
       reps: number | null;
+      durationSeconds: number | null;
+      distanceMeters: number | null;
       note: string | null;
     }) =>
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, weightKg, reps, note } }),
+        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, weightKg, reps, durationSeconds, distanceMeters, note } }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -615,6 +621,8 @@ export function Workout({
                                     setIndex,
                                     weightKg: set.actual?.weightKg ?? null,
                                     reps: nextReps,
+                                    durationSeconds: set.actual?.durationSeconds ?? null,
+                                    distanceMeters: set.actual?.distanceMeters ?? null,
                                     note: set.actual?.note ?? null,
                                   });
                                 }}
@@ -622,6 +630,72 @@ export function Workout({
                                 aria-label={`Actual reps for set ${setIndex + 1}`}
                               />
                               <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">reps</span>
+                            </div>
+                          ) : null}
+                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.DurationSeconds ? (
+                            <div className="relative">
+                              <input
+                                key={`${exercise.id}-${setIndex}-duration-${set.actual?.durationSeconds ?? set.target?.durationSeconds ?? "none"}`}
+                                type="number"
+                                min={0}
+                                defaultValue={set.actual?.durationSeconds ?? set.target?.durationSeconds ?? ""}
+                                onBlur={(ev) => {
+                                  const rawValue = ev.target.value.trim();
+                                  const nextDuration = rawValue.length === 0 ? null : Number(rawValue);
+                                  if (Number.isNaN(nextDuration)) {
+                                    return;
+                                  }
+                                  const currentDuration = set.actual?.durationSeconds ?? null;
+                                  if (currentDuration === nextDuration) {
+                                    return;
+                                  }
+                                  updateSetWeight.mutate({
+                                    exerciseId: exercise.id,
+                                    setIndex,
+                                    weightKg: set.actual?.weightKg ?? null,
+                                    reps: set.actual?.reps ?? null,
+                                    durationSeconds: nextDuration,
+                                    distanceMeters: set.actual?.distanceMeters ?? null,
+                                    note: set.actual?.note ?? null,
+                                  });
+                                }}
+                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                                aria-label={`Actual duration for set ${setIndex + 1}`}
+                              />
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">s</span>
+                            </div>
+                          ) : null}
+                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.DistanceMeters ? (
+                            <div className="relative">
+                              <input
+                                key={`${exercise.id}-${setIndex}-distance-${set.actual?.distanceMeters ?? set.target?.distanceMeters ?? "none"}`}
+                                type="number"
+                                min={0}
+                                defaultValue={set.actual?.distanceMeters ?? set.target?.distanceMeters ?? ""}
+                                onBlur={(ev) => {
+                                  const rawValue = ev.target.value.trim();
+                                  const nextDistance = rawValue.length === 0 ? null : Number(rawValue);
+                                  if (Number.isNaN(nextDistance)) {
+                                    return;
+                                  }
+                                  const currentDistance = set.actual?.distanceMeters ?? null;
+                                  if (currentDistance === nextDistance) {
+                                    return;
+                                  }
+                                  updateSetWeight.mutate({
+                                    exerciseId: exercise.id,
+                                    setIndex,
+                                    weightKg: set.actual?.weightKg ?? null,
+                                    reps: set.actual?.reps ?? null,
+                                    durationSeconds: set.actual?.durationSeconds ?? null,
+                                    distanceMeters: nextDistance,
+                                    note: set.actual?.note ?? null,
+                                  });
+                                }}
+                                className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                                aria-label={`Actual distance for set ${setIndex + 1}`}
+                              />
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">m</span>
                             </div>
                           ) : null}
                           {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
@@ -647,6 +721,8 @@ export function Workout({
                                     setIndex,
                                     weightKg: nextWeight,
                                     reps: set.actual?.reps ?? null,
+                                    durationSeconds: set.actual?.durationSeconds ?? null,
+                                    distanceMeters: set.actual?.distanceMeters ?? null,
                                     note: set.actual?.note ?? null,
                                   });
                                 }}
@@ -671,6 +747,8 @@ export function Workout({
                                 setIndex,
                                 weightKg: set.actual?.weightKg ?? null,
                                 reps: set.actual?.reps ?? null,
+                                durationSeconds: set.actual?.durationSeconds ?? null,
+                                distanceMeters: set.actual?.distanceMeters ?? null,
                                 note: nextNote,
                               });
                             }}
