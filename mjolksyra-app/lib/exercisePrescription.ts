@@ -5,6 +5,7 @@ export type ExercisePrescription = {
     durationSeconds: number | null;
     distanceMeters: number | null;
     note: string | null;
+    isDone: boolean;
   }> | null;
 };
 
@@ -21,7 +22,7 @@ export function inferPrescriptionFromMechanic(
     return {
       targetType: "duration_seconds",
       setTargets: [
-        { reps: null, durationSeconds: 30, distanceMeters: null, note: null },
+        { reps: null, durationSeconds: 30, distanceMeters: null, note: null, isDone: false },
       ],
     };
   }
@@ -34,7 +35,7 @@ export function inferPrescriptionFromMechanic(
     return {
       targetType: "distance_meters",
       setTargets: [
-        { reps: null, durationSeconds: null, distanceMeters: 1000, note: null },
+        { reps: null, durationSeconds: null, distanceMeters: 1000, note: null, isDone: false },
       ],
     };
   }
@@ -42,9 +43,9 @@ export function inferPrescriptionFromMechanic(
   return {
     targetType: "sets_reps",
     setTargets: [
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
     ],
   };
 }

@@ -36,4 +36,6 @@ public class ExercisePrescriptionSetTarget
     public double? DistanceMeters { get; set; }
 
     public string? Note { get; set; }
+
+    public bool IsDone { get; set; }
 }

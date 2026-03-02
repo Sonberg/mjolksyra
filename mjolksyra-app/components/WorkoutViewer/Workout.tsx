@@ -85,6 +85,15 @@ export function Workout({
               ? {
                   ...exercise,
                   isDone,
+                  prescription: exercise.prescription?.setTargets?.length
+                    ? {
+                        ...exercise.prescription,
+                        setTargets: exercise.prescription.setTargets.map((setTarget) => ({
+                          ...setTarget,
+                          isDone,
+                        })),
+                      }
+                    : exercise.prescription,
                 }
               : exercise,
           ),
@@ -92,6 +101,50 @@ export function Workout({
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+    },
+  });
+  const toggleSetDone = useMutation({
+    mutationFn: async ({
+      exerciseId,
+      setIndex,
+    }: {
+      exerciseId: string;
+      setIndex: number;
+    }) =>
+      updatePlannedWorkout({
+        plannedWorkout: {
+          ...workout,
+          exercises: workout.exercises.map((exercise) => {
+            if (exercise.id !== exerciseId || !exercise.prescription?.setTargets) {
+              return exercise;
+            }
+
+            const nextSetTargets = exercise.prescription.setTargets.map((setTarget, index) =>
+              index === setIndex
+                ? {
+                    ...setTarget,
+                    isDone: !setTarget.isDone,
+                  }
+                : setTarget,
+            );
+
+            const allSetsDone = nextSetTargets.length > 0 && nextSetTargets.every((x) => x.isDone);
+
+            return {
+              ...exercise,
+              isDone: allSetsDone,
+              prescription: {
+                ...exercise.prescription,
+                setTargets: nextSetTargets,
+              },
+            };
+          }),
+        },
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
     },
   });
 
@@ -125,6 +178,22 @@ export function Workout({
 
   const isCompleted = !!workout.completedAt;
   const isReviewed = !!workout.reviewedAt;
+
+  function getSetTargetLabel(targetType: string | undefined, setTarget: {
+    reps: number | null;
+    durationSeconds: number | null;
+    distanceMeters: number | null;
+  }) {
+    if (targetType === "duration_seconds") {
+      return `${setTarget.durationSeconds ?? "-"} s`;
+    }
+
+    if (targetType === "distance_meters") {
+      return `${setTarget.distanceMeters ?? "-"} m`;
+    }
+
+    return `${setTarget.reps ?? "-"} reps`;
+  }
 
   useEffect(() => {
     setCompletionNote(workout.completionNote ?? "");
@@ -441,6 +510,57 @@ export function Workout({
             {exercise.note?.trim() ? (
               <div className="ml-12 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300">
                 {exercise.note}
+              </div>
+            ) : null}
+            {viewerMode === "athlete" && isDetailView && exercise.prescription?.setTargets?.length ? (
+              <div className="ml-12 grid gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-3">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+                  Prescribed sets
+                </div>
+                {exercise.prescription.setTargets.map((setTarget, setIndex) => (
+                  <div
+                    key={`${exercise.id}-set-target-${setIndex}`}
+                    className="flex items-start justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <div
+                        className={
+                          setTarget.isDone
+                            ? "text-sm font-semibold text-zinc-500 line-through"
+                            : "text-sm font-semibold text-zinc-200"
+                        }
+                      >
+                        Set {setIndex + 1}: {getSetTargetLabel(exercise.prescription?.targetType, setTarget)}
+                      </div>
+                      {setTarget.note?.trim() ? (
+                        <div className="mt-1 text-xs text-zinc-400">{setTarget.note}</div>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      disabled={toggleSetDone.isPending}
+                      onClick={() =>
+                        toggleSetDone.mutate({
+                          exerciseId: exercise.id,
+                          setIndex,
+                        })
+                      }
+                      className={
+                        setTarget.isDone
+                          ? "inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
+                          : "inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
+                      }
+                      title={setTarget.isDone ? "Mark set incomplete" : "Mark set done"}
+                    >
+                      {setTarget.isDone ? (
+                        <CheckCircle2Icon className="h-3.5 w-3.5" />
+                      ) : (
+                        <CircleIcon className="h-3.5 w-3.5" />
+                      )}
+                      {setTarget.isDone ? "Done" : "Mark done"}
+                    </button>
+                  </div>
+                ))}
               </div>
             ) : null}
           </div>

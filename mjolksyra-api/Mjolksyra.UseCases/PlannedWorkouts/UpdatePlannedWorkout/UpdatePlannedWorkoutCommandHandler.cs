@@ -86,7 +86,8 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                                 Reps = t.Reps,
                                 DurationSeconds = t.DurationSeconds,
                                 DistanceMeters = t.DistanceMeters,
-                                Note = t.Note
+                                Note = t.Note,
+                                IsDone = t.IsDone
                             })
                             .ToList()
                     }

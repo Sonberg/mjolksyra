@@ -122,7 +122,8 @@ public class PlannedExerciseResponse : IExerciseResponse
                             Reps = x.Reps,
                             DurationSeconds = x.DurationSeconds,
                             DistanceMeters = x.DistanceMeters,
-                            Note = x.Note
+                            Note = x.Note,
+                            IsDone = x.IsDone
                         })
                         .ToList()
                 },
@@ -152,4 +153,6 @@ public class PlannedExercisePrescriptionSetTargetResponse
     public double? DistanceMeters { get; set; }
 
     public string? Note { get; set; }
+
+    public bool IsDone { get; set; }
 }

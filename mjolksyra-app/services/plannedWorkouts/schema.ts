@@ -9,6 +9,7 @@ export const exercisePrescriptionSchema = z.object({
         durationSeconds: z.number().nullable(),
         distanceMeters: z.number().nullable(),
         note: z.string().nullable(),
+        isDone: z.boolean().optional().default(false),
       }),
     )
     .nullable()

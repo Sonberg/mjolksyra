@@ -108,9 +108,9 @@ export function WorkoutEditorExercise({
   const prescription = plannedExercise.prescription ?? {
     targetType: "sets_reps" as const,
     setTargets: [
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
+      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
     ],
   };
 
@@ -121,6 +121,7 @@ export function WorkoutEditorExercise({
       durationSeconds: number | null;
       distanceMeters: number | null;
       note: string | null;
+      isDone: boolean;
     },
   ) {
     if (targetType === "sets_reps") {
@@ -129,6 +130,7 @@ export function WorkoutEditorExercise({
         durationSeconds: null,
         distanceMeters: null,
         note: source?.note ?? null,
+        isDone: false,
       };
     }
 
@@ -138,6 +140,7 @@ export function WorkoutEditorExercise({
         durationSeconds: source?.durationSeconds ?? 30,
         distanceMeters: null,
         note: source?.note ?? null,
+        isDone: false,
       };
     }
 
@@ -146,6 +149,7 @@ export function WorkoutEditorExercise({
       durationSeconds: null,
       distanceMeters: source?.distanceMeters ?? 1000,
       note: source?.note ?? null,
+      isDone: false,
     };
   }
 

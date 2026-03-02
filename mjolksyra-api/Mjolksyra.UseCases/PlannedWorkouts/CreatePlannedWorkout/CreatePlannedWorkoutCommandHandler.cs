@@ -48,7 +48,8 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                                     Reps = x.Reps,
                                     DurationSeconds = x.DurationSeconds,
                                     DistanceMeters = x.DistanceMeters,
-                                    Note = x.Note
+                                    Note = x.Note,
+                                    IsDone = x.IsDone
                                 })
                                 .ToList()
                         }
