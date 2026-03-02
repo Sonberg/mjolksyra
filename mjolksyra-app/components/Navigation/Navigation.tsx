@@ -41,6 +41,13 @@ export function Navigation({ initialAuth }: NavigationProps) {
   const [showBorder, setShowBorder] = useState(() =>
     pathname === "/" ? false : true,
   );
+  const roleLinkClass = (isActive: boolean) =>
+    cn(
+      "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
+      isActive
+        ? "bg-zinc-100 text-black"
+        : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
+    );
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -104,24 +111,14 @@ export function Navigation({ initialAuth }: NavigationProps) {
             <nav className="hidden items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950/80 p-1 md:flex">
               <Link
                 href="/app/coach/dashboard"
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
-                  isCoachActive
-                    ? "bg-zinc-100 text-black"
-                    : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
-                )}
+                className={roleLinkClass(isCoachActive)}
               >
                 Coach
               </Link>
 
               <Link
                 href="/app/athlete"
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
-                  isAthleteActive
-                    ? "bg-zinc-100 text-black"
-                    : "text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
-                )}
+                className={roleLinkClass(isAthleteActive)}
               >
                 Athlete
               </Link>
@@ -149,6 +146,24 @@ export function Navigation({ initialAuth }: NavigationProps) {
           )}
         </div>
       </div>
+      {isAuthenticated ? (
+        <div className="border-t border-zinc-900 px-4 pb-2 pt-1 md:hidden">
+          <nav className="mx-auto flex w-full max-w-[1800px] items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950/80 p-1">
+            <Link
+              href="/app/coach/dashboard"
+              className={cn(roleLinkClass(isCoachActive), "flex-1 text-center")}
+            >
+              Coach
+            </Link>
+            <Link
+              href="/app/athlete"
+              className={cn(roleLinkClass(isAthleteActive), "flex-1 text-center")}
+            >
+              Athlete
+            </Link>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }
