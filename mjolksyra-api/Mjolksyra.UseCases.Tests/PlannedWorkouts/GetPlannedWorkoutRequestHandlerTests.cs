@@ -86,17 +86,23 @@ public class GetPlannedWorkoutRequestHandlerTests
                         Prescription = new ExercisePrescription
                         {
                             TargetType = "sets_reps",
-                            SetTargets =
+                            Sets =
                             [
-                                new ExercisePrescriptionSetTarget
+                                new ExercisePrescriptionSet
                                 {
-                                    Reps = 8,
-                                    Note = "Warm-up"
+                                    Target = new ExercisePrescriptionSetTarget
+                                    {
+                                        Reps = 8,
+                                        Note = "Warm-up"
+                                    }
                                 },
-                                new ExercisePrescriptionSetTarget
+                                new ExercisePrescriptionSet
                                 {
-                                    Reps = 8,
-                                    Note = "Working set"
+                                    Target = new ExercisePrescriptionSetTarget
+                                    {
+                                        Reps = 8,
+                                        Note = "Working set"
+                                    }
                                 }
                             ]
                         }
@@ -134,9 +140,9 @@ public class GetPlannedWorkoutRequestHandlerTests
         Assert.Single(result.Exercises);
         var mappedExercise = Assert.Single(result.Exercises);
         Assert.NotNull(mappedExercise.Prescription);
-        Assert.NotNull(mappedExercise.Prescription!.SetTargets);
-        Assert.Equal(2, mappedExercise.Prescription.SetTargets.Count);
-        Assert.Equal("Warm-up", mappedExercise.Prescription.SetTargets.First().Note);
+        Assert.NotNull(mappedExercise.Prescription!.Sets);
+        Assert.Equal(2, mappedExercise.Prescription.Sets.Count);
+        Assert.Equal("Warm-up", mappedExercise.Prescription.Sets.First().Target?.Note);
     }
 
     [Fact]

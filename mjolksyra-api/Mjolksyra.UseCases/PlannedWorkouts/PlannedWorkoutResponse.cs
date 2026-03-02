@@ -96,12 +96,13 @@ public class PlannedExerciseResponse : IExerciseResponse
     public required string? Category { get; set; }
 
     public required ICollection<string> Instructions { get; set; }
-    
+
     public required ICollection<string> Images { get; set; }
 
     public static PlannedExerciseResponse From(PlannedExercise plannedExercise, ICollection<Exercise> exercises)
     {
         var exercise = exercises.FirstOrDefault(e => e.Id == plannedExercise.ExerciseId);
+        var sets = plannedExercise.Prescription?.Sets;
 
         return new PlannedExerciseResponse
         {
@@ -110,20 +111,30 @@ public class PlannedExerciseResponse : IExerciseResponse
             Name = exercise?.Name ?? plannedExercise.Name,
             Note = plannedExercise.Note,
             IsPublished = plannedExercise.IsPublished,
-            IsDone = plannedExercise.IsDone,
+            IsDone = sets?.Count > 0 && sets.All(s => s.Actual?.IsDone == true),
             Prescription = plannedExercise.Prescription is null
                 ? null
                 : new PlannedExercisePrescriptionResponse
                 {
                     TargetType = plannedExercise.Prescription.TargetType,
-                    SetTargets = plannedExercise.Prescription.SetTargets
-                        ?.Select(x => new PlannedExercisePrescriptionSetTargetResponse
+                    Sets = plannedExercise.Prescription.Sets
+                        ?.Select(x => new ExercisePrescriptionSetResponse
                         {
-                            Reps = x.Reps,
-                            DurationSeconds = x.DurationSeconds,
-                            DistanceMeters = x.DistanceMeters,
-                            Note = x.Note,
-                            IsDone = x.IsDone
+                            Target = x.Target is null ? null : new ExercisePrescriptionSetTargetResponse
+                            {
+                                Reps = x.Target.Reps,
+                                DurationSeconds = x.Target.DurationSeconds,
+                                DistanceMeters = x.Target.DistanceMeters,
+                                WeightKg = x.Target.WeightKg,
+                                Note = x.Target.Note,
+                            },
+                            Actual = x.Actual is null ? null : new ExercisePrescriptionSetActualResponse
+                            {
+                                WeightKg = x.Actual.WeightKg,
+                                DurationSeconds = x.Actual.DurationSeconds,
+                                DistanceMeters = x.Actual.DistanceMeters,
+                                IsDone = x.Actual.IsDone,
+                            }
                         })
                         .ToList()
                 },
@@ -141,10 +152,17 @@ public class PlannedExercisePrescriptionResponse
 {
     public string? TargetType { get; set; }
 
-    public ICollection<PlannedExercisePrescriptionSetTargetResponse>? SetTargets { get; set; }
+    public ICollection<ExercisePrescriptionSetResponse>? Sets { get; set; }
 }
 
-public class PlannedExercisePrescriptionSetTargetResponse
+public class ExercisePrescriptionSetResponse
+{
+    public ExercisePrescriptionSetTargetResponse? Target { get; set; }
+
+    public ExercisePrescriptionSetActualResponse? Actual { get; set; }
+}
+
+public class ExercisePrescriptionSetTargetResponse
 {
     public int? Reps { get; set; }
 
@@ -152,7 +170,18 @@ public class PlannedExercisePrescriptionSetTargetResponse
 
     public double? DistanceMeters { get; set; }
 
+    public double? WeightKg { get; set; }
+
     public string? Note { get; set; }
+}
+
+public class ExercisePrescriptionSetActualResponse
+{
+    public double? WeightKg { get; set; }
+
+    public int? DurationSeconds { get; set; }
+
+    public double? DistanceMeters { get; set; }
 
     public bool IsDone { get; set; }
 }

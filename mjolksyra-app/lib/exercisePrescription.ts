@@ -1,11 +1,19 @@
 export type ExercisePrescription = {
   targetType: "sets_reps" | "duration_seconds" | "distance_meters";
-  setTargets: Array<{
-    reps: number | null;
-    durationSeconds: number | null;
-    distanceMeters: number | null;
-    note: string | null;
-    isDone: boolean;
+  sets: Array<{
+    target: {
+      reps: number | null;
+      durationSeconds: number | null;
+      distanceMeters: number | null;
+      weightKg: number | null;
+      note: string | null;
+    } | null;
+    actual: {
+      weightKg: number | null;
+      durationSeconds: number | null;
+      distanceMeters: number | null;
+      isDone: boolean;
+    } | null;
   }> | null;
 };
 
@@ -21,8 +29,8 @@ export function inferPrescriptionFromMechanic(
   ) {
     return {
       targetType: "duration_seconds",
-      setTargets: [
-        { reps: null, durationSeconds: 30, distanceMeters: null, note: null, isDone: false },
+      sets: [
+        { target: { reps: null, durationSeconds: 30, distanceMeters: null, weightKg: null, note: null }, actual: null },
       ],
     };
   }
@@ -34,18 +42,18 @@ export function inferPrescriptionFromMechanic(
   ) {
     return {
       targetType: "distance_meters",
-      setTargets: [
-        { reps: null, durationSeconds: null, distanceMeters: 1000, note: null, isDone: false },
+      sets: [
+        { target: { reps: null, durationSeconds: null, distanceMeters: 1000, weightKg: null, note: null }, actual: null },
       ],
     };
   }
 
   return {
     targetType: "sets_reps",
-    setTargets: [
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
+    sets: [
+      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
+      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
+      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
     ],
   };
 }
@@ -56,29 +64,29 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
   }
 
   if (prescription.targetType === "sets_reps") {
-    if (prescription.setTargets?.length) {
-      const reps = prescription.setTargets
-        .map((x) => x.reps)
+    if (prescription.sets?.length) {
+      const reps = prescription.sets
+        .map((x) => x.target?.reps)
         .filter((x): x is number => typeof x === "number" && x > 0);
       if (!reps.length) {
-        return `${prescription.setTargets.length} sets`;
+        return `${prescription.sets.length} sets`;
       }
 
       const uniqueReps = Array.from(new Set(reps));
       if (uniqueReps.length === 1) {
-        return `${prescription.setTargets.length} x ${uniqueReps[0]}`;
+        return `${prescription.sets.length} x ${uniqueReps[0]}`;
       }
 
-      return `${prescription.setTargets.length} sets`;
+      return `${prescription.sets.length} sets`;
     }
 
     return null;
   }
 
   if (prescription.targetType === "duration_seconds") {
-    if (prescription.setTargets?.length) {
-      const values = prescription.setTargets
-        .map((x) => x.durationSeconds)
+    if (prescription.sets?.length) {
+      const values = prescription.sets
+        .map((x) => x.target?.durationSeconds)
         .filter((x): x is number => typeof x === "number" && x > 0);
       if (values.length) {
         if (values.length === 1) {
@@ -91,9 +99,9 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
     return null;
   }
 
-  if (prescription.setTargets?.length) {
-    const values = prescription.setTargets
-      .map((x) => x.distanceMeters)
+  if (prescription.sets?.length) {
+    const values = prescription.sets
+      .map((x) => x.target?.distanceMeters)
       .filter((x): x is number => typeof x === "number" && x > 0);
     if (values.length) {
       if (values.length === 1) {

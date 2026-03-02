@@ -2,14 +2,30 @@ import { z } from "zod";
 
 export const exercisePrescriptionSchema = z.object({
   targetType: z.enum(["sets_reps", "duration_seconds", "distance_meters"]),
-  setTargets: z
+  sets: z
     .array(
       z.object({
-        reps: z.number().nullable(),
-        durationSeconds: z.number().nullable(),
-        distanceMeters: z.number().nullable(),
-        note: z.string().nullable(),
-        isDone: z.boolean().optional().default(false),
+        target: z
+          .object({
+            reps: z.number().nullable(),
+            durationSeconds: z.number().nullable(),
+            distanceMeters: z.number().nullable(),
+            weightKg: z.number().nullable().optional().default(null),
+            note: z.string().nullable(),
+          })
+          .nullable()
+          .optional()
+          .default(null),
+        actual: z
+          .object({
+            weightKg: z.number().nullable(),
+            durationSeconds: z.number().nullable(),
+            distanceMeters: z.number().nullable(),
+            isDone: z.boolean().default(false),
+          })
+          .nullable()
+          .optional()
+          .default(null),
       }),
     )
     .nullable()

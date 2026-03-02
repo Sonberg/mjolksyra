@@ -36,20 +36,23 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                     Name = e.Name,
                     Note = e.Note,
                     IsPublished = e.IsPublished,
-                    IsDone = e.IsDone,
                     Prescription = e.Prescription is null
                         ? null
                         : new ExercisePrescription
                         {
                             TargetType = e.Prescription.TargetType,
-                            SetTargets = e.Prescription.SetTargets
-                                ?.Select(x => new ExercisePrescriptionSetTarget
+                            Sets = e.Prescription.Sets
+                                ?.Select(x => new ExercisePrescriptionSet
                                 {
-                                    Reps = x.Reps,
-                                    DurationSeconds = x.DurationSeconds,
-                                    DistanceMeters = x.DistanceMeters,
-                                    Note = x.Note,
-                                    IsDone = x.IsDone
+                                    Target = x.Target is null ? null : new ExercisePrescriptionSetTarget
+                                    {
+                                        Reps = x.Target.Reps,
+                                        DurationSeconds = x.Target.DurationSeconds,
+                                        DistanceMeters = x.Target.DistanceMeters,
+                                        WeightKg = x.Target.WeightKg,
+                                        Note = x.Target.Note,
+                                    },
+                                    Actual = null
                                 })
                                 .ToList()
                         }

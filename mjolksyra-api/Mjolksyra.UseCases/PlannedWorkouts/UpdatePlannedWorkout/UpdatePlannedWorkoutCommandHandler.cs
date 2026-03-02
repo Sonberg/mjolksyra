@@ -2,7 +2,6 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Notifications;
-using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 
@@ -14,21 +13,17 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
 
     private readonly ITraineeRepository _traineeRepository;
 
-    private readonly IUserContext _userContext;
-
     private readonly INotificationService _notificationService;
 
     public UpdatePlannedWorkoutCommandHandler(
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IExerciseRepository exerciseRepository,
         ITraineeRepository traineeRepository,
-        IUserContext userContext,
         INotificationService notificationService)
     {
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _exerciseRepository = exerciseRepository;
         _traineeRepository = traineeRepository;
-        _userContext = userContext;
         _notificationService = notificationService;
     }
 
@@ -40,57 +35,52 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
             return null;
         }
 
-        var previousCompletedAt = plannedWorkout.CompletedAt;
-        var previousCompletionNote = plannedWorkout.CompletionNote;
         var previousReviewedAt = plannedWorkout.ReviewedAt;
         var previousReviewNote = plannedWorkout.ReviewNote;
-        var actorUserId = await _userContext.GetUserId(cancellationToken);
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
-        var actorIsAthlete = actorUserId.HasValue && trainee is not null && actorUserId.Value == trainee.AthleteUserId;
-        var actorIsCoach = actorUserId.HasValue && trainee is not null && actorUserId.Value == trainee.CoachUserId;
-        var completionChanged = previousCompletedAt != request.Workout.CompletedAt ||
-                                previousCompletionNote != request.Workout.CompletionNote;
-        var reviewChanged = previousReviewedAt != request.Workout.ReviewedAt ||
-                            previousReviewNote != request.Workout.ReviewNote;
+        var existingExercises = plannedWorkout.Exercises.ToList();
 
         plannedWorkout.Name = request.Workout.Name;
         plannedWorkout.Note = request.Workout.Note;
-        plannedWorkout.CompletedAt = request.Workout.CompletedAt;
-        plannedWorkout.CompletionNote = request.Workout.CompletionNote;
         plannedWorkout.ReviewedAt = request.Workout.ReviewedAt;
         plannedWorkout.ReviewNote = request.Workout.ReviewNote;
 
-        if (request.Workout.CompletedAt is null || (actorIsAthlete && completionChanged))
-        {
-            plannedWorkout.ReviewedAt = null;
-            plannedWorkout.ReviewNote = null;
-        }
-
         plannedWorkout.Exercises = request.Workout.Exercises
-            .Select(x => new PlannedExercise
+            .Select(x =>
             {
-                Id = x.Id,
-                Name = x.Name,
-                Note = x.Note,
-                ExerciseId = x.ExerciseId,
-                IsPublished = x.IsPublished,
-                IsDone = x.IsDone,
-                Prescription = x.Prescription is null
-                    ? null
-                    : new ExercisePrescription
-                    {
-                        TargetType = x.Prescription.TargetType,
-                        SetTargets = x.Prescription.SetTargets
-                            ?.Select(t => new ExercisePrescriptionSetTarget
-                            {
-                                Reps = t.Reps,
-                                DurationSeconds = t.DurationSeconds,
-                                DistanceMeters = t.DistanceMeters,
-                                Note = t.Note,
-                                IsDone = t.IsDone
-                            })
-                            .ToList()
-                    }
+                var existingExercise = existingExercises.FirstOrDefault(e => e.Id == x.Id);
+                return new PlannedExercise
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Note = x.Note,
+                    ExerciseId = x.ExerciseId,
+                    IsPublished = x.IsPublished,
+                    Prescription = x.Prescription is null
+                        ? null
+                        : new ExercisePrescription
+                        {
+                            TargetType = x.Prescription.TargetType,
+                            Sets = x.Prescription.Sets
+                                ?.Select((s, i) =>
+                                {
+                                    var existingActual = existingExercise?.Prescription?.Sets?.ElementAtOrDefault(i)?.Actual;
+                                    return new ExercisePrescriptionSet
+                                    {
+                                        Target = s.Target is null ? null : new ExercisePrescriptionSetTarget
+                                        {
+                                            Reps = s.Target.Reps,
+                                            DurationSeconds = s.Target.DurationSeconds,
+                                            DistanceMeters = s.Target.DistanceMeters,
+                                            WeightKg = s.Target.WeightKg,
+                                            Note = s.Target.Note,
+                                        },
+                                        Actual = existingActual,
+                                    };
+                                })
+                                .ToList()
+                        }
+                };
             })
             .ToList();
 
@@ -103,27 +93,10 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
 
         await _plannedWorkoutRepository.Update(plannedWorkout, cancellationToken);
 
-        if (previousCompletedAt is null &&
-            plannedWorkout.CompletedAt is not null &&
-            actorIsAthlete &&
-            trainee is not null)
-        {
-            var title = "Workout completed";
-            var body = string.IsNullOrWhiteSpace(plannedWorkout.CompletionNote)
-                ? $"Athlete completed the workout for {plannedWorkout.PlannedAt:yyyy-MM-dd}."
-                : $"Athlete completed the workout and left a note: {plannedWorkout.CompletionNote}";
+        var reviewChanged = previousReviewedAt != plannedWorkout.ReviewedAt ||
+                            previousReviewNote != plannedWorkout.ReviewNote;
 
-            await _notificationService.Notify(
-                trainee.CoachUserId,
-                type: "workout.completed",
-                title: title,
-                body: body,
-                href: $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={plannedWorkout.Id}",
-                cancellationToken: cancellationToken);
-        }
-
-        if (actorIsCoach &&
-            trainee is not null &&
+        if (trainee is not null &&
             plannedWorkout.CompletedAt is not null &&
             reviewChanged &&
             (plannedWorkout.ReviewedAt is not null || !string.IsNullOrWhiteSpace(plannedWorkout.ReviewNote)))

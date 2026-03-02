@@ -12,8 +12,6 @@ public class PlannedExerciseRequest
 
     public bool IsPublished { get; set; } = true;
 
-    public bool IsDone { get; set; } = false;
-
     public PlannedExercisePrescriptionRequest? Prescription { get; set; }
 }
 
@@ -21,10 +19,15 @@ public class PlannedExercisePrescriptionRequest
 {
     public string? TargetType { get; set; }
 
-    public ICollection<PlannedExercisePrescriptionSetTargetRequest>? SetTargets { get; set; }
+    public ICollection<ExercisePrescriptionSetRequest>? Sets { get; set; }
 }
 
-public class PlannedExercisePrescriptionSetTargetRequest
+public class ExercisePrescriptionSetRequest
+{
+    public ExercisePrescriptionSetTargetRequest? Target { get; set; }
+}
+
+public class ExercisePrescriptionSetTargetRequest
 {
     public int? Reps { get; set; }
 
@@ -32,7 +35,7 @@ public class PlannedExercisePrescriptionSetTargetRequest
 
     public double? DistanceMeters { get; set; }
 
-    public string? Note { get; set; }
+    public double? WeightKg { get; set; }
 
-    public bool IsDone { get; set; }
+    public string? Note { get; set; }
 }

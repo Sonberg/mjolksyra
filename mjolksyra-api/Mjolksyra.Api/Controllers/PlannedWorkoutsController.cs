@@ -8,6 +8,7 @@ using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
+using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 
 namespace Mjolksyra.Api.Controllers;
@@ -80,6 +81,20 @@ public class PlannedWorkoutsController : Controller
             PlannedWorkoutId = plannedWorkoutId,
             Workout = request
         }));
+    }
+
+    [HttpPut("{plannedWorkoutId:guid}/log")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> Log(
+        Guid traineeId, Guid plannedWorkoutId, [FromBody] LogPlannedWorkoutRequest request)
+    {
+        var result = await _mediator.Send(new LogPlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+            Log = request
+        });
+
+        return result is null ? NotFound() : Ok(result);
     }
 
     [HttpDelete("{plannedWorkoutId:guid}")]

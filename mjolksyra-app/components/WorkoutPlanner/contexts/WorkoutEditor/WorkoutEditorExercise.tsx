@@ -107,10 +107,10 @@ export function WorkoutEditorExercise({
 
   const prescription = plannedExercise.prescription ?? {
     targetType: "sets_reps" as const,
-    setTargets: [
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
-      { reps: 8, durationSeconds: null, distanceMeters: null, note: null, isDone: false },
+    sets: [
+      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
+      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
+      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
     ],
   };
 
@@ -120,42 +120,51 @@ export function WorkoutEditorExercise({
       reps: number | null;
       durationSeconds: number | null;
       distanceMeters: number | null;
+      weightKg: number | null;
       note: string | null;
-      isDone: boolean;
-    },
+    } | null,
   ) {
     if (targetType === "sets_reps") {
       return {
-        reps: source?.reps ?? 8,
-        durationSeconds: null,
-        distanceMeters: null,
-        note: source?.note ?? null,
-        isDone: false,
+        target: {
+          reps: source?.reps ?? 8,
+          durationSeconds: null,
+          distanceMeters: null,
+          weightKg: source?.weightKg ?? null,
+          note: source?.note ?? null,
+        },
+        actual: null,
       };
     }
 
     if (targetType === "duration_seconds") {
       return {
-        reps: null,
-        durationSeconds: source?.durationSeconds ?? 30,
-        distanceMeters: null,
-        note: source?.note ?? null,
-        isDone: false,
+        target: {
+          reps: null,
+          durationSeconds: source?.durationSeconds ?? 30,
+          distanceMeters: null,
+          weightKg: source?.weightKg ?? null,
+          note: source?.note ?? null,
+        },
+        actual: null,
       };
     }
 
     return {
-      reps: null,
-      durationSeconds: null,
-      distanceMeters: source?.distanceMeters ?? 1000,
-      note: source?.note ?? null,
-      isDone: false,
+      target: {
+        reps: null,
+        durationSeconds: null,
+        distanceMeters: source?.distanceMeters ?? 1000,
+        weightKg: source?.weightKg ?? null,
+        note: source?.note ?? null,
+      },
+      actual: null,
     };
   }
 
-  function normalizedTargets() {
-    if (prescription.setTargets?.length) {
-      return prescription.setTargets;
+  function normalizedSets() {
+    if (prescription.sets?.length) {
+      return prescription.sets;
     }
 
     if (prescription.targetType === "sets_reps") {
@@ -171,41 +180,53 @@ export function WorkoutEditorExercise({
     return [targetForType("distance_meters")];
   }
 
-  const setTargets = normalizedTargets();
+  const sets = normalizedSets();
 
   function patchSetTarget(
     index: number,
-    patch: Partial<(typeof setTargets)[number]>,
+    patch: Partial<{ reps: number | null; durationSeconds: number | null; distanceMeters: number | null; weightKg: number | null; note: string | null }>,
   ) {
-    const nextTargets = setTargets.map((target, targetIndex) =>
-      targetIndex === index ? { ...target, ...patch } : target,
-    );
+    const nextSets = sets.map((set, setIndex) => {
+      if (setIndex !== index) return set;
+      const t = set.target;
+      return {
+        ...set,
+        target: {
+          reps: t?.reps ?? null,
+          durationSeconds: t?.durationSeconds ?? null,
+          distanceMeters: t?.distanceMeters ?? null,
+          weightKg: t?.weightKg ?? null,
+          note: t?.note ?? null,
+          ...patch,
+        },
+      };
+    });
     onUpdatePrescription({
       ...prescription,
-      setTargets: nextTargets,
+      sets: nextSets,
     });
   }
 
-  function addSetTarget() {
-    const sourceTarget = setTargets[setTargets.length - 1] ?? setTargets[0];
-    const nextTarget = targetForType(prescription.targetType, sourceTarget);
+  function addSet() {
+    const sourceSet = sets[sets.length - 1] ?? sets[0];
+    const nextSet = targetForType(prescription.targetType, sourceSet?.target);
 
-    const nextTargets = [...setTargets, nextTarget];
+    const nextSets = [...sets, nextSet];
     onUpdatePrescription({
       ...prescription,
-      setTargets: nextTargets,
+      sets: nextSets,
     });
   }
 
-  function removeSetTarget(index: number) {
-    const nextTargets = setTargets.filter((_, targetIndex) => targetIndex !== index);
-    if (!nextTargets.length) {
+  function removeSet(index: number) {
+    const nextSets = sets.filter((_, setIndex) => setIndex !== index);
+    if (!nextSets.length) {
       return;
     }
 
     onUpdatePrescription({
       ...prescription,
-      setTargets: nextTargets,
+      sets: nextSets,
     });
   }
 
@@ -252,15 +273,15 @@ export function WorkoutEditorExercise({
           value={prescription.targetType}
           onChange={(ev) => {
             const targetType = ev.target.value as ExercisePrescription["targetType"];
-            const sourceTarget = setTargets[0];
-            const setTargetsForType =
+            const sourceSet = sets[0];
+            const setsForType =
               targetType === "sets_reps"
-                ? [targetForType(targetType, sourceTarget), targetForType(targetType, sourceTarget), targetForType(targetType, sourceTarget)]
-                : [targetForType(targetType, sourceTarget)];
+                ? [targetForType(targetType, sourceSet?.target), targetForType(targetType, sourceSet?.target), targetForType(targetType, sourceSet?.target)]
+                : [targetForType(targetType, sourceSet?.target)];
 
             onUpdatePrescription({
               targetType,
-              setTargets: setTargetsForType,
+              sets: setsForType,
             });
           }}
           className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
@@ -274,16 +295,16 @@ export function WorkoutEditorExercise({
         </p>
 
         <div className="space-y-2">
-          {setTargets.map((target, targetIndex) => (
-            <div key={`${plannedExercise.id}-set-${targetIndex}`} className="rounded border border-zinc-800 bg-zinc-900/30 p-2">
+          {sets.map((set, setIndex) => (
+            <div key={`${plannedExercise.id}-set-${setIndex}`} className="rounded border border-zinc-800 bg-zinc-900/30 p-2">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-400">
-                  Set {targetIndex + 1}
+                  Set {setIndex + 1}
                 </p>
                 <button
                   type="button"
-                  onClick={() => removeSetTarget(targetIndex)}
-                  disabled={setTargets.length <= 1}
+                  onClick={() => removeSet(setIndex)}
+                  disabled={sets.length <= 1}
                   className="inline-flex items-center gap-1 rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 disabled:opacity-40"
                 >
                   <Trash2Icon className="h-3 w-3" />
@@ -296,9 +317,9 @@ export function WorkoutEditorExercise({
                   <input
                     type="number"
                     min={1}
-                    value={target.reps ?? ""}
+                    value={set.target?.reps ?? ""}
                     onChange={(ev) =>
-                      patchSetTarget(targetIndex, {
+                      patchSetTarget(setIndex, {
                         reps: ev.target.value ? Number(ev.target.value) : null,
                       })
                     }
@@ -312,9 +333,9 @@ export function WorkoutEditorExercise({
                   <input
                     type="number"
                     min={1}
-                    value={target.durationSeconds ?? ""}
+                    value={set.target?.durationSeconds ?? ""}
                     onChange={(ev) =>
-                      patchSetTarget(targetIndex, {
+                      patchSetTarget(setIndex, {
                         durationSeconds: ev.target.value ? Number(ev.target.value) : null,
                       })
                     }
@@ -328,9 +349,9 @@ export function WorkoutEditorExercise({
                   <input
                     type="number"
                     min={1}
-                    value={target.distanceMeters ?? ""}
+                    value={set.target?.distanceMeters ?? ""}
                     onChange={(ev) =>
-                      patchSetTarget(targetIndex, {
+                      patchSetTarget(setIndex, {
                         distanceMeters: ev.target.value ? Number(ev.target.value) : null,
                       })
                     }
@@ -340,10 +361,25 @@ export function WorkoutEditorExercise({
                   />
                 ) : null}
 
-                <Textarea
-                  value={target.note ?? ""}
+                <input
+                  type="number"
+                  min={0}
+                  step="0.5"
+                  value={set.target?.weightKg ?? ""}
                   onChange={(ev) =>
-                    patchSetTarget(targetIndex, {
+                    patchSetTarget(setIndex, {
+                      weightKg: ev.target.value ? Number(ev.target.value) : null,
+                    })
+                  }
+                  className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                  placeholder="Target weight (kg, optional)"
+                  aria-label="Target weight in kilograms"
+                />
+
+                <Textarea
+                  value={set.target?.note ?? ""}
+                  onChange={(ev) =>
+                    patchSetTarget(setIndex, {
                       note: ev.target.value || null,
                     })
                   }
@@ -356,7 +392,7 @@ export function WorkoutEditorExercise({
 
           <button
             type="button"
-            onClick={addSetTarget}
+            onClick={addSet}
             className="inline-flex items-center gap-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs font-semibold text-zinc-100"
           >
             <PlusIcon className="h-3.5 w-3.5" />

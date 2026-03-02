@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { CheckCircle2Icon, CircleIcon, RotateCcwIcon } from "lucide-react";
 import { formatPrescription } from "@/lib/exercisePrescription";
 import Link from "next/link";
@@ -29,6 +30,53 @@ export function Workout({
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewNote, setReviewNote] = useState(workout.reviewNote ?? "");
 
+  function buildLogPayload(overrides: {
+    completedAt?: Date | null;
+    completionNote?: string | null;
+    exerciseActualOverride?: {
+      exerciseId: string;
+      setIndex?: number;
+      isDone?: boolean;
+      weightKg?: number | null;
+      toggleSetDone?: boolean;
+    };
+  }) {
+    return {
+      completedAt: overrides.completedAt !== undefined ? overrides.completedAt : (workout.completedAt ?? null),
+      completionNote: overrides.completionNote !== undefined ? overrides.completionNote : (workout.completionNote ?? null),
+      exercises: workout.exercises.map((e) => ({
+        id: e.id,
+        sets: (e.prescription?.sets ?? []).map((s, idx) => {
+          const override = overrides.exerciseActualOverride;
+          if (override && override.exerciseId === e.id) {
+            if (override.setIndex !== undefined && override.setIndex === idx) {
+              return {
+                weightKg: override.weightKg !== undefined ? override.weightKg : (s.actual?.weightKg ?? null),
+                durationSeconds: s.actual?.durationSeconds ?? null,
+                distanceMeters: s.actual?.distanceMeters ?? null,
+                isDone: override.toggleSetDone ? !(s.actual?.isDone ?? false) : (override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false)),
+              };
+            }
+            if (override.setIndex === undefined) {
+              return {
+                weightKg: s.actual?.weightKg ?? null,
+                durationSeconds: s.actual?.durationSeconds ?? null,
+                distanceMeters: s.actual?.distanceMeters ?? null,
+                isDone: override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false),
+              };
+            }
+          }
+          return {
+            weightKg: s.actual?.weightKg ?? null,
+            durationSeconds: s.actual?.durationSeconds ?? null,
+            distanceMeters: s.actual?.distanceMeters ?? null,
+            isDone: s.actual?.isDone ?? false,
+          };
+        }),
+      })),
+    };
+  }
+
   const saveCompletion = useMutation({
     mutationFn: async ({
       completedAt,
@@ -37,12 +85,10 @@ export function Workout({
       completedAt: Date | null;
       completionNote: string | null;
     }) =>
-      updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          completedAt,
-          completionNote,
-        },
+      logPlannedWorkout({
+        traineeId: workout.traineeId,
+        plannedWorkoutId: workout.id,
+        log: buildLogPayload({ completedAt, completionNote }),
       }),
     onSuccess: async () => {
       setIsLogging(false);
@@ -77,27 +123,10 @@ export function Workout({
       exerciseId: string;
       isDone: boolean;
     }) =>
-      updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          exercises: workout.exercises.map((exercise) =>
-            exercise.id === exerciseId
-              ? {
-                  ...exercise,
-                  isDone,
-                  prescription: exercise.prescription?.setTargets?.length
-                    ? {
-                        ...exercise.prescription,
-                        setTargets: exercise.prescription.setTargets.map((setTarget) => ({
-                          ...setTarget,
-                          isDone,
-                        })),
-                      }
-                    : exercise.prescription,
-                }
-              : exercise,
-          ),
-        },
+      logPlannedWorkout({
+        traineeId: workout.traineeId,
+        plannedWorkoutId: workout.id,
+        log: buildLogPayload({ exerciseActualOverride: { exerciseId, isDone } }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -112,35 +141,30 @@ export function Workout({
       exerciseId: string;
       setIndex: number;
     }) =>
-      updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          exercises: workout.exercises.map((exercise) => {
-            if (exercise.id !== exerciseId || !exercise.prescription?.setTargets) {
-              return exercise;
-            }
-
-            const nextSetTargets = exercise.prescription.setTargets.map((setTarget, index) =>
-              index === setIndex
-                ? {
-                    ...setTarget,
-                    isDone: !setTarget.isDone,
-                  }
-                : setTarget,
-            );
-
-            const allSetsDone = nextSetTargets.length > 0 && nextSetTargets.every((x) => x.isDone);
-
-            return {
-              ...exercise,
-              isDone: allSetsDone,
-              prescription: {
-                ...exercise.prescription,
-                setTargets: nextSetTargets,
-              },
-            };
-          }),
-        },
+      logPlannedWorkout({
+        traineeId: workout.traineeId,
+        plannedWorkoutId: workout.id,
+        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, toggleSetDone: true } }),
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+    },
+  });
+  const updateSetWeight = useMutation({
+    mutationFn: async ({
+      exerciseId,
+      setIndex,
+      weightKg,
+    }: {
+      exerciseId: string;
+      setIndex: number;
+      weightKg: number | null;
+    }) =>
+      logPlannedWorkout({
+        traineeId: workout.traineeId,
+        plannedWorkoutId: workout.id,
+        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, weightKg } }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -179,20 +203,20 @@ export function Workout({
   const isCompleted = !!workout.completedAt;
   const isReviewed = !!workout.reviewedAt;
 
-  function getSetTargetLabel(targetType: string | undefined, setTarget: {
+  function getSetTargetLabel(targetType: string | undefined, target: {
     reps: number | null;
     durationSeconds: number | null;
     distanceMeters: number | null;
-  }) {
+  } | null | undefined) {
     if (targetType === "duration_seconds") {
-      return `${setTarget.durationSeconds ?? "-"} s`;
+      return `${target?.durationSeconds ?? "-"} s`;
     }
 
     if (targetType === "distance_meters") {
-      return `${setTarget.distanceMeters ?? "-"} m`;
+      return `${target?.distanceMeters ?? "-"} m`;
     }
 
-    return `${setTarget.reps ?? "-"} reps`;
+    return `${target?.reps ?? "-"} reps`;
   }
 
   useEffect(() => {
@@ -512,12 +536,12 @@ export function Workout({
                 {exercise.note}
               </div>
             ) : null}
-            {viewerMode === "athlete" && isDetailView && exercise.prescription?.setTargets?.length ? (
+            {viewerMode === "athlete" && isDetailView && exercise.prescription?.sets?.length ? (
               <div className="ml-12 grid gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-3">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
                   Prescribed sets
                 </div>
-                {exercise.prescription.setTargets.map((setTarget, setIndex) => (
+                {exercise.prescription.sets.map((set, setIndex) => (
                   <div
                     key={`${exercise.id}-set-target-${setIndex}`}
                     className="flex items-start justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2"
@@ -525,20 +549,53 @@ export function Workout({
                     <div className="min-w-0">
                       <div
                         className={
-                          setTarget.isDone
+                          set.actual?.isDone
                             ? "text-sm font-semibold text-zinc-500 line-through"
                             : "text-sm font-semibold text-zinc-200"
                         }
                       >
-                        Set {setIndex + 1}: {getSetTargetLabel(exercise.prescription?.targetType, setTarget)}
+                        Set {setIndex + 1}: {getSetTargetLabel(exercise.prescription?.targetType, set.target)}
                       </div>
-                      {setTarget.note?.trim() ? (
-                        <div className="mt-1 text-xs text-zinc-400">{setTarget.note}</div>
+                      {set.target?.note?.trim() ? (
+                        <div className="mt-1 text-xs text-zinc-400">{set.target.note}</div>
                       ) : null}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {typeof set.target?.weightKg === "number" ? (
+                          <span className="text-xs text-zinc-400">
+                            Coach target: {set.target.weightKg} kg
+                          </span>
+                        ) : null}
+                        <input
+                          key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
+                          type="number"
+                          min={0}
+                          step="0.5"
+                          defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
+                          onBlur={(ev) => {
+                            const rawValue = ev.target.value.trim();
+                            const nextWeight = rawValue.length === 0 ? null : Number(rawValue);
+                            if (Number.isNaN(nextWeight)) {
+                              return;
+                            }
+                            const currentWeight = set.actual?.weightKg ?? null;
+                            if (currentWeight === nextWeight) {
+                              return;
+                            }
+                            updateSetWeight.mutate({
+                              exerciseId: exercise.id,
+                              setIndex,
+                              weightKg: nextWeight,
+                            });
+                          }}
+                          className="h-8 w-36 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                          placeholder="Actual kg"
+                          aria-label={`Actual weight for set ${setIndex + 1}`}
+                        />
+                      </div>
                     </div>
                     <button
                       type="button"
-                      disabled={toggleSetDone.isPending}
+                      disabled={toggleSetDone.isPending || updateSetWeight.isPending}
                       onClick={() =>
                         toggleSetDone.mutate({
                           exerciseId: exercise.id,
@@ -546,18 +603,18 @@ export function Workout({
                         })
                       }
                       className={
-                        setTarget.isDone
+                        set.actual?.isDone
                           ? "inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
                           : "inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
                       }
-                      title={setTarget.isDone ? "Mark set incomplete" : "Mark set done"}
+                      title={set.actual?.isDone ? "Mark set incomplete" : "Mark set done"}
                     >
-                      {setTarget.isDone ? (
+                      {set.actual?.isDone ? (
                         <CheckCircle2Icon className="h-3.5 w-3.5" />
                       ) : (
                         <CircleIcon className="h-3.5 w-3.5" />
                       )}
-                      {setTarget.isDone ? "Done" : "Mark done"}
+                      {set.actual?.isDone ? "Done" : "Mark done"}
                     </button>
                   </div>
                 ))}
