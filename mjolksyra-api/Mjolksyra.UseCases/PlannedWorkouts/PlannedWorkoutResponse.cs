@@ -103,6 +103,7 @@ public class PlannedExerciseResponse : IExerciseResponse
     {
         var exercise = exercises.FirstOrDefault(e => e.Id == plannedExercise.ExerciseId);
         var sets = plannedExercise.Prescription?.Sets;
+        var targetType = plannedExercise.Prescription?.TargetType;
 
         return new PlannedExerciseResponse
         {
@@ -125,14 +126,20 @@ public class PlannedExerciseResponse : IExerciseResponse
                                 Reps = x.Target.Reps,
                                 DurationSeconds = x.Target.DurationSeconds,
                                 DistanceMeters = x.Target.DistanceMeters,
-                                WeightKg = x.Target.WeightKg,
+                                WeightKg = targetType == ExercisePrescriptionTargetType.sets_reps
+                                    ? x.Target.WeightKg
+                                    : null,
                                 Note = x.Target.Note,
                             },
                             Actual = x.Actual is null ? null : new ExercisePrescriptionSetActualResponse
                             {
-                                WeightKg = x.Actual.WeightKg,
+                                Reps = x.Actual.Reps,
+                                WeightKg = targetType == ExercisePrescriptionTargetType.sets_reps
+                                    ? x.Actual.WeightKg
+                                    : null,
                                 DurationSeconds = x.Actual.DurationSeconds,
                                 DistanceMeters = x.Actual.DistanceMeters,
+                                Note = x.Actual.Note,
                                 IsDone = x.Actual.IsDone,
                             }
                         })
@@ -150,7 +157,7 @@ public class PlannedExerciseResponse : IExerciseResponse
 
 public class PlannedExercisePrescriptionResponse
 {
-    public string? TargetType { get; set; }
+    public ExercisePrescriptionTargetType? TargetType { get; set; }
 
     public ICollection<ExercisePrescriptionSetResponse>? Sets { get; set; }
 }
@@ -177,11 +184,15 @@ public class ExercisePrescriptionSetTargetResponse
 
 public class ExercisePrescriptionSetActualResponse
 {
+    public int? Reps { get; set; }
+
     public double? WeightKg { get; set; }
 
     public int? DurationSeconds { get; set; }
 
     public double? DistanceMeters { get; set; }
+
+    public string? Note { get; set; }
 
     public bool IsDone { get; set; }
 }

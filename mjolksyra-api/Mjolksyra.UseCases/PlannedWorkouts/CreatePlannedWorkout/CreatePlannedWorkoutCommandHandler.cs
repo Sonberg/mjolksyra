@@ -49,7 +49,9 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                                         Reps = x.Target.Reps,
                                         DurationSeconds = x.Target.DurationSeconds,
                                         DistanceMeters = x.Target.DistanceMeters,
-                                        WeightKg = x.Target.WeightKg,
+                                        WeightKg = e.Prescription.TargetType == ExercisePrescriptionTargetType.sets_reps
+                                            ? x.Target.WeightKg
+                                            : null,
                                         Note = x.Target.Note,
                                     },
                                     Actual = null

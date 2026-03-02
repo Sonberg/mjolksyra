@@ -6,7 +6,10 @@ import { useMemo } from "react";
 import { useWorkouts } from "../Workouts";
 import { monthId } from "@/lib/monthId";
 import { arrayMove } from "@dnd-kit/sortable";
-import { ExercisePrescription } from "@/lib/exercisePrescription";
+import {
+  ExercisePrescription,
+  ExercisePrescriptionTargetType,
+} from "@/lib/exercisePrescription";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -106,7 +109,7 @@ export function WorkoutEditorExercise({
   }
 
   const prescription = plannedExercise.prescription ?? {
-    targetType: "sets_reps" as const,
+    targetType: ExercisePrescriptionTargetType.SetsReps,
     sets: [
       { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
       { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
@@ -124,7 +127,7 @@ export function WorkoutEditorExercise({
       note: string | null;
     } | null,
   ) {
-    if (targetType === "sets_reps") {
+    if (targetType === ExercisePrescriptionTargetType.SetsReps) {
       return {
         target: {
           reps: source?.reps ?? 8,
@@ -137,13 +140,13 @@ export function WorkoutEditorExercise({
       };
     }
 
-    if (targetType === "duration_seconds") {
+    if (targetType === ExercisePrescriptionTargetType.DurationSeconds) {
       return {
         target: {
           reps: null,
           durationSeconds: source?.durationSeconds ?? 30,
           distanceMeters: null,
-          weightKg: source?.weightKg ?? null,
+          weightKg: null,
           note: source?.note ?? null,
         },
         actual: null,
@@ -155,7 +158,7 @@ export function WorkoutEditorExercise({
         reps: null,
         durationSeconds: null,
         distanceMeters: source?.distanceMeters ?? 1000,
-        weightKg: source?.weightKg ?? null,
+        weightKg: null,
         note: source?.note ?? null,
       },
       actual: null,
@@ -167,17 +170,17 @@ export function WorkoutEditorExercise({
       return prescription.sets;
     }
 
-    if (prescription.targetType === "sets_reps") {
+    if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
       return Array.from({ length: 3 }, () =>
-        targetForType("sets_reps"),
+        targetForType(ExercisePrescriptionTargetType.SetsReps),
       );
     }
 
-    if (prescription.targetType === "duration_seconds") {
-      return [targetForType("duration_seconds")];
+    if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
+      return [targetForType(ExercisePrescriptionTargetType.DurationSeconds)];
     }
 
-    return [targetForType("distance_meters")];
+    return [targetForType(ExercisePrescriptionTargetType.DistanceMeters)];
   }
 
   const sets = normalizedSets();
@@ -275,7 +278,7 @@ export function WorkoutEditorExercise({
             const targetType = ev.target.value as ExercisePrescription["targetType"];
             const sourceSet = sets[0];
             const setsForType =
-              targetType === "sets_reps"
+              targetType === ExercisePrescriptionTargetType.SetsReps
                 ? [targetForType(targetType, sourceSet?.target), targetForType(targetType, sourceSet?.target), targetForType(targetType, sourceSet?.target)]
                 : [targetForType(targetType, sourceSet?.target)];
 
@@ -286,9 +289,9 @@ export function WorkoutEditorExercise({
           }}
           className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
         >
-          <option value="sets_reps">Sets + reps</option>
-          <option value="duration_seconds">Static hold time</option>
-          <option value="distance_meters">Distance</option>
+          <option value={ExercisePrescriptionTargetType.SetsReps}>Sets + reps</option>
+          <option value={ExercisePrescriptionTargetType.DurationSeconds}>Static hold time</option>
+          <option value={ExercisePrescriptionTargetType.DistanceMeters}>Distance</option>
         </select>
         <p className="text-[11px] text-zinc-500">
           Time is entered in seconds (s), distance in meters (m).
@@ -313,7 +316,7 @@ export function WorkoutEditorExercise({
               </div>
 
               <div className="space-y-2">
-                {prescription.targetType === "sets_reps" ? (
+                {prescription.targetType === ExercisePrescriptionTargetType.SetsReps ? (
                   <input
                     type="number"
                     min={1}
@@ -329,7 +332,7 @@ export function WorkoutEditorExercise({
                   />
                 ) : null}
 
-                {prescription.targetType === "duration_seconds" ? (
+                {prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds ? (
                   <input
                     type="number"
                     min={1}
@@ -345,7 +348,7 @@ export function WorkoutEditorExercise({
                   />
                 ) : null}
 
-                {prescription.targetType === "distance_meters" ? (
+                {prescription.targetType === ExercisePrescriptionTargetType.DistanceMeters ? (
                   <input
                     type="number"
                     min={1}
@@ -361,20 +364,22 @@ export function WorkoutEditorExercise({
                   />
                 ) : null}
 
-                <input
-                  type="number"
-                  min={0}
-                  step="0.5"
-                  value={set.target?.weightKg ?? ""}
-                  onChange={(ev) =>
-                    patchSetTarget(setIndex, {
-                      weightKg: ev.target.value ? Number(ev.target.value) : null,
-                    })
-                  }
-                  className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
-                  placeholder="Target weight (kg, optional)"
-                  aria-label="Target weight in kilograms"
-                />
+                {prescription.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.5"
+                    value={set.target?.weightKg ?? ""}
+                    onChange={(ev) =>
+                      patchSetTarget(setIndex, {
+                        weightKg: ev.target.value ? Number(ev.target.value) : null,
+                      })
+                    }
+                    className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                    placeholder="Target weight (kg, optional)"
+                    aria-label="Target weight in kilograms"
+                  />
+                ) : null}
 
                 <Textarea
                   value={set.target?.note ?? ""}

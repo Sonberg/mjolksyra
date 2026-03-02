@@ -2,9 +2,11 @@ import { ApiClient } from "../client";
 import { workoutSchema } from "./schema";
 
 type ExercisePrescriptionSetActualPayload = {
+  reps: number | null;
   weightKg: number | null;
   durationSeconds: number | null;
   distanceMeters: number | null;
+  note: string | null;
   isDone: boolean;
 };
 

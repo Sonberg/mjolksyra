@@ -72,7 +72,9 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                                             Reps = s.Target.Reps,
                                             DurationSeconds = s.Target.DurationSeconds,
                                             DistanceMeters = s.Target.DistanceMeters,
-                                            WeightKg = s.Target.WeightKg,
+                                            WeightKg = x.Prescription.TargetType == ExercisePrescriptionTargetType.sets_reps
+                                                ? s.Target.WeightKg
+                                                : null,
                                             Note = s.Target.Note,
                                         },
                                         Actual = existingActual,

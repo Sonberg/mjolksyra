@@ -1,3 +1,5 @@
+using Mjolksyra.Domain.Database.Models;
+
 namespace Mjolksyra.UseCases.PlannedWorkouts;
 
 public class PlannedExerciseRequest
@@ -17,7 +19,7 @@ public class PlannedExerciseRequest
 
 public class PlannedExercisePrescriptionRequest
 {
-    public string? TargetType { get; set; }
+    public ExercisePrescriptionTargetType? TargetType { get; set; }
 
     public ICollection<ExercisePrescriptionSetRequest>? Sets { get; set; }
 }

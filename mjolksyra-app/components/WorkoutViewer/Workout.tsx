@@ -6,7 +6,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { CheckCircle2Icon, CircleIcon, RotateCcwIcon } from "lucide-react";
-import { formatPrescription } from "@/lib/exercisePrescription";
+import {
+  ExercisePrescriptionTargetType,
+  formatPrescription,
+} from "@/lib/exercisePrescription";
 import Link from "next/link";
 
 type Props = {
@@ -38,6 +41,8 @@ export function Workout({
       setIndex?: number;
       isDone?: boolean;
       weightKg?: number | null;
+      reps?: number | null;
+      note?: string | null;
       toggleSetDone?: boolean;
     };
   }) {
@@ -51,25 +56,31 @@ export function Workout({
           if (override && override.exerciseId === e.id) {
             if (override.setIndex !== undefined && override.setIndex === idx) {
               return {
+                reps: override.reps !== undefined ? override.reps : (s.actual?.reps ?? null),
                 weightKg: override.weightKg !== undefined ? override.weightKg : (s.actual?.weightKg ?? null),
                 durationSeconds: s.actual?.durationSeconds ?? null,
                 distanceMeters: s.actual?.distanceMeters ?? null,
+                note: override.note !== undefined ? override.note : (s.actual?.note ?? null),
                 isDone: override.toggleSetDone ? !(s.actual?.isDone ?? false) : (override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false)),
               };
             }
             if (override.setIndex === undefined) {
               return {
+                reps: s.actual?.reps ?? null,
                 weightKg: s.actual?.weightKg ?? null,
                 durationSeconds: s.actual?.durationSeconds ?? null,
                 distanceMeters: s.actual?.distanceMeters ?? null,
+                note: s.actual?.note ?? null,
                 isDone: override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false),
               };
             }
           }
           return {
+            reps: s.actual?.reps ?? null,
             weightKg: s.actual?.weightKg ?? null,
             durationSeconds: s.actual?.durationSeconds ?? null,
             distanceMeters: s.actual?.distanceMeters ?? null,
+            note: s.actual?.note ?? null,
             isDone: s.actual?.isDone ?? false,
           };
         }),
@@ -156,15 +167,19 @@ export function Workout({
       exerciseId,
       setIndex,
       weightKg,
+      reps,
+      note,
     }: {
       exerciseId: string;
       setIndex: number;
       weightKg: number | null;
+      reps: number | null;
+      note: string | null;
     }) =>
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, weightKg } }),
+        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, weightKg, reps, note } }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -208,11 +223,11 @@ export function Workout({
     durationSeconds: number | null;
     distanceMeters: number | null;
   } | null | undefined) {
-    if (targetType === "duration_seconds") {
+    if (targetType === ExercisePrescriptionTargetType.DurationSeconds) {
       return `${target?.durationSeconds ?? "-"} s`;
     }
 
-    if (targetType === "distance_meters") {
+    if (targetType === ExercisePrescriptionTargetType.DistanceMeters) {
       return `${target?.distanceMeters ?? "-"} m`;
     }
 
@@ -565,31 +580,86 @@ export function Workout({
                             Coach target: {set.target.weightKg} kg
                           </span>
                         ) : null}
+                        {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                          <input
+                            key={`${exercise.id}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
+                            type="number"
+                            min={0}
+                            defaultValue={set.actual?.reps ?? set.target?.reps ?? ""}
+                            onBlur={(ev) => {
+                              const rawValue = ev.target.value.trim();
+                              const nextReps = rawValue.length === 0 ? null : Number(rawValue);
+                              if (Number.isNaN(nextReps)) {
+                                return;
+                              }
+                              const currentReps = set.actual?.reps ?? null;
+                              if (currentReps === nextReps) {
+                                return;
+                              }
+                              updateSetWeight.mutate({
+                                exerciseId: exercise.id,
+                                setIndex,
+                                weightKg: set.actual?.weightKg ?? null,
+                                reps: nextReps,
+                                note: set.actual?.note ?? null,
+                              });
+                            }}
+                            className="h-8 w-28 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                            placeholder="Actual reps"
+                            aria-label={`Actual reps for set ${setIndex + 1}`}
+                          />
+                        ) : null}
+                        {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                          <input
+                            key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
+                            type="number"
+                            min={0}
+                            step="0.5"
+                            defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
+                            onBlur={(ev) => {
+                              const rawValue = ev.target.value.trim();
+                              const nextWeight = rawValue.length === 0 ? null : Number(rawValue);
+                              if (Number.isNaN(nextWeight)) {
+                                return;
+                              }
+                              const currentWeight = set.actual?.weightKg ?? null;
+                              if (currentWeight === nextWeight) {
+                                return;
+                              }
+                              updateSetWeight.mutate({
+                                exerciseId: exercise.id,
+                                setIndex,
+                                weightKg: nextWeight,
+                                reps: set.actual?.reps ?? null,
+                                note: set.actual?.note ?? null,
+                              });
+                            }}
+                            className="h-8 w-36 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                            placeholder="Actual kg"
+                            aria-label={`Actual weight for set ${setIndex + 1}`}
+                          />
+                        ) : null}
                         <input
-                          key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
-                          type="number"
-                          min={0}
-                          step="0.5"
-                          defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
+                          key={`${exercise.id}-${setIndex}-note-${set.actual?.note ?? "none"}`}
+                          type="text"
+                          defaultValue={set.actual?.note ?? ""}
                           onBlur={(ev) => {
-                            const rawValue = ev.target.value.trim();
-                            const nextWeight = rawValue.length === 0 ? null : Number(rawValue);
-                            if (Number.isNaN(nextWeight)) {
-                              return;
-                            }
-                            const currentWeight = set.actual?.weightKg ?? null;
-                            if (currentWeight === nextWeight) {
+                            const nextNote = ev.target.value.trim().length ? ev.target.value.trim() : null;
+                            const currentNote = set.actual?.note ?? null;
+                            if (currentNote === nextNote) {
                               return;
                             }
                             updateSetWeight.mutate({
                               exerciseId: exercise.id,
                               setIndex,
-                              weightKg: nextWeight,
+                              weightKg: set.actual?.weightKg ?? null,
+                              reps: set.actual?.reps ?? null,
+                              note: nextNote,
                             });
                           }}
-                          className="h-8 w-36 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
-                          placeholder="Actual kg"
-                          aria-label={`Actual weight for set ${setIndex + 1}`}
+                          className="h-8 min-w-[180px] flex-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                          placeholder="Set note (actual)"
+                          aria-label={`Actual note for set ${setIndex + 1}`}
                         />
                       </div>
                     </div>

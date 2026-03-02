@@ -1,5 +1,11 @@
+export enum ExercisePrescriptionTargetType {
+  SetsReps = "sets_reps",
+  DurationSeconds = "duration_seconds",
+  DistanceMeters = "distance_meters",
+}
+
 export type ExercisePrescription = {
-  targetType: "sets_reps" | "duration_seconds" | "distance_meters";
+  targetType: ExercisePrescriptionTargetType;
   sets: Array<{
     target: {
       reps: number | null;
@@ -9,9 +15,11 @@ export type ExercisePrescription = {
       note: string | null;
     } | null;
     actual: {
+      reps: number | null;
       weightKg: number | null;
       durationSeconds: number | null;
       distanceMeters: number | null;
+      note: string | null;
       isDone: boolean;
     } | null;
   }> | null;
@@ -28,7 +36,7 @@ export function inferPrescriptionFromMechanic(
     normalized.includes("hold")
   ) {
     return {
-      targetType: "duration_seconds",
+      targetType: ExercisePrescriptionTargetType.DurationSeconds,
       sets: [
         { target: { reps: null, durationSeconds: 30, distanceMeters: null, weightKg: null, note: null }, actual: null },
       ],
@@ -41,7 +49,7 @@ export function inferPrescriptionFromMechanic(
     normalized.includes("distance")
   ) {
     return {
-      targetType: "distance_meters",
+      targetType: ExercisePrescriptionTargetType.DistanceMeters,
       sets: [
         { target: { reps: null, durationSeconds: null, distanceMeters: 1000, weightKg: null, note: null }, actual: null },
       ],
@@ -49,7 +57,7 @@ export function inferPrescriptionFromMechanic(
   }
 
   return {
-    targetType: "sets_reps",
+    targetType: ExercisePrescriptionTargetType.SetsReps,
     sets: [
       { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
       { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
@@ -63,7 +71,7 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
     return null;
   }
 
-  if (prescription.targetType === "sets_reps") {
+  if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
     if (prescription.sets?.length) {
       const reps = prescription.sets
         .map((x) => x.target?.reps)
@@ -83,7 +91,7 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
     return null;
   }
 
-  if (prescription.targetType === "duration_seconds") {
+  if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
     if (prescription.sets?.length) {
       const values = prescription.sets
         .map((x) => x.target?.durationSeconds)

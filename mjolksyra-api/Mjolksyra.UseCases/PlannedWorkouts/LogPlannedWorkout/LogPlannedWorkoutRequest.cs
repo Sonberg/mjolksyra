@@ -18,11 +18,15 @@ public class PlannedExerciseLogRequest
 
 public class ExercisePrescriptionSetActualRequest
 {
+    public int? Reps { get; set; }
+
     public double? WeightKg { get; set; }
 
     public int? DurationSeconds { get; set; }
 
     public double? DistanceMeters { get; set; }
+
+    public string? Note { get; set; }
 
     public bool IsDone { get; set; }
 }

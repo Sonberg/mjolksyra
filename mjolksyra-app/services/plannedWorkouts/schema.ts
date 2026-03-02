@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription";
 
 export const exercisePrescriptionSchema = z.object({
-  targetType: z.enum(["sets_reps", "duration_seconds", "distance_meters"]),
+  targetType: z.nativeEnum(ExercisePrescriptionTargetType),
   sets: z
     .array(
       z.object({
@@ -18,9 +19,11 @@ export const exercisePrescriptionSchema = z.object({
           .default(null),
         actual: z
           .object({
+            reps: z.number().nullable().optional().default(null),
             weightKg: z.number().nullable(),
             durationSeconds: z.number().nullable(),
             distanceMeters: z.number().nullable(),
+            note: z.string().nullable().optional().default(null),
             isDone: z.boolean().default(false),
           })
           .nullable()
