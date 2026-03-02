@@ -7,6 +7,7 @@ using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Infrastructure.Clerk;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
+using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.Infrastructure.Notifications;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -46,8 +47,10 @@ public static class Configure
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
-        services.AddScoped<IEmailSender, BrevoEmailSender>();
-        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<BrevoEmailSender>();
+        services.AddScoped<NotificationService>();
+        services.AddScoped<IEmailSender, MassTransitEmailSender>();
+        services.AddScoped<INotificationService, MassTransitNotificationService>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

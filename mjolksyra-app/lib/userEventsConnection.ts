@@ -28,8 +28,8 @@ export function createUserEventsConnection(
   const hubUrl = useDirectWebSockets ? `${directApiUrl}/api/events/hub` : "/api/events/hub";
   const options: IHttpConnectionOptions = {
     accessTokenFactory: async () => (await getAccessToken?.()) ?? "",
-    transport: HttpTransportType.WebSockets,
-    skipNegotiation: true,
+    transport: HttpTransportType.WebSockets | HttpTransportType.ServerSentEvents | HttpTransportType.LongPolling,
+    skipNegotiation: false,
   };
 
   const connection = new HubConnectionBuilder()

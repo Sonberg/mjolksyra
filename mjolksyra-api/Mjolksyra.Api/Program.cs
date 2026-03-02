@@ -18,6 +18,7 @@ using Mjolksyra.Domain;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
+using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.UseCases;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -138,7 +139,13 @@ builder.Services
     });
 
 builder.Services
-    .AddMassTransit(opt => { opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context)); });
+    .AddMassTransit(opt =>
+    {
+        opt.AddConsumer<EmailSideEffectConsumer>();
+        opt.AddConsumer<NotificationSideEffectConsumer>();
+        opt.AddConsumer<NotificationSideEffectManyConsumer>();
+        opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
+    });
 
 builder.Services.AddAuthorization();
 var allowedOrigins = builder.Configuration
