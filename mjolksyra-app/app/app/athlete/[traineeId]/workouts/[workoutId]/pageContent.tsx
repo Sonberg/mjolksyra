@@ -29,8 +29,8 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
     : `/app/athlete/${traineeId}/workouts`;
 
   return (
-    <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-5 md:p-6">
-      <div className="mb-5 flex items-center gap-3">
+    <section className="space-y-4">
+      <div className="mb-1 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4 md:p-5">
         <Link
           href={backHref}
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"

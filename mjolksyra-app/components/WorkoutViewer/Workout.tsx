@@ -29,7 +29,9 @@ export function Workout({
 }: Props) {
   const queryClient = useQueryClient();
   const [isLogging, setIsLogging] = useState(false);
-  const [completionNote, setCompletionNote] = useState(workout.completionNote ?? "");
+  const [completionNote, setCompletionNote] = useState(
+    workout.completionNote ?? "",
+  );
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewNote, setReviewNote] = useState(workout.reviewNote ?? "");
 
@@ -49,8 +51,14 @@ export function Workout({
     };
   }) {
     return {
-      completedAt: overrides.completedAt !== undefined ? overrides.completedAt : (workout.completedAt ?? null),
-      completionNote: overrides.completionNote !== undefined ? overrides.completionNote : (workout.completionNote ?? null),
+      completedAt:
+        overrides.completedAt !== undefined
+          ? overrides.completedAt
+          : (workout.completedAt ?? null),
+      completionNote:
+        overrides.completionNote !== undefined
+          ? overrides.completionNote
+          : (workout.completionNote ?? null),
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -58,12 +66,31 @@ export function Workout({
           if (override && override.exerciseId === e.id) {
             if (override.setIndex !== undefined && override.setIndex === idx) {
               return {
-                reps: override.reps !== undefined ? override.reps : (s.actual?.reps ?? null),
-                weightKg: override.weightKg !== undefined ? override.weightKg : (s.actual?.weightKg ?? null),
-                durationSeconds: override.durationSeconds !== undefined ? override.durationSeconds : (s.actual?.durationSeconds ?? null),
-                distanceMeters: override.distanceMeters !== undefined ? override.distanceMeters : (s.actual?.distanceMeters ?? null),
-                note: override.note !== undefined ? override.note : (s.actual?.note ?? null),
-                isDone: override.toggleSetDone ? !(s.actual?.isDone ?? false) : (override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false)),
+                reps:
+                  override.reps !== undefined
+                    ? override.reps
+                    : (s.actual?.reps ?? null),
+                weightKg:
+                  override.weightKg !== undefined
+                    ? override.weightKg
+                    : (s.actual?.weightKg ?? null),
+                durationSeconds:
+                  override.durationSeconds !== undefined
+                    ? override.durationSeconds
+                    : (s.actual?.durationSeconds ?? null),
+                distanceMeters:
+                  override.distanceMeters !== undefined
+                    ? override.distanceMeters
+                    : (s.actual?.distanceMeters ?? null),
+                note:
+                  override.note !== undefined
+                    ? override.note
+                    : (s.actual?.note ?? null),
+                isDone: override.toggleSetDone
+                  ? !(s.actual?.isDone ?? false)
+                  : override.isDone !== undefined
+                    ? override.isDone
+                    : (s.actual?.isDone ?? false),
               };
             }
             if (override.setIndex === undefined) {
@@ -73,7 +100,10 @@ export function Workout({
                 durationSeconds: s.actual?.durationSeconds ?? null,
                 distanceMeters: s.actual?.distanceMeters ?? null,
                 note: s.actual?.note ?? null,
-                isDone: override.isDone !== undefined ? override.isDone : (s.actual?.isDone ?? false),
+                isDone:
+                  override.isDone !== undefined
+                    ? override.isDone
+                    : (s.actual?.isDone ?? false),
               };
             }
           }
@@ -139,7 +169,9 @@ export function Workout({
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ exerciseActualOverride: { exerciseId, isDone } }),
+        log: buildLogPayload({
+          exerciseActualOverride: { exerciseId, isDone },
+        }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -157,7 +189,9 @@ export function Workout({
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, toggleSetDone: true } }),
+        log: buildLogPayload({
+          exerciseActualOverride: { exerciseId, setIndex, toggleSetDone: true },
+        }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -185,7 +219,17 @@ export function Workout({
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ exerciseActualOverride: { exerciseId, setIndex, weightKg, reps, durationSeconds, distanceMeters, note } }),
+        log: buildLogPayload({
+          exerciseActualOverride: {
+            exerciseId,
+            setIndex,
+            weightKg,
+            reps,
+            durationSeconds,
+            distanceMeters,
+            note,
+          },
+        }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -224,11 +268,17 @@ export function Workout({
   const isCompleted = !!workout.completedAt;
   const isReviewed = !!workout.reviewedAt;
 
-  function getSetTargetLabel(targetType: string | undefined, target: {
-    reps: number | null;
-    durationSeconds: number | null;
-    distanceMeters: number | null;
-  } | null | undefined) {
+  function getSetTargetLabel(
+    targetType: string | undefined,
+    target:
+      | {
+          reps: number | null;
+          durationSeconds: number | null;
+          distanceMeters: number | null;
+        }
+      | null
+      | undefined,
+  ) {
     if (targetType === ExercisePrescriptionTargetType.DurationSeconds) {
       return `${target?.durationSeconds ?? "-"} s`;
     }
@@ -264,10 +314,10 @@ export function Workout({
           : "overflow-hidden bg-white/10"
       }
     >
-      <CardHeader className="font-bold over p-4">
-        <div className="flex items-center justify-between">
+      <CardHeader className="over p-3 font-bold sm:p-4">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <span className="truncate">{displayName}</span>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             {viewerMode === "athlete" && !isDetailView && traineeId ? (
               <Link
                 href={`/app/athlete/${traineeId}/workouts/${workout.id}`}
@@ -307,7 +357,7 @@ export function Workout({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 grid gap-4 bg-black rounded-t-lg">
+      <CardContent className="grid gap-3 rounded-t-lg bg-black p-3 sm:gap-4 sm:p-4">
         <div className="flex flex-wrap items-center gap-2">
           {viewerMode === "athlete" ? (
             <>
@@ -438,15 +488,20 @@ export function Workout({
             <p className="mt-1 text-sm text-zinc-200">{workout.note}</p>
           </div>
         ) : null}
-        {(isDetailView || viewerMode === "coach") && workout.completionNote?.trim() ? (
+        {(isDetailView || viewerMode === "coach") &&
+        workout.completionNote?.trim() ? (
           <div className="rounded-lg border border-emerald-900/60 bg-emerald-950/20 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-300/80">
               {viewerMode === "coach" ? "Athlete log" : "Your log"}
             </p>
-            <p className="mt-1 text-sm text-zinc-100">{workout.completionNote}</p>
+            <p className="mt-1 text-sm text-zinc-100">
+              {workout.completionNote}
+            </p>
           </div>
         ) : null}
-        {viewerMode === "coach" && isReviewing && !workout.completionNote?.trim() ? (
+        {viewerMode === "coach" &&
+        isReviewing &&
+        !workout.completionNote?.trim() ? (
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-400">
             Athlete completed this workout without a completion note.
           </div>
@@ -471,7 +526,9 @@ export function Workout({
                 disabled={saveReview.isPending}
                 onClick={() =>
                   saveReview.mutate({
-                    reviewedAt: workout.reviewedAt ? new Date(workout.reviewedAt) : null,
+                    reviewedAt: workout.reviewedAt
+                      ? new Date(workout.reviewedAt)
+                      : null,
                     reviewNote: reviewNote.trim() || null,
                   })
                 }
@@ -482,7 +539,9 @@ export function Workout({
             </div>
           </div>
         ) : null}
-        {viewerMode === "coach" && workout.reviewNote?.trim() && !isReviewing ? (
+        {viewerMode === "coach" &&
+        workout.reviewNote?.trim() &&
+        !isReviewing ? (
           <div className="rounded-lg border border-zinc-700/80 bg-zinc-900/70 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
               Coach log
@@ -500,11 +559,11 @@ export function Workout({
         ) : null}
         {workout.exercises.map((exercise, index) => (
           <div key={exercise.id} className="grid gap-2">
-            <div className="flex items-center gap-4">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
               <div className="bg-accent font-bold h-8 w-8 grid place-items-center rounded">
                 {index + 1}
               </div>
-              <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+              <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2 sm:gap-3">
                 <div className="min-w-0">
                   <div
                     className={
@@ -553,19 +612,21 @@ export function Workout({
               </div>
             </div>
             {exercise.note?.trim() ? (
-              <div className="ml-12 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300">
+              <div className="ml-0 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-300 sm:ml-12">
                 {exercise.note}
               </div>
             ) : null}
-            {viewerMode === "athlete" && isDetailView && exercise.prescription?.sets?.length ? (
-              <div className="ml-12 grid gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-3">
+            {viewerMode === "athlete" &&
+            isDetailView &&
+            exercise.prescription?.sets?.length ? (
+              <div className="ml-0 grid gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-2.5 sm:ml-12 sm:p-3">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
                   Prescribed sets
                 </div>
                 {exercise.prescription.sets.map((set, setIndex) => (
                   <div
                     key={`${exercise.id}-set-target-${setIndex}`}
-                    className="flex items-start justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2"
+                    className="flex items-start justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-2 sm:px-3"
                   >
                     <div className="min-w-0">
                       <div
@@ -575,21 +636,33 @@ export function Workout({
                             : "text-sm font-semibold text-zinc-200"
                         }
                       >
-                        Set {setIndex + 1}: {getSetTargetLabel(exercise.prescription?.targetType, set.target)}
+                        Set {setIndex + 1}:{" "}
+                        {getSetTargetLabel(
+                          exercise.prescription?.targetType,
+                          set.target,
+                        )}
                       </div>
                       {set.target?.note?.trim() ? (
-                        <div className="mt-1 text-xs text-zinc-400">{set.target.note}</div>
+                        <div className="mt-1 text-xs text-zinc-400">
+                          {set.target.note}
+                        </div>
                       ) : null}
                       <div className="mt-2 flex items-center gap-3 text-xs text-zinc-400">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Target</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+                          Target
+                        </span>
                         <span>
-                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps
+                          {exercise.prescription?.targetType ===
+                          ExercisePrescriptionTargetType.SetsReps
                             ? `${set.target?.reps ?? "-"} reps`
-                            : exercise.prescription?.targetType === ExercisePrescriptionTargetType.DurationSeconds
+                            : exercise.prescription?.targetType ===
+                                ExercisePrescriptionTargetType.DurationSeconds
                               ? `${set.target?.durationSeconds ?? "-"} s`
                               : `${set.target?.distanceMeters ?? "-"} m`}
                         </span>
-                        {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps && typeof set.target?.weightKg === "number" ? (
+                        {exercise.prescription?.targetType ===
+                          ExercisePrescriptionTargetType.SetsReps &&
+                        typeof set.target?.weightKg === "number" ? (
                           <>
                             <span className="text-zinc-600">•</span>
                             <span>{set.target.weightKg} kg</span>
@@ -597,18 +670,26 @@ export function Workout({
                         ) : null}
                       </div>
                       <div className="mt-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Actual</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+                          Actual
+                        </span>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
-                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                          {exercise.prescription?.targetType ===
+                          ExercisePrescriptionTargetType.SetsReps ? (
                             <div className="relative">
                               <input
                                 key={`${exercise.id}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
                                 type="number"
                                 min={0}
-                                defaultValue={set.actual?.reps ?? set.target?.reps ?? ""}
+                                defaultValue={
+                                  set.actual?.reps ?? set.target?.reps ?? ""
+                                }
                                 onBlur={(ev) => {
                                   const rawValue = ev.target.value.trim();
-                                  const nextReps = rawValue.length === 0 ? null : Number(rawValue);
+                                  const nextReps =
+                                    rawValue.length === 0
+                                      ? null
+                                      : Number(rawValue);
                                   if (Number.isNaN(nextReps)) {
                                     return;
                                   }
@@ -621,31 +702,44 @@ export function Workout({
                                     setIndex,
                                     weightKg: set.actual?.weightKg ?? null,
                                     reps: nextReps,
-                                    durationSeconds: set.actual?.durationSeconds ?? null,
-                                    distanceMeters: set.actual?.distanceMeters ?? null,
+                                    durationSeconds:
+                                      set.actual?.durationSeconds ?? null,
+                                    distanceMeters:
+                                      set.actual?.distanceMeters ?? null,
                                     note: set.actual?.note ?? null,
                                   });
                                 }}
                                 className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 text-xs text-zinc-100"
                                 aria-label={`Actual reps for set ${setIndex + 1}`}
                               />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">reps</span>
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                                reps
+                              </span>
                             </div>
                           ) : null}
-                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.DurationSeconds ? (
+                          {exercise.prescription?.targetType ===
+                          ExercisePrescriptionTargetType.DurationSeconds ? (
                             <div className="relative">
                               <input
                                 key={`${exercise.id}-${setIndex}-duration-${set.actual?.durationSeconds ?? set.target?.durationSeconds ?? "none"}`}
                                 type="number"
                                 min={0}
-                                defaultValue={set.actual?.durationSeconds ?? set.target?.durationSeconds ?? ""}
+                                defaultValue={
+                                  set.actual?.durationSeconds ??
+                                  set.target?.durationSeconds ??
+                                  ""
+                                }
                                 onBlur={(ev) => {
                                   const rawValue = ev.target.value.trim();
-                                  const nextDuration = rawValue.length === 0 ? null : Number(rawValue);
+                                  const nextDuration =
+                                    rawValue.length === 0
+                                      ? null
+                                      : Number(rawValue);
                                   if (Number.isNaN(nextDuration)) {
                                     return;
                                   }
-                                  const currentDuration = set.actual?.durationSeconds ?? null;
+                                  const currentDuration =
+                                    set.actual?.durationSeconds ?? null;
                                   if (currentDuration === nextDuration) {
                                     return;
                                   }
@@ -655,30 +749,42 @@ export function Workout({
                                     weightKg: set.actual?.weightKg ?? null,
                                     reps: set.actual?.reps ?? null,
                                     durationSeconds: nextDuration,
-                                    distanceMeters: set.actual?.distanceMeters ?? null,
+                                    distanceMeters:
+                                      set.actual?.distanceMeters ?? null,
                                     note: set.actual?.note ?? null,
                                   });
                                 }}
                                 className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
                                 aria-label={`Actual duration for set ${setIndex + 1}`}
                               />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">s</span>
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                                s
+                              </span>
                             </div>
                           ) : null}
-                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.DistanceMeters ? (
+                          {exercise.prescription?.targetType ===
+                          ExercisePrescriptionTargetType.DistanceMeters ? (
                             <div className="relative">
                               <input
                                 key={`${exercise.id}-${setIndex}-distance-${set.actual?.distanceMeters ?? set.target?.distanceMeters ?? "none"}`}
                                 type="number"
                                 min={0}
-                                defaultValue={set.actual?.distanceMeters ?? set.target?.distanceMeters ?? ""}
+                                defaultValue={
+                                  set.actual?.distanceMeters ??
+                                  set.target?.distanceMeters ??
+                                  ""
+                                }
                                 onBlur={(ev) => {
                                   const rawValue = ev.target.value.trim();
-                                  const nextDistance = rawValue.length === 0 ? null : Number(rawValue);
+                                  const nextDistance =
+                                    rawValue.length === 0
+                                      ? null
+                                      : Number(rawValue);
                                   if (Number.isNaN(nextDistance)) {
                                     return;
                                   }
-                                  const currentDistance = set.actual?.distanceMeters ?? null;
+                                  const currentDistance =
+                                    set.actual?.distanceMeters ?? null;
                                   if (currentDistance === nextDistance) {
                                     return;
                                   }
@@ -687,7 +793,8 @@ export function Workout({
                                     setIndex,
                                     weightKg: set.actual?.weightKg ?? null,
                                     reps: set.actual?.reps ?? null,
-                                    durationSeconds: set.actual?.durationSeconds ?? null,
+                                    durationSeconds:
+                                      set.actual?.durationSeconds ?? null,
                                     distanceMeters: nextDistance,
                                     note: set.actual?.note ?? null,
                                   });
@@ -695,24 +802,35 @@ export function Workout({
                                 className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
                                 aria-label={`Actual distance for set ${setIndex + 1}`}
                               />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">m</span>
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                                m
+                              </span>
                             </div>
                           ) : null}
-                          {exercise.prescription?.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+                          {exercise.prescription?.targetType ===
+                          ExercisePrescriptionTargetType.SetsReps ? (
                             <div className="relative">
                               <input
                                 key={`${exercise.id}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
                                 type="number"
                                 min={0}
                                 step="0.5"
-                                defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
+                                defaultValue={
+                                  set.actual?.weightKg ??
+                                  set.target?.weightKg ??
+                                  ""
+                                }
                                 onBlur={(ev) => {
                                   const rawValue = ev.target.value.trim();
-                                  const nextWeight = rawValue.length === 0 ? null : Number(rawValue);
+                                  const nextWeight =
+                                    rawValue.length === 0
+                                      ? null
+                                      : Number(rawValue);
                                   if (Number.isNaN(nextWeight)) {
                                     return;
                                   }
-                                  const currentWeight = set.actual?.weightKg ?? null;
+                                  const currentWeight =
+                                    set.actual?.weightKg ?? null;
                                   if (currentWeight === nextWeight) {
                                     return;
                                   }
@@ -721,15 +839,19 @@ export function Workout({
                                     setIndex,
                                     weightKg: nextWeight,
                                     reps: set.actual?.reps ?? null,
-                                    durationSeconds: set.actual?.durationSeconds ?? null,
-                                    distanceMeters: set.actual?.distanceMeters ?? null,
+                                    durationSeconds:
+                                      set.actual?.durationSeconds ?? null,
+                                    distanceMeters:
+                                      set.actual?.distanceMeters ?? null,
                                     note: set.actual?.note ?? null,
                                   });
                                 }}
                                 className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
                                 aria-label={`Actual weight for set ${setIndex + 1}`}
                               />
-                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">kg</span>
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                                kg
+                              </span>
                             </div>
                           ) : null}
                           <input
@@ -737,7 +859,9 @@ export function Workout({
                             type="text"
                             defaultValue={set.actual?.note ?? ""}
                             onBlur={(ev) => {
-                              const nextNote = ev.target.value.trim().length ? ev.target.value.trim() : null;
+                              const nextNote = ev.target.value.trim().length
+                                ? ev.target.value.trim()
+                                : null;
                               const currentNote = set.actual?.note ?? null;
                               if (currentNote === nextNote) {
                                 return;
@@ -747,8 +871,10 @@ export function Workout({
                                 setIndex,
                                 weightKg: set.actual?.weightKg ?? null,
                                 reps: set.actual?.reps ?? null,
-                                durationSeconds: set.actual?.durationSeconds ?? null,
-                                distanceMeters: set.actual?.distanceMeters ?? null,
+                                durationSeconds:
+                                  set.actual?.durationSeconds ?? null,
+                                distanceMeters:
+                                  set.actual?.distanceMeters ?? null,
                                 note: nextNote,
                               });
                             }}
@@ -761,7 +887,9 @@ export function Workout({
                     </div>
                     <button
                       type="button"
-                      disabled={toggleSetDone.isPending || updateSetWeight.isPending}
+                      disabled={
+                        toggleSetDone.isPending || updateSetWeight.isPending
+                      }
                       onClick={() =>
                         toggleSetDone.mutate({
                           exerciseId: exercise.id,
@@ -770,17 +898,23 @@ export function Workout({
                       }
                       className={
                         set.actual?.isDone
-                          ? "inline-flex items-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
-                          : "inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
+                          ? "inline-flex items-center justify-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-1 md:px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
+                          : "inline-flex items-center justify-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-1 md:px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
                       }
-                      title={set.actual?.isDone ? "Mark set incomplete" : "Mark set done"}
+                      title={
+                        set.actual?.isDone
+                          ? "Mark set incomplete"
+                          : "Mark set done"
+                      }
                     >
                       {set.actual?.isDone ? (
                         <CheckCircle2Icon className="h-3.5 w-3.5" />
                       ) : (
                         <CircleIcon className="h-3.5 w-3.5" />
                       )}
-                      {set.actual?.isDone ? "Done" : "Mark done"}
+                      <span className="hidden md:inline-flex gap-2">
+                        {set.actual?.isDone ? "Done" : "Mark done"}
+                      </span>
                     </button>
                   </div>
                 ))}

@@ -37,13 +37,14 @@ export function Day({ date, plannedWorkout }: Props) {
   const workouts = useWorkouts();
   const actions = usePlannedWorkoutActions();
   const id = useMemo(() => date.format(PLANNED_AT), [date]);
-  const isFutureWeek = useMemo(
-    () => date.startOf("week").isAfter(dayjs().startOf("week")),
+  const isPastDay = useMemo(
+    () => date.startOf("day").isBefore(dayjs().startOf("day")),
     [date]
   );
   const isCompleted = !!plannedWorkout?.completedAt;
-  const isLocked = isCompleted || !isFutureWeek;
-  const canPlan = !isLocked;
+  const isPast = isPastDay || isCompleted;
+  const isLocked = isPast;
+  const canPlan = !isPast;
 
   const data = useMemo(
     () => ({
@@ -185,7 +186,7 @@ export function Day({ date, plannedWorkout }: Props) {
                     title={
                       isCompleted
                         ? "Completed days are locked from planning changes."
-                        : "Planning is available for future weeks only."
+                        : "Planning is available for today and future days."
                     }
                   >
                     {isCompleted
@@ -228,7 +229,7 @@ export function Day({ date, plannedWorkout }: Props) {
                 <div className="select-none">
                   {canPlan
                     ? "Drag & drop exercises to start planning"
-                    : "Planning is available for future weeks only"}
+                    : "Planning is available for today and future days"}
                 </div>
               </div>
             )}

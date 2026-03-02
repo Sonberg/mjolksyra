@@ -27,10 +27,11 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
   const updateDebounce = useDebounce(async (plannedWorkout: PlannedWorkout) => {
     await update({ plannedWorkout });
   }, 600);
-  const isFutureWeek = dayjs(plannedWorkout?.plannedAt)
-    .startOf("week")
-    .isAfter(dayjs().startOf("week"));
-  const isLocked = !!plannedWorkout?.completedAt || !isFutureWeek;
+  const isPastDay = dayjs(plannedWorkout?.plannedAt)
+    .startOf("day")
+    .isBefore(dayjs().startOf("day"));
+  const isPast = !!plannedWorkout?.completedAt || isPastDay;
+  const isLocked = isPast;
   const hasDraftExercises = !!plannedWorkout?.exercises.some((x) => !x.isPublished);
 
   async function onPublish() {

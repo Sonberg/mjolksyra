@@ -203,8 +203,8 @@ export function WorkoutViewer({
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-3xl font-bold">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-xl font-bold sm:text-3xl">
           {viewerMode === "coach"
             ? mode === "future"
               ? "Upcoming workouts"
@@ -227,7 +227,7 @@ export function WorkoutViewer({
           onSelect={(tab) => setMode(tab.value)}
         />
       </div>
-      <div className="grid gap-8">
+      <div className="grid gap-4 sm:gap-8">
         {data.map((x) => (
           <Workout
             key={x.id}
