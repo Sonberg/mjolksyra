@@ -25,6 +25,21 @@ export const updateFeedbackStatusResultSchema = z.object({
   status: z.string(),
 });
 
+export const coachRevenueItemSchema = z.object({
+  coachUserId: z.string(),
+  coachName: z.string(),
+  coachEmail: z.string(),
+  activeSubscriptions: z.number(),
+  monthlyAthleteRevenue: z.number(),
+  totalAthleteRevenue: z.number(),
+  billingSetupStatus: z.string(),
+  platformFeeStatus: z.string(),
+  platformFeeTrialEndsAt: z.coerce.date().nullable(),
+});
+
+export const coachRevenueListSchema = z.array(coachRevenueItemSchema);
+
 export type AdminStats = z.infer<typeof adminStatsSchema>;
 export type FeedbackReportItem = z.infer<typeof feedbackReportItemSchema>;
 export type UpdateFeedbackStatusResult = z.infer<typeof updateFeedbackStatusResultSchema>;
+export type CoachRevenueItem = z.infer<typeof coachRevenueItemSchema>;

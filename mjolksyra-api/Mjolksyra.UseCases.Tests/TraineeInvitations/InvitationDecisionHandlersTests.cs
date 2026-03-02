@@ -1,9 +1,11 @@
 using MediatR;
 using Moq;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 using Mjolksyra.UseCases.TraineeInvitations.AcceptTraineeInvitation;
 using Mjolksyra.UseCases.TraineeInvitations.DeclineTraineeInvitation;
 
@@ -78,6 +80,78 @@ public class InvitationDecisionHandlersTests
         }, CancellationToken.None);
 
         repository.Verify(x => x.RejectAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task AcceptInvitation_WhenAthletePaymentMethodConnected_TriggersSubscriptionSetup()
+    {
+        var invitation = CreateInvitation();
+        var athlete = CreateUser(invitation.Email.Value);
+        athlete.Athlete = new UserAthlete
+        {
+            Stripe = new UserAthleteStripe
+            {
+                Status = StripeStatus.Succeeded,
+                CustomerId = "cus_123",
+                PaymentMethodId = "pm_123",
+            }
+        };
+
+        var coach = CreateUser("coach@example.com");
+        coach.Coach = new UserCoach
+        {
+            Stripe = new UserCoachStripe
+            {
+                Status = StripeStatus.Succeeded,
+                AccountId = "acct_123",
+            }
+        };
+        invitation.CoachUserId = coach.Id;
+
+        var invitations = new Mock<ITraineeInvitationsRepository>();
+        invitations.Setup(x => x.GetByIdAsync(invitation.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invitation);
+
+        var users = new Mock<IUserRepository>();
+        users.Setup(x => x.GetById(athlete.Id, It.IsAny<CancellationToken>())).ReturnsAsync(athlete);
+        users.Setup(x => x.GetById(coach.Id, It.IsAny<CancellationToken>())).ReturnsAsync(coach);
+
+        var createdTraineeId = Guid.NewGuid();
+        var trainees = new Mock<ITraineeRepository>();
+        trainees
+            .Setup(x => x.ExistsActiveRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        trainees
+            .Setup(x => x.Create(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Trainee t, CancellationToken _) =>
+            {
+                t.Id = createdTraineeId;
+                return t;
+            });
+
+        var mediator = new Mock<IMediator>();
+
+        var sut = new AcceptTraineeInvitationCommandHandler(
+            trainees.Object,
+            invitations.Object,
+            users.Object,
+            Mock.Of<IEmailSender>(),
+            Mock.Of<INotificationService>(),
+            mediator.Object);
+
+        await sut.Handle(new AcceptTraineeInvitationCommand
+        {
+            TraineeInvitationId = invitation.Id,
+            AthleteUserId = athlete.Id
+        }, CancellationToken.None);
+
+        mediator.Verify(x => x.Send(
+            It.Is<UpdateTraineeCostCommand>(c =>
+                c.TraineeId == createdTraineeId
+                && c.UserId == coach.Id
+                && c.Amount == invitation.MonthlyPriceAmount
+                && c.BillingMode == PriceChangeBillingMode.NextCycle
+                && c.SuppressPriceChangedNotification),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static TraineeInvitation CreateInvitation()

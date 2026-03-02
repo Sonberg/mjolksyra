@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Admin.GetAdminStats;
+using Mjolksyra.UseCases.Admin.GetCoachRevenue;
 using Mjolksyra.UseCases.Admin.GetFeedbackReports;
 using Mjolksyra.UseCases.Admin.UpdateFeedbackReportStatus;
 
@@ -28,6 +29,15 @@ public class AdminController(IMediator mediator, IUserContext userContext) : Con
         if (!await userContext.IsAdminAsync(ct)) return Forbid();
 
         var result = await mediator.Send(new GetFeedbackReportsRequest(), ct);
+        return Ok(result);
+    }
+
+    [HttpGet("coaches/revenue")]
+    public async Task<ActionResult<ICollection<CoachRevenueItem>>> GetCoachRevenue(CancellationToken ct)
+    {
+        if (!await userContext.IsAdminAsync(ct)) return Forbid();
+
+        var result = await mediator.Send(new GetCoachRevenueRequest(), ct);
         return Ok(result);
     }
 

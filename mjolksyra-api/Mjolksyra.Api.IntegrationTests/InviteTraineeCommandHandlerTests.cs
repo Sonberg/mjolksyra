@@ -161,6 +161,15 @@ public class InviteTraineeCommandHandlerTests
         public Task<User> Create(User user, CancellationToken ct) => Task.FromResult(user);
 
         public Task<User> Update(User user, CancellationToken ct) => Task.FromResult(user);
+
+        public Task<ICollection<User>> GetCoachUsersAsync(CancellationToken ct) =>
+            Task.FromResult<ICollection<User>>([]);
+
+        public Task<long> CountAsync(CancellationToken ct) => Task.FromResult(0L);
+
+        public Task<long> CountCoachesAsync(CancellationToken ct) => Task.FromResult(0L);
+
+        public Task<long> CountAthletesAsync(CancellationToken ct) => Task.FromResult(0L);
     }
 
     private sealed class FakeTraineeRepository : ITraineeRepository
@@ -173,6 +182,8 @@ public class InviteTraineeCommandHandlerTests
 
         public Task<Trainee?> GetById(Guid traineeId, CancellationToken ct) => Task.FromResult<Trainee?>(null);
 
+        public Task<ICollection<Trainee>> GetAllAsync(CancellationToken ct) => Task.FromResult<ICollection<Trainee>>([]);
+
         public Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct) => Task.FromResult<ICollection<Trainee>>([]);
 
         public Task<bool> HasAccess(Guid traineeId, Guid userId, CancellationToken cancellationToken) => Task.FromResult(false);
@@ -180,6 +191,10 @@ public class InviteTraineeCommandHandlerTests
         public Task<Trainee?> GetBySubscriptionId(string subscriptionId, CancellationToken ct) => Task.FromResult<Trainee?>(null);
 
         public Task<int> CountActiveByCoachId(Guid coachUserId, CancellationToken ct) => Task.FromResult(0);
+
+        public Task<long> CountActiveAsync(CancellationToken ct) => Task.FromResult(0L);
+
+        public Task<decimal> TotalRevenueAsync(CancellationToken ct) => Task.FromResult(0m);
 
         public Task<bool> ExistsActiveRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct) =>
             Task.FromResult(ExistsActiveRelationshipResult);

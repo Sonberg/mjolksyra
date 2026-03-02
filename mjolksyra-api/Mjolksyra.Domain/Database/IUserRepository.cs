@@ -16,6 +16,8 @@ public interface IUserRepository
 
     Task<User> Update(User user, CancellationToken ct);
 
+    Task<ICollection<User>> GetCoachUsersAsync(CancellationToken ct);
+
     Task<long> CountAsync(CancellationToken ct);
 
     Task<long> CountCoachesAsync(CancellationToken ct);

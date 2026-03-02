@@ -154,5 +154,14 @@ public class UserContextIntegrationTests
             UserByClerkId = user;
             return Task.FromResult(user);
         }
+
+        public Task<ICollection<User>> GetCoachUsersAsync(CancellationToken ct) =>
+            Task.FromResult<ICollection<User>>([]);
+
+        public Task<long> CountAsync(CancellationToken ct) => Task.FromResult(0L);
+
+        public Task<long> CountCoachesAsync(CancellationToken ct) => Task.FromResult(0L);
+
+        public Task<long> CountAthletesAsync(CancellationToken ct) => Task.FromResult(0L);
     }
 }

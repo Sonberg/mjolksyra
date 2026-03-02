@@ -31,18 +31,10 @@ public class InviteTraineeCommandHandler(
         var athlete = await userRepository.GetByEmail(request.Email, cancellationToken);
         var coach = await userRepository.GetById(request.CoachUserId, cancellationToken);
 
-        if (athlete is null)
-        {
-            return new InviteTraineeError
-            {
-                Code = InviteTraineeErrorCode.AthleteNotFound,
-                Message = "Athlete must already exist and be coached by this coach."
-            };
-        }
 
-        var hasActiveRelationship =
-            await traineeRepository.ExistsActiveRelationship(request.CoachUserId, athlete.Id, cancellationToken);
-        if (!hasActiveRelationship)
+        var hasActiveRelationship = athlete is not null && await traineeRepository.ExistsActiveRelationship(request.CoachUserId, athlete.Id, cancellationToken);
+
+        if (hasActiveRelationship)
         {
             return new InviteTraineeError
             {

@@ -10,6 +10,8 @@ public interface ITraineeRepository
 
     Task<Trainee?> GetById(Guid traineeId, CancellationToken ct);
 
+    Task<ICollection<Trainee>> GetAllAsync(CancellationToken ct);
+
     Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct);
 
     Task<bool> HasAccess(Guid traineeId, Guid userId, CancellationToken cancellationToken);

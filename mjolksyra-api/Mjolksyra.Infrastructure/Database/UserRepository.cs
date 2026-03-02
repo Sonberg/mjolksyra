@@ -73,6 +73,14 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<ICollection<User>> GetCoachUsersAsync(CancellationToken ct)
+    {
+        return await _context.Users
+            .Find(x => x.Coach != null)
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.ToList(), ct);
+    }
+
     public async Task<long> CountAsync(CancellationToken ct)
     {
         return await _context.Users.CountDocumentsAsync(Builders<User>.Filter.Empty, cancellationToken: ct);

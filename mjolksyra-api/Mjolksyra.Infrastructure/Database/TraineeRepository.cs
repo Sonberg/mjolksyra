@@ -42,6 +42,13 @@ public class TraineeRepository : ITraineeRepository
             .ContinueWith(t => t.Result.SingleOrDefault(), ct);
     }
 
+    public async Task<ICollection<Trainee>> GetAllAsync(CancellationToken ct)
+    {
+        return await _context.Trainees
+            .Find(Builders<Trainee>.Filter.Empty)
+            .ToListAsync(ct);
+    }
+
     public async Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct)
     {
         var filters = Builders<Trainee>.Filter.Or([

@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
+using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 
 namespace Mjolksyra.UseCases.TraineeInvitations.AcceptTraineeInvitation;
 
@@ -32,7 +33,7 @@ public class AcceptTraineeInvitationCommandHandler(
             return;
         }
 
-        await traineeRepository.Create(new Trainee
+        var trainee = await traineeRepository.Create(new Trainee
         {
             Id = Guid.NewGuid(),
             Status = TraineeStatus.Active,
@@ -63,6 +64,20 @@ public class AcceptTraineeInvitationCommandHandler(
         var athleteNeedsPaymentSetup = athlete.Athlete?.Stripe?.Status != StripeStatus.Succeeded
                                        || athlete.Athlete?.Stripe?.CustomerId is null
                                        || athlete.Athlete?.Stripe?.PaymentMethodId is null;
+
+        var coachReadyForBilling = coach.Coach?.Stripe?.Status == StripeStatus.Succeeded
+                                   && !string.IsNullOrWhiteSpace(coach.Coach.Stripe.AccountId);
+        if (!athleteNeedsPaymentSetup && coachReadyForBilling && trainee.Cost.Amount > 0)
+        {
+            await mediator.Send(new UpdateTraineeCostCommand
+            {
+                TraineeId = trainee.Id,
+                UserId = coach.Id,
+                Amount = trainee.Cost.Amount,
+                BillingMode = PriceChangeBillingMode.NextCycle,
+                SuppressPriceChangedNotification = true,
+            }, cancellationToken);
+        }
 
         if (athleteNeedsPaymentSetup)
         {
