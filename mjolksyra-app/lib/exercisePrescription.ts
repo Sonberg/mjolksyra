@@ -59,9 +59,7 @@ export function inferPrescriptionFromMechanic(
   return {
     targetType: ExercisePrescriptionTargetType.SetsReps,
     sets: [
-      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
-      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
-      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
+      { target: { reps: null, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
     ],
   };
 }

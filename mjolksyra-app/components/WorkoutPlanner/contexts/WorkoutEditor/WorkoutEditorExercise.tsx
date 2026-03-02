@@ -111,9 +111,7 @@ export function WorkoutEditorExercise({
   const prescription = plannedExercise.prescription ?? {
     targetType: ExercisePrescriptionTargetType.SetsReps,
     sets: [
-      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
-      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
-      { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
+      { target: { reps: null, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
     ],
   };
 
@@ -130,7 +128,7 @@ export function WorkoutEditorExercise({
     if (targetType === ExercisePrescriptionTargetType.SetsReps) {
       return {
         target: {
-          reps: source?.reps ?? 8,
+          reps: source?.reps ?? null,
           durationSeconds: null,
           distanceMeters: null,
           weightKg: source?.weightKg ?? null,
@@ -171,9 +169,7 @@ export function WorkoutEditorExercise({
     }
 
     if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
-      return Array.from({ length: 3 }, () =>
-        targetForType(ExercisePrescriptionTargetType.SetsReps),
-      );
+      return [targetForType(ExercisePrescriptionTargetType.SetsReps)];
     }
 
     if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
@@ -277,10 +273,7 @@ export function WorkoutEditorExercise({
           onChange={(ev) => {
             const targetType = ev.target.value as ExercisePrescription["targetType"];
             const sourceSet = sets[0];
-            const setsForType =
-              targetType === ExercisePrescriptionTargetType.SetsReps
-                ? [targetForType(targetType, sourceSet?.target), targetForType(targetType, sourceSet?.target), targetForType(targetType, sourceSet?.target)]
-                : [targetForType(targetType, sourceSet?.target)];
+            const setsForType = [targetForType(targetType, sourceSet?.target)];
 
             onUpdatePrescription({
               targetType,

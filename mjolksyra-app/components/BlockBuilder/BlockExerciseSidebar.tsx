@@ -28,7 +28,7 @@ function targetForType(
   if (targetType === ExercisePrescriptionTargetType.SetsReps) {
     return {
       target: {
-        reps: source?.reps ?? 8,
+        reps: source?.reps ?? null,
         durationSeconds: null,
         distanceMeters: null,
         weightKg: source?.weightKg ?? null,
@@ -66,11 +66,7 @@ function targetForType(
 function defaultPrescription(): ExercisePrescription {
   return {
     targetType: ExercisePrescriptionTargetType.SetsReps,
-    sets: [
-      targetForType(ExercisePrescriptionTargetType.SetsReps),
-      targetForType(ExercisePrescriptionTargetType.SetsReps),
-      targetForType(ExercisePrescriptionTargetType.SetsReps),
-    ],
+    sets: [targetForType(ExercisePrescriptionTargetType.SetsReps)],
   };
 }
 
@@ -80,9 +76,7 @@ function normalizedSets(prescription: ExercisePrescription) {
   }
 
   if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
-    return Array.from({ length: 3 }, () =>
-      targetForType(ExercisePrescriptionTargetType.SetsReps),
-    );
+    return [targetForType(ExercisePrescriptionTargetType.SetsReps)];
   }
 
   if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
@@ -139,14 +133,7 @@ export function BlockExerciseSidebar({
 
   function updateTargetType(targetType: ExercisePrescription["targetType"]) {
     const sourceSet = sets[0];
-    const setsForType =
-      targetType === ExercisePrescriptionTargetType.SetsReps
-        ? [
-            targetForType(targetType, sourceSet?.target),
-            targetForType(targetType, sourceSet?.target),
-            targetForType(targetType, sourceSet?.target),
-          ]
-        : [targetForType(targetType, sourceSet?.target)];
+    const setsForType = [targetForType(targetType, sourceSet?.target)];
 
     onUpdatePrescription({
       targetType,

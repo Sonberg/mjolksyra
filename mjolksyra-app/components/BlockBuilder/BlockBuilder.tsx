@@ -8,7 +8,10 @@ import { v4 } from "uuid";
 
 import { BlockWorkout, BlockExercise } from "@/services/blocks/type";
 import { BlockWeek } from "./BlockWeek";
-import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
+import {
+  ExercisePrescription,
+  ExercisePrescriptionTargetType,
+} from "@/lib/exercisePrescription";
 
 type Props = {
   workouts: BlockWorkout[];
@@ -27,6 +30,24 @@ export function BlockBuilder({
   activeExerciseId,
   mode,
 }: Props) {
+  function defaultBlockPrescription(): ExercisePrescription {
+    return {
+      targetType: ExercisePrescriptionTargetType.SetsReps,
+      sets: [
+        {
+          target: {
+            reps: null,
+            durationSeconds: null,
+            distanceMeters: null,
+            weightKg: null,
+            note: null,
+          },
+          actual: null,
+        },
+      ],
+    };
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
     const over = event.over;
     const active = event.active;
@@ -48,7 +69,7 @@ export function BlockBuilder({
         exerciseId: exercise.id,
         name: exercise.name,
         note: null,
-        prescription: inferPrescriptionFromMechanic(exercise.mechanic),
+        prescription: defaultBlockPrescription(),
       };
       addExerciseToDay(week, dayOfWeek, newExercise);
       return;
