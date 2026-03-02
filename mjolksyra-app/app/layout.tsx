@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png" }],
   },
-  manifest: "/site.webmanifest",
+  manifest: "/manifest.json",
   robots: {
     index: true,
     follow: true,

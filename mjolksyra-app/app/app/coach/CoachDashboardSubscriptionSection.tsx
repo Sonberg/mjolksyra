@@ -65,8 +65,8 @@ export function CoachDashboardSubscriptionSection({
         </div>
 
         {isTrialing && (
-          <div className="rounded-xl border border-amber-700 bg-amber-950/50 px-4 py-3 text-sm text-amber-200">
-            You are on a free trial — your first charge is on{" "}
+          <div className="rounded-xl border border-emerald-700 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-200">
+            Free trial active. Your first charge starts on{" "}
             <span className="font-semibold">
               {trialEndsAt!.toLocaleDateString("sv-SE")}
             </span>{" "}
