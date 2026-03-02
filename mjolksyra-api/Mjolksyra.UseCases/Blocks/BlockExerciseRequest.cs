@@ -1,3 +1,5 @@
+using Mjolksyra.Domain.Database.Models;
+
 namespace Mjolksyra.UseCases.Blocks;
 
 public class BlockExerciseRequest
@@ -9,4 +11,6 @@ public class BlockExerciseRequest
     public required string Name { get; set; }
 
     public string? Note { get; set; }
+
+    public ExercisePrescription? Prescription { get; set; }
 }

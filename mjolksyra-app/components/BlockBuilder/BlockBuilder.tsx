@@ -8,14 +8,25 @@ import { v4 } from "uuid";
 
 import { BlockWorkout, BlockExercise } from "@/services/blocks/type";
 import { BlockWeek } from "./BlockWeek";
+import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
 
 type Props = {
   workouts: BlockWorkout[];
   numberOfWeeks: number;
   onChange: (workouts: BlockWorkout[]) => void;
+  onEditExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
+  activeExerciseId: string | null;
+  mode: "arrange" | "edit";
 };
 
-export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
+export function BlockBuilder({
+  workouts,
+  numberOfWeeks,
+  onChange,
+  onEditExercise,
+  activeExerciseId,
+  mode,
+}: Props) {
   const handleDragEnd = (event: DragEndEvent) => {
     const over = event.over;
     const active = event.active;
@@ -37,6 +48,7 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
         exerciseId: exercise.id,
         name: exercise.name,
         note: null,
+        prescription: inferPrescriptionFromMechanic(exercise.mechanic),
       };
       addExerciseToDay(week, dayOfWeek, newExercise);
       return;
@@ -143,28 +155,6 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
     onChange(updated);
   };
 
-  const handleUpdateExerciseNote = (
-    week: number,
-    dayOfWeek: number,
-    exerciseId: string,
-    note: string | null
-  ) => {
-    onChange(
-      workouts.map((w) => {
-        if (w.week !== week || w.dayOfWeek !== dayOfWeek) {
-          return w;
-        }
-
-        return {
-          ...w,
-          exercises: w.exercises.map((e) =>
-            e.id === exerciseId ? { ...e, note } : e
-          ),
-        };
-      })
-    );
-  };
-
   const weeks = Array.from({ length: numberOfWeeks }, (_, i) => i + 1);
 
   useDndMonitor({
@@ -179,7 +169,9 @@ export function BlockBuilder({ workouts, numberOfWeeks, onChange }: Props) {
           week={week}
           workouts={workouts}
           onRemoveExercise={handleRemoveExercise}
-          onUpdateExerciseNote={handleUpdateExerciseNote}
+          onEditExercise={onEditExercise}
+          activeExerciseId={activeExerciseId}
+          mode={mode}
         />
       ))}
     </div>

@@ -44,7 +44,8 @@ public class UpdateBlockCommandHandler : IRequestHandler<UpdateBlockCommand, Blo
                 Id = e.Id == Guid.Empty ? Guid.NewGuid() : e.Id,
                 ExerciseId = e.ExerciseId,
                 Name = e.Name,
-                Note = e.Note
+                Note = e.Note,
+                Prescription = e.Prescription
             }).ToList()
         }).ToList();
 

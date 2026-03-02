@@ -9,19 +9,18 @@ type Props = {
   week: number;
   workouts: BlockWorkout[];
   onRemoveExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
-  onUpdateExerciseNote: (
-    week: number,
-    dayOfWeek: number,
-    exerciseId: string,
-    note: string | null
-  ) => void;
+  onEditExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
+  activeExerciseId: string | null;
+  mode: "arrange" | "edit";
 };
 
 export function BlockWeek({
   week,
   workouts,
   onRemoveExercise,
-  onUpdateExerciseNote,
+  onEditExercise,
+  activeExerciseId,
+  mode,
 }: Props) {
   return (
     <section className="overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/70 backdrop-blur-sm">
@@ -32,13 +31,30 @@ export function BlockWeek({
         </div>
       </div>
       <div className="grid grid-cols-7 divide-x divide-white/10 border-b border-white/10 bg-zinc-900/40">
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Mon</div>
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Tue</div>
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Wed</div>
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Thu</div>
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Fri</div>
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Sat</div>
-        <div className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">Sun</div>
+        {DAY_NAMES.map((dayName, index) => {
+          const dayOfWeek = index + 1;
+          const workout = workouts.find(
+            (w) => w.week === week && w.dayOfWeek === dayOfWeek
+          );
+          const firstExercise = workout?.exercises[0] ?? null;
+
+          return (
+            <div
+              key={`day-header-${dayOfWeek}`}
+              className="flex items-center justify-center gap-1 px-2 py-1"
+            >
+              <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">
+                {dayName}
+              </div>
+              {mode === "edit" && !firstExercise ? (
+                <span
+                  className="h-4 w-4"
+                  aria-hidden
+                />
+              ) : null}
+            </div>
+          );
+        })}
       </div>
       <div className="grid grid-cols-7 divide-x divide-white/10">
         {DAY_NAMES.map((_, index) => {
@@ -55,9 +71,11 @@ export function BlockWeek({
               onRemoveExercise={(exerciseId) =>
                 onRemoveExercise(week, dayOfWeek, exerciseId)
               }
-              onUpdateExerciseNote={(exerciseId, note) =>
-                onUpdateExerciseNote(week, dayOfWeek, exerciseId, note)
+              onEditExercise={(exerciseId) =>
+                onEditExercise(week, dayOfWeek, exerciseId)
               }
+              activeExerciseId={activeExerciseId}
+              mode={mode}
             />
           );
         })}

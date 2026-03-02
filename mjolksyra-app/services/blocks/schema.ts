@@ -1,10 +1,12 @@
 import { z } from "zod";
+import { exercisePrescriptionSchema } from "../plannedWorkouts/schema";
 
 export const blockExerciseSchema = z.object({
   id: z.string(),
   exerciseId: z.string().nullable(),
   name: z.string(),
   note: z.string().nullable(),
+  prescription: exercisePrescriptionSchema.nullable().optional().default(null),
 });
 
 export const blockWorkoutSchema = z.object({

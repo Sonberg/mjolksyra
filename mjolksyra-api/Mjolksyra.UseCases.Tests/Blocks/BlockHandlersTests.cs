@@ -108,7 +108,21 @@ public class BlockHandlersTests
                                 Id = Guid.Empty,
                                 Name = "E",
                                 ExerciseId = null,
-                                Note = null
+                                Note = null,
+                                Prescription = new ExercisePrescription
+                                {
+                                    TargetType = ExercisePrescriptionTargetType.duration_seconds,
+                                    Sets =
+                                    [
+                                        new ExercisePrescriptionSet
+                                        {
+                                            Target = new ExercisePrescriptionSetTarget
+                                            {
+                                                DurationSeconds = 45
+                                            }
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }
@@ -121,7 +135,9 @@ public class BlockHandlersTests
         Assert.Equal(2, block.NumberOfWeeks);
         Assert.NotEqual(Guid.Empty, block.Workouts.First().Id);
         Assert.NotEqual(Guid.Empty, block.Workouts.First().Exercises.First().Id);
+        Assert.Equal(
+            ExercisePrescriptionTargetType.duration_seconds,
+            block.Workouts.First().Exercises.First().Prescription?.TargetType);
         blockRepository.Verify(x => x.Update(block, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-

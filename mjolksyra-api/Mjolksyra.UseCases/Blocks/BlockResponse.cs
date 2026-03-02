@@ -68,6 +68,8 @@ public class BlockExerciseResponse
 
     public required string? Note { get; set; }
 
+    public ExercisePrescription? Prescription { get; set; }
+
     public static BlockExerciseResponse From(BlockExercise exercise)
     {
         return new BlockExerciseResponse
@@ -76,6 +78,7 @@ public class BlockExerciseResponse
             ExerciseId = exercise.ExerciseId,
             Name = exercise.Name,
             Note = exercise.Note,
+            Prescription = exercise.Prescription,
         };
     }
 }

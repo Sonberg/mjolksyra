@@ -11,7 +11,9 @@ type Props = {
   dayOfWeek: number;
   workout: BlockWorkout | undefined;
   onRemoveExercise: (exerciseId: string) => void;
-  onUpdateExerciseNote: (exerciseId: string, note: string | null) => void;
+  onEditExercise: (exerciseId: string) => void;
+  activeExerciseId: string | null;
+  mode: "arrange" | "edit";
 };
 
 export function BlockDay({
@@ -19,7 +21,9 @@ export function BlockDay({
   dayOfWeek,
   workout,
   onRemoveExercise,
-  onUpdateExerciseNote,
+  onEditExercise,
+  activeExerciseId,
+  mode,
 }: Props) {
   const id = `block-day-${week}-${dayOfWeek}`;
   const { active } = useDndContext();
@@ -41,7 +45,7 @@ export function BlockDay({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex min-h-32 flex-col p-2 transition-colors",
+        "flex min-h-32 flex-col gap-1.5 p-2 transition-colors",
         {
           "bg-cyan-300/10": isOver && isExerciseDragging,
         }
@@ -58,7 +62,9 @@ export function BlockDay({
               exercise={exercise}
               blockWorkoutId={workout.id}
               onRemove={() => onRemoveExercise(exercise.id)}
-              onUpdateNote={(note) => onUpdateExerciseNote(exercise.id, note)}
+              onEdit={() => onEditExercise(exercise.id)}
+              isActive={activeExerciseId === exercise.id}
+              mode={mode}
             />
           ))}
         </SortableContext>

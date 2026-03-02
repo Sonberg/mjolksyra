@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { SaveIcon } from "lucide-react";
 import {
@@ -32,10 +32,22 @@ import { searchExercises } from "@/services/exercises/searchExercises";
 import { starExercises } from "@/services/exercises/starExercise";
 import { starredExercises } from "@/services/exercises/starredExercises";
 import { CoachWorkspaceShell } from "../../CoachWorkspaceShell";
+import { BlockExerciseSidebar } from "@/components/BlockBuilder/BlockExerciseSidebar";
+import { ExercisePrescription } from "@/lib/exercisePrescription";
 
 type Props = {
   blockId: string;
 };
+
+type SelectedBlockExercise = {
+  week: number;
+  dayOfWeek: number;
+  exerciseId: string;
+};
+
+type BlockInteractionMode = "arrange" | "edit";
+
+const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export function BlockEditorContent({ blockId }: Props) {
   const client = useQueryClient();
@@ -49,14 +61,51 @@ export function BlockEditorContent({ blockId }: Props) {
   const [numberOfWeeks, setNumberOfWeeks] = useState(4);
   const [workouts, setWorkouts] = useState<BlockWorkout[]>([]);
   const [draggingLabel, setDraggingLabel] = useState<string | null>(null);
+  const [selectedExercise, setSelectedExercise] =
+    useState<SelectedBlockExercise | null>(null);
+  const [interactionMode, setInteractionMode] =
+    useState<BlockInteractionMode>("arrange");
 
   useEffect(() => {
     if (block) {
       setName(block.name);
       setNumberOfWeeks(block.numberOfWeeks);
       setWorkouts(block.workouts);
+      setSelectedExercise(null);
+      setInteractionMode("arrange");
     }
   }, [block]);
+
+  const selectedWorkout = useMemo(() => {
+    if (!selectedExercise) {
+      return null;
+    }
+
+    return (
+      workouts.find(
+        (workout) =>
+          workout.week === selectedExercise.week &&
+          workout.dayOfWeek === selectedExercise.dayOfWeek,
+      ) ?? null
+    );
+  }, [selectedExercise, workouts]);
+
+  const selectedExerciseEntry = useMemo(() => {
+    if (!selectedExercise || !selectedWorkout) {
+      return null;
+    }
+
+    return (
+      selectedWorkout.exercises.find((exercise) => exercise.id === selectedExercise.exerciseId) ??
+      null
+    );
+  }, [selectedExercise, selectedWorkout]);
+
+  useEffect(() => {
+    if (selectedExercise && !selectedExerciseEntry) {
+      setSelectedExercise(null);
+    }
+  }, [selectedExercise, selectedExerciseEntry]);
 
   const saveMutation = useMutation({
     mutationFn: updateBlock,
@@ -75,6 +124,67 @@ export function BlockEditorContent({ blockId }: Props) {
 
   const onDragStart = (event: DragStartEvent) => {
     setDraggingLabel(event.active.data.current?.label ?? null);
+
+    const dragType = event.active.data.current?.type;
+    if (
+      interactionMode === "edit" &&
+      (dragType === "exercise" || dragType === "blockExercise")
+    ) {
+      setInteractionMode("arrange");
+      setSelectedExercise(null);
+    }
+  };
+
+  const handleUpdateSelectedExerciseNote = (note: string | null) => {
+    if (!selectedExercise) {
+      return;
+    }
+
+    setWorkouts((state) =>
+      state.map((workout) => {
+        if (
+          workout.week !== selectedExercise.week ||
+          workout.dayOfWeek !== selectedExercise.dayOfWeek
+        ) {
+          return workout;
+        }
+
+        return {
+          ...workout,
+          exercises: workout.exercises.map((exercise) =>
+            exercise.id === selectedExercise.exerciseId ? { ...exercise, note } : exercise,
+          ),
+        };
+      }),
+    );
+  };
+
+  const handleUpdateSelectedExercisePrescription = (
+    prescription: ExercisePrescription | null,
+  ) => {
+    if (!selectedExercise) {
+      return;
+    }
+
+    setWorkouts((state) =>
+      state.map((workout) => {
+        if (
+          workout.week !== selectedExercise.week ||
+          workout.dayOfWeek !== selectedExercise.dayOfWeek
+        ) {
+          return workout;
+        }
+
+        return {
+          ...workout,
+          exercises: workout.exercises.map((exercise) =>
+            exercise.id === selectedExercise.exerciseId
+              ? { ...exercise, prescription }
+              : exercise,
+          ),
+        };
+      }),
+    );
   };
 
   if (isLoading) {
@@ -142,6 +252,33 @@ export function BlockEditorContent({ blockId }: Props) {
                         className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
                       />
                     </div>
+                    <div className="flex items-center overflow-hidden rounded-lg border border-white/15 bg-zinc-900/80">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInteractionMode("arrange");
+                          setSelectedExercise(null);
+                        }}
+                        className={
+                          interactionMode === "arrange"
+                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-zinc-100 text-zinc-900"
+                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-400 hover:text-zinc-200"
+                        }
+                      >
+                        Arrange
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setInteractionMode("edit")}
+                        className={
+                          interactionMode === "edit"
+                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-zinc-100 text-zinc-900"
+                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-400 hover:text-zinc-200"
+                        }
+                      >
+                        Edit
+                      </button>
+                    </div>
                     <Button
                       onClick={handleSave}
                       disabled={saveMutation.isPending}
@@ -159,6 +296,23 @@ export function BlockEditorContent({ blockId }: Props) {
                     workouts={workouts}
                     numberOfWeeks={numberOfWeeks}
                     onChange={setWorkouts}
+                    onEditExercise={(week, dayOfWeek, exerciseId) =>
+                      interactionMode === "edit"
+                        ? setSelectedExercise((current) => {
+                            if (
+                              current?.week === week &&
+                              current?.dayOfWeek === dayOfWeek &&
+                              current?.exerciseId === exerciseId
+                            ) {
+                              return null;
+                            }
+
+                            return { week, dayOfWeek, exerciseId };
+                          })
+                        : null
+                    }
+                    activeExerciseId={selectedExercise?.exerciseId ?? null}
+                    mode={interactionMode}
                   />
                 </div>
                 </div>
@@ -172,16 +326,38 @@ export function BlockEditorContent({ blockId }: Props) {
                 maxSize={50}
                 className="min-h-0 overflow-hidden"
               >
-                <ExerciseLibrary
-                  exercies={{
-                    starred: starredExercises,
-                    star: starExercises,
-                    search: searchExercises,
-                    get: getExercises,
-                    delete: deleteExercise,
-                    create: createExercise,
-                  }}
-                />
+                {selectedExerciseEntry && selectedExercise ? (
+                  <BlockExerciseSidebar
+                    title={`Week ${selectedExercise.week} · ${DAY_NAMES[selectedExercise.dayOfWeek - 1]}`}
+                    exercise={selectedExerciseEntry}
+                    onUpdateNote={handleUpdateSelectedExerciseNote}
+                    onUpdatePrescription={handleUpdateSelectedExercisePrescription}
+                    onClose={() => setSelectedExercise(null)}
+                  />
+                ) : (
+                  <>
+                    {interactionMode === "edit" ? (
+                      <div className="border-b px-6 py-6">
+                        <div className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                          Edit mode
+                        </div>
+                        <div className="mt-2 text-sm text-zinc-300">
+                          Click an exercise card to edit notes and set targets.
+                        </div>
+                      </div>
+                    ) : null}
+                    <ExerciseLibrary
+                      exercies={{
+                        starred: starredExercises,
+                        star: starExercises,
+                        search: searchExercises,
+                        get: getExercises,
+                        delete: deleteExercise,
+                        create: createExercise,
+                      }}
+                    />
+                  </>
+                )}
               </ResizablePanel>
             </ResizablePanelGroup>
           </div>

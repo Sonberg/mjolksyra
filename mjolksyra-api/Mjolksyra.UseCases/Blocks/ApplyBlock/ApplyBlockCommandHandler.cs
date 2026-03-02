@@ -82,6 +82,7 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
                     ExerciseId = e.ExerciseId,
                     Name = e.Name,
                     Note = e.Note,
+                    Prescription = MapPrescription(e.Prescription),
                     IsPublished = false
                 }).ToList(),
                 CreatedAt = DateTimeOffset.UtcNow,
@@ -97,5 +98,42 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
         });
 
         await Task.WhenAll(creates);
+    }
+
+    private static ExercisePrescription? MapPrescription(ExercisePrescription? source)
+    {
+        if (source is null)
+        {
+            return null;
+        }
+
+        return new ExercisePrescription
+        {
+            TargetType = source.TargetType,
+            Sets = source.Sets?.Select(set => new ExercisePrescriptionSet
+            {
+                Target = set.Target is null
+                    ? null
+                    : new ExercisePrescriptionSetTarget
+                    {
+                        Reps = set.Target.Reps,
+                        DurationSeconds = set.Target.DurationSeconds,
+                        DistanceMeters = set.Target.DistanceMeters,
+                        WeightKg = set.Target.WeightKg,
+                        Note = set.Target.Note
+                    },
+                Actual = set.Actual is null
+                    ? null
+                    : new ExercisePrescriptionSetActual
+                    {
+                        Reps = set.Actual.Reps,
+                        WeightKg = set.Actual.WeightKg,
+                        DurationSeconds = set.Actual.DurationSeconds,
+                        DistanceMeters = set.Actual.DistanceMeters,
+                        Note = set.Actual.Note,
+                        IsDone = set.Actual.IsDone
+                    }
+            }).ToList()
+        };
     }
 }

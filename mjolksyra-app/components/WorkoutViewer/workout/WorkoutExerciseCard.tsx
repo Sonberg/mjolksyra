@@ -96,12 +96,10 @@ export function WorkoutExerciseCard({
           {exercise.note}
         </div>
       ) : null}
-      {viewerMode === "athlete" &&
-      isDetailView &&
-      exercise.prescription?.sets?.length ? (
+      {isDetailView && exercise.prescription?.sets?.length ? (
         <div className="ml-0 grid gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-2.5 sm:ml-12 sm:p-3">
           <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-            Prescribed sets
+            Set details
           </div>
           {exercise.prescription.sets.map((set, setIndex) => (
             <WorkoutExerciseSetCard
@@ -114,6 +112,7 @@ export function WorkoutExerciseCard({
                   | ExercisePrescriptionTargetType
                   | undefined
               }
+              isEditable={viewerMode === "athlete"}
               isPending={isSetActionPending}
               getSetTargetLabel={getSetTargetLabel}
               onToggleSetDone={onToggleSetDone}
@@ -125,4 +124,3 @@ export function WorkoutExerciseCard({
     </div>
   );
 }
-

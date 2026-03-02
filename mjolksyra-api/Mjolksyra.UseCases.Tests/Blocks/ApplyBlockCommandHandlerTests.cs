@@ -68,7 +68,23 @@ public class ApplyBlockCommandHandlerTests
                             Id = Guid.NewGuid(),
                             Name = "Exercise",
                             ExerciseId = Guid.NewGuid(),
-                            Note = "Note"
+                            Note = "Note",
+                            Prescription = new ExercisePrescription
+                            {
+                                TargetType = ExercisePrescriptionTargetType.sets_reps,
+                                Sets =
+                                [
+                                    new ExercisePrescriptionSet
+                                    {
+                                        Target = new ExercisePrescriptionSetTarget
+                                        {
+                                            Reps = 8,
+                                            WeightKg = 60,
+                                            Note = "Set note"
+                                        }
+                                    }
+                                ]
+                            }
                         }
                     ]
                 }
@@ -118,6 +134,15 @@ public class ApplyBlockCommandHandlerTests
 
         plannedWorkoutRepository.Verify(x => x.Delete(existingWorkout.Id, It.IsAny<CancellationToken>()), Times.Once);
         plannedWorkoutRepository.Verify(x => x.Create(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()), Times.Once);
+        plannedWorkoutRepository.Verify(x => x.Create(
+            It.Is<PlannedWorkout>(workout =>
+                workout.Exercises.Count == 1 &&
+                workout.Exercises.First().Prescription != null &&
+                workout.Exercises.First().Prescription!.TargetType == ExercisePrescriptionTargetType.sets_reps &&
+                workout.Exercises.First().Prescription!.Sets != null &&
+                workout.Exercises.First().Prescription!.Sets!.Count == 1 &&
+                workout.Exercises.First().Prescription!.Sets!.First().Target!.Reps == 8 &&
+                workout.Exercises.First().Prescription!.Sets!.First().Target!.WeightKg == 60),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-

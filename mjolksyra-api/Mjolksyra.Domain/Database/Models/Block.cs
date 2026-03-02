@@ -43,4 +43,6 @@ public class BlockExercise
     public required string Name { get; set; }
 
     public string? Note { get; set; }
+
+    public ExercisePrescription? Prescription { get; set; }
 }
