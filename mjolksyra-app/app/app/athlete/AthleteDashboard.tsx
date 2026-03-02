@@ -79,18 +79,6 @@ export function AthleteDashboard({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          Billing status
-        </p>
-        <p className="mt-2 text-sm text-zinc-200">{billingStatusText}</p>
-        {data.billing.lastChargedAt ? (
-          <p className="mt-1 text-xs text-zinc-500">
-            Last charge: {new Date(data.billing.lastChargedAt).toLocaleDateString()}
-          </p>
-        ) : null}
-      </div>
-
       <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-3">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => {
@@ -130,11 +118,24 @@ export function AthleteDashboard({
         )
       ) : null}
       {selectedTab === "transactions" ? (
-        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
+        <div className="space-y-4">
+          <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              Billing status
+            </p>
+            <p className="mt-2 text-sm text-zinc-200">{billingStatusText}</p>
+            {data.billing.lastChargedAt ? (
+              <p className="mt-1 text-xs text-zinc-500">
+                Last charge: {new Date(data.billing.lastChargedAt).toLocaleDateString()}
+              </p>
+            ) : null}
+          </div>
+          <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
           <h3 className="text-lg font-semibold text-white">Transactions</h3>
           <p className="mt-2 text-sm text-zinc-500">
             Billing and payment history will appear here.
           </p>
+        </div>
         </div>
       ) : null}
       {selectedTab === "settings" ? (
