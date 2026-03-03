@@ -144,6 +144,7 @@ builder.Services
         opt.AddConsumer<EmailSideEffectConsumer>();
         opt.AddConsumer<NotificationSideEffectConsumer>();
         opt.AddConsumer<NotificationSideEffectManyConsumer>();
+        opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
         opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
     });
 

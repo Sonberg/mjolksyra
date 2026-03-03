@@ -2,9 +2,9 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
-using Stripe;
 
 namespace Mjolksyra.UseCases.Tests.Trainees;
 
@@ -29,9 +29,9 @@ public class UpdateTraineeCostCommandHandlerTests
         var sut = new UpdateTraineeCostCommandHandler(
             traineeRepository.Object,
             Mock.Of<IUserRepository>(),
-            Mock.Of<IStripeClient>(),
             Mock.Of<IEmailSender>(),
-            Mock.Of<INotificationService>());
+            Mock.Of<INotificationService>(),
+            Mock.Of<ITraineeSubscriptionSyncPublisher>());
 
         await sut.Handle(new UpdateTraineeCostCommand
         {
@@ -86,13 +86,14 @@ public class UpdateTraineeCostCommandHandlerTests
         userRepository.Setup(x => x.GetById(coachId, It.IsAny<CancellationToken>())).ReturnsAsync(coach);
 
         var emailSender = new Mock<IEmailSender>();
+        var syncPublisher = new Mock<ITraineeSubscriptionSyncPublisher>();
 
         var sut = new UpdateTraineeCostCommandHandler(
             traineeRepository.Object,
             userRepository.Object,
-            Mock.Of<IStripeClient>(),
             emailSender.Object,
-            Mock.Of<INotificationService>());
+            Mock.Of<INotificationService>(),
+            syncPublisher.Object);
 
         await sut.Handle(new UpdateTraineeCostCommand
         {
@@ -104,6 +105,10 @@ public class UpdateTraineeCostCommandHandlerTests
 
         Assert.Equal(500, trainee.Cost.Amount);
         traineeRepository.Verify(x => x.Update(trainee, It.IsAny<CancellationToken>()), Times.Once);
+        syncPublisher.Verify(x => x.Publish(
+            It.Is<TraineeSubscriptionSyncMessage>(m =>
+                m.TraineeId == trainee.Id && m.BillingMode == TraineeSubscriptionSyncBillingMode.ChargeNow),
+            It.IsAny<CancellationToken>()), Times.Once);
         emailSender.Verify(x => x.SendPriceChangedToAthlete(
             It.IsAny<string>(),
             It.IsAny<AthleteBillingEmail>(),
@@ -111,7 +116,7 @@ public class UpdateTraineeCostCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenStripeNotConfigured_StillSavesCost()
+    public async Task Handle_WhenStripeNotConfigured_StillSavesCostAndPublishesSync()
     {
         var coachId = Guid.NewGuid();
         var athleteId = Guid.NewGuid();
@@ -152,14 +157,14 @@ public class UpdateTraineeCostCommandHandlerTests
         userRepository.Setup(x => x.GetById(athleteId, It.IsAny<CancellationToken>())).ReturnsAsync(athlete);
         userRepository.Setup(x => x.GetById(coachId, It.IsAny<CancellationToken>())).ReturnsAsync(coach);
 
-        var stripeClient = new Mock<IStripeClient>();
+        var syncPublisher = new Mock<ITraineeSubscriptionSyncPublisher>();
 
         var sut = new UpdateTraineeCostCommandHandler(
             traineeRepository.Object,
             userRepository.Object,
-            stripeClient.Object,
             Mock.Of<IEmailSender>(),
-            Mock.Of<INotificationService>());
+            Mock.Of<INotificationService>(),
+            syncPublisher.Object);
 
         await sut.Handle(new UpdateTraineeCostCommand
         {
@@ -171,7 +176,10 @@ public class UpdateTraineeCostCommandHandlerTests
 
         Assert.Equal(750, trainee.Cost.Amount);
         traineeRepository.Verify(x => x.Update(trainee, It.IsAny<CancellationToken>()), Times.Once);
-        stripeClient.VerifyNoOtherCalls();
+        syncPublisher.Verify(x => x.Publish(
+            It.Is<TraineeSubscriptionSyncMessage>(m =>
+                m.TraineeId == trainee.Id && m.BillingMode == TraineeSubscriptionSyncBillingMode.ChargeNow),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -196,13 +204,14 @@ public class UpdateTraineeCostCommandHandlerTests
 
         var emailSender = new Mock<IEmailSender>();
         var notificationService = new Mock<INotificationService>();
+        var syncPublisher = new Mock<ITraineeSubscriptionSyncPublisher>();
 
         var sut = new UpdateTraineeCostCommandHandler(
             traineeRepository.Object,
             Mock.Of<IUserRepository>(),
-            Mock.Of<IStripeClient>(),
             emailSender.Object,
-            notificationService.Object);
+            notificationService.Object,
+            syncPublisher.Object);
 
         await sut.Handle(new UpdateTraineeCostCommand
         {
@@ -213,6 +222,10 @@ public class UpdateTraineeCostCommandHandlerTests
 
         Assert.Equal(900, trainee.Cost.Amount);
         traineeRepository.Verify(x => x.Update(trainee, It.IsAny<CancellationToken>()), Times.Once);
+        syncPublisher.Verify(x => x.Publish(
+            It.Is<TraineeSubscriptionSyncMessage>(m =>
+                m.TraineeId == trainee.Id && m.BillingMode == TraineeSubscriptionSyncBillingMode.ChargeNow),
+            It.IsAny<CancellationToken>()), Times.Once);
         emailSender.Verify(x => x.SendPriceChangedToAthlete(
             It.IsAny<string>(),
             It.IsAny<AthleteBillingEmail>(),
@@ -225,5 +238,70 @@ public class UpdateTraineeCostCommandHandlerTests
             It.IsAny<string>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
-}
 
+    [Fact]
+    public async Task Handle_WhenBillingModeIsNextCycle_PublishesNextCycleSync()
+    {
+        var coachId = Guid.NewGuid();
+        var athleteId = Guid.NewGuid();
+        var trainee = new Trainee
+        {
+            Id = Guid.NewGuid(),
+            CoachUserId = coachId,
+            AthleteUserId = athleteId,
+            Status = TraineeStatus.Active,
+            Cost = new TraineeCost { Amount = 100 },
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var athlete = new User
+        {
+            Id = athleteId,
+            ClerkUserId = "athlete",
+            Email = Email.From("athlete@example.com"),
+            GivenName = "Athlete",
+            FamilyName = "A",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var coach = new User
+        {
+            Id = coachId,
+            ClerkUserId = "coach",
+            Email = Email.From("coach@example.com"),
+            GivenName = "Coach",
+            FamilyName = "C",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository.Setup(x => x.GetById(trainee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(trainee);
+        traineeRepository.Setup(x => x.Update(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Trainee t, CancellationToken _) => t);
+
+        var userRepository = new Mock<IUserRepository>();
+        userRepository.Setup(x => x.GetById(athleteId, It.IsAny<CancellationToken>())).ReturnsAsync(athlete);
+        userRepository.Setup(x => x.GetById(coachId, It.IsAny<CancellationToken>())).ReturnsAsync(coach);
+
+        var syncPublisher = new Mock<ITraineeSubscriptionSyncPublisher>();
+
+        var sut = new UpdateTraineeCostCommandHandler(
+            traineeRepository.Object,
+            userRepository.Object,
+            Mock.Of<IEmailSender>(),
+            Mock.Of<INotificationService>(),
+            syncPublisher.Object);
+
+        await sut.Handle(new UpdateTraineeCostCommand
+        {
+            TraineeId = trainee.Id,
+            UserId = coachId,
+            Amount = 500,
+            BillingMode = PriceChangeBillingMode.NextCycle,
+            SuppressPriceChangedNotification = true
+        }, CancellationToken.None);
+
+        syncPublisher.Verify(x => x.Publish(
+            It.Is<TraineeSubscriptionSyncMessage>(m =>
+                m.TraineeId == trainee.Id && m.BillingMode == TraineeSubscriptionSyncBillingMode.NextCycle),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+}

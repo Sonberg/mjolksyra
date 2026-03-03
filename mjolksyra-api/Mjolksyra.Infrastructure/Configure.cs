@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.Domain.Clerk;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Infrastructure.Clerk;
 using Mjolksyra.Infrastructure.Database;
@@ -51,6 +52,7 @@ public static class Configure
         services.AddScoped<NotificationService>();
         services.AddScoped<IEmailSender, MassTransitEmailSender>();
         services.AddScoped<INotificationService, MassTransitNotificationService>();
+        services.AddScoped<ITraineeSubscriptionSyncPublisher, MassTransitTraineeSubscriptionSyncPublisher>();
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {
