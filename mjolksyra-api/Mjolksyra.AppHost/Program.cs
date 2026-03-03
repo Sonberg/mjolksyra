@@ -1,8 +1,11 @@
 var builder = DistributedApplication.CreateBuilder(args);
 var redis = builder.AddRedis("redis");
+var rabbitMq = builder.AddRabbitMQ("rabbitmq");
 
 var api = builder.AddProject<Projects.Mjolksyra_Api>("api")
-    .WithReference(redis);
+    .WithReference(redis)
+    .WithReference(rabbitMq)
+    .WithEnvironment("RabbitMq__Url", rabbitMq.GetConnectionString());
 
 const string otlpEndpoint = "http://localhost:18890";
 

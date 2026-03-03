@@ -145,7 +145,18 @@ builder.Services
         opt.AddConsumer<NotificationSideEffectConsumer>();
         opt.AddConsumer<NotificationSideEffectManyConsumer>();
         opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
-        opt.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
+
+        var rabbitMqUrl = builder.Configuration["RabbitMq:Url"];
+        if (string.IsNullOrWhiteSpace(rabbitMqUrl))
+        {
+            throw new InvalidOperationException("RabbitMq:Url must be configured.");
+        }
+
+        opt.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host(new Uri(rabbitMqUrl));
+            cfg.ConfigureEndpoints(context);
+        });
     });
 
 builder.Services.AddAuthorization();
