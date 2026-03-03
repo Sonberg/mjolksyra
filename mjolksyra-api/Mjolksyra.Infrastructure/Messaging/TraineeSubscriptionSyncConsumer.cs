@@ -1,6 +1,7 @@
 using MassTransit;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Messaging;
+using Mjolksyra.Infrastructure.Stripe;
 using Stripe;
 
 namespace Mjolksyra.Infrastructure.Messaging;
@@ -8,7 +9,8 @@ namespace Mjolksyra.Infrastructure.Messaging;
 public class TraineeSubscriptionSyncConsumer(
     ITraineeRepository traineeRepository,
     IUserRepository userRepository,
-    IStripeClient stripeClient)
+    IStripePriceService priceService,
+    IStripeSubscriptionService subscriptionService)
     : IConsumer<TraineeSubscriptionSyncMessage>
 {
     public async Task Consume(ConsumeContext<TraineeSubscriptionSyncMessage> context)
@@ -31,22 +33,6 @@ public class TraineeSubscriptionSyncConsumer(
             return;
         }
 
-        var subscriptionService = new SubscriptionService(stripeClient);
-        var priceService = new PriceService(stripeClient);
-        var price = await priceService.CreateAsync(new PriceCreateOptions
-        {
-            Currency = trainee.Cost.Currency.ToLowerInvariant(),
-            UnitAmount = trainee.Cost.Amount * 100L,
-            Recurring = new PriceRecurringOptions
-            {
-                Interval = "month",
-            },
-            ProductData = new PriceProductDataOptions
-            {
-                Name = "Coaching subscription",
-            },
-        }, cancellationToken: cancellationToken);
-
         if (trainee.StripeSubscriptionId is not null
             && message.BillingMode == TraineeSubscriptionSyncBillingMode.NextCycle)
         {
@@ -56,13 +42,15 @@ public class TraineeSubscriptionSyncConsumer(
                 {
                     Expand = ["items.data"]
                 },
-                cancellationToken: cancellationToken);
+                cancellationToken);
 
             var currentItem = existingSubscription.Items.Data.FirstOrDefault();
             if (currentItem is null)
             {
                 return;
             }
+
+            var nextCyclePrice = await priceService.CreateAsync(BuildPriceOptions(trainee.Cost), cancellationToken);
 
             await subscriptionService.UpdateAsync(
                 trainee.StripeSubscriptionId,
@@ -74,18 +62,20 @@ public class TraineeSubscriptionSyncConsumer(
                         new SubscriptionItemOptions
                         {
                             Id = currentItem.Id,
-                            Price = price.Id,
+                            Price = nextCyclePrice.Id,
                         }
                     ]
                 },
-                cancellationToken: cancellationToken);
+                cancellationToken);
             return;
         }
 
         if (trainee.StripeSubscriptionId is not null)
         {
-            await subscriptionService.CancelAsync(trainee.StripeSubscriptionId, cancellationToken: cancellationToken);
+            await subscriptionService.CancelAsync(trainee.StripeSubscriptionId, cancellationToken);
         }
+
+        var price = await priceService.CreateAsync(BuildPriceOptions(trainee.Cost), cancellationToken);
 
         var subscription = await subscriptionService.CreateAsync(new SubscriptionCreateOptions
         {
@@ -103,9 +93,24 @@ public class TraineeSubscriptionSyncConsumer(
             {
                 Destination = coach.Coach.Stripe.AccountId,
             }
-        }, cancellationToken: cancellationToken);
+        }, cancellationToken);
 
         trainee.StripeSubscriptionId = subscription.Id;
         await traineeRepository.Update(trainee, cancellationToken);
     }
+
+    private static PriceCreateOptions BuildPriceOptions(Domain.Database.Models.TraineeCost cost) =>
+        new()
+        {
+            Currency = cost.Currency.ToLowerInvariant(),
+            UnitAmount = cost.Amount * 100L,
+            Recurring = new PriceRecurringOptions
+            {
+                Interval = "month",
+            },
+            ProductData = new PriceProductDataOptions
+            {
+                Name = "Coaching subscription",
+            },
+        };
 }

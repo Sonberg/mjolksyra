@@ -2,9 +2,9 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
-using Stripe;
 
 namespace Mjolksyra.UseCases.Trainees.CancelTrainee;
 
@@ -18,8 +18,7 @@ public class CancelTraineeRequest : IRequest
 public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
 {
     private readonly ITraineeRepository _traineeRepository;
-
-    private readonly IStripeClient _stripeClient;
+    private readonly ITraineeCancellationPublisher _cancellationPublisher;
     private readonly IUserRepository _userRepository;
     private readonly IEmailSender _emailSender;
     private readonly INotificationService _notificationService;
@@ -27,14 +26,14 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
 
     public CancelTraineeRequestHandler(
         ITraineeRepository traineeRepository,
-        IStripeClient stripeClient,
+        ITraineeCancellationPublisher cancellationPublisher,
         IUserRepository userRepository,
         IEmailSender emailSender,
         INotificationService notificationService,
         IMediator mediator)
     {
         _traineeRepository = traineeRepository;
-        _stripeClient = stripeClient;
+        _cancellationPublisher = cancellationPublisher;
         _userRepository = userRepository;
         _emailSender = emailSender;
         _notificationService = notificationService;
@@ -50,17 +49,21 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
         if (!canCancel) return;
         if (trainee.Status == TraineeStatus.Cancelled) return;
 
-        if (trainee.StripeSubscriptionId is not null)
-        {
-            var subscriptionService = new SubscriptionService(_stripeClient);
-            await subscriptionService.CancelAsync(trainee.StripeSubscriptionId, cancellationToken: cancellationToken);
-            trainee.StripeSubscriptionId = null;
-        }
-
+        var subscriptionId = trainee.StripeSubscriptionId;
+        trainee.StripeSubscriptionId = null;
         trainee.Status = TraineeStatus.Cancelled;
         trainee.DeletedAt = DateTimeOffset.UtcNow;
 
         await _traineeRepository.Update(trainee, cancellationToken);
+
+        if (subscriptionId is not null)
+        {
+            await _cancellationPublisher.Publish(new TraineeCancellationMessage
+            {
+                SubscriptionId = subscriptionId
+            }, cancellationToken);
+        }
+
         await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(trainee.CoachUserId), cancellationToken);
 
         var coach = await _userRepository.GetById(trainee.CoachUserId, cancellationToken);

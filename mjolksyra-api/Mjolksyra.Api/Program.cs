@@ -145,12 +145,10 @@ builder.Services
         opt.AddConsumer<NotificationSideEffectConsumer>();
         opt.AddConsumer<NotificationSideEffectManyConsumer>();
         opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
+        opt.AddConsumer<TraineeCancellationConsumer>();
 
-        var rabbitMqUrl = builder.Configuration["RabbitMq:Url"];
-        if (string.IsNullOrWhiteSpace(rabbitMqUrl))
-        {
-            throw new InvalidOperationException("RabbitMq:Url must be configured.");
-        }
+        var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")
+            ?? throw new InvalidOperationException("RabbitMQ connection string (ConnectionStrings:rabbitmq) must be configured.");
 
         opt.UsingRabbitMq((context, cfg) =>
         {

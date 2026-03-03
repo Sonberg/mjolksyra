@@ -10,10 +10,12 @@ using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
 using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.Infrastructure.Notifications;
+using Mjolksyra.Infrastructure.Stripe;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using Stripe;
 
 namespace Mjolksyra.Infrastructure;
 
@@ -49,10 +51,16 @@ public static class Configure
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<BrevoEmailSender>();
+        services.AddKeyedScoped<IEmailSender, BrevoEmailSender>("direct");
         services.AddScoped<NotificationService>();
         services.AddScoped<IEmailSender, MassTransitEmailSender>();
         services.AddScoped<INotificationService, MassTransitNotificationService>();
         services.AddScoped<ITraineeSubscriptionSyncPublisher, MassTransitTraineeSubscriptionSyncPublisher>();
+        services.AddScoped<ITraineeCancellationPublisher, MassTransitTraineeCancellationPublisher>();
+        services.AddScoped<IStripePriceService>(sp =>
+            new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
+        services.AddScoped<IStripeSubscriptionService>(sp =>
+            new StripeSubscriptionServiceAdapter(sp.GetRequiredService<IStripeClient>()));
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

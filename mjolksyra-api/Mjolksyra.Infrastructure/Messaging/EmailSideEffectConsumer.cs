@@ -1,10 +1,11 @@
 using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
+using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Messaging;
-using Mjolksyra.Infrastructure.Email;
 
 namespace Mjolksyra.Infrastructure.Messaging;
 
-public class EmailSideEffectConsumer(BrevoEmailSender emailSender) : IConsumer<EmailSideEffectMessage>
+public class EmailSideEffectConsumer([FromKeyedServices("direct")] IEmailSender emailSender) : IConsumer<EmailSideEffectMessage>
 {
     public async Task Consume(ConsumeContext<EmailSideEffectMessage> context)
     {
