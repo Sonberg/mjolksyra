@@ -25,20 +25,22 @@ export function CoachSectionTabs() {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {tabs.map((tab) => {
-        const isActive = tab.key === activeTab;
+    <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {tabs.map((tab) => {
+          const isActive = tab.key === activeTab;
 
-        return (
-          <Link
-            key={tab.key}
-            href={tab.href}
-            className={shellSectionTabClass(isActive)}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={tab.key}
+              href={tab.href}
+              className={shellSectionTabClass(isActive)}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

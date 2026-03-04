@@ -57,17 +57,17 @@ export function Navigation({ initialAuth }: NavigationProps) {
         "sticky top-0 z-50 flex flex-col border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-xl",
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1800px] items-center gap-2 px-3 sm:gap-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 md:px-6">
         <Link
           href="/"
           className="group text-base font-medium transition-transform duration-200"
         >
-          <div className="mr-1 flex items-center rounded-none  border-2 border-[var(--shell-border)] bg-[var(--shell-border)] px-2 py-2 sm:mr-3 sm:px-3 sm:py-2">
+          <div className="mr-1 flex items-center rounded-none">
             <Image
-              className="h-7 w-7 sm:h-8 sm:w-8"
+              className="h-10 w-10"
               alt="Logo"
-              width={32}
-              height={32}
+              width={34}
+              height={34}
               src={"/images/logo.svg"}
             />
           </div>
@@ -123,8 +123,8 @@ export function Navigation({ initialAuth }: NavigationProps) {
         </div>
       </div>
       {isAuthenticated ? (
-        <div className="px-3 pb-2 pt-1 md:hidden">
-          <nav className={cn("mx-auto flex w-full max-w-[1800px]", shellSegmentedContainerClass)}>
+        <div className="mx-auto w-full max-w-6xl px-4 pb-2 pt-1 md:px-6 md:hidden">
+          <nav className={cn("flex w-full", shellSegmentedContainerClass)}>
             <Link
               href="/app/coach/dashboard"
               className={cn(roleLinkClass(isCoachActive), "flex-1 text-center")}
