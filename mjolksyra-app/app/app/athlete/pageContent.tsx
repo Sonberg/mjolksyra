@@ -5,6 +5,7 @@ import { AthleteOnboardingFlow } from "@/components/AthleteOnboardingFlow/Athlet
 import { useState } from "react";
 import { AthleteDashboard } from "./AthleteDashboard";
 import { AthleteCoaches } from "./AthleteCoaches";
+import { AthleteSectionTabs } from "./AthleteSectionTabs";
 
 type Props = {
   user: User;
@@ -34,12 +35,12 @@ export function PageContent({
   const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
 
   return (
-    <div className="relative mx-auto w-full max-w-6xl space-y-8 px-4 pb-8 md:px-6 md:pb-10">
-      <div className="pointer-events-none absolute -top-12 -left-10 h-40 w-40 -rotate-6 rounded-[1.25rem] border border-zinc-800 bg-white/[0.02]" />
-      <div className="pointer-events-none absolute top-24 right-0 h-48 w-48 rotate-12 rounded-[1.5rem] border border-zinc-800 bg-white/[0.02]" />
+    <div className="relative w-full space-y-8 pb-8 md:pb-10">
+      <div className="pointer-events-none absolute -top-12 -left-10 h-40 w-40 -rotate-6 rounded-[1.25rem] border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/25" />
+      <div className="pointer-events-none absolute top-24 right-0 h-48 w-48 rotate-12 rounded-[1.5rem] border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/25" />
 
       {needsOnboarding ? (
-        <div className="space-y-8">
+        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 md:px-6">
           <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 md:p-10">
             <div className="pointer-events-none absolute -right-24 -top-10 h-40 w-40 rotate-12 rounded-[1.5rem] border border-zinc-800 bg-white/[0.02]" />
             <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-zinc-800" />
@@ -81,32 +82,38 @@ export function PageContent({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-4">
-              <AthleteCoaches user={user} selected={coach} onSelect={setCoach} />
-            </div>
-            <div className="lg:col-span-8">
-              {coach ? (
-                <AthleteDashboard
-                  coach={coach}
-                  focusWorkoutId={focusWorkoutId}
-                  detailWorkoutId={detailWorkoutId}
-                  detailBackTab={detailBackTab}
-                  initialWorkoutTab={initialWorkoutTab}
-                  selectedTab={initialDashboardTab}
+          {coach ? (
+            <div className="sticky top-0 z-40 w-full border-b-2 border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface),transparent_10%)] py-2 backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--shell-surface),transparent_6%)]">
+              <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+                <AthleteSectionTabs
+                  traineeId={coach.traineeId}
+                  coaches={user.coaches}
+                  onCoachChange={setCoach}
                 />
-              ) : (
-                <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-center">
-                  <p className="text-lg font-semibold text-white">
-                    No active coach selected
-                  </p>
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Accept an invitation or choose a coach to see your training
-                    program.
-                  </p>
-                </div>
-              )}
+              </div>
             </div>
+          ) : null}
+          <div className="mx-auto w-full max-w-6xl px-4 pt-8 md:px-6 md:pt-16">
+            {coach ? (
+              <AthleteDashboard
+                coach={coach}
+                focusWorkoutId={focusWorkoutId}
+                detailWorkoutId={detailWorkoutId}
+                detailBackTab={detailBackTab}
+                initialWorkoutTab={initialWorkoutTab}
+                selectedTab={initialDashboardTab}
+              />
+            ) : (
+              <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-center">
+                <p className="text-lg font-semibold text-white">
+                  No active coach selected
+                </p>
+                <p className="mt-2 text-sm text-zinc-500">
+                  Accept an invitation or choose a coach to see your training
+                  program.
+                </p>
+              </div>
+            )}
           </div>
         </>
       )}

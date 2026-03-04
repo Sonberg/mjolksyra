@@ -12,6 +12,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { shellRoleLinkClass } from "./shellStyles";
 
 type NavigationAuthSnapshot = {
   isAuthenticated: boolean;
@@ -39,16 +40,9 @@ export function Navigation({ initialAuth }: NavigationProps) {
     familyName: initialAuth?.familyName ?? auth.familyName ?? null,
   };
 
-  const [showBorder, setShowBorder] = useState(() =>
-    pathname === "/" ? false : true,
-  );
-  const roleLinkClass = (isActive: boolean) =>
-    cn(
-      "rounded-xl px-3 py-1.5 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-zinc-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:text-sm",
-      isActive
-        ? "bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(255,255,255,0.14)]"
-        : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-100",
-    );
+  const [showHomeBorder, setShowHomeBorder] = useState(false);
+  const showBorder = pathname !== "/" || showHomeBorder;
+  const roleLinkClass = (isActive: boolean) => shellRoleLinkClass(isActive);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -56,7 +50,6 @@ export function Navigation({ initialAuth }: NavigationProps) {
     }
 
     if (pathname !== "/") {
-      setShowBorder(true);
       return;
     }
 
@@ -67,7 +60,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
       element.addEventListener(
         "scroll",
         (ev) => {
-          setShowBorder((ev.target as HTMLElement).scrollTop > 50);
+          setShowHomeBorder((ev.target as HTMLElement).scrollTop > 50);
         },
         {
           signal: controller.signal,
@@ -85,20 +78,16 @@ export function Navigation({ initialAuth }: NavigationProps) {
       className={cn(
         "sticky top-0 z-50 flex flex-col transition-all duration-300",
         showBorder
-          ? "border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl"
+          ? "border-b-2 border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface),transparent_8%)] backdrop-blur-xl"
           : "bg-transparent",
       )}
     >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-20 top-0 h-32 w-56 rounded-full bg-emerald-500/15 blur-3xl" />
-        <div className="absolute -right-16 top-0 h-32 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
-      </div>
       <div className="mx-auto flex h-16 w-full max-w-[1800px] items-center gap-2 px-3 sm:gap-4 sm:px-6">
         <Link
           href="/"
           className="group text-base font-medium transition-transform duration-200 hover:scale-[1.01]"
         >
-          <div className="mr-1 flex items-center rounded-2xl border border-zinc-800/70 bg-zinc-950/80 px-2 py-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.35)] sm:mr-3 sm:px-3 sm:py-2">
+          <div className="mr-1 flex items-center rounded-none px-2 py-1.5 sm:mr-3 sm:px-3 sm:py-2">
             <Image
               className="mr-1.5 h-7 w-7 sm:mr-2 sm:h-8 sm:w-8"
               alt="Logo"
@@ -106,14 +95,11 @@ export function Navigation({ initialAuth }: NavigationProps) {
               height={32}
               src={"/images/logo.svg"}
             />
-            <div className="font-[var(--font-display)] text-lg leading-none font-semibold tracking-tight text-zinc-100 sm:text-xl">
-              mjölksyra
-            </div>
           </div>
         </Link>
         <div className="ml-auto flex items-center space-x-2 sm:space-x-3">
           {isAuthenticated ? (
-            <nav className="hidden items-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/75 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] md:flex">
+            <nav className="hidden items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-1 md:flex">
               <Link
                 href="/app/coach/dashboard"
                 className={roleLinkClass(isCoachActive)}
@@ -142,7 +128,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
             <>
               <RegisterDialog
                 trigger={
-                  <Button className="rounded-2xl border border-emerald-200/70 bg-gradient-to-r from-emerald-300 via-lime-200 to-cyan-200 px-4 font-semibold text-black shadow-[0_10px_28px_rgba(94,234,212,0.28)] transition-all duration-200 hover:scale-[1.02] hover:from-emerald-200 hover:to-cyan-100">
+                  <Button className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-surface)] transition-colors hover:bg-[#ce2f10]">
                     Start free trial
                   </Button>
                 }
@@ -151,7 +137,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
                 trigger={
                   <Button
                     variant="outline"
-                    className="rounded-2xl border-zinc-700 bg-zinc-950/60 px-4 font-medium text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-zinc-900"
+                    className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 font-medium text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
                   >
                     Log in
                   </Button>
@@ -162,8 +148,8 @@ export function Navigation({ initialAuth }: NavigationProps) {
         </div>
       </div>
       {isAuthenticated ? (
-        <div className="border-t border-zinc-800/70 px-3 pb-2 pt-1 md:hidden">
-          <nav className="mx-auto flex w-full max-w-[1800px] items-center gap-1 rounded-2xl border border-zinc-800/80 bg-zinc-950/75 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+        <div className="px-3 pb-2 pt-1 md:hidden">
+          <nav className="mx-auto flex w-full max-w-[1800px] items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-1">
             <Link
               href="/app/coach/dashboard"
               className={cn(roleLinkClass(isCoachActive), "flex-1 text-center")}

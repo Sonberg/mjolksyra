@@ -3,11 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { WorkoutViewer } from "@/components/WorkoutViewer";
 import { WorkoutDetails } from "@/components/WorkoutViewer/WorkoutDetails";
-import type { ReactNode } from "react";
-import { CreditCardIcon, DumbbellIcon, SettingsIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
-import { useRouter } from "next/navigation";
 
 type Tabs = "workouts" | "transactions" | "settings";
 type Props = {
@@ -27,7 +24,6 @@ export function AthleteDashboard({
   initialWorkoutTab,
   selectedTab,
 }: Props) {
-  const router = useRouter();
   const cancel = useMutation({
     mutationKey: ["trainees", coach.traineeId, "cancel"],
     mutationFn: () => cancelTrainee({ traineeId: coach.traineeId }),
@@ -51,57 +47,8 @@ export function AthleteDashboard({
     SubscriptionActive: "Monthly billing is active.",
   }[data.billing.status];
 
-  const tabs: Array<{
-    key: Tabs;
-    label: string;
-    icon: ReactNode;
-    href: string;
-  }> = [
-    {
-      key: "workouts",
-      label: "Workouts",
-      icon: <DumbbellIcon className="h-4 w-4" />,
-      href: `/app/athlete/${coach.traineeId}/workouts`,
-    },
-    {
-      key: "transactions",
-      label: "Transactions",
-      icon: <CreditCardIcon className="h-4 w-4" />,
-      href: `/app/athlete/${coach.traineeId}/transactions`,
-    },
-    {
-      key: "settings",
-      label: "Settings",
-      icon: <SettingsIcon className="h-4 w-4" />,
-      href: `/app/athlete/${coach.traineeId}/settings`,
-    },
-  ];
-
   return (
     <div className="space-y-6">
-      <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-3">
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((tab) => {
-            const isActive = selectedTab === tab.key;
-
-            return (
-              <button
-                key={tab.key}
-                onClick={() => router.push(tab.href)}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                  isActive
-                    ? "bg-white text-black"
-                    : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {selectedTab === "workouts" ? (
         detailWorkoutId ? (
           <WorkoutDetails
