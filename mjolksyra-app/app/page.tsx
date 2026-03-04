@@ -22,31 +22,64 @@ export const metadata: Metadata = {
 
 export default function Home() {
   const themeVars = {
-    "--home-bg": "#090909",
-    "--home-surface": "#111111",
-    "--home-border": "#2b2b2b",
-    "--home-text": "#f3f3f3",
-    "--home-muted": "#9a9a9a",
-    "--home-accent": "#ededed",
-    "--home-accent-2": "#cfcfcf",
+    "--home-bg": "#f6eedf",
+    "--home-surface": "#fff7ec",
+    "--home-border": "#2a241d",
+    "--home-text": "#161311",
+    "--home-muted": "#5e5448",
+    "--home-accent": "#f03a17",
+    "--home-accent-2": "#151515",
   } as CSSProperties;
 
   return (
     <div
       style={themeVars}
-      className="font-[var(--font-body)] relative min-h-screen overflow-y-auto [background:var(--home-bg)]"
+      className="home-shell font-[var(--font-body)] relative min-h-screen overflow-y-auto"
     >
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.09),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(255,255,255,0.05),transparent_30%)]" />
-      <HeroSection />
-      <AudienceSection />
-      <FeaturesSection />
-      <BenefitsSection />
-      <CalculatorSection />
-      <DemoSection />
-      <BlockBuilderPreviewSection />
-      <StripeSection />
-      <FAQSection />
-      <CTASection />
+      <div className="home-grid-overlay pointer-events-none fixed inset-0" />
+      <div className="home-glow pointer-events-none fixed inset-0" />
+
+      <div className="home-content relative z-10">
+        <HeroSection />
+        <AudienceSection />
+        <FeaturesSection />
+        <BenefitsSection />
+        <CalculatorSection />
+        <DemoSection />
+        <BlockBuilderPreviewSection />
+        <StripeSection />
+        <FAQSection />
+        <CTASection />
+      </div>
+
+      <style>{`
+        .home-shell {
+          background: var(--home-bg);
+          color: var(--home-text);
+        }
+
+        .home-grid-overlay {
+          background:
+            repeating-linear-gradient(90deg, #00000010 0 1px, #0000 1px 44px),
+            repeating-linear-gradient(180deg, #00000008 0 1px, #0000 1px 44px);
+          opacity: 0.55;
+        }
+
+        .home-glow {
+          background:
+            radial-gradient(700px 420px at 8% 0%, #f03a1720 0%, transparent 62%),
+            radial-gradient(560px 320px at 92% 12%, #00000012 0%, transparent 68%);
+        }
+
+        .home-content {
+          animation: homeEnter 520ms cubic-bezier(.2,.7,.1,1) both;
+        }
+
+        @keyframes homeEnter {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

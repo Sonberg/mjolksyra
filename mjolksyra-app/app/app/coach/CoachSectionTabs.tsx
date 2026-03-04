@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { shellSectionTabClass } from "@/components/Navigation/shellStyles";
 
 type CoachTab = "dashboard" | "athletes" | "blocks";
 
@@ -32,11 +33,7 @@ export function CoachSectionTabs() {
           <Link
             key={tab.key}
             href={tab.href}
-            className={`inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${
-              isActive
-                ? "border border-zinc-700 bg-zinc-900 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
-                : "border border-transparent text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-200"
-            }`}
+            className={shellSectionTabClass(isActive)}
           >
             {tab.label}
           </Link>

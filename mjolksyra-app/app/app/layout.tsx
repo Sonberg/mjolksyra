@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-black h-full min-h-0 overflow-y-auto">
+    <div className="theme-shell-two shell-two-canvas h-full min-h-0 overflow-y-auto text-[var(--shell-ink)]">
       <div className="w-full min-h-0">
         {children}
       </div>

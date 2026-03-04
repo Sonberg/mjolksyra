@@ -10,7 +10,7 @@ export function TodayButton({ onClick }: Props) {
   return (
     <div
       onClick={onClick}
-      className="absolute text-white text-sm right-8 bottom-8 bg-red-800 hover:bg-red-700  rounded-full font-bold h-10 w-10 grid place-items-center cursor-pointer"
+      className="absolute bottom-8 right-8 grid h-10 w-10 cursor-pointer place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-sm font-bold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
     >
       <CalendarHeartIcon className="h-4" />
     </div>

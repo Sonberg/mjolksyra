@@ -190,7 +190,7 @@ export function BlockEditorContent({ blockId }: Props) {
   if (isLoading) {
     return (
       <CoachWorkspaceShell>
-        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-zinc-400">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
           Loading...
         </div>
       </CoachWorkspaceShell>
@@ -200,7 +200,7 @@ export function BlockEditorContent({ blockId }: Props) {
   if (!block) {
     return (
       <CoachWorkspaceShell>
-        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-zinc-400">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
           Block not found.
         </div>
       </CoachWorkspaceShell>
@@ -216,7 +216,7 @@ export function BlockEditorContent({ blockId }: Props) {
           onDragEnd={() => setDraggingLabel(null)}
           onDragCancel={() => setDraggingLabel(null)}
         >
-          <div className="h-[calc(100vh-7.5rem)] min-h-[680px] overflow-hidden">
+          <div className="overflow-hidden lg:h-[calc(100dvh-7.5rem)] lg:min-h-[680px]">
             <ResizablePanelGroup
               direction="horizontal"
               className="h-full min-h-0"
@@ -228,16 +228,16 @@ export function BlockEditorContent({ blockId }: Props) {
               >
                 <div className="flex h-full min-h-0 flex-col">
                 <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
-                  <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 p-3 md:flex-row md:items-center md:justify-between">
-                    <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex flex-col gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex min-w-0 flex-wrap items-center gap-3">
                       <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="max-w-xs border-white/15 bg-zinc-900/80 text-lg font-semibold text-zinc-100"
+                        className="max-w-xs border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-lg font-semibold text-[var(--shell-ink)]"
                         placeholder="Block name"
                       />
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-zinc-400">Weeks:</span>
+                        <span className="text-sm text-[var(--shell-muted)]">Weeks:</span>
                         <Input
                           type="number"
                           min={1}
@@ -250,20 +250,20 @@ export function BlockEditorContent({ blockId }: Props) {
                               prev.filter((workout) => workout.week >= 1 && workout.week <= nextNumberOfWeeks)
                             );
                           }}
-                          className="w-20 border-white/15 bg-zinc-900/80 text-zinc-100"
+                          className="w-20 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                         />
                       </div>
                       <Button
                         onClick={handleSave}
                         disabled={saveMutation.isPending}
                         size="sm"
-                        className="border border-white/15 bg-white text-black hover:bg-zinc-200"
+                        className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-surface)] hover:bg-[#ce2f10]"
                       >
                         <SaveIcon className="h-4 w-4 mr-2" />
                         {saveMutation.isPending ? "Saving..." : "Save"}
                       </Button>
                     </div>
-                    <div className="flex items-center self-end overflow-hidden rounded-lg border border-white/15 bg-zinc-900/80 md:ml-auto md:self-auto">
+                    <div className="flex items-center self-end overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] md:ml-auto md:self-auto">
                       <button
                         type="button"
                         onClick={() => {
@@ -272,8 +272,8 @@ export function BlockEditorContent({ blockId }: Props) {
                         }}
                         className={
                           interactionMode === "arrange"
-                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-zinc-100 text-zinc-900"
-                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-400 hover:text-zinc-200"
+                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
                         }
                       >
                         Arrange
@@ -283,8 +283,8 @@ export function BlockEditorContent({ blockId }: Props) {
                         onClick={() => setInteractionMode("edit")}
                         className={
                           interactionMode === "edit"
-                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-zinc-100 text-zinc-900"
-                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-400 hover:text-zinc-200"
+                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
                         }
                       >
                         Edit
@@ -339,11 +339,11 @@ export function BlockEditorContent({ blockId }: Props) {
                 ) : (
                   <>
                     {interactionMode === "edit" ? (
-                      <div className="border-b px-6 py-6">
-                        <div className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                      <div className="border-b-2 border-[var(--shell-border)]/30 bg-[var(--shell-surface)] px-6 py-6">
+                        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                           Edit mode
                         </div>
-                        <div className="mt-2 text-sm text-zinc-300">
+                        <div className="mt-2 text-sm text-[var(--shell-ink)]">
                           Click an exercise card to edit notes and set targets.
                         </div>
                       </div>

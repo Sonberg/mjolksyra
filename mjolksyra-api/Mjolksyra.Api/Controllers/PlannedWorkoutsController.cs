@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
@@ -18,10 +20,14 @@ namespace Mjolksyra.Api.Controllers;
 public class PlannedWorkoutsController : Controller
 {
     private readonly IMediator _mediator;
+    private readonly IUserEventPublisher _userEventPublisher;
+    private readonly IUserContext _userContext;
 
-    public PlannedWorkoutsController(IMediator mediator)
+    public PlannedWorkoutsController(IMediator mediator, IUserEventPublisher userEventPublisher, IUserContext userContext)
     {
         _mediator = mediator;
+        _userEventPublisher = userEventPublisher;
+        _userContext = userContext;
     }
 
     [HttpGet]
@@ -57,13 +63,21 @@ public class PlannedWorkoutsController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult<PlannedWorkoutResponse>> Create(Guid traineeId, [FromBody] PlannedWorkoutRequest request)
+    public async Task<ActionResult<PlannedWorkoutResponse>> Create(Guid traineeId, [FromBody] PlannedWorkoutRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new CreatePlannedWorkoutCommand
+        var result = await _mediator.Send(new CreatePlannedWorkoutCommand
         {
             TraineeId = traineeId,
             Workout = request
-        }));
+        }, cancellationToken);
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return Ok(result);
     }
 
     [HttpGet("{plannedWorkoutId:guid}")]
@@ -82,14 +96,22 @@ public class PlannedWorkoutsController : Controller
     }
 
     [HttpPut("{plannedWorkoutId:guid}")]
-    public async Task<ActionResult<PlannedWorkoutResponse>> Update(Guid traineeId, Guid plannedWorkoutId, [FromBody] PlannedWorkoutRequest request)
+    public async Task<ActionResult<PlannedWorkoutResponse>> Update(Guid traineeId, Guid plannedWorkoutId, [FromBody] PlannedWorkoutRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new UpdatePlannedWorkoutCommand
+        var result = await _mediator.Send(new UpdatePlannedWorkoutCommand
         {
             TraineeId = traineeId,
             PlannedWorkoutId = plannedWorkoutId,
             Workout = request
-        }));
+        }, cancellationToken);
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return Ok(result);
     }
 
     [HttpPut("{plannedWorkoutId:guid}/log")]
@@ -107,13 +129,19 @@ public class PlannedWorkoutsController : Controller
     }
 
     [HttpDelete("{plannedWorkoutId:guid}")]
-    public async Task<ActionResult> Delete(Guid traineeId, Guid plannedWorkoutId)
+    public async Task<ActionResult> Delete(Guid traineeId, Guid plannedWorkoutId, CancellationToken cancellationToken)
     {
         await _mediator.Send(new DeletePlannedWorkoutCommand
         {
             TraineeId = traineeId,
             PlannedWorkoutId = plannedWorkoutId
-        });
+        }, cancellationToken);
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
 
         return NoContent();
     }

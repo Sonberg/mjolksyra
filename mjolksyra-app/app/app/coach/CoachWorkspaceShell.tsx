@@ -26,15 +26,11 @@ export function CoachWorkspaceShell({
       className={cn(
         "font-[var(--font-body)] relative mx-auto w-full overflow-x-clip overflow-y-visible",
         showTabs && !fullBleed && "-mt-8 md:-mt-10",
-        fullBleed && "test",
         className,
       )}
     >
-      <div className="pointer-events-none absolute -top-8 -right-10 h-36 w-36 rotate-12 rounded-[1.25rem] border border-zinc-800 bg-white/[0.02]" />
-      <div className="pointer-events-none absolute top-20 -left-6 h-24 w-24 -rotate-6 rounded-[1rem] border border-zinc-800 bg-white/[0.015]" />
-
       {showTabs ? (
-        <div className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/85">
+        <div className="sticky top-0 z-40 border-b-2 border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface),transparent_10%)] px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--shell-surface),transparent_6%)]">
           <CoachSectionTabs />
         </div>
       ) : null}

@@ -23,14 +23,14 @@ export function BlockWeek({
   mode,
 }: Props) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/70 backdrop-blur-sm">
-      <div className="flex select-none items-center justify-between border-b border-white/10 bg-zinc-900/80 px-3 py-2">
-        <div className="text-sm font-semibold text-zinc-100">Week {week}</div>
-        <div className="text-xs uppercase tracking-[0.14em] text-zinc-400">
+    <section className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/95 backdrop-blur-sm">
+      <div className="flex select-none items-center justify-between border-b-2 border-[var(--shell-border)]/30 bg-[var(--shell-surface-strong)]/70 px-3 py-2">
+        <div className="text-sm font-semibold text-[var(--shell-ink)]">Week {week}</div>
+        <div className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
           Block plan
         </div>
       </div>
-      <div className="grid grid-cols-7 divide-x divide-white/10 border-b border-white/10 bg-zinc-900/40">
+      <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)]/20 border-b-2 border-[var(--shell-border)]/20 bg-[var(--shell-surface-strong)]/45">
         {DAY_NAMES.map((dayName, index) => {
           const dayOfWeek = index + 1;
           const workout = workouts.find(
@@ -43,7 +43,7 @@ export function BlockWeek({
               key={`day-header-${dayOfWeek}`}
               className="flex items-center justify-center gap-1 px-2 py-1"
             >
-              <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-zinc-400">
+              <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
                 {dayName}
               </div>
               {mode === "edit" && !firstExercise ? (
@@ -56,7 +56,7 @@ export function BlockWeek({
           );
         })}
       </div>
-      <div className="grid grid-cols-7 divide-x divide-white/10">
+      <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)]/20">
         {DAY_NAMES.map((_, index) => {
           const dayOfWeek = index + 1;
           const workout = workouts.find(

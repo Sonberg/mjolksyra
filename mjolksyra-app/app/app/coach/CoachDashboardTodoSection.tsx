@@ -19,15 +19,15 @@ type Props = {
 
 export function CoachDashboardTodoSection({ items }: Props) {
   return (
-    <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6 md:p-7">
+    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
           Coach to-do
         </p>
-        <h2 className="mt-2 text-2xl font-semibold text-white md:text-3xl">
+        <h2 className="mt-2 text-2xl font-semibold text-[var(--shell-ink)] md:text-3xl">
           Follow-ups
         </h2>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-[var(--shell-muted)]">
           Payment blockers, feedback follow-ups, and planning gaps to review.
         </p>
       </div>
@@ -38,22 +38,22 @@ export function CoachDashboardTodoSection({ items }: Props) {
           return (
             <div
               key={item.key}
-              className="rounded-[1.25rem] border border-zinc-800 bg-zinc-900 p-4"
+              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className={cn("mt-0.5 rounded-lg border p-2", item.tone)}>
+                  <div className={cn("mt-0.5 rounded-none border-2 p-2", item.tone)}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{item.title}</p>
-                    <p className="mt-1 text-sm text-zinc-400">{item.text}</p>
+                    <p className="text-sm font-semibold text-[var(--shell-ink)]">{item.title}</p>
+                    <p className="mt-1 text-sm text-[var(--shell-muted)]">{item.text}</p>
                     {item.names && (
-                      <p className="mt-2 text-xs text-zinc-500">{item.names}</p>
+                      <p className="mt-2 text-xs text-[var(--shell-muted)]">{item.names}</p>
                     )}
                   </div>
                 </div>
-                <div className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs font-semibold text-zinc-300">
+                <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs font-semibold text-[var(--shell-ink)]">
                   {item.count}
                 </div>
               </div>

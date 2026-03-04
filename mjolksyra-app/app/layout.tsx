@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Spectral, Unbounded } from "next/font/google";
+import { Alfa_Slab_One, DM_Sans } from "next/font/google";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Navigation } from "@/components/Navigation";
 import { getUserMe } from "@/services/users/getUserMe";
@@ -19,15 +19,15 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-const displayFont = Unbounded({
+const displayFont = Alfa_Slab_One({
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: ["400"],
   variable: "--font-display",
 });
 
-const bodyFont = Spectral({
+const bodyFont = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "700"],
   variable: "--font-body",
 });
 

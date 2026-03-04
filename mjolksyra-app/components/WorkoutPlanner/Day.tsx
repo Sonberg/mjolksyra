@@ -116,17 +116,17 @@ export function Day({ date, plannedWorkout }: Props) {
       <>
         <div className="flex min-h-32 min-w-0 flex-col p-2">
           <div
-            className="flex h-9 min-w-0 items-center justify-between rounded-lg border border-white/10 bg-zinc-900/70 px-1.5 text-xs font-bold"
+            className="flex h-9 min-w-0 items-center justify-between rounded-none border border-[var(--shell-border)]/20 bg-[var(--shell-surface-strong)] px-1.5 text-xs font-bold"
             ref={setDraggableNodeRef}
           >
             <div className="flex min-w-0 items-center gap-1.5">
-              <div className="select-none text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
+              <div className="select-none text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
                 {date.format("dd")}
               </div>
               <div
                 className={cn({
-                  "select-none rounded-full px-1.5 py-0.5 text-zinc-300": true,
-                  "bg-red-800 text-white": isToday,
+                  "select-none rounded-none px-1.5 py-0.5 text-[var(--shell-muted)]": true,
+                  "bg-[var(--shell-accent)] text-[var(--shell-surface)]": isToday,
                 })}
               >
                 {date.date()}
@@ -138,7 +138,7 @@ export function Day({ date, plannedWorkout }: Props) {
                   <>
                     <DraggingToolTip
                       icon={
-                        <div className="grid h-6 w-6 place-content-center rounded-md text-zinc-400 transition hover:bg-white/10 hover:text-zinc-200">
+                        <div className="grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]">
                           <RectangleEllipsisIcon className="h-3.5 w-3.5" />
                         </div>
                       }
@@ -156,8 +156,8 @@ export function Day({ date, plannedWorkout }: Props) {
                     />
                     <div
                       className={cn({
-                        "grid h-6 w-6 place-content-center rounded-md text-zinc-300 transition": true,
-                        "bg-emerald-600 text-white":
+                        "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
+                        "bg-emerald-600 text-[var(--shell-surface)]":
                           editor.plannedWorkoutId === plannedWorkout.id,
                         "hover:bg-emerald-600/40":
                           editor.plannedWorkoutId !== plannedWorkout.id,
@@ -176,12 +176,12 @@ export function Day({ date, plannedWorkout }: Props) {
                 ) : (
                   <span
                     className={cn(
-                      "rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+                      "rounded-none border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
                       isCompleted
                         ? plannedWorkout?.reviewedAt
                           ? "border-emerald-700/60 bg-emerald-900/30 text-emerald-200"
                           : "border-amber-700/60 bg-amber-900/20 text-amber-200"
-                        : "border-zinc-700 bg-zinc-900 text-zinc-400"
+                        : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]"
                     )}
                     title={
                       isCompleted
@@ -202,7 +202,7 @@ export function Day({ date, plannedWorkout }: Props) {
           <div
             ref={setDroppableNodeRef}
             className={cn({
-              "relative mt-2 flex h-full min-h-24 flex-1 flex-col rounded-lg border border-transparent": true,
+              "relative mt-2 flex h-full min-h-24 flex-1 flex-col rounded-none border border-transparent": true,
               ...draggingStyle({ canDrop, isOver: isOverContainer }),
             })}
           >
@@ -225,7 +225,7 @@ export function Day({ date, plannedWorkout }: Props) {
                 ))}
               </SortableContext>
             ) : (
-              <div className="grid min-h-32 place-items-center rounded-lg border border-dashed border-white/10 px-4 text-center text-sm text-zinc-500 opacity-0 transition-all hover:opacity-100">
+              <div className="grid min-h-32 place-items-center rounded-none border border-dashed border-[var(--shell-border)]/20 px-4 text-center text-sm text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100">
                 <div className="select-none">
                   {canPlan
                     ? "Drag & drop exercises to start planning"

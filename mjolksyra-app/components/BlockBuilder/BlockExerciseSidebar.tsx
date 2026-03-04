@@ -165,17 +165,17 @@ export function BlockExerciseSidebar({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b px-6 py-6">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">Editing</div>
-        <div className="mt-1 text-lg font-semibold text-zinc-100">{exercise.name}</div>
-        <div className="mt-1 text-xs text-zinc-400">{title}</div>
-        <div className="mt-2 text-xs uppercase tracking-[0.08em] text-zinc-500">
+      <div className="border-b-2 border-[var(--shell-border)]/30 bg-[var(--shell-surface)] px-6 py-6">
+        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--shell-muted)]">Editing</div>
+        <div className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{exercise.name}</div>
+        <div className="mt-1 text-xs text-[var(--shell-muted)]">{title}</div>
+        <div className="mt-2 text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
           {formatPrescription(prescription) ?? "No set plan"}
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="mt-4 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs text-zinc-200 hover:bg-zinc-800"
+          className="mt-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1 text-xs text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
         >
           Close
         </button>
@@ -187,11 +187,11 @@ export function BlockExerciseSidebar({
             value={exercise.note ?? ""}
             onChange={(ev) => onUpdateNote(ev.target.value || null)}
             placeholder="Add note for this exercise..."
-            className="min-h-16 border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500"
+            className="min-h-16 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)]"
           />
 
-          <div className="space-y-2 rounded border border-zinc-800 bg-zinc-950/60 p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+          <div className="space-y-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
               Target setup
             </div>
             <select
@@ -199,7 +199,7 @@ export function BlockExerciseSidebar({
               onChange={(ev) =>
                 updateTargetType(ev.target.value as ExercisePrescription["targetType"])
               }
-              className="h-9 w-full rounded border border-zinc-700 bg-zinc-900 px-2 text-sm text-zinc-100"
+              className="h-9 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 text-sm text-[var(--shell-ink)]"
             >
               <option value={ExercisePrescriptionTargetType.SetsReps}>Sets + reps</option>
               <option value={ExercisePrescriptionTargetType.DurationSeconds}>
@@ -212,17 +212,17 @@ export function BlockExerciseSidebar({
               {sets.map((set, setIndex) => (
                 <div
                   key={`${exercise.id}-set-${setIndex}`}
-                  className="space-y-2 rounded border border-zinc-800 bg-zinc-900/50 p-2"
+                  className="space-y-2 rounded-none border-2 border-[var(--shell-border)]/60 bg-[var(--shell-surface-strong)]/55 p-2"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-400">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                       Set {setIndex + 1}
                     </div>
                     <button
                       type="button"
                       onClick={() => removeSet(setIndex)}
                       disabled={sets.length <= 1}
-                      className="inline-flex items-center gap-1 rounded border border-zinc-700 px-1.5 py-1 text-[10px] text-zinc-300 disabled:opacity-40"
+                      className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] px-1.5 py-1 text-[10px] text-[var(--shell-ink)] disabled:opacity-40"
                     >
                       <Trash2Icon className="h-3 w-3" />
                       Remove
@@ -241,11 +241,11 @@ export function BlockExerciseSidebar({
                               reps: ev.target.value ? Number(ev.target.value) : null,
                             })
                           }
-                          className="h-8 w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 text-xs text-zinc-100"
+                          className="h-8 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-xs text-[var(--shell-ink)]"
                           placeholder="0"
                           aria-label="Reps"
                         />
-                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
+                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                           reps
                         </span>
                       </div>
@@ -260,11 +260,11 @@ export function BlockExerciseSidebar({
                               weightKg: ev.target.value ? Number(ev.target.value) : null,
                             })
                           }
-                          className="h-8 w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                          className="h-8 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                           placeholder="0"
                           aria-label="Target weight in kilograms"
                         />
-                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
+                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                           kg
                         </span>
                       </div>
@@ -285,11 +285,11 @@ export function BlockExerciseSidebar({
                               : null,
                           })
                         }
-                        className="h-8 w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                        className="h-8 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                         placeholder="0"
                         aria-label="Seconds"
                       />
-                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
+                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                         s
                       </span>
                     </div>
@@ -309,11 +309,11 @@ export function BlockExerciseSidebar({
                               : null,
                           })
                         }
-                        className="h-8 w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                        className="h-8 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                         placeholder="0"
                         aria-label="Meters"
                       />
-                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
+                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                         m
                       </span>
                     </div>
@@ -327,7 +327,7 @@ export function BlockExerciseSidebar({
                         note: ev.target.value || null,
                       })
                     }
-                    className="h-8 w-full rounded border border-zinc-700 bg-zinc-900 px-2 text-xs text-zinc-100"
+                    className="h-8 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-xs text-[var(--shell-ink)]"
                     placeholder="Set note (optional)"
                   />
                 </div>
@@ -336,7 +336,7 @@ export function BlockExerciseSidebar({
               <button
                 type="button"
                 onClick={addSet}
-                className="inline-flex items-center gap-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-200"
+                className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]"
               >
                 <PlusIcon className="h-3 w-3" />
                 Add set

@@ -61,7 +61,7 @@ export function Month({ value }: Props) {
             "opacity-30": !workouts,
           })}
         >
-          <div className="my-8 select-none text-3xl font-bold text-zinc-100">
+          <div className="my-8 select-none text-3xl font-bold text-[var(--shell-ink)]">
             {monthName}
           </div>
           <div className="flex flex-col gap-8">

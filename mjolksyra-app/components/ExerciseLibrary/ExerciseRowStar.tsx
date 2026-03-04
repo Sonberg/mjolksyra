@@ -22,15 +22,15 @@ export function ExerciseRowStar({ exercise, exercises }: Props) {
   );
   const className = cn({
     "h-4 w-4": true,
-    "hover:text-zinc-100": !isStarred,
-    "text-zinc-100": isStarred,
-    "text-zinc-500": !isStarred,
+    "hover:text-[var(--shell-ink)]": !isStarred,
+    "text-[var(--shell-ink)]": isStarred,
+    "text-[var(--shell-muted)]": !isStarred,
     "cursor-pointer": true,
   });
 
   return (
     <Star
-      fill={isStarred ? "#f5f5f5" : "transparent"}
+      fill={isStarred ? "var(--shell-ink)" : "transparent"}
       className={className}
       onClick={() =>
         isStarred ? starred.unstar(exercise.id) : starred.star(exercise.id)

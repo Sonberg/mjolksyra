@@ -78,8 +78,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       icon: WalletIcon,
       tone:
         paymentBlocked.length > 0
-          ? "border-amber-800 bg-amber-950/40 text-amber-200"
-          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
     {
       key: "feedback",
@@ -93,8 +93,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       icon: MessageSquareIcon,
       tone:
         needsFeedback.length > 0
-          ? "border-zinc-700 bg-zinc-900 text-zinc-100"
-          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
     {
       key: "pricing",
@@ -108,8 +108,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       icon: AlertTriangleIcon,
       tone:
         needsPrice.length > 0
-          ? "border-zinc-700 bg-zinc-900 text-zinc-100"
-          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
     {
       key: "program",
@@ -123,8 +123,8 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       icon: CheckCircle2Icon,
       tone:
         programEndingSoon.length > 0
-          ? "border-zinc-700 bg-zinc-900 text-zinc-100"
-          : "border-zinc-800 bg-zinc-900 text-zinc-300",
+          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
   ];
   const coachPaymentStatus =
@@ -132,18 +132,18 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       ? {
           label: "Stripe connected",
           text: "Payouts and coach billing setup are active.",
-          badgeClass: "border-emerald-800 bg-emerald-950 text-emerald-200",
+          badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         }
       : user.onboarding.coach === "Started"
         ? {
             label: "Setup in progress",
             text: "Complete your Stripe onboarding to enable coach billing and payouts.",
-            badgeClass: "border-amber-800 bg-amber-950 text-amber-200",
+            badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
           }
         : {
             label: "Not connected",
             text: "Connect Stripe to receive payouts and manage coach billing settings.",
-            badgeClass: "border-zinc-700 bg-zinc-900 text-zinc-300",
+            badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
           };
 
   return (

@@ -1,5 +1,5 @@
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-lg bg-zinc-800/80 ${className}`} />;
+  return <div className={`animate-pulse rounded-none bg-[var(--shell-surface-strong)] ${className}`} />;
 }
 
 export function DashboardSkeleton() {
@@ -13,14 +13,14 @@ export function DashboardSkeleton() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <SkeletonBlock className="h-28 w-full rounded-2xl" />
-          <SkeletonBlock className="h-28 w-full rounded-2xl" />
-          <SkeletonBlock className="h-28 w-full rounded-2xl" />
+          <SkeletonBlock className="h-28 w-full rounded-none" />
+          <SkeletonBlock className="h-28 w-full rounded-none" />
+          <SkeletonBlock className="h-28 w-full rounded-none" />
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <SkeletonBlock className="h-72 w-full rounded-2xl" />
-          <SkeletonBlock className="h-72 w-full rounded-2xl" />
+          <SkeletonBlock className="h-72 w-full rounded-none" />
+          <SkeletonBlock className="h-72 w-full rounded-none" />
         </div>
       </div>
     </div>

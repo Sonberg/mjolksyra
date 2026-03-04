@@ -64,19 +64,19 @@ export function CoachAthletesContent({ trainees }: Props) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6 md:p-7">
+      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
               Athlete management
             </p>
-            <h2 className="text-2xl font-semibold text-white md:text-3xl">
+            <h2 className="text-2xl font-semibold text-[var(--shell-ink)] md:text-3xl">
               Athletes
             </h2>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-[var(--shell-muted)]">
               Manage pricing, workouts, and coach relationships.
             </p>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-[var(--shell-muted)]">
               {trainees.length} active athlete{trainees.length === 1 ? "" : "s"}.
               $39/mo includes {includedAthletes}; overage: ${overageAthletes * 4}/mo.
             </p>
@@ -88,7 +88,7 @@ export function CoachAthletesContent({ trainees }: Props) {
             trigger={
               <Button
                 disabled={false}
-                className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-100 px-5 py-2 font-semibold text-black transition hover:bg-zinc-300"
+                className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-surface)] transition hover:bg-[#ce2f10]"
                 size="lg"
               >
                 <UserPlusIcon className="h-5 w-5" />
@@ -110,9 +110,9 @@ export function CoachAthletesContent({ trainees }: Props) {
           ))}
         </div>
       ) : (
-        <div className="rounded-[1.5rem] border border-dashed border-zinc-800 bg-zinc-950 p-12 text-center">
-          <h3 className="text-xl font-semibold text-white">No athletes yet</h3>
-          <p className="mt-2 text-sm text-zinc-500">
+        <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] p-12 text-center">
+          <h3 className="text-xl font-semibold text-[var(--shell-ink)]">No athletes yet</h3>
+          <p className="mt-2 text-sm text-[var(--shell-muted)]">
             Send your first invitation to start building your coaching roster.
           </p>
         </div>
@@ -120,7 +120,7 @@ export function CoachAthletesContent({ trainees }: Props) {
 
       {invitaions.data.length > 0 ? (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">Pending invitations</h3>
+          <h3 className="text-lg font-semibold text-[var(--shell-ink)]">Pending invitations</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {invitaions.data.map((invitation) => (
               <TraineeInvitationCard key={invitation.id} invitation={invitation} />

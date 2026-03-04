@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDraggable } from "@dnd-kit/core";
 import { useId } from "react";
 import { GripVertical } from "lucide-react";
+import Link from "next/link";
 
 import { GetBlocks } from "@/services/blocks/getBlocks";
 import { Block } from "@/services/blocks/type";
@@ -22,7 +23,7 @@ function renderPreview(block: Block) {
   );
 
   if (validWorkouts.length === 0) {
-    return <p className="text-xs text-zinc-400">No workouts in this block yet.</p>;
+    return <p className="text-xs text-[var(--shell-muted)]">No workouts in this block yet.</p>;
   }
 
   const grouped = new Map<number, Map<number, string[]>>();
@@ -45,14 +46,14 @@ function renderPreview(block: Block) {
       {sortedWeeks.map(([weekNumber, days]) => {
         const sortedDays = [...days.entries()].sort((a, b) => a[0] - b[0]).slice(0, 4);
         return (
-          <div key={weekNumber} className="rounded-md border border-zinc-800 bg-zinc-900/70 p-2">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-300">
-              Week {weekNumber + 1}
+          <div key={weekNumber} className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-2">
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+              Week {weekNumber}
             </p>
             <div className="space-y-1">
               {sortedDays.map(([dayIndex, exercises]) => (
-                <p key={dayIndex} className="text-xs text-zinc-200">
-                  <span className="mr-1 text-zinc-400">
+                <p key={dayIndex} className="text-xs text-[var(--shell-ink)]">
+                  <span className="mr-1 text-[var(--shell-muted)]">
                     {dayLabelByIndex[dayIndex - 1] ?? `Day ${dayIndex}`}:
                   </span>
                   {exercises.slice(0, 2).join(", ")}
@@ -64,7 +65,7 @@ function renderPreview(block: Block) {
         );
       })}
       {grouped.size > 4 ? (
-        <p className="text-[11px] text-zinc-400">+{grouped.size - 4} more week(s)</p>
+        <p className="text-[11px] text-[var(--shell-muted)]">+{grouped.size - 4} more week(s)</p>
       ) : null}
     </div>
   );
@@ -86,14 +87,14 @@ function BlockItem({ block }: BlockItemProps) {
       <HoverCardTrigger asChild>
         <div
           ref={setNodeRef}
-          className="flex items-center gap-2 border-b py-2 px-1 hover:bg-accent/50 cursor-move select-none"
+          className="flex cursor-move select-none items-center gap-2 border-b border-[var(--shell-border)]/20 px-1 py-2 hover:bg-[var(--shell-surface-strong)]"
           {...listeners}
           {...attributes}
         >
-          <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
+          <GripVertical className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">{block.name}</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="truncate text-sm font-medium text-[var(--shell-ink)]">{block.name}</div>
+            <div className="text-xs text-[var(--shell-muted)]">
               {block.numberOfWeeks} week{block.numberOfWeeks !== 1 ? "s" : ""}
             </div>
           </div>
@@ -102,11 +103,11 @@ function BlockItem({ block }: BlockItemProps) {
       <HoverCardContent
         side="right"
         align="start"
-        className="z-50 w-80 border-zinc-700 bg-zinc-950 text-zinc-100"
+        className="z-50 w-80 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
       >
         <div className="mb-2">
-          <p className="text-sm font-semibold text-zinc-100">{block.name}</p>
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm font-semibold text-[var(--shell-ink)]">{block.name}</p>
+          <p className="text-xs text-[var(--shell-muted)]">
             {block.numberOfWeeks} week{block.numberOfWeeks !== 1 ? "s" : ""}
           </p>
         </div>
@@ -136,11 +137,11 @@ export function BlocksPanel({ getBlocks }: Props) {
 
   if (blocks.length === 0) {
     return (
-      <div className="p-4 text-sm text-muted-foreground text-center">
+      <div className="p-4 text-center text-sm text-[var(--shell-muted)]">
         No blocks yet. Create one at{" "}
-        <a href="/app/coach/blocks" className="underline">
+        <Link href="/app/coach/blocks" className="underline">
           /app/coach/blocks
-        </a>
+        </Link>
         .
       </div>
     );
@@ -148,7 +149,7 @@ export function BlocksPanel({ getBlocks }: Props) {
 
   return (
     <div className="p-4">
-      <div className="font-bold mb-2">Blocks</div>
+      <div className="mb-2 font-bold text-[var(--shell-ink)]">Blocks</div>
       <div>
         {blocks.map((block) => (
           <BlockItem key={block.id} block={block} />

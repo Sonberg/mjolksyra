@@ -240,7 +240,7 @@ export function WorkoutEditorExercise({
           <div
             onClick={onMoveUp}
             className={cn({
-              "rounded p-1 ": true,
+              "rounded-none p-1 ": true,
               "hover:bg-accent cursor-pointer": canMoveUp,
               "text-accent-foreground/40": !canMoveUp,
             })}
@@ -250,7 +250,7 @@ export function WorkoutEditorExercise({
           <div
             onClick={onMoveDown}
             className={cn({
-              "rounded p-1 ": true,
+              "rounded-none p-1 ": true,
               "hover:bg-accent cursor-pointer": canMoveDown,
               "text-accent-foreground/40": !canMoveDown,
             })}
@@ -264,8 +264,8 @@ export function WorkoutEditorExercise({
         value={plannedExercise.note ?? ""}
         onChange={(ev) => onUpdateNote(ev.target.value)}
       />
-      <div className="mt-4 space-y-2 rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+      <div className="mt-4 space-y-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
           Target
         </p>
         <select
@@ -280,7 +280,7 @@ export function WorkoutEditorExercise({
               sets: setsForType,
             });
           }}
-          className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+          className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-sm"
         >
           <option value={ExercisePrescriptionTargetType.SetsReps}>Sets + reps</option>
           <option value={ExercisePrescriptionTargetType.DurationSeconds}>Static hold time</option>
@@ -288,16 +288,16 @@ export function WorkoutEditorExercise({
         </select>
         <div className="space-y-2">
           {sets.map((set, setIndex) => (
-            <div key={`${plannedExercise.id}-set-${setIndex}`} className="rounded border border-zinc-800 bg-zinc-900/30 p-2">
+            <div key={`${plannedExercise.id}-set-${setIndex}`} className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-400">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                   Set {setIndex + 1}
                 </p>
                 <button
                   type="button"
                   onClick={() => removeSet(setIndex)}
                   disabled={sets.length <= 1}
-                  className="inline-flex items-center gap-1 rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 disabled:opacity-40"
+                  className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] px-2 py-1 text-[11px] text-[var(--shell-muted)] disabled:opacity-40"
                 >
                   <Trash2Icon className="h-3 w-3" />
                   Remove
@@ -317,11 +317,11 @@ export function WorkoutEditorExercise({
                             reps: ev.target.value ? Number(ev.target.value) : null,
                           })
                         }
-                        className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 py-1 text-sm"
+                        className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] py-1 pl-2 pr-10 text-sm"
                         placeholder="0"
                         aria-label="Reps"
                       />
-                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">reps</span>
+                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">reps</span>
                     </div>
                     <div className="relative flex-1">
                       <input
@@ -334,11 +334,11 @@ export function WorkoutEditorExercise({
                             weightKg: ev.target.value ? Number(ev.target.value) : null,
                           })
                         }
-                        className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 py-1 text-sm"
+                        className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] py-1 pl-2 pr-7 text-sm"
                         placeholder="0"
                         aria-label="Target weight in kilograms"
                       />
-                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">kg</span>
+                      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">kg</span>
                     </div>
                   </div>
                 ) : null}
@@ -354,11 +354,11 @@ export function WorkoutEditorExercise({
                           durationSeconds: ev.target.value ? Number(ev.target.value) : null,
                         })
                       }
-                      className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 py-1 text-sm"
+                      className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] py-1 pl-2 pr-7 text-sm"
                       placeholder="0"
                       aria-label="Seconds"
                     />
-                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">s</span>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">s</span>
                   </div>
                 ) : null}
 
@@ -373,11 +373,11 @@ export function WorkoutEditorExercise({
                           distanceMeters: ev.target.value ? Number(ev.target.value) : null,
                         })
                       }
-                      className="w-full rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 py-1 text-sm"
+                      className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] py-1 pl-2 pr-7 text-sm"
                       placeholder="0"
                       aria-label="Meters"
                     />
-                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">m</span>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">m</span>
                   </div>
                 ) : null}
 
@@ -388,7 +388,7 @@ export function WorkoutEditorExercise({
                       note: ev.target.value || null,
                     })
                   }
-                  className="min-h-[72px] w-full resize-y rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm"
+                  className="min-h-[72px] w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-sm"
                   placeholder="Set note (optional)"
                 />
               </div>
@@ -398,7 +398,7 @@ export function WorkoutEditorExercise({
           <button
             type="button"
             onClick={addSet}
-            className="inline-flex items-center gap-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs font-semibold text-zinc-100"
+            className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-xs font-semibold text-[var(--shell-ink)]"
           >
             <PlusIcon className="h-3.5 w-3.5" />
             Add set

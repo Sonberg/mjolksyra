@@ -96,32 +96,32 @@ export function TraineeCard({
         return {
           label: "Subscription active",
           hint: "Recurring billing is active.",
-          className: "border-emerald-800 bg-emerald-950 text-emerald-200",
+          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "AwaitingAthletePaymentMethod":
         return {
           label: "Payment method not setup",
           hint: "Athlete must complete payment setup to start billing.",
-          className: "border-amber-800 bg-amber-950 text-amber-200",
+          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "AwaitingCoachStripeSetup":
         return {
           label: "Coach Stripe not setup",
           hint: "Complete Stripe onboarding to enable billing.",
-          className: "border-amber-800 bg-amber-950 text-amber-200",
+          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "PriceSet":
         return {
           label: "Price set (waiting setup)",
           hint: "Price is saved. Billing starts when payment and Stripe setup are ready.",
-          className: "border-zinc-700 bg-zinc-900 text-zinc-200",
+          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "PriceNotSet":
       default:
         return {
           label: "Price not set",
           hint: "Set a monthly price to prepare billing.",
-          className: "border-zinc-800 bg-zinc-900 text-zinc-300",
+          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
         };
     }
   }, [trainee.billing.status, trainee.cost?.total]);
@@ -161,17 +161,17 @@ export function TraineeCard({
   ];
 
   return (
-    <article className="group overflow-hidden rounded-[1.5rem] border border-zinc-800 bg-zinc-950 transition-all duration-300 hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-[0_20px_45px_rgba(0,0,0,0.35)]">
+    <article className="group overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(42,36,29,0.18)]">
       <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
-        <Avatar className="h-12 w-12 border border-zinc-700">
+        <Avatar className="h-12 w-12 border-2 border-[var(--shell-border)]">
           <AvatarImage src={url} alt={trainee.athlete.name} />
-          <AvatarFallback className="bg-zinc-800 text-zinc-100">
+          <AvatarFallback className="bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
             {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="truncate text-lg font-semibold text-zinc-100 transition-colors group-hover:text-white">
+            <h3 className="truncate text-lg font-semibold text-[var(--shell-ink)] transition-colors">
               {trainee.athlete.givenName
                 ? `${trainee.athlete.givenName} ${
                     trainee.athlete.familyName || ""
@@ -179,25 +179,25 @@ export function TraineeCard({
                 : trainee.athlete.name}
             </h3>
             {hasUnpublishedChanges ? (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-sky-800/70 bg-sky-950/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sky-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-300" />
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+                <span className="h-1.5 w-1.5 rounded-none bg-[var(--shell-accent)]" />
                 Drafts
               </span>
             ) : null}
           </div>
-          <p className="truncate text-sm text-zinc-400">
+          <p className="truncate text-sm text-[var(--shell-muted)]">
             {trainee.athlete.email}
           </p>
           <div className="mt-2">
             <span
               className={cn(
-                "inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold",
+                "inline-flex items-center rounded-none border-2 px-2 py-1 text-xs font-semibold",
                 billingBadge.className,
               )}
             >
               {billingBadge.label}
             </span>
-            <p className="mt-1 text-xs text-zinc-500">{billingBadge.hint}</p>
+            <p className="mt-1 text-xs text-[var(--shell-muted)]">{billingBadge.hint}</p>
           </div>
         </div>
         <DropdownMenu
@@ -208,7 +208,7 @@ export function TraineeCard({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 transition hover:bg-zinc-800"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
               aria-label="Open actions"
             >
               <MoreHorizontalIcon className="h-4 w-4" />
@@ -216,7 +216,7 @@ export function TraineeCard({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-52 border-zinc-700 bg-zinc-950 text-zinc-100"
+            className="w-52 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
           >
             <DropdownMenuItem
               onSelect={() => {
@@ -224,7 +224,7 @@ export function TraineeCard({
                 setBillingMode("ChargeNow");
                 setPriceEditorOpen(true);
               }}
-              className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+              className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
               <PencilIcon className="mr-2 h-4 w-4" />
               Change price
@@ -235,7 +235,7 @@ export function TraineeCard({
                 setActionsOpen(false);
                 chargeNow.mutateAsync();
               }}
-              className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+              className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
               <CreditCardIcon className="mr-2 h-4 w-4" />
               {chargeNow.isPending ? "Charging..." : "Charge now (reset cycle)"}
@@ -246,7 +246,7 @@ export function TraineeCard({
                 setActionsOpen(false);
                 cancel.mutateAsync();
               }}
-              className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+              className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
               <XIcon className="mr-2 h-4 w-4" />
               {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
@@ -255,25 +255,25 @@ export function TraineeCard({
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 border-y border-zinc-800 bg-zinc-950 px-5 py-4 md:grid-cols-4 md:px-6">
+      <div className="grid grid-cols-2 gap-3 border-y-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-4 md:grid-cols-4 md:px-6">
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-3 text-center"
+            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-3 text-center"
           >
-            <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+            <p className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               {metric.label}
             </p>
-            <p className="mt-2 text-base font-semibold text-zinc-100">
+            <p className="mt-2 text-base font-semibold text-[var(--shell-ink)]">
               {metric.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-3 bg-zinc-950 px-5 py-4 md:px-6">
+      <div className="flex flex-wrap gap-3 bg-[var(--shell-surface)] px-5 py-4 md:px-6">
         <button
-          className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-200"
+          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[#ce2f10]"
           onClick={() =>
             router.push(`/app/coach/athletes/${trainee.id}/planner`)
           }
@@ -282,7 +282,7 @@ export function TraineeCard({
           Plan workouts
         </button>
         <button
-          className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800"
+          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
           onClick={() =>
             router.push(`/app/coach/athletes/${trainee.id}/workouts`)
           }
@@ -293,17 +293,17 @@ export function TraineeCard({
       </div>
 
       <Dialog open={isPriceEditorOpen} onOpenChange={setPriceEditorOpen}>
-        <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100 sm:max-w-md">
+        <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Change price</DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-[var(--shell-muted)]">
               Set the monthly coaching price charged to the athlete.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <label
               htmlFor={`trainee-price-dialog-${trainee.id}`}
-              className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500"
+              className="block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]"
             >
               Monthly price (kr)
             </label>
@@ -315,15 +315,15 @@ export function TraineeCard({
                 value={price}
                 onChange={(e) => setPrice(e.target.value.replace(/[^\d]/g, ""))}
                 placeholder="1000"
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600"
+                className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm font-semibold text-[var(--shell-ink)] outline-none transition placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
               />
-              <span className="text-sm text-zinc-400">kr/mo</span>
+              <span className="text-sm text-[var(--shell-muted)]">kr/mo</span>
             </div>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
                 Apply method
               </p>
-              <p className="mt-1 text-sm text-zinc-300">
+              <p className="mt-1 text-sm text-[var(--shell-ink)]">
                 Choose when the new price should take effect.
               </p>
             </div>
@@ -332,19 +332,19 @@ export function TraineeCard({
                 type="button"
                 onClick={() => setBillingMode("ChargeNow")}
                 className={cn(
-                  "w-full rounded-xl border px-3 py-3 text-left transition",
+                  "w-full rounded-none border-2 px-3 py-3 text-left transition",
                   billingMode === "ChargeNow"
-                    ? "border-emerald-700 bg-emerald-950/30 text-zinc-100"
-                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800",
+                    ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+                    : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface)]",
                 )}
               >
                 <span className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "mt-0.5 rounded-md border p-1.5",
+                      "mt-0.5 rounded-none border-2 p-1.5",
                       billingMode === "ChargeNow"
-                        ? "border-emerald-700 bg-emerald-900/40 text-emerald-200"
-                        : "border-zinc-700 bg-zinc-800 text-zinc-400",
+                        ? "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
+                        : "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]",
                     )}
                   >
                     <CreditCardIcon className="h-3.5 w-3.5" />
@@ -353,10 +353,10 @@ export function TraineeCard({
                     <span className="flex items-center justify-between gap-2 text-sm font-semibold">
                       Charge now
                       {billingMode === "ChargeNow" ? (
-                        <CheckCircle2Icon className="h-4 w-4 text-emerald-300" />
+                        <CheckCircle2Icon className="h-4 w-4 text-[var(--shell-accent)]" />
                       ) : null}
                     </span>
-                    <span className="mt-1 block text-xs text-zinc-400">
+                    <span className="mt-1 block text-xs text-[var(--shell-muted)]">
                       Charge immediately and reset the monthly billing cycle.
                     </span>
                   </span>
@@ -366,19 +366,19 @@ export function TraineeCard({
                 type="button"
                 onClick={() => setBillingMode("NextCycle")}
                 className={cn(
-                  "w-full rounded-xl border px-3 py-3 text-left transition",
+                  "w-full rounded-none border-2 px-3 py-3 text-left transition",
                   billingMode === "NextCycle"
-                    ? "border-sky-700 bg-sky-950/30 text-zinc-100"
-                    : "border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800",
+                    ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+                    : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface)]",
                 )}
               >
                 <span className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "mt-0.5 rounded-md border p-1.5",
+                      "mt-0.5 rounded-none border-2 p-1.5",
                       billingMode === "NextCycle"
-                        ? "border-sky-700 bg-sky-900/40 text-sky-200"
-                        : "border-zinc-700 bg-zinc-800 text-zinc-400",
+                        ? "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
+                        : "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]",
                     )}
                   >
                     <CalendarClockIcon className="h-3.5 w-3.5" />
@@ -387,10 +387,10 @@ export function TraineeCard({
                     <span className="flex items-center justify-between gap-2 text-sm font-semibold">
                       Next cycle
                       {billingMode === "NextCycle" ? (
-                        <CheckCircle2Icon className="h-4 w-4 text-sky-300" />
+                        <CheckCircle2Icon className="h-4 w-4 text-[var(--shell-accent)]" />
                       ) : null}
                     </span>
-                    <span className="mt-1 block text-xs text-zinc-400">
+                    <span className="mt-1 block text-xs text-[var(--shell-muted)]">
                       Save now and apply this price on the next scheduled charge.
                     </span>
                   </span>
@@ -403,7 +403,7 @@ export function TraineeCard({
               type="button"
               variant="outline"
               onClick={() => setPriceEditorOpen(false)}
-              className="border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
             >
               Cancel
             </Button>
@@ -413,7 +413,7 @@ export function TraineeCard({
               onClick={() =>
                 savePrice.mutateAsync().then(() => setPriceEditorOpen(false))
               }
-              className="bg-zinc-100 text-black hover:bg-zinc-300"
+              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-surface)] hover:bg-[#ce2f10]"
             >
               {savePrice.isPending
                 ? "Saving..."

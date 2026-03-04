@@ -37,35 +37,35 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950/80 px-2 py-1 pr-2.5 text-left transition hover:border-zinc-700 hover:bg-zinc-900/90"
+          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
           aria-label="Open user menu"
         >
-          <Avatar className="h-8 w-8 border border-zinc-700">
+          <Avatar className="h-8 w-8 border-2 border-[var(--shell-border)]">
             <AvatarImage src={url} alt={resolvedUser.name ?? "User"} />
-            <AvatarFallback className="bg-zinc-900 text-zinc-200">
+            <AvatarFallback className="rounded-none bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
               {initial.toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="hidden min-w-0 sm:block">
-            <div className="max-w-28 truncate text-xs font-medium text-zinc-100">
+            <div className="max-w-28 truncate text-xs font-medium text-[var(--shell-ink)]">
               {resolvedUser.givenName ?? resolvedUser.name ?? "User"}
             </div>
           </div>
-          <ChevronDownIcon className="h-4 w-4 text-zinc-400" />
+          <ChevronDownIcon className="h-4 w-4 text-[var(--shell-muted)]" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-52 border-zinc-700 bg-zinc-950 text-zinc-100"
+        className="w-52 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
       >
-        <DropdownMenuItem asChild className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100">
+        <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
           <Link href="/app/profile">
             <UserIcon className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
         {isAdmin && (
-          <DropdownMenuItem asChild className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100">
+          <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
             <Link href="/app/admin">
               <ShieldIcon className="mr-2 h-4 w-4" />
               Admin
@@ -74,7 +74,7 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
         )}
         <DropdownMenuItem
           onSelect={auth.logout}
-          className="cursor-pointer focus:bg-zinc-900 focus:text-zinc-100"
+          className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
         >
           <LogOutIcon className="mr-2 h-4 w-4" />
           Logout

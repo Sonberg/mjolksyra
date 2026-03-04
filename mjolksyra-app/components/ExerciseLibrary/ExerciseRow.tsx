@@ -43,9 +43,9 @@ export function ExerciseRow({ exercise, exercises }: Props) {
     }
 
     return (
-      <div className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-1">
-        <div className="mb-1 text-xs font-semibold text-zinc-300">{title}</div>
-        <div className="text-xs text-zinc-400">{capitalizeFirstLetter(value)}</div>
+      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
+        <div className="mb-1 text-xs font-semibold text-[var(--shell-ink)]">{title}</div>
+        <div className="text-xs text-[var(--shell-muted)]">{capitalizeFirstLetter(value)}</div>
       </div>
     );
   }, []);
@@ -53,23 +53,23 @@ export function ExerciseRow({ exercise, exercises }: Props) {
   return useMemo(
     () => (
       <>
-        <div className="text-sm border-b border-zinc-800 last:border-b-0">
+        <div className="border-b border-[var(--shell-border)]/40 text-sm last:border-b-0">
           <HoverCard openDelay={500}>
             <div
               ref={setNodeRef}
-              className="flex items-center justify-between gap-2 px-2 py-2.5 text-sm transition hover:bg-zinc-900/70"
+              className="flex items-center justify-between gap-2 px-2 py-2.5 text-sm transition hover:bg-[var(--shell-surface-strong)]"
             >
               <div
                 {...listeners}
                 {...attributes}
-                className="grid h-6 w-6 shrink-0 cursor-move place-items-center rounded-md text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200"
+                className="grid h-6 w-6 shrink-0 cursor-move place-items-center rounded-none border border-transparent text-[var(--shell-muted)] transition hover:border-[var(--shell-border)]/40 hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               >
                 <GripVertical className="h-4 w-4" />
               </div>
               <HoverCardTrigger asChild>
                 <button
                   type="button"
-                  className="flex-1 truncate text-left font-medium text-zinc-200 hover:text-white"
+                  className="flex-1 truncate text-left font-medium text-[var(--shell-ink)] hover:text-[var(--shell-muted)]"
                   title={exercise.name}
                 >
                   {exercise.name}
@@ -80,8 +80,8 @@ export function ExerciseRow({ exercise, exercises }: Props) {
                 <ExerciseRowStar exercise={exercise} exercises={exercises} />
               </div>
             </div>
-            <HoverCardContent className="z-30 w-72 border-zinc-700 bg-zinc-950 text-zinc-100">
-              <div className="mb-4 font-semibold">{exercise.name}</div>
+            <HoverCardContent className="z-30 w-72 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
+              <div className="mb-4 font-semibold text-[var(--shell-ink)]">{exercise.name}</div>
               <div className="grid grid-cols-2 gap-2">
                 {hoverCard("Category", exercise.category)}
                 {hoverCard("Force", exercise.force)}

@@ -110,25 +110,25 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
     () => (
       <section
         ref={setDroppableNodeRef}
-        className="overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/70 backdrop-blur-sm"
+        className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-sm"
       >
         <div
           className={cn(
-            "flex select-none items-center justify-between border-b border-white/10 bg-zinc-900/80 px-3 py-2",
+            "flex select-none items-center justify-between border-b border-[var(--shell-border)]/20 bg-[var(--shell-surface-strong)] px-3 py-2",
             {
               ...draggingStyle({ canDrop, isOver }),
             }
           )}
         >
           <div className="flex min-w-0 items-center gap-2">
-            <div className="text-sm font-semibold text-zinc-100">Week {weekNumber}</div>
+            <div className="text-sm font-semibold text-[var(--shell-ink)]">Week {weekNumber}</div>
             {!isFutureWeek ? (
-              <div className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-0.5 text-[11px] font-medium text-zinc-400">
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-[11px] font-medium text-[var(--shell-muted)]">
                 Locked
               </div>
             ) : null}
             {appliedBlockSummary ? (
-              <div className="max-w-[14rem] truncate rounded-md border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
+              <div className="max-w-[14rem] truncate rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--shell-muted)]">
                 {appliedBlockSummary.label}
               </div>
             ) : null}
@@ -167,7 +167,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 divide-x divide-white/10">
+        <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)]/20">
           {day("Mon")}
           {day("Tue")}
           {day("Wed")}

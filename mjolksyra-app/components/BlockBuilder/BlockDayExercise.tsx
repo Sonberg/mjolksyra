@@ -52,10 +52,10 @@ export function BlockDayExercise({
       style={style}
       onClick={mode === "edit" ? onEdit : undefined}
       className={cn(
-        "group rounded-lg border border-zinc-800 bg-zinc-900 px-2 py-1.5 text-xs transition",
-        isActive ? "border-blue-700/80 hover:border-blue-600/90" : "hover:border-zinc-700",
+        "group rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-xs transition",
+        isActive ? "border-[var(--shell-accent)]" : "hover:bg-[var(--shell-surface-strong)]",
         {
-          "cursor-pointer hover:bg-zinc-900/95": mode === "edit",
+          "cursor-pointer": mode === "edit",
         },
       )}
     >
@@ -64,19 +64,19 @@ export function BlockDayExercise({
           <div
             {...listeners}
             {...attributes}
-            className="shrink-0 cursor-grab pt-1 text-zinc-500 hover:text-zinc-300"
+            className="shrink-0 cursor-grab pt-1 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
           >
             <GripVertical className="h-3 w-3" />
           </div>
         ) : null}
         <div className="min-w-0 flex-1">
           <div
-            className="w-full select-none truncate text-left text-zinc-200"
+            className="w-full select-none truncate text-left text-[var(--shell-ink)]"
             title={exercise.name}
           >
             {exercise.name}
           </div>
-          <div className="mt-0.5 truncate text-[10px] uppercase tracking-[0.08em] text-zinc-500">
+          <div className="mt-0.5 truncate text-[10px] uppercase tracking-[0.08em] text-[var(--shell-muted)]">
             {summary ?? "No set plan"}
           </div>
         </div>
@@ -88,7 +88,7 @@ export function BlockDayExercise({
                 ev.stopPropagation();
                 onRemove();
               }}
-              className="grid h-5 w-5 place-content-center rounded text-zinc-500 opacity-0 transition hover:bg-zinc-800 hover:text-red-300 group-hover:opacity-100"
+              className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] opacity-0 transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-accent)] group-hover:opacity-100"
               title="Remove exercise"
             >
               <X className="h-3 w-3" />

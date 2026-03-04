@@ -41,13 +41,13 @@ export function ExerciseBrowser({ exercies }: Props) {
   return (
     <section className="mb-24">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-zinc-100">
+        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-[var(--shell-ink)]">
           Browser
         </h3>
-        <span className="text-xs text-zinc-500">{browser.data.length}</span>
+        <span className="text-xs text-[var(--shell-muted)]">{browser.data.length}</span>
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/80">
+      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
         {browser.data.map((x) => (
           <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
         ))}
@@ -57,7 +57,7 @@ export function ExerciseBrowser({ exercies }: Props) {
         end
       </div>
       {browser.hasNextPage ? (
-        <div className="grid place-items-center py-4 text-zinc-500">
+        <div className="grid place-items-center py-4 text-[var(--shell-muted)]">
           <Spinner size={20} />
         </div>
       ) : null}

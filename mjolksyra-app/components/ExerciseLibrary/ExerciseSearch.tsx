@@ -35,25 +35,25 @@ export function ExerciseSearch({ freeText, filters, exercises }: Props) {
   return (
     <section>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-zinc-100">
+        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-[var(--shell-ink)]">
           Search
         </h3>
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-[var(--shell-muted)]">
           {hasQuery ? data?.data.length ?? 0 : 0}
         </span>
       </div>
 
       {!hasQuery ? (
-        <div className="rounded-xl border border-dashed border-zinc-800 px-3 py-4 text-xs text-zinc-500">
+        <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] px-3 py-4 text-xs text-[var(--shell-muted)]">
           Type or use filters to search exercises.
         </div>
       ) : (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950/80">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
           {data?.data.map((x) => (
             <ExerciseRow key={x.id} exercise={x} exercises={exercises} />
           ))}
           {!isFetching && data?.data.length === 0 ? (
-            <div className="px-3 py-4 text-xs text-zinc-500">
+            <div className="px-3 py-4 text-xs text-[var(--shell-muted)]">
               No exercises match &quot;{freeText}&quot;.
             </div>
           ) : null}

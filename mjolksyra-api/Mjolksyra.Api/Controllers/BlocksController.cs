@@ -1,5 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Api.Common.UserEvents;
+using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Blocks;
 using Mjolksyra.UseCases.Blocks.ApplyBlock;
 using Mjolksyra.UseCases.Blocks.CreateBlock;
@@ -18,6 +20,8 @@ public class BlocksController : Controller
 {
     private readonly IMediator _mediator;
     private readonly IZetaValidator _validator;
+    private readonly IUserEventPublisher _userEventPublisher;
+    private readonly IUserContext _userContext;
 
     private static readonly ISchema<BlockWorkoutRequest> BlockWorkoutSchema = Z.Object<BlockWorkoutRequest>()
         .Field(x => x.DayOfWeek, Z.Int().Min(1).Max(7));
@@ -27,10 +31,12 @@ public class BlocksController : Controller
         .Field(x => x.NumberOfWeeks, Z.Int().Min(1))
         .Field(x => x.Workouts, workouts => workouts.Each(BlockWorkoutSchema));
 
-    public BlocksController(IMediator mediator, IZetaValidator validator)
+    public BlocksController(IMediator mediator, IZetaValidator validator, IUserEventPublisher userEventPublisher, IUserContext userContext)
     {
         _mediator = mediator;
         _validator = validator;
+        _userEventPublisher = userEventPublisher;
+        _userContext = userContext;
     }
 
     [HttpGet]
@@ -116,6 +122,12 @@ public class BlocksController : Controller
             TraineeId = request.TraineeId,
             StartDate = request.StartDate
         });
+
+        var userId = await _userContext.GetUserId(HttpContext.RequestAborted);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId = request.TraineeId }, HttpContext.RequestAborted);
+        }
 
         return NoContent();
     }

@@ -100,8 +100,8 @@ export function DayExercise({
         <div
           className={cn({
             "opacity-40": isDragging || isGhost,
-            "bg-zinc-900/50": isDragging || isGhost,
-            "group rounded-lg border border-white/10 bg-zinc-900/70 px-2 py-1.5 text-xs transition hover:border-cyan-200/20 hover:bg-zinc-900":
+            "bg-[var(--shell-surface-strong)]": isDragging || isGhost,
+            "group rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1.5 text-xs transition hover:bg-[var(--shell-surface)]":
               true,
             "mb-1.5": !isLast,
           })}
@@ -114,7 +114,7 @@ export function DayExercise({
             {!locked ? (
               <DraggingToolTip
                 listeners={listeners}
-                icon={<EllipsisVertical className="h-4 text-zinc-500" />}
+                icon={<EllipsisVertical className="h-4 text-[var(--shell-muted)]" />}
                 onDelete={onDelete}
               />
             ) : null}
@@ -122,11 +122,11 @@ export function DayExercise({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="min-w-0 flex-1">
-                    <span className="block min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-zinc-200">
+                    <span className="block min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-[var(--shell-ink)]">
                       {plannedExercise.name}
                     </span>
                     {formatPrescription(plannedExercise.prescription) ? (
-                      <span className="block text-[10px] text-zinc-400">
+                      <span className="block text-[10px] text-[var(--shell-muted)]">
                         {formatPrescription(plannedExercise.prescription)}
                       </span>
                     ) : null}
@@ -139,7 +139,7 @@ export function DayExercise({
             </TooltipProvider>
             {plannedExercise.isPublished ? null : (
               <span
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400"
+                className="h-1.5 w-1.5 shrink-0 rounded-none bg-[var(--shell-accent)]"
                 title="Draft change"
               />
             )}

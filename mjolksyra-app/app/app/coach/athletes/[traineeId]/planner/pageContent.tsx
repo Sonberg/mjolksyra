@@ -23,7 +23,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeftIcon, RotateCcwIcon, UploadIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useUserEvents } from "@/context/UserEvents/UserEvents";
 import dayjs from "dayjs";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { CoachWorkspaceShell } from "../../../CoachWorkspaceShell";
@@ -38,10 +39,10 @@ type Props = {
 
 function PlannerChangesTabLabel({ pendingWorkoutCount }: { pendingWorkoutCount: number }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <span className="inline-flex w-full items-center justify-center gap-1.5">
       Changes
       {pendingWorkoutCount > 0 ? (
-        <span className="rounded bg-sky-900/40 px-1.5 py-0.5 text-[10px] font-semibold text-sky-200">
+        <span className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--shell-ink)]">
           {pendingWorkoutCount}
         </span>
       ) : null}
@@ -134,11 +135,11 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
 
   return (
     <div className="mt-0 flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="border-b border-zinc-800 px-4 py-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Pending changes
         </p>
-        <p className="mt-1 text-sm text-zinc-300">
+        <p className="mt-1 text-sm text-[var(--shell-muted)]">
           {draftWorkouts.length === 0
             ? "No unpublished changes."
             : `${draftWorkouts.length} workout${draftWorkouts.length > 1 ? "s" : ""} have unpublished changes.`}
@@ -146,7 +147,7 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
         <div className="mt-3 flex items-center gap-2">
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-md border border-sky-700/60 bg-sky-900/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-sky-200 transition hover:bg-sky-900/35 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition hover:bg-[#ce2f10] disabled:cursor-not-allowed disabled:opacity-60"
             title="Publish all draft changes"
             onClick={onPublishAll}
             disabled={isSaving || draftWorkouts.length === 0}
@@ -156,7 +157,7 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
             title="Revert all drafts to the latest published state"
             onClick={onRevertAll}
             disabled={isSaving || draftWorkouts.length === 0}
@@ -169,7 +170,7 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
         <div className="flex flex-col gap-2">
           {draftWorkouts.length === 0 ? (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 text-sm text-zinc-400">
+            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 text-sm text-[var(--shell-muted)]">
               Nothing to publish right now.
             </div>
           ) : (
@@ -178,17 +179,17 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
               return (
                 <div
                   key={workout.id}
-                  className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3"
+                  className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-zinc-100">
+                    <p className="text-sm font-semibold text-[var(--shell-ink)]">
                       {dayjs(workout.plannedAt).format("ddd, D MMM YYYY")}
                     </p>
-                    <span className="rounded border border-sky-800/70 bg-sky-950/40 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sky-200">
+                    <span className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
                       {draftExercises.length} draft
                     </span>
                   </div>
-                  <p className="mt-2 truncate text-xs text-zinc-400">
+                  <p className="mt-2 truncate text-xs text-[var(--shell-muted)]">
                     {draftExercises.map((exercise) => exercise.name).join(", ")}
                   </p>
                 </div>
@@ -203,6 +204,7 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
 
 export function PageContent({ traineeId }: Props) {
   const router = useRouter();
+  const { subscribe } = useUserEvents();
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "plannerHeader"],
     queryFn: ({ signal }) => getTrainee({ id: traineeId, signal }),
@@ -247,14 +249,23 @@ export function PageContent({ traineeId }: Props) {
     },
   });
 
+  useEffect(() => {
+    return subscribe("planned-workouts.updated", (payload) => {
+      const p = payload as { traineeId?: string } | undefined;
+      if (p?.traineeId === traineeId) {
+        void refetchDraftWorkouts();
+      }
+    });
+  }, [subscribe, traineeId, refetchDraftWorkouts]);
+
   const rightSide = useMemo(
     () => (
       <div className="flex h-full min-h-0 flex-col">
-        <div className="border-b border-zinc-800 bg-zinc-950/90 px-4 py-3">
+        <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
           <div className="flex w-full items-center gap-2">
             <button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               onClick={() => router.push("/app/coach/athletes")}
               aria-label="Back to athletes"
             >
@@ -262,10 +273,10 @@ export function PageContent({ traineeId }: Props) {
             </button>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                   Planner
                 </p>
-                <div className="truncate text-lg font-semibold text-zinc-100">
+                <div className="truncate text-lg font-semibold text-[var(--shell-ink)]">
                   {athleteName}
                 </div>
               </div>
@@ -276,23 +287,23 @@ export function PageContent({ traineeId }: Props) {
           defaultValue="exercises"
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
-          <div className="border-b border-zinc-800 bg-zinc-950/70 px-4 py-2">
-            <TabsList className="m-0 inline-flex h-auto items-center justify-start gap-1 rounded-lg border border-zinc-800 bg-zinc-900/80 p-1">
+          <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-2">
+            <TabsList className="m-0 grid h-auto w-full grid-cols-3 items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-1">
               <TabsTrigger
                 value="exercises"
-                className="rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
+                className="w-full rounded-none px-3 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] data-[state=active]:bg-[var(--shell-ink)] data-[state=active]:text-[var(--shell-surface)]"
               >
                 Exercises
               </TabsTrigger>
               <TabsTrigger
                 value="blocks"
-                className="rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
+                className="w-full rounded-none px-3 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] data-[state=active]:bg-[var(--shell-ink)] data-[state=active]:text-[var(--shell-surface)]"
               >
                 Blocks
               </TabsTrigger>
               <TabsTrigger
                 value="changes"
-                className="rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
+                className="w-full rounded-none px-3 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] data-[state=active]:bg-[var(--shell-ink)] data-[state=active]:text-[var(--shell-surface)]"
               >
                 <PlannerChangesTabLabel pendingWorkoutCount={draftWorkouts.length} />
               </TabsTrigger>

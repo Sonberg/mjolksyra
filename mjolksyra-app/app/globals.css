@@ -12,6 +12,22 @@ body {
   font-family: var(--font-body), "Times New Roman", serif;
 }
 
+.theme-shell-two {
+  --shell-bg: #f6eedf;
+  --shell-surface: #fff7ec;
+  --shell-surface-strong: #ecdcc5;
+  --shell-ink: #141414;
+  --shell-border: #2a241d;
+  --shell-muted: #5e5448;
+  --shell-accent: #f03a17;
+}
+
+.shell-two-canvas {
+  background:
+    radial-gradient(560px 300px at 10% -10%, #f03a171f 0%, transparent 70%),
+    var(--shell-bg);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
