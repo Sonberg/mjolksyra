@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { NavigationNotifications } from "./NavigationNotifications";
-import { ReportIssueDialog } from "./ReportIssueDialog";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
@@ -72,9 +71,35 @@ export function Navigation({ initialAuth }: NavigationProps) {
             />
           </div>
         </Link>
-        <div className="ml-auto flex items-center space-x-2 sm:space-x-3">
+        <div
+          className={cn(
+            "ml-auto flex shrink-0 items-center gap-1 sm:gap-2",
+          )}
+        >
           {isAuthenticated ? (
-            <nav className={cn("hidden md:flex", shellSegmentedContainerClass)}>
+            <nav className={cn("!inline-flex md:!hidden", shellSegmentedContainerClass)}>
+              <Link
+                href="/app/coach/dashboard"
+                className={cn(
+                  roleLinkClass(isCoachActive),
+                  "h-10 px-3 py-0 text-sm",
+                )}
+              >
+                Coach
+              </Link>
+              <Link
+                href="/app/athlete"
+                className={cn(
+                  roleLinkClass(isAthleteActive),
+                  "h-10 px-3 py-0 text-sm",
+                )}
+              >
+                Athlete
+              </Link>
+            </nav>
+          ) : null}
+          {isAuthenticated ? (
+            <nav className={cn("ml-auto !hidden md:!inline-flex", shellSegmentedContainerClass)}>
               <Link
                 href="/app/coach/dashboard"
                 className={roleLinkClass(isCoachActive)}
@@ -92,7 +117,6 @@ export function Navigation({ initialAuth }: NavigationProps) {
           ) : null}
           {isAuthenticated ? (
             <>
-              <ReportIssueDialog />
               <NavigationNotifications forceVisible={isAuthenticated} />
               <NavigationUser
                 user={user}
@@ -122,27 +146,6 @@ export function Navigation({ initialAuth }: NavigationProps) {
           )}
         </div>
       </div>
-      {isAuthenticated ? (
-        <div className="mx-auto w-full max-w-6xl px-4 pb-2 pt-1 md:px-6 md:hidden">
-          <nav className={cn("flex w-full", shellSegmentedContainerClass)}>
-            <Link
-              href="/app/coach/dashboard"
-              className={cn(roleLinkClass(isCoachActive), "flex-1 text-center")}
-            >
-              Coach
-            </Link>
-            <Link
-              href="/app/athlete"
-              className={cn(
-                roleLinkClass(isAthleteActive),
-                "flex-1 text-center",
-              )}
-            >
-              Athlete
-            </Link>
-          </nav>
-        </div>
-      ) : null}
     </header>
   );
 }

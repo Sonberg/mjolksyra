@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { MessageSquareWarningIcon } from "lucide-react";
 import { createFeedbackReport } from "@/services/feedbackReports/createFeedbackReport";
@@ -16,11 +16,32 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function ReportIssueDialog() {
+type ReportIssueDialogProps = {
+  trigger?: ReactNode;
+  hideTrigger?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+export function ReportIssueDialog({
+  trigger,
+  hideTrigger = false,
+  open,
+  onOpenChange,
+}: ReportIssueDialogProps) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const isControlled = open !== undefined;
+  const resolvedOpen = isControlled ? open : internalOpen;
+
+  const setOpen = (nextOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  };
 
   const create = useMutation({
     mutationFn: async () => {
@@ -39,7 +60,7 @@ export function ReportIssueDialog() {
 
   return (
     <Dialog
-      open={open}
+      open={resolvedOpen}
       onOpenChange={(next) => {
         setOpen(next);
         if (!next) {
@@ -48,15 +69,19 @@ export function ReportIssueDialog() {
         }
       }}
     >
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
-          aria-label="Report issue"
-        >
-          <MessageSquareWarningIcon className="h-4 w-4" />
-        </button>
-      </DialogTrigger>
+      {!hideTrigger ? (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+              aria-label="Report issue"
+            >
+              <MessageSquareWarningIcon className="h-4 w-4" />
+            </button>
+          )}
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Report issue</DialogTitle>

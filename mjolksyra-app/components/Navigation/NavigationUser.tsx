@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { useAuth } from "@/context/Auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGravatar } from "@/hooks/useGravatar";
 import Link from "next/link";
-import { ChevronDownIcon, LogOutIcon, ShieldIcon, UserIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  LogOutIcon,
+  MessageSquareWarningIcon,
+  ShieldIcon,
+  UserIcon,
+} from "lucide-react";
+import { ReportIssueDialog } from "./ReportIssueDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +30,7 @@ type NavigationUserProps = {
 
 export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
   const auth = useAuth();
+  const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
   const resolvedUser = {
     name: user?.name ?? auth.name ?? null,
     email: user?.email ?? auth.email ?? null,
@@ -73,6 +82,16 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            setIsReportIssueOpen(true);
+          }}
+          className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
+        >
+          <MessageSquareWarningIcon className="mr-2 h-4 w-4" />
+          Report issue
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onSelect={auth.logout}
           className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
         >
@@ -80,6 +99,11 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <ReportIssueDialog
+        hideTrigger
+        open={isReportIssueOpen}
+        onOpenChange={setIsReportIssueOpen}
+      />
     </DropdownMenu>
   );
 }
