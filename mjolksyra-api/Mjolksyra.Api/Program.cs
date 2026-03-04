@@ -147,8 +147,9 @@ builder.Services
         opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
         opt.AddConsumer<TraineeCancellationConsumer>();
 
-        var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")
-            ?? throw new InvalidOperationException("RabbitMQ connection string (ConnectionStrings:rabbitmq) must be configured.");
+        var rabbitMqUrl = builder.Configuration["RabbitMq:Url"]
+            ?? builder.Configuration.GetConnectionString("rabbitmq")
+            ?? throw new InvalidOperationException("RabbitMQ URL must be configured via RabbitMq:Url or ConnectionStrings:rabbitmq.");
 
         opt.UsingRabbitMq((context, cfg) =>
         {
