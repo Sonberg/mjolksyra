@@ -109,7 +109,7 @@ export function CoachOnboarding({ user }: Props) {
           button={
             <Button
               onClick={dashboard}
-              className="w-full font-semibold bg-white/10 hover:bg-white/20 text-white"
+              className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] font-semibold text-[var(--shell-surface)] hover:bg-[var(--shell-ink-soft)]"
             >
               {isLoading ? <Spinner size={8} /> : "Open dashboard"}
             </Button>
@@ -127,7 +127,7 @@ export function CoachOnboarding({ user }: Props) {
             <Button
               onClick={start}
               disabled={isLoading}
-              className="w-full font-semibold bg-white hover:bg-white/80 text-black"
+              className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-semibold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
             >
               {isLoading ? (
                 <Spinner size={8} />

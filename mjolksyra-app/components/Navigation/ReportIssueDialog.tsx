@@ -87,7 +87,7 @@ export function ReportIssueDialog() {
             className="w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
           />
           {create.isError ? (
-            <p className="text-sm text-red-300">
+            <p className="text-sm text-[var(--shell-accent)]">
               Could not submit report. Please try again.
             </p>
           ) : null}

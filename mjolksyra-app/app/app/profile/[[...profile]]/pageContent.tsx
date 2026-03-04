@@ -28,9 +28,9 @@ const statusLabel: Record<OnboardingStatus, string> = {
 };
 
 const statusClass: Record<OnboardingStatus, string> = {
-  NotStarted: "bg-zinc-800 text-zinc-400",
-  Started: "bg-yellow-900/50 text-yellow-300",
-  Completed: "bg-green-900/50 text-green-300",
+  NotStarted: "bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+  Started: "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+  Completed: "bg-[var(--shell-ink)] text-[var(--shell-surface)]",
 };
 
 function displayName(
@@ -43,7 +43,7 @@ function displayName(
 function StatusBadge({ status }: { status: OnboardingStatus }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass[status]}`}
+      className={`inline-flex items-center rounded-none border-2 border-[var(--shell-border)] px-2.5 py-0.5 text-xs font-medium ${statusClass[status]}`}
     >
       {statusLabel[status]}
     </span>
@@ -58,8 +58,8 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-      <h2 className="mb-4 text-sm font-medium text-zinc-400">{title}</h2>
+    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
+      <h2 className="mb-4 text-sm font-medium text-[var(--shell-muted)]">{title}</h2>
       {children}
     </section>
   );
@@ -75,20 +75,20 @@ function ProfileCard() {
   return (
     <SectionCard title="Account">
       <div className="flex items-center gap-4 pb-5">
-        <Avatar className="h-14 w-14 border border-zinc-700">
+        <Avatar className="h-14 w-14 rounded-none border-2 border-[var(--shell-border)]">
           <AvatarImage src={clerkUser?.imageUrl} alt={auth.name ?? "User"} />
-          <AvatarFallback className="bg-zinc-900 text-lg text-zinc-200">
+          <AvatarFallback className="rounded-none bg-[var(--shell-surface-strong)] text-lg text-[var(--shell-ink)]">
             {initial.toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div>
-          <p className="text-base font-medium text-zinc-100">
+          <p className="text-base font-medium text-[var(--shell-ink)]">
             {auth.name ?? "—"}
           </p>
-          <p className="text-sm text-zinc-400">{auth.email ?? "—"}</p>
+          <p className="text-sm text-[var(--shell-muted)]">{auth.email ?? "—"}</p>
         </div>
       </div>
-      <div className="divide-y divide-zinc-800 border-t border-zinc-800">
+      <div className="divide-y divide-[var(--shell-border)]/40 border-t-2 border-[var(--shell-border)]">
         <Row label="First name" value={auth.givenName} />
         <Row label="Last name" value={auth.familyName} />
         <Row label="Email" value={auth.email} />
@@ -100,8 +100,8 @@ function ProfileCard() {
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex items-center justify-between py-3">
-      <span className="text-sm text-zinc-400">{label}</span>
-      <span className="text-sm text-zinc-100">{value ?? "—"}</span>
+      <span className="text-sm text-[var(--shell-muted)]">{label}</span>
+      <span className="text-sm text-[var(--shell-ink)]">{value ?? "—"}</span>
     </div>
   );
 }
@@ -119,14 +119,14 @@ function CoachCard({ user }: { user: User }) {
 
   return (
     <SectionCard title="Coach">
-      <div className="divide-y divide-zinc-800 border-t border-zinc-800 -mt-1 mb-5">
+      <div className="mb-5 -mt-1 divide-y divide-[var(--shell-border)]/40 border-t-2 border-[var(--shell-border)]">
         <div className="flex items-center justify-between py-3">
-          <span className="text-sm text-zinc-400">Status</span>
+          <span className="text-sm text-[var(--shell-muted)]">Status</span>
           <StatusBadge status={user.onboarding.coach} />
         </div>
       </div>
 
-      <p className="mb-3 text-xs text-zinc-500">
+      <p className="mb-3 text-xs text-[var(--shell-muted)]">
         Offboarding disconnects your Stripe account and cancels all active
         athlete subscriptions. This cannot be undone.
       </p>
@@ -136,17 +136,17 @@ function CoachCard({ user }: { user: User }) {
           <button
             type="button"
             disabled={offboard.isPending}
-            className="rounded-lg border border-red-800 bg-red-950/40 px-3 py-1.5 text-sm font-medium text-red-400 transition hover:border-red-700 hover:bg-red-900/40 hover:text-red-300 disabled:opacity-50"
+            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
           >
             {offboard.isPending ? "Offboarding…" : "Offboard as coach"}
           </button>
         </DialogTrigger>
-        <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100">
+        <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
           <DialogHeader>
-            <DialogTitle className="text-zinc-100">
+            <DialogTitle className="text-[var(--shell-ink)]">
               Offboard as coach?
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-[var(--shell-muted)]">
               This will cancel all active athlete subscriptions and disconnect
               your Stripe account. Your athletes will be notified. You can
               re-onboard later, but existing billing history will remain.
@@ -156,7 +156,7 @@ function CoachCard({ user }: { user: User }) {
             <DialogClose asChild>
               <button
                 type="button"
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-600 hover:text-zinc-100"
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
               >
                 Cancel
               </button>
@@ -165,7 +165,7 @@ function CoachCard({ user }: { user: User }) {
               <button
                 type="button"
                 disabled={offboard.isPending}
-                className="rounded-lg bg-red-700 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-surface)] transition hover:bg-[#ce2f10] disabled:opacity-50"
                 onClick={() => offboard.mutate()}
               >
                 Yes, offboard me
@@ -176,7 +176,7 @@ function CoachCard({ user }: { user: User }) {
       </Dialog>
 
       {offboard.isError && (
-        <p className="mt-2 text-xs text-red-400">
+        <p className="mt-2 text-xs text-[var(--shell-accent)]">
           Something went wrong. Please try again.
         </p>
       )}
@@ -197,7 +197,7 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
 
   return (
     <div className="flex items-center justify-between py-3">
-      <span className="text-sm text-zinc-100">
+      <span className="text-sm text-[var(--shell-ink)]">
         {displayName(coach.givenName, coach.familyName)}
       </span>
       <Dialog>
@@ -205,19 +205,19 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
           <button
             type="button"
             disabled={cancel.isPending}
-            className="rounded-md border border-zinc-700 px-2.5 py-1 text-xs font-medium text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200 disabled:opacity-50"
+            className="rounded-none border-2 border-[var(--shell-border)] px-2.5 py-1 text-xs font-medium text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:opacity-50"
           >
             {cancel.isPending ? "Cancelling…" : "Cancel"}
           </button>
         </DialogTrigger>
-        <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100">
+        <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
           <DialogHeader>
-            <DialogTitle className="text-zinc-100">
+            <DialogTitle className="text-[var(--shell-ink)]">
               Cancel coaching relationship?
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-[var(--shell-muted)]">
               This will end your relationship with{" "}
-              <span className="font-medium text-zinc-200">
+              <span className="font-medium text-[var(--shell-ink)]">
                 {displayName(coach.givenName, coach.familyName)}
               </span>{" "}
               and cancel any active subscription. This cannot be undone.
@@ -227,7 +227,7 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
             <DialogClose asChild>
               <button
                 type="button"
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-600 hover:text-zinc-100"
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
               >
                 Keep
               </button>
@@ -236,7 +236,7 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
               <button
                 type="button"
                 disabled={cancel.isPending}
-                className="rounded-lg bg-red-700 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-surface)] transition hover:bg-[#ce2f10] disabled:opacity-50"
                 onClick={() => cancel.mutate()}
               >
                 Yes, cancel
@@ -253,14 +253,14 @@ function InvitationRow({ invitation }: { invitation: UserInvitation }) {
   return (
     <div className="flex items-center justify-between py-3">
       <div>
-        <span className="text-sm text-zinc-100">
+        <span className="text-sm text-[var(--shell-ink)]">
           {displayName(invitation.givenName, invitation.familyName)}
         </span>
-        <span className="ml-2 text-xs text-zinc-500">
+        <span className="ml-2 text-xs text-[var(--shell-muted)]">
           {invitation.createdAt.toLocaleDateString()}
         </span>
       </div>
-      <span className="inline-flex items-center rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-400">
+      <span className="inline-flex items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-0.5 text-xs font-medium text-[var(--shell-muted)]">
         Pending
       </span>
     </div>
@@ -273,19 +273,19 @@ function AthleteCard({ user }: { user: User }) {
 
   return (
     <SectionCard title="Athlete">
-      <div className="divide-y divide-zinc-800 border-t border-zinc-800 -mt-1">
+      <div className="-mt-1 divide-y divide-[var(--shell-border)]/40 border-t-2 border-[var(--shell-border)]">
         <div className="flex items-center justify-between py-3">
-          <span className="text-sm text-zinc-400">Status</span>
+          <span className="text-sm text-[var(--shell-muted)]">Status</span>
           <StatusBadge status={user.onboarding.athlete} />
         </div>
       </div>
 
       {hasCoaches && (
-        <div className="mt-4 border-t border-zinc-800 pt-4">
-          <p className="mb-1 text-xs font-medium text-zinc-500">
+        <div className="mt-4 border-t-2 border-[var(--shell-border)] pt-4">
+          <p className="mb-1 text-xs font-medium text-[var(--shell-muted)]">
             Active coaches
           </p>
-          <div className="divide-y divide-zinc-800">
+          <div className="divide-y divide-[var(--shell-border)]/40">
             {user.coaches.map((coach) => (
               <CancelCoachRow key={coach.traineeId} coach={coach} />
             ))}
@@ -294,11 +294,11 @@ function AthleteCard({ user }: { user: User }) {
       )}
 
       {hasInvitations && (
-        <div className="mt-4 border-t border-zinc-800 pt-4">
-          <p className="mb-1 text-xs font-medium text-zinc-500">
+        <div className="mt-4 border-t-2 border-[var(--shell-border)] pt-4">
+          <p className="mb-1 text-xs font-medium text-[var(--shell-muted)]">
             Pending invitations
           </p>
-          <div className="divide-y divide-zinc-800">
+          <div className="divide-y divide-[var(--shell-border)]/40">
             {user.invitations.map((inv) => (
               <InvitationRow key={inv.id} invitation={inv} />
             ))}
@@ -307,7 +307,7 @@ function AthleteCard({ user }: { user: User }) {
       )}
 
       {!hasCoaches && !hasInvitations && (
-        <p className="mt-4 border-t border-zinc-800 pt-4 text-sm text-zinc-500">
+        <p className="mt-4 border-t-2 border-[var(--shell-border)] pt-4 text-sm text-[var(--shell-muted)]">
           No active coaches.
         </p>
       )}
@@ -330,7 +330,7 @@ export function ProfilePageContent({ user }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 md:py-10">
-      <h1 className="text-2xl font-semibold text-zinc-100">Profile</h1>
+      <h1 className="text-2xl font-semibold text-[var(--shell-ink)]">Profile</h1>
       <ProfileCard />
       {showCoachCard && <CoachCard user={user} />}
       {showAthleteCard && <AthleteCard user={user} />}

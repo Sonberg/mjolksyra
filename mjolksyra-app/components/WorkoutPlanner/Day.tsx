@@ -157,11 +157,11 @@ export function Day({ date, plannedWorkout }: Props) {
                     <div
                       className={cn({
                         "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
-                        "bg-emerald-600 text-[var(--shell-surface)]":
+                        "bg-[var(--shell-ink)] text-[var(--shell-surface)]":
                           editor.plannedWorkoutId === plannedWorkout.id,
-                        "hover:bg-emerald-600/40":
+                        "hover:bg-[var(--shell-surface)]":
                           editor.plannedWorkoutId !== plannedWorkout.id,
-                        "hover:bg-emerald-500":
+                        "hover:bg-[var(--shell-ink-soft)]":
                           editor.plannedWorkoutId === plannedWorkout.id,
                       })}
                       onClick={() =>
@@ -179,8 +179,8 @@ export function Day({ date, plannedWorkout }: Props) {
                       "rounded-none border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
                       isCompleted
                         ? plannedWorkout?.reviewedAt
-                          ? "border-emerald-700/60 bg-emerald-900/30 text-emerald-200"
-                          : "border-amber-700/60 bg-amber-900/20 text-amber-200"
+                          ? "border-[var(--shell-border)] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+                          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                         : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]"
                     )}
                     title={

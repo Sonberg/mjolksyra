@@ -86,7 +86,7 @@ export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
       {isHovering && typeof window !== "undefined" && position
         ? createPortal(
         <div
-          className="fixed z-[80] rounded border border-zinc-700 bg-zinc-950 py-2 px-1 shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
+          className="fixed z-[80] rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-1 py-2 shadow-[0_12px_30px_rgba(42,36,29,0.25)]"
           style={{
             top: position.top,
             left: position.left,
@@ -102,16 +102,16 @@ export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
             <MoveIcon
               {...listeners}
               data-action="move"
-              className="h-4 cursor-move  hover:text-zinc-400"
+              className="h-4 cursor-move text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
             />
             <CopyIcon
               {...listeners}
               data-action="clone"
-              className="h-4 cursor-copy hover:text-zinc-400"
+              className="h-4 cursor-copy text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
             />
             <TrashIcon
               onClick={onDelete}
-              className="h-4 cursor-pointer text-red-500 hover:text-red-800"
+              className="h-4 cursor-pointer text-[var(--shell-accent)] transition hover:brightness-90"
             />
           </div>
         </div>,

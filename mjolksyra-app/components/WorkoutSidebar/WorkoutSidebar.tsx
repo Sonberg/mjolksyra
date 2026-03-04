@@ -107,12 +107,12 @@ export function WorkoutSidebar() {
             <div className="flex justify-between items-center">
               <div className={cn("text-base")}>{x.format("MMMM D")}</div>
               <div>
-                <div className="rounded-full cursor-pointer hover:bg-border p-1">
+                <div className="cursor-pointer rounded-none border border-transparent p-1 transition hover:border-[var(--shell-border)] hover:bg-[var(--shell-surface-strong)]">
                   <PlusIcon height={16} width={16} />
                 </div>
               </div>
             </div>
-            <div className="pt-2 pb-6 text-zinc-400">No workout planned</div>
+            <div className="pb-6 pt-2 text-[var(--shell-muted)]">No workout planned</div>
           </div>
         </Fragment>
       ))}

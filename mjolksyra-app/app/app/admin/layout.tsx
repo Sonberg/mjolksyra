@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <>
-      <div className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/85">
+      <div className="sticky top-0 z-40 border-b-2 border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface),transparent_6%)] px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--shell-surface),transparent_3%)]">
         <AdminSectionTabs />
       </div>
       {children}

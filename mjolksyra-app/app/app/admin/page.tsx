@@ -23,34 +23,34 @@ export default async function AdminPage() {
         <StatCard
           label="Total Users"
           value={stats.totalUsers.toString()}
-          icon={<UsersIcon className="h-5 w-5 text-zinc-400" />}
+          icon={<UsersIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
         />
         <StatCard
           label="Coaches"
           value={stats.totalCoaches.toString()}
-          icon={<BriefcaseIcon className="h-5 w-5 text-zinc-400" />}
+          icon={<BriefcaseIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
         />
         <StatCard
           label="Athletes"
           value={stats.totalAthletes.toString()}
-          icon={<PersonStandingIcon className="h-5 w-5 text-zinc-400" />}
+          icon={<PersonStandingIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
         />
         <StatCard
           label="Active Subscriptions"
           value={stats.activeSubscriptions.toString()}
-          icon={<ActivityIcon className="h-5 w-5 text-zinc-400" />}
+          icon={<ActivityIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
         />
         <StatCard
           label="Total Revenue"
           value={formatted}
-          icon={<CircleDollarSignIcon className="h-5 w-5 text-zinc-400" />}
+          icon={<CircleDollarSignIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
         />
       </div>
 
-      <section className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+      <section className="mt-8 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-zinc-100">Coach revenue and fee subscription</h2>
-          <p className="mt-1 text-sm text-zinc-400">
+          <h2 className="text-lg font-semibold text-[var(--shell-ink)]">Coach revenue and fee subscription</h2>
+          <p className="mt-1 text-sm text-[var(--shell-muted)]">
             Monthly athlete revenue, historical revenue, and coach platform fee status.
           </p>
         </div>
@@ -58,7 +58,7 @@ export default async function AdminPage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-zinc-800 text-xs uppercase tracking-[0.08em] text-zinc-500">
+              <tr className="border-b-2 border-[var(--shell-border)] text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                 <th className="px-3 py-2">Coach</th>
                 <th className="px-3 py-2">Active subs</th>
                 <th className="px-3 py-2">Monthly athlete revenue</th>
@@ -69,10 +69,10 @@ export default async function AdminPage() {
             </thead>
             <tbody>
               {coachRevenue.map((coach) => (
-                <tr key={coach.coachUserId} className="border-b border-zinc-900/70 text-sm text-zinc-200">
+                <tr key={coach.coachUserId} className="border-b border-[var(--shell-border)]/40 text-sm text-[var(--shell-ink)]">
                   <td className="px-3 py-3 align-top">
-                    <p className="font-medium text-zinc-100">{coach.coachName}</p>
-                    <p className="text-xs text-zinc-500">{coach.coachEmail}</p>
+                    <p className="font-medium text-[var(--shell-ink)]">{coach.coachName}</p>
+                    <p className="text-xs text-[var(--shell-muted)]">{coach.coachEmail}</p>
                   </td>
                   <td className="px-3 py-3">{coach.activeSubscriptions}</td>
                   <td className="px-3 py-3">
@@ -119,26 +119,26 @@ function formatSek(amount: number) {
 
 function billingSetupBadgeClass(status: string) {
   if (status === "Configured") {
-    return "inline-flex rounded-md border border-emerald-700/70 bg-emerald-950/40 px-2 py-0.5 text-xs font-semibold text-emerald-200";
+    return "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-surface)]";
   }
 
-  return "inline-flex rounded-md border border-rose-700/70 bg-rose-950/40 px-2 py-0.5 text-xs font-semibold text-rose-200";
+  return "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-ink)]";
 }
 
 function platformFeeBadgeClass(status: string) {
   if (status === "Active") {
-    return "inline-flex rounded-md border border-emerald-700/70 bg-emerald-950/40 px-2 py-0.5 text-xs font-semibold text-emerald-200";
+    return "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-surface)]";
   }
 
   if (status === "Trialing") {
-    return "inline-flex rounded-md border border-sky-700/70 bg-sky-950/40 px-2 py-0.5 text-xs font-semibold text-sky-200";
+    return "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-ink)]";
   }
 
   if (status === "Not subscribed") {
-    return "inline-flex rounded-md border border-amber-700/70 bg-amber-950/40 px-2 py-0.5 text-xs font-semibold text-amber-200";
+    return "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-ink)]";
   }
 
-  return "inline-flex rounded-md border border-zinc-700 bg-zinc-900 px-2 py-0.5 text-xs font-semibold text-zinc-300";
+  return "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-muted)]";
 }
 
 function StatCard({
@@ -151,12 +151,12 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-zinc-400">{label}</p>
+        <p className="text-sm font-medium text-[var(--shell-muted)]">{label}</p>
         {icon}
       </div>
-      <p className="mt-3 text-3xl font-semibold text-zinc-100">{value}</p>
+      <p className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">{value}</p>
     </div>
   );
 }
