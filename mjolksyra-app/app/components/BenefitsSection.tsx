@@ -28,26 +28,26 @@ const benefits: Point[] = [
 
 export const BenefitsSection = () => {
   return (
-    <section className="bg-zinc-950/40 py-20 lg:py-32">
+    <section className="bg-[var(--home-surface)]/70 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
           Coach with a clear pricing model
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {benefits.map((benefit) => (
             <div
               key={benefit.title}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/90 p-6 transition-colors hover:border-zinc-500"
+              className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-6 transition-colors hover:bg-[var(--home-surface-strong)]"
             >
               {benefit.icon && (
-                <div className="mb-4 inline-flex rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
-                  <benefit.icon className="h-5 w-5 text-zinc-200" />
+                <div className="mb-4 inline-flex rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
+                  <benefit.icon className="h-5 w-5 text-[var(--home-text)]" />
                 </div>
               )}
-              <h3 className="mb-2 text-xl font-semibold text-white">
+              <h3 className="mb-2 text-xl font-semibold text-[var(--home-text)]">
                 {benefit.title}
               </h3>
-              <p className="text-zinc-400">{benefit.text}</p>
+              <p className="text-[var(--home-muted)]">{benefit.text}</p>
             </div>
           ))}
         </div>

@@ -26,7 +26,10 @@ export function WelcomeStep({ onNext, hasCoachContext = false }: WelcomeStepProp
         }
         className="p-6"
         button={
-          <Button onClick={onNext} className="w-full font-bold">
+          <Button
+            onClick={onNext}
+            className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
+          >
             Get Started
           </Button>
         }

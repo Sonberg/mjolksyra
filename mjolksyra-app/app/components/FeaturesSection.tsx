@@ -35,24 +35,24 @@ export const FeaturesSection = () => {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
           Everything you need to succeed
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/90 p-6 transition-colors hover:border-zinc-500"
+              className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-6 transition-colors hover:bg-[var(--home-surface-strong)]"
             >
               {feature.icon && (
-                <div className="mb-4 inline-flex rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
-                  <feature.icon className="h-5 w-5 text-zinc-200" />
+                <div className="mb-4 inline-flex rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
+                  <feature.icon className="h-5 w-5 text-[var(--home-text)]" />
                 </div>
               )}
-              <h3 className="mb-2 text-xl font-semibold text-white">
+              <h3 className="mb-2 text-xl font-semibold text-[var(--home-text)]">
                 {feature.title}
               </h3>
-              <p className="text-zinc-400">{feature.text}</p>
+              <p className="text-[var(--home-muted)]">{feature.text}</p>
             </div>
           ))}
         </div>

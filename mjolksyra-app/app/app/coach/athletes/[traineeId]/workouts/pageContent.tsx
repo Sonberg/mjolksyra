@@ -27,22 +27,22 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
 
   return (
     <CoachWorkspaceShell>
-      <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               onClick={() => router.push("/app/coach/athletes")}
               aria-label="Back to athletes"
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </button>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 Workout review
               </p>
-              <h1 className="text-xl font-semibold text-zinc-100 md:text-2xl">
+              <h1 className="text-xl font-semibold text-[var(--shell-ink)] md:text-2xl">
                 {athleteName}
               </h1>
             </div>
@@ -50,7 +50,7 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
           <button
             type="button"
             onClick={() => router.push(`/app/coach/athletes/${traineeId}/planner`)}
-            className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800"
+            className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
           >
             <ClipboardCheckIcon className="h-4 w-4" />
             Open planner
@@ -58,7 +58,7 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
         </div>
       </section>
 
-      <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
         <WorkoutViewer
           traineeId={traineeId}
           mode="coach"

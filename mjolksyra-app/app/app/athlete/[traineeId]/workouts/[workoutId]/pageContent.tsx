@@ -30,32 +30,32 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
 
   return (
     <section className="space-y-4">
-      <div className="mb-1 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4 md:p-5">
+      <div className="mb-1 flex items-center gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
         <Link
           href={backHref}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
           aria-label="Back to workouts"
         >
           <ChevronLeftIcon className="h-4 w-4" />
         </Link>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
             Workout details
           </p>
-          <h1 className="text-xl font-semibold text-zinc-100 md:text-2xl">
+          <h1 className="text-xl font-semibold text-[var(--shell-ink)] md:text-2xl">
             Log sets and complete exercises
           </h1>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm text-zinc-400">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
           Loading workout...
         </div>
       ) : null}
 
       {isError ? (
-        <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-200">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4 text-sm text-[var(--shell-accent)]">
           Could not load this workout.
         </div>
       ) : null}

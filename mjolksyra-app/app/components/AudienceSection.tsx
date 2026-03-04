@@ -24,10 +24,10 @@ export function AudienceSection() {
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="mb-10 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Who It&apos;s For
           </p>
-          <h2 className="font-[var(--font-display)] mt-3 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-3xl font-semibold text-transparent md:text-4xl">
+          <h2 className="font-[var(--font-display)] mt-3 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
             Built for coaches in performance and strength
           </h2>
         </div>
@@ -35,16 +35,16 @@ export function AudienceSection() {
           {audiences.map((audience) => (
             <article
               key={audience.title}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/90 p-6 transition-colors hover:border-zinc-600"
+              className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-6 transition-colors hover:bg-[var(--home-surface-strong)]"
             >
-              <div className="mb-4 inline-flex rounded-lg border border-zinc-700 bg-zinc-900 p-2.5">
-                <audience.icon className="h-5 w-5 text-zinc-200" />
+              <div className="mb-4 inline-flex rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
+                <audience.icon className="h-5 w-5 text-[var(--home-text)]" />
               </div>
-              <h3 className="text-xl font-semibold text-white">{audience.title}</h3>
-              <p className="mt-1 text-sm font-medium text-zinc-300">
+              <h3 className="text-xl font-semibold text-[var(--home-text)]">{audience.title}</h3>
+              <p className="mt-1 text-sm font-medium text-[var(--home-muted)]">
                 {audience.subtitle}
               </p>
-              <p className="mt-4 text-zinc-400">{audience.description}</p>
+              <p className="mt-4 text-[var(--home-muted)]">{audience.description}</p>
             </article>
           ))}
         </div>

@@ -66,53 +66,53 @@ export function AthleteDashboard({
       ) : null}
       {selectedTab === "transactions" ? (
         <div className="space-y-4">
-          <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-950 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
               Billing status
             </p>
-            <p className="mt-2 text-sm text-zinc-200">{billingStatusText}</p>
+            <p className="mt-2 text-sm text-[var(--shell-ink)]">{billingStatusText}</p>
             {data.billing.lastChargedAt ? (
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-[var(--shell-muted)]">
                 Last charge: {new Date(data.billing.lastChargedAt).toLocaleDateString()}
               </p>
             ) : null}
           </div>
-          <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
-          <h3 className="text-lg font-semibold text-white">Transactions</h3>
-          <p className="mt-2 text-sm text-zinc-500">
+          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
+          <h3 className="text-lg font-semibold text-[var(--shell-ink)]">Transactions</h3>
+          <p className="mt-2 text-sm text-[var(--shell-muted)]">
             Billing and payment history will appear here.
           </p>
         </div>
         </div>
       ) : null}
       {selectedTab === "settings" ? (
-        <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8">
-          <h3 className="text-lg font-semibold text-white">Settings</h3>
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
+          <h3 className="text-lg font-semibold text-[var(--shell-ink)]">Settings</h3>
 
-          <div className="mt-6 divide-y divide-zinc-800 border-t border-zinc-800">
+          <div className="mt-6 divide-y divide-[var(--shell-border)]/30 border-t-2 border-[var(--shell-border)]/30">
             <div className="flex items-center justify-between py-4">
               <div>
-                <p className="text-sm font-medium text-zinc-200">
+                <p className="text-sm font-medium text-[var(--shell-ink)]">
                   Monthly price
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[var(--shell-muted)]">
                   Total charged each month
                 </p>
               </div>
               {data.cost ? (
-                <p className="text-sm font-semibold text-zinc-100">
+                <p className="text-sm font-semibold text-[var(--shell-ink)]">
                   {new Intl.NumberFormat("sv-SE", {
                     style: "currency",
                     currency: data.cost.currency.toUpperCase(),
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0,
                   }).format(data.cost.total)}
-                  <span className="ml-1 text-xs font-normal text-zinc-400">
+                  <span className="ml-1 text-xs font-normal text-[var(--shell-muted)]">
                     / month
                   </span>
                 </p>
               ) : (
-                <p className="text-sm text-zinc-500">Not set</p>
+                <p className="text-sm text-[var(--shell-muted)]">Not set</p>
               )}
             </div>
           </div>
@@ -122,7 +122,7 @@ export function AthleteDashboard({
               type="button"
               disabled={cancel.isPending}
               onClick={() => cancel.mutateAsync()}
-              className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
             </button>

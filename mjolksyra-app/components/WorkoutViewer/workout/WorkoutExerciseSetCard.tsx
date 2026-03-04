@@ -41,22 +41,22 @@ export function WorkoutExerciseSetCard({
   onUpdateSetActual,
 }: Props) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-2 sm:px-3">
+    <div className="flex items-start justify-between gap-3 border-t-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-2 sm:px-2.5">
       <div className="min-w-0">
         <div
           className={
             set.actual?.isDone
-              ? "text-sm font-semibold text-zinc-500 line-through"
-              : "text-sm font-semibold text-zinc-200"
+              ? "text-sm font-semibold text-[var(--shell-muted)] line-through"
+              : "text-sm font-semibold text-[var(--shell-ink)]"
           }
         >
           Set {setIndex + 1}: {getSetTargetLabel(targetType, set.target)}
         </div>
         {set.target?.note?.trim() ? (
-          <div className="mt-1 text-xs text-zinc-400">{set.target.note}</div>
+          <div className="mt-1 text-xs text-[var(--shell-muted)]">{set.target.note}</div>
         ) : null}
-        <div className="mt-2 flex items-center gap-3 text-xs text-zinc-400">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+        <div className="mt-2 flex items-center gap-3 text-xs text-[var(--shell-muted)]">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
             Target
           </span>
           <span>
@@ -69,13 +69,13 @@ export function WorkoutExerciseSetCard({
           {targetType === ExercisePrescriptionTargetType.SetsReps &&
           typeof set.target?.weightKg === "number" ? (
             <>
-              <span className="text-zinc-600">•</span>
+              <span className="text-[var(--shell-muted)]">•</span>
               <span>{set.target.weightKg} kg</span>
             </>
           ) : null}
         </div>
         <div className="mt-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
             Actual
           </span>
           {isEditable ? (
@@ -108,10 +108,10 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-10 text-xs text-zinc-100"
+                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual reps for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
                     reps
                   </span>
                 </div>
@@ -146,10 +146,10 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual duration for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
                     s
                   </span>
                 </div>
@@ -184,10 +184,10 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual distance for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
                     m
                   </span>
                 </div>
@@ -221,10 +221,10 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded border border-zinc-700 bg-zinc-900 pl-2 pr-7 text-xs text-zinc-100"
+                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual weight for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
                     kg
                   </span>
                 </div>
@@ -252,13 +252,13 @@ export function WorkoutExerciseSetCard({
                     note: nextNote,
                   });
                 }}
-                className="h-8 min-w-[180px] flex-1 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
+                className="h-8 min-w-[180px] flex-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs text-[var(--shell-ink)]"
                 placeholder="Set note (actual)"
                 aria-label={`Actual note for set ${setIndex + 1}`}
               />
             </div>
           ) : (
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-300">
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--shell-ink)]">
               <span>
                 {targetType === ExercisePrescriptionTargetType.SetsReps
                   ? `${set.actual?.reps ?? "-"} reps`
@@ -268,14 +268,14 @@ export function WorkoutExerciseSetCard({
               </span>
               {targetType === ExercisePrescriptionTargetType.SetsReps ? (
                 <>
-                  <span className="text-zinc-600">•</span>
+                  <span className="text-[var(--shell-muted)]">•</span>
                   <span>{set.actual?.weightKg ?? "-"} kg</span>
                 </>
               ) : null}
               {set.actual?.note?.trim() ? (
                 <>
-                  <span className="text-zinc-600">•</span>
-                  <span className="text-zinc-400">{set.actual.note}</span>
+                  <span className="text-[var(--shell-muted)]">•</span>
+                  <span className="text-[var(--shell-muted)]">{set.actual.note}</span>
                 </>
               ) : null}
             </div>
@@ -294,8 +294,8 @@ export function WorkoutExerciseSetCard({
           }
           className={
             set.actual?.isDone
-              ? "inline-flex items-center justify-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200 transition hover:bg-emerald-900/45 disabled:opacity-60"
-              : "inline-flex items-center justify-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-60"
+              ? "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition disabled:opacity-60"
+              : "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)] disabled:opacity-60"
           }
           title={set.actual?.isDone ? "Mark set incomplete" : "Mark set done"}
         >
@@ -310,8 +310,8 @@ export function WorkoutExerciseSetCard({
         <span
           className={
             set.actual?.isDone
-              ? "inline-flex items-center justify-center gap-1 rounded-full border border-emerald-700/60 bg-emerald-900/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200"
-              : "inline-flex items-center justify-center gap-1 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-300"
+              ? "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)]"
+              : "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]"
           }
         >
           {set.actual?.isDone ? "Done" : "Not done"}

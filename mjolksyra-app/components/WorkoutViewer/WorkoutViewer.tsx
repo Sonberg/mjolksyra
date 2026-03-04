@@ -8,6 +8,7 @@ import { sortBy } from "@/lib/sortBy";
 import { CustomTab } from "../CustomTab";
 import { useQuery } from "@tanstack/react-query";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Props = {
   traineeId: string;
@@ -22,6 +23,9 @@ export function WorkoutViewer({
   initialTab,
   focusWorkoutId,
 }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const defaultMode = viewerMode === "coach" ? "past" : "future";
   const [mode, setMode] = useState<"past" | "future" | "changes">(
     initialTab ?? defaultMode,
@@ -201,6 +205,17 @@ export function WorkoutViewer({
     }
   }, [end.isIntersecting, hasNextPage, fetchNextPage]);
 
+  function setModeWithUrl(nextMode: "past" | "future" | "changes") {
+    setMode(nextMode);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", nextMode);
+
+    const query = params.toString();
+    const nextUrl = query ? `${pathname}?${query}` : pathname;
+    router.replace(nextUrl, { scroll: false });
+  }
+
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -219,12 +234,12 @@ export function WorkoutViewer({
           value={mode}
           options={[
             { name: "Upcoming", value: "future" },
-             { name: "Past", value: "past" },
+            { name: "Past", value: "past" },
             ...(viewerMode === "coach"
               ? [{ name: "Changes", value: "changes" as const }]
               : []),
           ]}
-          onSelect={(tab) => setMode(tab.value)}
+          onSelect={(tab) => setModeWithUrl(tab.value)}
         />
       </div>
       <div className="grid gap-4 sm:gap-8">
@@ -235,6 +250,7 @@ export function WorkoutViewer({
             viewerMode={viewerMode}
             traineeId={traineeId}
             isHighlighted={focusWorkoutId === x.id}
+            backTab={mode === "future" || mode === "past" ? mode : undefined}
           />
         ))}
       </div>

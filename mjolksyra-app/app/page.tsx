@@ -24,11 +24,13 @@ export default function Home() {
   const themeVars = {
     "--home-bg": "#f6eedf",
     "--home-surface": "#fff7ec",
+    "--home-surface-strong": "#ecdcc5",
     "--home-border": "#2a241d",
     "--home-text": "#161311",
     "--home-muted": "#5e5448",
     "--home-accent": "#f03a17",
     "--home-accent-2": "#151515",
+    "--font-display": '"Alfa Slab One", "Alfa Slab One Fallback"',
   } as CSSProperties;
 
   return (
@@ -36,7 +38,6 @@ export default function Home() {
       style={themeVars}
       className="home-shell font-[var(--font-body)] relative min-h-screen overflow-y-auto"
     >
-      <div className="home-grid-overlay pointer-events-none fixed inset-0" />
       <div className="home-glow pointer-events-none fixed inset-0" />
 
       <div className="home-content relative z-10">
@@ -56,13 +57,6 @@ export default function Home() {
         .home-shell {
           background: var(--home-bg);
           color: var(--home-text);
-        }
-
-        .home-grid-overlay {
-          background:
-            repeating-linear-gradient(90deg, #00000010 0 1px, #0000 1px 44px),
-            repeating-linear-gradient(180deg, #00000008 0 1px, #0000 1px 44px);
-          opacity: 0.55;
         }
 
         .home-glow {

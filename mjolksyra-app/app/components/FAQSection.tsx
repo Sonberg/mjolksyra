@@ -32,29 +32,29 @@ export const FAQSection = () => {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 bg-gradient-to-r from-zinc-100 to-white bg-clip-text text-center text-3xl font-semibold text-transparent md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-center text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
           Frequently Asked Questions
         </h2>
         <div className="mx-auto grid max-w-3xl gap-4">
           {faqs.map((faq, index) => (
             <div
               key={faq.question}
-              className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/90"
+              className="overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]"
             >
               <button
                 onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                 className="flex w-full items-center justify-between px-6 py-4 text-left"
               >
-                <span className="text-lg font-semibold text-white">{faq.question}</span>
+                <span className="text-lg font-semibold text-[var(--home-text)]">{faq.question}</span>
                 {openFaqIndex === index ? (
-                  <MinusIcon className="h-5 w-5 text-zinc-400" />
+                  <MinusIcon className="h-5 w-5 text-[var(--home-muted)]" />
                 ) : (
-                  <PlusIcon className="h-5 w-5 text-zinc-400" />
+                  <PlusIcon className="h-5 w-5 text-[var(--home-muted)]" />
                 )}
               </button>
               {openFaqIndex === index && (
                 <div className="px-6 pb-5">
-                  <p className="text-zinc-400">{faq.answer}</p>
+                  <p className="text-[var(--home-muted)]">{faq.answer}</p>
                 </div>
               )}
             </div>

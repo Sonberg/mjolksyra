@@ -118,7 +118,7 @@ export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
           options={{
             clientSecret: clientSecret,
             appearance: {
-              theme: "night",
+              theme: "stripe",
             },
           }}
         >
@@ -129,7 +129,7 @@ export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
         </Elements>
       ) : (
         <div className="flex items-center justify-center min-h-56">
-          <Spinner className="stroke-slate-400" size={32} />
+          <Spinner className="stroke-[var(--shell-muted)]" size={32} />
         </div>
       ),
     },
@@ -138,12 +138,12 @@ export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
   return (
     <div className="mx-auto bg-background">
       {isSyncingReturn ? (
-        <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-300">
+        <div className="mb-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm text-[var(--shell-muted)]">
           Finalizing your payment method setup...
         </div>
       ) : null}
       {returnError ? (
-        <div className="mb-4 rounded-xl border border-red-900/60 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+        <div className="mb-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-accent)]">
           {returnError}
         </div>
       ) : null}

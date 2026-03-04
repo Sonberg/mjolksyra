@@ -12,10 +12,10 @@ type Props = {
 
 export function AthleteCoach({ coach, isSelected, href, onSelect }: Props) {
   const classNames = cn({
-    "flex items-center gap-3 rounded-xl border p-3 transition-all": true,
-    "cursor-pointer border-white/10 bg-white/[0.02] hover:border-cyan-200/20 hover:bg-white/[0.05]":
+    "flex items-center gap-3 rounded-none border-2 p-3 transition-all": true,
+    "cursor-pointer border-[var(--shell-border)] bg-[var(--shell-surface)] hover:bg-[var(--shell-surface-strong)]":
       !isSelected,
-    "border-cyan-200/30 bg-cyan-300/10": isSelected,
+    "border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": isSelected,
   });
   return (
     <Link
@@ -23,11 +23,11 @@ export function AthleteCoach({ coach, isSelected, href, onSelect }: Props) {
       href={href}
       onClick={isSelected ? undefined : onSelect}
     >
-      <div className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-zinc-900">
-        <UserCircle2Icon className="h-4 w-4 text-zinc-200" />
+      <div className="grid h-9 w-9 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+        <UserCircle2Icon className="h-4 w-4 text-[var(--shell-muted)]" />
       </div>
       <div>
-        <h3 className="font-medium text-zinc-100">
+        <h3 className="font-medium text-[var(--shell-ink)]">
           {coach.givenName} {coach.familyName}
         </h3>
       </div>

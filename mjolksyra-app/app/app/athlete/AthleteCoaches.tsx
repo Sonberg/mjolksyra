@@ -16,7 +16,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
   const active =
     user.coaches?.length > 0 ? (
       <div className="mt-5 space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
           Active
         </h3>
         {user.coaches.map((x) => (
@@ -33,7 +33,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
 
   const invitations = user.invitations.length ? (
     <div className="mt-5">
-      <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
         Pending invitations
       </h3>
       <AthleteInvitations invitations={user.invitations} />
@@ -41,19 +41,19 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
   ) : null;
 
   return (
-    <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-6">
+    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
       <div
         className="flex cursor-pointer items-center justify-between"
         onClick={() => setOpen((state) => !state)}
       >
         <div>
-          <h2 className="text-xl font-semibold text-zinc-100">Your coaches</h2>
-          <p className="mt-1 text-sm text-zinc-500">
+          <h2 className="text-xl font-semibold text-[var(--shell-ink)]">Your coaches</h2>
+          <p className="mt-1 text-sm text-[var(--shell-muted)]">
             {user.coaches.length} active connection
             {user.coaches.length === 1 ? "" : "s"}
           </p>
         </div>
-        <div className="text-zinc-400">
+        <div className="text-[var(--shell-muted)]">
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </div>
       </div>

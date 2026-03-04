@@ -68,7 +68,7 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
         text="To complete your registration, please add a payment method. You won't be charged until your coach confirms the subscription."
       />
 
-      <div className="rounded-xl bg-slate-500/20 p-8">
+      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
         <form onSubmit={handleSubmit}>
           <PaymentElement
             onReady={() => setReady(true)}
@@ -79,20 +79,29 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
             }}
           />
           {error ? (
-            <p className="mt-4 text-sm text-red-400">{error}</p>
+            <p className="mt-4 text-sm text-[var(--shell-accent)]">{error}</p>
           ) : null}
           {isComplete ? (
-            <p className="mt-4 text-sm text-emerald-400">
+            <p className="mt-4 text-sm text-[var(--shell-ink)]">
               Payment method submitted. You can close this step after redirect/confirmation.
             </p>
           ) : null}
 
           {isReady ? (
             <div className="mb-16 mt-6 flex justify-between">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onBack}
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+              >
                 Back
               </Button>
-              <Button type="submit" disabled={isLoading} className="font-bold">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
+              >
                 {isLoading ? "Saving..." : "Complete Setup"}
               </Button>
             </div>

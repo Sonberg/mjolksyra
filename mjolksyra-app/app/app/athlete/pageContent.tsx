@@ -36,31 +36,27 @@ export function PageContent({
 
   return (
     <div className="relative w-full space-y-8 pb-8 md:pb-10">
-      <div className="pointer-events-none absolute -top-12 -left-10 h-40 w-40 -rotate-6 rounded-[1.25rem] border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/25" />
-      <div className="pointer-events-none absolute top-24 right-0 h-48 w-48 rotate-12 rounded-[1.5rem] border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/25" />
-
       {needsOnboarding ? (
         <div className="mx-auto w-full max-w-6xl space-y-8 px-4 md:px-6">
-          <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 md:p-10">
-            <div className="pointer-events-none absolute -right-24 -top-10 h-40 w-40 rotate-12 rounded-[1.5rem] border border-zinc-800 bg-white/[0.02]" />
-            <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-zinc-800" />
+          <section className="relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-10">
+            <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-[var(--shell-border)]/40" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="space-y-2">
-                <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
                   Athlete
                 </p>
-                <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight text-[var(--shell-ink)] md:text-4xl">
                   {athleteName}
                 </h1>
-                <p className="max-w-2xl text-sm text-zinc-400 md:text-base">
+                <p className="max-w-2xl text-sm text-[var(--shell-muted)] md:text-base">
                   Accept your coach invitation and prepare billing setup to get started.
                 </p>
               </div>
-              <div className="rounded-[1.25rem] border border-zinc-800 bg-zinc-900 px-5 py-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-5 py-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                   Pending invitations
                 </p>
-                <p className="mt-2 text-3xl font-semibold text-white">
+                <p className="mt-2 text-3xl font-semibold text-[var(--shell-ink)]">
                   {user.invitations.length}
                 </p>
               </div>
@@ -104,11 +100,11 @@ export function PageContent({
                 selectedTab={initialDashboardTab}
               />
             ) : (
-              <div className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-8 text-center">
-                <p className="text-lg font-semibold text-white">
+              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-center">
+                <p className="text-lg font-semibold text-[var(--shell-ink)]">
                   No active coach selected
                 </p>
-                <p className="mt-2 text-sm text-zinc-500">
+                <p className="mt-2 text-sm text-[var(--shell-muted)]">
                   Accept an invitation or choose a coach to see your training
                   program.
                 </p>

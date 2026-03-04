@@ -29,33 +29,35 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
     : `/app/athlete/${traineeId}/workouts`;
 
   return (
-    <section className="rounded-[1.5rem] border border-zinc-800 bg-zinc-950 p-5 md:p-6">
-      <div className="mb-5 flex items-center gap-3">
-        <Link
-          href={backHref}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
-          aria-label="Back to workouts"
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-        </Link>
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Workout details
-          </p>
-          <h1 className="text-xl font-semibold text-zinc-100 md:text-2xl">
-            Log sets and complete exercises
-          </h1>
+    <section className="grid gap-4">
+      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
+        <div className="flex items-center gap-3">
+          <Link
+            href={backHref}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+            aria-label="Back to workouts"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+          </Link>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              Workout details
+            </p>
+            <h1 className="text-xl font-semibold text-[var(--shell-ink)] md:text-2xl">
+              Log sets and complete exercises
+            </h1>
+          </div>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm text-zinc-400">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
           Loading workout...
         </div>
       ) : null}
 
       {isError ? (
-        <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-200">
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
           Could not load this workout.
         </div>
       ) : null}
