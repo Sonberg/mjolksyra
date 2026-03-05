@@ -86,7 +86,7 @@ export function ExerciseLibrary({ exercies }: Props) {
 
   return (
     <TooltipProvider>
-      <div className="relative flex h-full min-h-0 flex-col border-l-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="relative flex h-full min-h-0 flex-col border-[var(--shell-border)] bg-[var(--shell-surface)]">
         <div className="sticky top-0 z-20 border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/95 p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>

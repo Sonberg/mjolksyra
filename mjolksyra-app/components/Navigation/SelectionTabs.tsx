@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { shellRoleLinkClass, shellSegmentedContainerClass } from "./shellStyles";
 
@@ -14,7 +15,7 @@ const sizeClassBySize: Record<SelectionTabSize, string> = {
 
 export type SelectionTabItem<TKey extends string = string> = {
   key: TKey;
-  label: string;
+  label: ReactNode;
   href?: string;
   onSelect?: (item: SelectionTabItem<TKey>) => void;
 };

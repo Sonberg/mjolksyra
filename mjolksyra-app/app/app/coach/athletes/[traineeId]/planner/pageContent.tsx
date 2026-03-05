@@ -19,7 +19,8 @@ import { ExerciseLibrary } from "@/components/ExerciseLibrary";
 import { BlocksPanel } from "@/components/BlocksPanel/BlocksPanel";
 import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
 import { ChevronLeftIcon, RotateCcwIcon, UploadIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -205,6 +206,9 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
 export function PageContent({ traineeId }: Props) {
   const router = useRouter();
   const { subscribe } = useUserEvents();
+  const [rightSideTab, setRightSideTab] = useState<"exercises" | "blocks" | "changes">(
+    "exercises",
+  );
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "plannerHeader"],
     queryFn: ({ signal }) => getTrainee({ id: traineeId, signal }),
@@ -284,30 +288,36 @@ export function PageContent({ traineeId }: Props) {
           </div>
         </div>
         <Tabs
-          defaultValue="exercises"
+          value={rightSideTab}
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-2">
-            <TabsList className="m-0 grid h-auto w-full grid-cols-3 items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-1">
-              <TabsTrigger
-                value="exercises"
-                className="w-full rounded-none px-3 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] data-[state=active]:bg-[var(--shell-ink)] data-[state=active]:text-[var(--shell-surface)]"
-              >
-                Exercises
-              </TabsTrigger>
-              <TabsTrigger
-                value="blocks"
-                className="w-full rounded-none px-3 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] data-[state=active]:bg-[var(--shell-ink)] data-[state=active]:text-[var(--shell-surface)]"
-              >
-                Blocks
-              </TabsTrigger>
-              <TabsTrigger
-                value="changes"
-                className="w-full rounded-none px-3 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] data-[state=active]:bg-[var(--shell-ink)] data-[state=active]:text-[var(--shell-surface)]"
-              >
-                <PlannerChangesTabLabel pendingWorkoutCount={draftWorkouts.length} />
-              </TabsTrigger>
-            </TabsList>
+            <SelectionTabs
+              items={[
+                {
+                  key: "exercises",
+                  label: "Exercises",
+                  onSelect: () => setRightSideTab("exercises"),
+                },
+                {
+                  key: "blocks",
+                  label: "Blocks",
+                  onSelect: () => setRightSideTab("blocks"),
+                },
+                {
+                  key: "changes",
+                  label: (
+                    <PlannerChangesTabLabel pendingWorkoutCount={draftWorkouts.length} />
+                  ),
+                  onSelect: () => setRightSideTab("changes"),
+                },
+              ]}
+              activeKey={rightSideTab}
+              size="sm"
+              fullWidth
+              className="w-full"
+              itemClassName="text-xs font-semibold uppercase tracking-[0.12em]"
+            />
           </div>
           <TabsContent
             value="exercises"
@@ -342,7 +352,7 @@ export function PageContent({ traineeId }: Props) {
         </Tabs>
       </div>
     ),
-    [router, athleteName, draftWorkouts, refetchDraftWorkouts],
+    [router, athleteName, draftWorkouts, refetchDraftWorkouts, rightSideTab],
   );
 
   return (
