@@ -24,7 +24,7 @@ export function ExerciseStarred({ exercises }: Props) {
   }
 
   return (
-    <section>
+    <section className="mb-4">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-[var(--font-display)] text-sm tracking-[0.08em] text-[var(--shell-ink)]">
           Starred

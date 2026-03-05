@@ -22,7 +22,7 @@ export type SelectionTabItem<TKey extends string = string> = {
 
 type SelectionTabsProps<TKey extends string = string> = {
   items: SelectionTabItem<TKey>[];
-  activeKey: TKey;
+  activeKey?: TKey;
   size?: SelectionTabSize;
   className?: string;
   itemClassName?: string;
@@ -73,7 +73,7 @@ export function SelectionTabs({
             type="button"
             role="tab"
             aria-selected={isActive}
-            tabIndex={isActive ? 0 : -1}
+            tabIndex={0}
             onClick={() => item.onSelect?.(item)}
             className={baseClass}
           >

@@ -22,6 +22,18 @@ body {
   --shell-accent: #f03a17;
 }
 
+.shell-dropdown {
+  background-color: #fff7ec;
+  color: #141414;
+  border-color: #2a241d;
+}
+
+.dark .shell-dropdown {
+  background-color: #171717;
+  color: #efefef;
+  border-color: #d4d4d4;
+}
+
 .dark .theme-shell-two,
 [data-theme="dark"] .theme-shell-two {
   --shell-bg: #0e0e0e;

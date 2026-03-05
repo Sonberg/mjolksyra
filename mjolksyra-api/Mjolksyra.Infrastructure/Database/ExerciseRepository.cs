@@ -51,62 +51,69 @@ public class ExerciseRepository : IExerciseRepository
         Guid? createdBy,
         CancellationToken cancellationToken = default)
     {
-        var filters = new List<FilterDefinition<Exercise>>
+        var baseFilters = new List<FilterDefinition<Exercise>>
         {
             Builders<Exercise>.Filter.Eq(x => x.DeletedAt, null)
         };
 
-        if (!string.IsNullOrWhiteSpace(freeText))
-        {
-            filters.Add(Builders<Exercise>.Filter.Text(freeText, new TextSearchOptions
-            {
-                CaseSensitive = false,
-                DiacriticSensitive = false
-            }));
-        }
-
         if (!string.IsNullOrWhiteSpace(force))
         {
-            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Force, force));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Force, force));
         }
 
         if (!string.IsNullOrWhiteSpace(level))
         {
-            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Level, level));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Level, level));
         }
 
         if (!string.IsNullOrWhiteSpace(mechanic))
         {
-            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Mechanic, mechanic));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Mechanic, mechanic));
         }
 
         if (!string.IsNullOrWhiteSpace(category))
         {
-            filters.Add(Builders<Exercise>.Filter.Eq(x => x.Category, category));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Category, category));
         }
 
         if (createdBy.HasValue)
         {
-            filters.Add(Builders<Exercise>.Filter.Eq(x => x.CreatedBy, createdBy.Value));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.CreatedBy, createdBy.Value));
         }
-
-        var filter = Builders<Exercise>.Filter.And(filters);
 
         List<Exercise> result;
         if (!string.IsNullOrWhiteSpace(freeText))
         {
-            var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
-            result = await _mongoDbContext.Exercises
-                .Find(filter)
-                .Project<Exercise>(projection)
-                .SortByDescending(x => x.Score)
-                .ThenBy(x => x.Name)
-                .ToListAsync(cancellationToken);
+            var textFilter = Builders<Exercise>.Filter.Text(freeText, new TextSearchOptions
+            {
+                CaseSensitive = false,
+                DiacriticSensitive = false
+            });
+            var textFilters = baseFilters.Append(textFilter);
+
+            try
+            {
+                var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
+                result = await _mongoDbContext.Exercises
+                    .Find(Builders<Exercise>.Filter.And(textFilters))
+                    .Project<Exercise>(projection)
+                    .SortByDescending(x => x.Score)
+                    .ThenBy(x => x.Name)
+                    .ToListAsync(cancellationToken);
+            }
+            catch (MongoCommandException ex) when (ex.Message.Contains("text index required", StringComparison.OrdinalIgnoreCase))
+            {
+                var regexFilter = Builders<Exercise>.Filter.Regex(x => x.Name, new MongoDB.Bson.BsonRegularExpression(freeText, "i"));
+                result = await _mongoDbContext.Exercises
+                    .Find(Builders<Exercise>.Filter.And(baseFilters.Append(regexFilter)))
+                    .SortBy(x => x.Name)
+                    .ToListAsync(cancellationToken);
+            }
         }
         else
         {
             result = await _mongoDbContext.Exercises
-                .Find(filter)
+                .Find(Builders<Exercise>.Filter.And(baseFilters))
                 .SortBy(x => x.Name)
                 .ToListAsync(cancellationToken);
         }

@@ -42,7 +42,11 @@ export function Navigation({ initialAuth }: NavigationProps) {
     { key: "coach", href: "/app/coach/dashboard", label: "Coach" },
     { key: "athlete", href: "/app/athlete", label: "Athlete" },
   ] as const;
-  const activeRoleTab = isCoachActive ? "coach" : "athlete";
+  const activeRoleTab = isCoachActive
+    ? "coach"
+    : isAthleteActive
+      ? "athlete"
+      : undefined;
 
   return (
     <header
