@@ -22,6 +22,17 @@ body {
   --shell-accent: #f03a17;
 }
 
+.dark .theme-shell-two,
+[data-theme="dark"] .theme-shell-two {
+  --shell-bg: #0e0e0e;
+  --shell-surface: #171717;
+  --shell-surface-strong: #242424;
+  --shell-ink: #efefef;
+  --shell-border: #d4d4d4;
+  --shell-muted: #a3a3a3;
+  --shell-accent: #f03a17;
+}
+
 .shell-two-canvas {
   background:
     radial-gradient(560px 300px at 10% -10%, #f03a171f 0%, transparent 70%),
@@ -36,6 +47,14 @@ body {
 
 @layer base {
   :root {
+    --shell-bg: #f6eedf;
+    --shell-surface: #fff7ec;
+    --shell-surface-strong: #ecdcc5;
+    --shell-ink: #141414;
+    --shell-border: #2a241d;
+    --shell-muted: #5e5448;
+    --shell-accent: #f03a17;
+
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -63,6 +82,14 @@ body {
     --radius: var(--mjolksyra-radius-md);
   }
   .dark {
+    --shell-bg: #0e0e0e;
+    --shell-surface: #171717;
+    --shell-surface-strong: #242424;
+    --shell-ink: #efefef;
+    --shell-border: #d4d4d4;
+    --shell-muted: #a3a3a3;
+    --shell-accent: #f03a17;
+
     /* --background: 240 10% 3.9%; */
     /* --background: 223 14.3% 9.6%; */
     --background: 0 0% 0%;
@@ -90,6 +117,16 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  }
+
+  :root[data-theme="dark"] {
+    --shell-bg: #0e0e0e;
+    --shell-surface: #171717;
+    --shell-surface-strong: #242424;
+    --shell-ink: #efefef;
+    --shell-border: #d4d4d4;
+    --shell-muted: #a3a3a3;
+    --shell-accent: #f03a17;
   }
 }
 

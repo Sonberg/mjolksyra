@@ -8,10 +8,13 @@ import {
   ChevronDownIcon,
   LogOutIcon,
   MessageSquareWarningIcon,
+  MoonIcon,
   ShieldIcon,
+  SunIcon,
   UserIcon,
 } from "lucide-react";
 import { ReportIssueDialog } from "./ReportIssueDialog";
+import { useTheme } from "@/context/Theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,14 +34,15 @@ type NavigationUserProps = {
 
 export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
   const auth = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
   const dropdownVars = {
-    "--shell-surface": "#fff7ec",
-    "--shell-surface-strong": "#ecdcc5",
-    "--shell-border": "#2a241d",
-    "--shell-ink": "#101010",
-    "--shell-muted": "#5e5448",
-    "--shell-accent": "#f03a17",
+    "--shell-surface": "var(--shell-surface, #fff7ec)",
+    "--shell-surface-strong": "var(--shell-surface-strong, #ecdcc5)",
+    "--shell-border": "var(--shell-border, #2a241d)",
+    "--shell-ink": "var(--shell-ink, #101010)",
+    "--shell-muted": "var(--shell-muted, #5e5448)",
+    "--shell-accent": "var(--shell-accent, #f03a17)",
   } as CSSProperties;
   const resolvedUser = {
     name: user?.name ?? auth.name ?? null,
@@ -75,7 +79,7 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       <DropdownMenuContent
         align="end"
         style={dropdownVars}
-        className="w-52 rounded-none border-2 border-[var(--shell-border)] bg-[#fff7ec] text-black"
+        className="w-52 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
       >
         <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
           <Link href="/app/profile">
@@ -99,6 +103,17 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
         >
           <MessageSquareWarningIcon className="mr-2 h-4 w-4" />
           Report issue
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={toggleTheme}
+          className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
+        >
+          {theme === "dark" ? (
+            <SunIcon className="mr-2 h-4 w-4" />
+          ) : (
+            <MoonIcon className="mr-2 h-4 w-4" />
+          )}
+          {theme === "dark" ? "Light mode" : "Dark mode"}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={auth.logout}

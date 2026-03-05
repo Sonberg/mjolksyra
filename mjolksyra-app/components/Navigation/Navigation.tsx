@@ -11,7 +11,6 @@ import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import type { CSSProperties } from "react";
 
 type NavigationAuthSnapshot = {
   isAuthenticated: boolean;
@@ -44,18 +43,9 @@ export function Navigation({ initialAuth }: NavigationProps) {
     { key: "athlete", href: "/app/athlete", label: "Athlete" },
   ] as const;
   const activeRoleTab = isCoachActive ? "coach" : "athlete";
-  const shellFallbackVars = {
-    "--shell-surface": "var(--home-surface, #fff7ec)",
-    "--shell-surface-strong": "var(--home-surface-strong, #ecdcc5)",
-    "--shell-border": "var(--home-border, #2a241d)",
-    "--shell-ink": "var(--home-text, #161311)",
-    "--shell-muted": "var(--home-muted, #5e5448)",
-    "--shell-accent": "var(--home-accent, #f03a17)",
-  } as CSSProperties;
 
   return (
     <header
-      style={shellFallbackVars}
       className={cn(
         "sticky top-0 z-50 flex flex-col border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-xl",
       )}
@@ -67,7 +57,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
         >
           <div className="mr-1 flex items-center rounded-none">
             <Image
-              className="h-10 w-10"
+              className="h-10 w-10 dark:invert"
               alt="Logo"
               width={34}
               height={34}
