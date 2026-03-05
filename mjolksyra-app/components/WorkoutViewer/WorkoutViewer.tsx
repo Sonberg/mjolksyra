@@ -5,7 +5,7 @@ import useOnScreen from "@/hooks/useOnScreen";
 import { useEffect, useMemo, useState } from "react";
 import { uniqBy } from "@/lib/uniqBy";
 import { sortBy } from "@/lib/sortBy";
-import { CustomTab } from "../CustomTab";
+import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
 import { useQuery } from "@tanstack/react-query";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -230,16 +230,32 @@ export function WorkoutViewer({
               ? "Upcoming workouts"
               : "Past workouts"}
         </div>
-        <CustomTab
-          value={mode}
-          options={[
-            { name: "Upcoming", value: "future" },
-            { name: "Past", value: "past" },
+        <SelectionTabs
+          items={[
+            {
+              key: "future",
+              label: "Upcoming",
+              onSelect: () => setModeWithUrl("future"),
+            },
+            {
+              key: "past",
+              label: "Past",
+              onSelect: () => setModeWithUrl("past"),
+            },
             ...(viewerMode === "coach"
-              ? [{ name: "Changes", value: "changes" as const }]
+              ? [
+                  {
+                    key: "changes" as const,
+                    label: "Changes",
+                    onSelect: () => setModeWithUrl("changes"),
+                  },
+                ]
               : []),
           ]}
-          onSelect={(tab) => setModeWithUrl(tab.value)}
+          activeKey={mode}
+          size="md"
+          fullWidth
+          className="w-full max-w-[34rem]"
         />
       </div>
       <div className="grid gap-4 sm:gap-8">

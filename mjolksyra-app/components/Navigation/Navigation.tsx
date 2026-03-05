@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { NavigationNotifications } from "./NavigationNotifications";
+import { SelectionTabs } from "./SelectionTabs";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
@@ -10,7 +11,6 @@ import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { shellRoleLinkClass, shellSegmentedContainerClass } from "./shellStyles";
 import type { CSSProperties } from "react";
 
 type NavigationAuthSnapshot = {
@@ -39,7 +39,11 @@ export function Navigation({ initialAuth }: NavigationProps) {
     familyName: initialAuth?.familyName ?? auth.familyName ?? null,
   };
 
-  const roleLinkClass = (isActive: boolean) => shellRoleLinkClass(isActive);
+  const roleTabs = [
+    { key: "coach", href: "/app/coach/dashboard", label: "Coach" },
+    { key: "athlete", href: "/app/athlete", label: "Athlete" },
+  ] as const;
+  const activeRoleTab = isCoachActive ? "coach" : "athlete";
   const shellFallbackVars = {
     "--shell-surface": "var(--home-surface, #fff7ec)",
     "--shell-surface-strong": "var(--home-surface-strong, #ecdcc5)",
@@ -77,43 +81,19 @@ export function Navigation({ initialAuth }: NavigationProps) {
           )}
         >
           {isAuthenticated ? (
-            <nav className={cn("!inline-flex md:!hidden", shellSegmentedContainerClass)}>
-              <Link
-                href="/app/coach/dashboard"
-                className={cn(
-                  roleLinkClass(isCoachActive),
-                  "h-10 px-3 py-0 text-sm",
-                )}
-              >
-                Coach
-              </Link>
-              <Link
-                href="/app/athlete"
-                className={cn(
-                  roleLinkClass(isAthleteActive),
-                  "h-10 px-3 py-0 text-sm",
-                )}
-              >
-                Athlete
-              </Link>
-            </nav>
+            <SelectionTabs
+              items={roleTabs}
+              activeKey={activeRoleTab}
+              size="sm"
+              className="!inline-flex md:!hidden"
+            />
           ) : null}
           {isAuthenticated ? (
-            <nav className={cn("ml-auto !hidden md:!inline-flex", shellSegmentedContainerClass)}>
-              <Link
-                href="/app/coach/dashboard"
-                className={roleLinkClass(isCoachActive)}
-              >
-                Coach
-              </Link>
-
-              <Link
-                href="/app/athlete"
-                className={roleLinkClass(isAthleteActive)}
-              >
-                Athlete
-              </Link>
-            </nav>
+            <SelectionTabs
+              items={roleTabs}
+              activeKey={activeRoleTab}
+              className="ml-auto !hidden md:!inline-flex"
+            />
           ) : null}
           {isAuthenticated ? (
             <>
