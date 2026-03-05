@@ -51,6 +51,7 @@ public static class Configure
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
+        services.AddScoped<IDiscountCodeRepository, DiscountCodeRepository>();
         services.AddScoped<BrevoEmailSender>();
         services.AddKeyedScoped<IEmailSender, BrevoEmailSender>("direct");
         services.AddScoped<NotificationService>();

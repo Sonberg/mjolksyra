@@ -1,10 +1,6 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  shellSectionTabClass,
-  shellSegmentedContainerClass,
-} from "@/components/Navigation/shellStyles";
+import { NavigationTabs } from "@/components/Navigation/NavigationTabs";
 
 type AdminTab = "dashboard" | "feedback";
 
@@ -23,21 +19,12 @@ export function AdminSectionTabs() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
-      <div className={shellSegmentedContainerClass}>
-        {tabs.map((tab) => {
-          const isActive = tab.key === activeTab;
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
-              className={`${shellSectionTabClass(isActive)} min-w-[8.5rem]`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
+    <div className="mx-auto w-full max-w-6xl">
+      <NavigationTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        tabClassName="min-w-[8.5rem]"
+      />
     </div>
   );
 }

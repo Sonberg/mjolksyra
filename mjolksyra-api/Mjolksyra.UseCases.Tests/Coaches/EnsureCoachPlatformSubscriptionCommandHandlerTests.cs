@@ -17,6 +17,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
 
         var userRepository = new Mock<IUserRepository>();
         var traineeRepository = new Mock<ITraineeRepository>();
+        var discountCodeRepository = new Mock<IDiscountCodeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -25,7 +26,8 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
             userRepository.Object,
             traineeRepository.Object,
-            stripeGateway.Object);
+            stripeGateway.Object,
+            discountCodeRepository.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -38,7 +40,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         stripeGateway.Verify(
-            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>(), It.IsAny<string?>()),
             Times.Never);
         userRepository.Verify(x => x.Update(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -52,6 +54,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
 
         var userRepository = new Mock<IUserRepository>();
         var traineeRepository = new Mock<ITraineeRepository>();
+        var discountCodeRepository = new Mock<IDiscountCodeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -67,7 +70,8 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
         var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
             userRepository.Object,
             traineeRepository.Object,
-            stripeGateway.Object);
+            stripeGateway.Object,
+            discountCodeRepository.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -80,7 +84,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         stripeGateway.Verify(
-            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            x => x.CreateSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>(), It.IsAny<string?>()),
             Times.Never);
         stripeGateway.Verify(
             x => x.SyncOverageQuantityAsync(user.Id, "sub_active", 3, It.IsAny<CancellationToken>()),
@@ -95,6 +99,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
 
         var userRepository = new Mock<IUserRepository>();
         var traineeRepository = new Mock<ITraineeRepository>();
+        var discountCodeRepository = new Mock<IDiscountCodeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -115,13 +120,14 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("cus_created");
         stripeGateway
-            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_created", 2, It.IsAny<CancellationToken>()))
+            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_created", 2, It.IsAny<CancellationToken>(), It.IsAny<string?>()))
             .ReturnsAsync("sub_created");
 
         var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
             userRepository.Object,
             traineeRepository.Object,
-            stripeGateway.Object);
+            stripeGateway.Object,
+            discountCodeRepository.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -140,6 +146,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
 
         var userRepository = new Mock<IUserRepository>();
         var traineeRepository = new Mock<ITraineeRepository>();
+        var discountCodeRepository = new Mock<IDiscountCodeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -155,13 +162,14 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
             .Setup(x => x.HasActiveSubscriptionAsync("sub_inactive", It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         stripeGateway
-            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_existing", 1, It.IsAny<CancellationToken>()))
+            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_existing", 1, It.IsAny<CancellationToken>(), It.IsAny<string?>()))
             .ReturnsAsync("sub_new");
 
         var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
             userRepository.Object,
             traineeRepository.Object,
-            stripeGateway.Object);
+            stripeGateway.Object,
+            discountCodeRepository.Object);
 
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);
 
@@ -184,6 +192,7 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
 
         var userRepository = new Mock<IUserRepository>();
         var traineeRepository = new Mock<ITraineeRepository>();
+        var discountCodeRepository = new Mock<IDiscountCodeRepository>();
         userRepository
             .Setup(x => x.GetById(user.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
@@ -204,13 +213,14 @@ public class EnsureCoachPlatformSubscriptionCommandHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("cus_trial");
         stripeGateway
-            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_trial", 0, It.IsAny<CancellationToken>()))
+            .Setup(x => x.CreateSubscriptionAsync(user.Id, "cus_trial", 0, It.IsAny<CancellationToken>(), It.IsAny<string?>()))
             .ReturnsAsync("sub_trial");
 
         var sut = new EnsureCoachPlatformSubscriptionCommandHandler(
             userRepository.Object,
             traineeRepository.Object,
-            stripeGateway.Object);
+            stripeGateway.Object,
+            discountCodeRepository.Object);
 
         var before = DateTimeOffset.UtcNow;
         await sut.Handle(new EnsureCoachPlatformSubscriptionCommand(user.Id), CancellationToken.None);

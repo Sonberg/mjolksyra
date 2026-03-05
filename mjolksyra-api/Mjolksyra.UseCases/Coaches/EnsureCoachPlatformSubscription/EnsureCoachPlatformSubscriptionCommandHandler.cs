@@ -11,15 +11,18 @@ public sealed class EnsureCoachPlatformSubscriptionCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly ITraineeRepository _traineeRepository;
     private readonly ICoachPlatformBillingStripeGateway _stripeGateway;
+    private readonly IDiscountCodeRepository _discountCodeRepository;
 
     public EnsureCoachPlatformSubscriptionCommandHandler(
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
-        ICoachPlatformBillingStripeGateway stripeGateway)
+        ICoachPlatformBillingStripeGateway stripeGateway,
+        IDiscountCodeRepository discountCodeRepository)
     {
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
         _stripeGateway = stripeGateway;
+        _discountCodeRepository = discountCodeRepository;
     }
 
     public async Task Handle(EnsureCoachPlatformSubscriptionCommand request, CancellationToken cancellationToken)
@@ -62,11 +65,20 @@ public sealed class EnsureCoachPlatformSubscriptionCommandHandler
                 cancellationToken);
         }
 
+        string? couponId = null;
+        if (!string.IsNullOrWhiteSpace(coachStripe.DiscountCodeId)
+            && Guid.TryParse(coachStripe.DiscountCodeId, out var discountCodeGuid))
+        {
+            var discountCode = await _discountCodeRepository.GetById(discountCodeGuid, cancellationToken);
+            couponId = discountCode?.StripeCouponId;
+        }
+
         coachStripe.PlatformSubscriptionId = await _stripeGateway.CreateSubscriptionAsync(
             user.Id,
             coachStripe.PlatformCustomerId,
             await ResolveOverageQuantity(user.Id, cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            couponId);
         coachStripe.TrialEndsAt = DateTimeOffset.UtcNow.AddDays(14);
 
         await _userRepository.Update(user, cancellationToken);

@@ -3,6 +3,7 @@
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 type CoachPaymentStatus = {
   label: string;
@@ -39,6 +40,36 @@ export function CoachDashboardSubscriptionSection({
     ? Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
+  const [discountCode, setDiscountCode] = useState("");
+  const [isApplyingCode, setIsApplyingCode] = useState(false);
+  const [discountMessage, setDiscountMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  async function handleApplyCode() {
+    if (!discountCode.trim()) return;
+    setIsApplyingCode(true);
+    setDiscountMessage(null);
+    try {
+      const res = await fetch("/api/coaches/discount-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: discountCode.trim() }),
+      });
+      if (res.ok) {
+        setDiscountMessage({ type: "success", text: "Discount applied to your subscription." });
+        setDiscountCode("");
+      } else if (res.status === 404) {
+        setDiscountMessage({ type: "error", text: "Discount code not found." });
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setDiscountMessage({ type: "error", text: body?.error ?? "Discount code is no longer valid." });
+      }
+    } catch {
+      setDiscountMessage({ type: "error", text: "Failed to apply discount code." });
+    } finally {
+      setIsApplyingCode(false);
+    }
+  }
+
   return (
     <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
       <div className="space-y-6">
@@ -73,6 +104,35 @@ export function CoachDashboardSubscriptionSection({
             ({trialDaysRemaining} day{trialDaysRemaining === 1 ? "" : "s"} remaining).
           </div>
         )}
+
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Discount code</p>
+          <div className="mt-2 flex gap-2">
+            <input
+              type="text"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
+              placeholder="Enter code"
+              className="flex-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+            />
+            <Button
+              type="button"
+              onClick={handleApplyCode}
+              disabled={isApplyingCode || !discountCode.trim()}
+              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
+            >
+              {isApplyingCode ? <Spinner size={14} /> : "Apply"}
+            </Button>
+          </div>
+          {discountMessage && (
+            <p className={cn(
+              "mt-2 text-xs",
+              discountMessage.type === "success" ? "text-green-600" : "text-[var(--shell-accent)]",
+            )}>
+              {discountMessage.text}
+            </p>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">

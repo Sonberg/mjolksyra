@@ -47,6 +47,14 @@ export function AthleteDashboard({
     PriceSet: "Price is set. Billing will activate when setup is complete.",
     SubscriptionActive: "Monthly billing is active.",
   }[data.billing.status];
+  const billingStatusValue = {
+    PriceNotSet: "Price not set",
+    AwaitingAthletePaymentMethod: "Awaiting payment method",
+    AwaitingCoachStripeSetup: "Awaiting coach setup",
+    PriceSet: "Price set",
+    SubscriptionActive: "Active",
+  }[data.billing.status];
+  const formatBillingDate = (date: Date) => date.toLocaleDateString("sv-SE");
 
   return (
     <div className="space-y-6">
@@ -73,18 +81,50 @@ export function AthleteDashboard({
               titleClassName="text-xl md:text-2xl"
               description="Your billing and payment history."
             />
-          </div>
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-              Billing status
-            </p>
-            <p className="mt-2 text-sm text-[var(--shell-ink)]">{billingStatusText}</p>
-            {data.billing.lastChargedAt ? (
-              <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                Last charge:{" "}
-                {new Date(data.billing.lastChargedAt).toLocaleDateString()}
+            <div className="mt-4 border-t-2 border-[var(--shell-border)]/30 pt-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                Billing status
               </p>
-            ) : null}
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                    Status
+                  </p>
+                  <p className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">
+                    {billingStatusValue}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--shell-muted)]">
+                    {billingStatusText}
+                  </p>
+                </div>
+                <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                    Last charge
+                  </p>
+                  <p className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">
+                    {data.billing.lastChargedAt
+                      ? formatBillingDate(new Date(data.billing.lastChargedAt))
+                      : "—"}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--shell-muted)]">
+                    Most recent successful charge
+                  </p>
+                </div>
+                <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                    Next charge
+                  </p>
+                  <p className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">
+                    {data.billing.nextChargedAt
+                      ? formatBillingDate(new Date(data.billing.nextChargedAt))
+                      : "—"}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--shell-muted)]">
+                    Scheduled recurring payment
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
             {data.transactions.length === 0 ? (
@@ -115,14 +155,26 @@ export function AthleteDashboard({
                           {new Date(t.createdAt).toLocaleDateString("sv-SE")}
                         </p>
                       </div>
-                      <p className="text-sm font-semibold text-[var(--shell-ink)]">
-                        {new Intl.NumberFormat("sv-SE", {
-                          style: "currency",
-                          currency: t.currency.toUpperCase(),
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }).format(t.amount)}
-                      </p>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-[var(--shell-ink)]">
+                          {new Intl.NumberFormat("sv-SE", {
+                            style: "currency",
+                            currency: t.currency.toUpperCase(),
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          }).format(t.amount)}
+                        </p>
+                        {t.receiptUrl ? (
+                          <a
+                            href={t.receiptUrl}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="mt-1 inline-block text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] underline-offset-2 hover:text-[var(--shell-ink)] hover:underline"
+                          >
+                            View receipt
+                          </a>
+                        ) : null}
+                      </div>
                     </li>
                   );
                 })}

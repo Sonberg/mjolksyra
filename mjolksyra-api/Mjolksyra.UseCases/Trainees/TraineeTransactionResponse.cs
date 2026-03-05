@@ -11,4 +11,6 @@ public class TraineeTransactionResponse
     public required string Currency { get; set; }
 
     public required DateTimeOffset CreatedAt { get; set; }
+
+    public string? ReceiptUrl { get; set; }
 }

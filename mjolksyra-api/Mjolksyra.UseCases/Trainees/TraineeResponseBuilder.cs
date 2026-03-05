@@ -145,7 +145,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
                     Status = t.Status.ToString(),
                     Amount = t.Cost.Total,
                     Currency = t.Cost.Currency,
-                    CreatedAt = t.CreatedAt
+                    CreatedAt = t.CreatedAt,
+                    ReceiptUrl = t.ReceiptUrl
                 })
                 .ToList(),
             CreatedAt = trainee.CreatedAt

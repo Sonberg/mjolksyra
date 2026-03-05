@@ -8,6 +8,8 @@ public class TraineeTransaction
 
     public required string PaymentIntentId { get; set; }
 
+    public string? ReceiptUrl { get; set; }
+
     public required TraineeTransactionStatus Status { get; set; }
 
     public string? StatusRaw { get; set; }

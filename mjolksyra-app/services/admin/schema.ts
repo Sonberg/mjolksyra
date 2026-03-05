@@ -39,7 +39,27 @@ export const coachRevenueItemSchema = z.object({
 
 export const coachRevenueListSchema = z.array(coachRevenueItemSchema);
 
+export const discountCodeSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  description: z.string(),
+  maxRedemptions: z.number().nullable(),
+  redeemedCount: z.number(),
+  isActive: z.boolean(),
+  createdAt: z.coerce.date(),
+});
+
+export const discountCodeListSchema = z.array(discountCodeSchema);
+
+export const createDiscountCodeResultSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  description: z.string(),
+});
+
 export type AdminStats = z.infer<typeof adminStatsSchema>;
 export type FeedbackReportItem = z.infer<typeof feedbackReportItemSchema>;
 export type UpdateFeedbackStatusResult = z.infer<typeof updateFeedbackStatusResultSchema>;
 export type CoachRevenueItem = z.infer<typeof coachRevenueItemSchema>;
+export type DiscountCode = z.infer<typeof discountCodeSchema>;
+export type CreateDiscountCodeResult = z.infer<typeof createDiscountCodeResultSchema>;

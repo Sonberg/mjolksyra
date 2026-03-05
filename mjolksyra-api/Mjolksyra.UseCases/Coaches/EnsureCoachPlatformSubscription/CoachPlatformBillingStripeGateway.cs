@@ -65,7 +65,8 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
         Guid userId,
         string customerId,
         int overageQuantity,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? couponId = null)
     {
         var basePrice = await CreateMonthlyPriceAsync(
             userId,
@@ -86,41 +87,51 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
 
         var subscriptionService = new SubscriptionService(_stripeClient);
         var effectiveOverageQuantity = Math.Max(0, overageQuantity);
-        var subscription = await subscriptionService.CreateAsync(
-            new SubscriptionCreateOptions
-            {
-                Customer = customerId,
-                CollectionMethod = "charge_automatically",
-                PaymentBehavior = "allow_incomplete",
-                TrialPeriodDays = 14,
-                Items =
-                [
-                    new SubscriptionItemOptions
-                    {
-                        Price = basePrice.Id,
-                        Metadata = new Dictionary<string, string>
-                        {
-                            ["Type"] = "coach-platform-base"
-                        },
-                        Quantity = 1
-                    },
-                    new SubscriptionItemOptions
-                    {
-                        Price = overagePrice.Id,
-                        Metadata = new Dictionary<string, string>
-                        {
-                            ["Type"] = "coach-platform-overage"
-                        },
-                        Quantity = effectiveOverageQuantity
-                    }
-                ],
-                Metadata = new Dictionary<string, string>
+        var createOptions = new SubscriptionCreateOptions
+        {
+            Customer = customerId,
+            CollectionMethod = "charge_automatically",
+            PaymentBehavior = "allow_incomplete",
+            TrialPeriodDays = 14,
+            Items =
+            [
+                new SubscriptionItemOptions
                 {
-                    ["UserId"] = userId.ToString(),
-                    ["Type"] = "coach-platform-subscription"
+                    Price = basePrice.Id,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        ["Type"] = "coach-platform-base"
+                    },
+                    Quantity = 1
                 },
-                Expand = ["latest_invoice.payment_intent"]
+                new SubscriptionItemOptions
+                {
+                    Price = overagePrice.Id,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        ["Type"] = "coach-platform-overage"
+                    },
+                    Quantity = effectiveOverageQuantity
+                }
+            ],
+            Metadata = new Dictionary<string, string>
+            {
+                ["UserId"] = userId.ToString(),
+                ["Type"] = "coach-platform-subscription"
             },
+            Expand = ["latest_invoice.payment_intent"]
+        };
+
+        if (!string.IsNullOrWhiteSpace(couponId))
+        {
+            createOptions.Discounts =
+            [
+                new SubscriptionDiscountOptions { Coupon = couponId }
+            ];
+        }
+
+        var subscription = await subscriptionService.CreateAsync(
+            createOptions,
             requestOptions: new RequestOptions
             {
                 IdempotencyKey = $"coach-subscription-{userId}-{DateTime.UtcNow:yyyyMM}"
@@ -128,6 +139,24 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
             cancellationToken: cancellationToken);
 
         return subscription.Id;
+    }
+
+    public async Task ApplyCouponToSubscriptionAsync(
+        string subscriptionId,
+        string couponId,
+        CancellationToken cancellationToken)
+    {
+        var subscriptionService = new SubscriptionService(_stripeClient);
+        await subscriptionService.UpdateAsync(
+            subscriptionId,
+            new SubscriptionUpdateOptions
+            {
+                Discounts =
+                [
+                    new SubscriptionDiscountOptions { Coupon = couponId }
+                ]
+            },
+            cancellationToken: cancellationToken);
     }
 
     public async Task SyncOverageQuantityAsync(

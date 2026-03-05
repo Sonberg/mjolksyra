@@ -6,6 +6,7 @@ const transactionSchema = z.object({
   amount: z.number(),
   currency: z.string(),
   createdAt: z.coerce.date(),
+  receiptUrl: z.string().nullable().optional().default(null),
 });
 
 const userSchema = z.object({
