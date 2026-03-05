@@ -175,7 +175,12 @@ export function NavigationNotifications({
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+          className={cn(
+            "relative inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] transition",
+            open
+              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+              : "bg-[var(--shell-surface)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]",
+          )}
           aria-label="Open notifications"
         >
           <BellIcon
