@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { BellIcon, CheckIcon } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useAuth } from "@/context/Auth";
 import { useUserEvents } from "@/context/UserEvents";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,15 @@ type NavigationNotificationsProps = {
 export function NavigationNotifications({
   forceVisible = false,
 }: NavigationNotificationsProps) {
+  const dropdownVars = {
+    "--shell-surface": "#fff7ec",
+    "--shell-surface-strong": "#ecdcc5",
+    "--shell-border": "#2a241d",
+    "--shell-ink": "#101010",
+    "--shell-muted": "#5e5448",
+    "--shell-accent": "#f03a17",
+  } as CSSProperties;
+
   const auth = useAuth();
   const userEvents = useUserEvents();
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -206,7 +216,8 @@ export function NavigationNotifications({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[22rem] rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)]"
+        style={dropdownVars}
+        className="w-[22rem] rounded-none border-2 border-[var(--shell-border)] bg-[#fff7ec] p-0 text-black"
       >
         <div className="flex items-center justify-between px-3 py-2">
           <DropdownMenuLabel className="p-0 text-[var(--shell-ink)]">
