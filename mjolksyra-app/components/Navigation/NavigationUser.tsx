@@ -46,7 +46,7 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+          className="inline-flex h-10 items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
           aria-label="Open user menu"
         >
           <Avatar className="h-8 w-8 border-2 border-[var(--shell-border)]">

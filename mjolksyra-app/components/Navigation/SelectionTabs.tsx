@@ -8,7 +8,7 @@ type SelectionTabSize = "sm" | "md" | "lg";
 
 const sizeClassBySize: Record<SelectionTabSize, string> = {
   sm: "h-9 px-3 py-0 text-sm",
-  md: "h-10 px-4 py-0 text-base",
+  md: "h-9 px-4 py-0 text-base",
   lg: "h-12 px-5 py-0 text-lg",
 };
 

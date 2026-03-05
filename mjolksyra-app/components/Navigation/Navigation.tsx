@@ -84,8 +84,9 @@ export function Navigation({ initialAuth }: NavigationProps) {
             <SelectionTabs
               items={roleTabs}
               activeKey={activeRoleTab}
-              size="sm"
+              size="md"
               className="!inline-flex md:!hidden"
+              itemClassName="text-sm"
             />
           ) : null}
           {isAuthenticated ? (
@@ -93,6 +94,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
               items={roleTabs}
               activeKey={activeRoleTab}
               className="ml-auto !hidden md:!inline-flex"
+              itemClassName="text-sm"
             />
           ) : null}
           {isAuthenticated ? (
