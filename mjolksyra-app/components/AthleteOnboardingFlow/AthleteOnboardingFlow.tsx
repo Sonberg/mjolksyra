@@ -13,9 +13,13 @@ type Step = "welcome" | "payment";
 
 type Props = {
   hasCoachContext?: boolean;
+  isPaymentSetupComplete?: boolean;
 };
 
-export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
+export function AthleteOnboardingFlow({
+  hasCoachContext = false,
+  isPaymentSetupComplete = false,
+}: Props) {
   const userEvents = useUserEvents();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -107,6 +111,7 @@ export function AthleteOnboardingFlow({ hasCoachContext = false }: Props) {
         <WelcomeStep
           onNext={() => setCurrentStep("payment")}
           hasCoachContext={hasCoachContext}
+          isPaymentSetupComplete={isPaymentSetupComplete}
         />
       ),
     },

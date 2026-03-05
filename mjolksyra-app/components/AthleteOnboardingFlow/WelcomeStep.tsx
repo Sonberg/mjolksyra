@@ -4,9 +4,14 @@ import { Button } from "../ui/button";
 interface WelcomeStepProps {
   onNext: () => void;
   hasCoachContext?: boolean;
+  isPaymentSetupComplete?: boolean;
 }
 
-export function WelcomeStep({ onNext, hasCoachContext = false }: WelcomeStepProps) {
+export function WelcomeStep({
+  onNext,
+  hasCoachContext = false,
+  isPaymentSetupComplete = false,
+}: WelcomeStepProps) {
   return (
     <div className="space-y-4">
       {!hasCoachContext && (
@@ -16,24 +21,26 @@ export function WelcomeStep({ onNext, hasCoachContext = false }: WelcomeStepProp
           text="Your coach will invite you by email to connect. Once accepted, you can set up payment and access your training plan here."
         />
       )}
-      <OnboardingCard
-        variant="default"
-        title={hasCoachContext ? "Complete payment setup now" : "Prepare in advance"}
-        text={
-          hasCoachContext
-            ? "Your coach is waiting on you. Set up your payment method now so your training can start as soon as the invitation is approved."
-            : "You can already prepare by setting up your payment method, so everything is ready when your coach invitation is accepted."
-        }
-        className="p-6"
-        button={
-          <Button
-            onClick={onNext}
-            className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
-          >
-            Get Started
-          </Button>
-        }
-      />
+      {!isPaymentSetupComplete && (
+        <OnboardingCard
+          variant="default"
+          title={hasCoachContext ? "Complete payment setup now" : "Prepare in advance"}
+          text={
+            hasCoachContext
+              ? "Your coach is waiting on you. Set up your payment method now so your training can start as soon as the invitation is approved."
+              : "You can already prepare by setting up your payment method, so everything is ready when your coach invitation is accepted."
+          }
+          className="p-6"
+          button={
+            <Button
+              onClick={onNext}
+              className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
+            >
+              Get Started
+            </Button>
+          }
+        />
+      )}
     </div>
   );
 }

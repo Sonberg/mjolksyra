@@ -1,3 +1,5 @@
+"use client";
+
 import { UserTrainee } from "@/services/users/type";
 import { AthleteCoach } from "./AthleteCoach";
 

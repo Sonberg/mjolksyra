@@ -28,13 +28,14 @@ export function PageContent({
   initialWorkoutTab,
   view = "workouts",
 }: Props) {
+  const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
   const [coach, setCoach] = useState<UserTrainee | null>(
     user.coaches.find((x) => x.traineeId === initialCoachTraineeId) ??
-      user.coaches[0],
+      user.coaches[0] ??
+      null,
   );
-  const needsOnboarding = user.onboarding.athlete !== "Completed" || false;
+  const needsOnboarding = user.onboarding.athlete !== "Completed" || !hasCoachData;
   const athleteName = user.givenName || "Athlete";
-  const hasCoachData = user.coaches.length > 0 || user.invitations.length > 0;
 
   return (
     <div className="relative w-full space-y-8 pb-8 md:pb-10">
@@ -71,11 +72,17 @@ export function PageContent({
                 <AthleteCoaches user={user} selected={coach} onSelect={setCoach} />
               </div>
               <div className="lg:col-span-8">
-                <AthleteOnboardingFlow hasCoachContext />
+                <AthleteOnboardingFlow
+                  hasCoachContext
+                  isPaymentSetupComplete={user.onboarding.athlete === "Completed"}
+                />
               </div>
             </div>
           ) : (
-            <AthleteOnboardingFlow hasCoachContext={false} />
+            <AthleteOnboardingFlow
+              hasCoachContext={false}
+              isPaymentSetupComplete={user.onboarding.athlete === "Completed"}
+            />
           )}
         </div>
       ) : (
