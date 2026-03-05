@@ -141,7 +141,7 @@ export function AthleteOnboardingFlow({
   };
 
   return (
-    <div className="mx-auto bg-background">
+    <div className="mx-auto bg-background mt-8">
       {isSyncingReturn ? (
         <div className="mb-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm text-[var(--shell-muted)]">
           Finalizing your payment method setup...

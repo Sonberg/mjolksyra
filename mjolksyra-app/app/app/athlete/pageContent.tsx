@@ -41,7 +41,7 @@ export function PageContent({
   if (needsOnboarding) {
     return (
       <PageLayout fullBleed>
-        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-8 pt-8 md:px-6 md:pb-10 md:pt-10">
+        <div className="px-4 pb-8 md:px-6 md:pb-10">
           <section className="relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-10">
             <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-[var(--shell-border)]/40" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">

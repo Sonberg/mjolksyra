@@ -22,12 +22,5 @@ export function AdminSectionTabs() {
     { key: "discount", href: "/app/admin/discount", label: "Discount" },
   ];
 
-  return (
-    <div className="mx-auto w-full max-w-6xl">
-      <NavigationTabs
-        tabs={tabs}
-        activeTab={activeTab}
-      />
-    </div>
-  );
+  return <NavigationTabs tabs={tabs} activeTab={activeTab} />;
 }

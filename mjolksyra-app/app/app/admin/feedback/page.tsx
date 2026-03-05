@@ -7,7 +7,7 @@ export default async function FeedbackPage() {
   const reports = await getFeedbackReports({ accessToken: auth!.accessToken });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 md:py-10">
+    <div className="max-w-5xl">
       <FeedbackReportList reports={reports} accessToken={auth!.accessToken} />
     </div>
   );

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getAuth } from "@/context/Auth";
 import { getUserMe } from "@/services/users/getUserMe";
 import { AdminSectionTabs } from "./AdminSectionTabs";
+import { PageLayout } from "@/app/components/PageLayout";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const auth = await getAuth({ redirect: true });
@@ -13,11 +14,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   return (
-    <>
-      <div className="sticky top-0 z-40 border-b-2 border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface),transparent_6%)] px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--shell-surface),transparent_3%)]">
-        <AdminSectionTabs />
-      </div>
+    <PageLayout navigation={{ tabs: <AdminSectionTabs /> }}>
       {children}
-    </>
+    </PageLayout>
   );
 }

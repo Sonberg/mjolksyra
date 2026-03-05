@@ -14,34 +14,32 @@ export default async function AdminPage() {
   }).format(stats.totalRevenue);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 md:py-10">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard
-          label="Total Users"
-          value={stats.totalUsers.toString()}
-          icon={<UsersIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
-        />
-        <StatCard
-          label="Coaches"
-          value={stats.totalCoaches.toString()}
-          icon={<BriefcaseIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
-        />
-        <StatCard
-          label="Athletes"
-          value={stats.totalAthletes.toString()}
-          icon={<PersonStandingIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
-        />
-        <StatCard
-          label="Active Subscriptions"
-          value={stats.activeSubscriptions.toString()}
-          icon={<ActivityIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
-        />
-        <StatCard
-          label="Total Revenue"
-          value={formatted}
-          icon={<CircleDollarSignIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
-        />
-      </div>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <StatCard
+        label="Total Users"
+        value={stats.totalUsers.toString()}
+        icon={<UsersIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+      />
+      <StatCard
+        label="Coaches"
+        value={stats.totalCoaches.toString()}
+        icon={<BriefcaseIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+      />
+      <StatCard
+        label="Athletes"
+        value={stats.totalAthletes.toString()}
+        icon={<PersonStandingIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+      />
+      <StatCard
+        label="Active Subscriptions"
+        value={stats.activeSubscriptions.toString()}
+        icon={<ActivityIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+      />
+      <StatCard
+        label="Total Revenue"
+        value={formatted}
+        icon={<CircleDollarSignIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+      />
     </div>
   );
 }

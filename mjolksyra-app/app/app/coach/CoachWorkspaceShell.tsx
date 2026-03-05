@@ -18,19 +18,11 @@ export function CoachWorkspaceShell({
   fullBleed = false,
 }: Props) {
   return (
-    <div
-      className={cn(
-        showTabs && !fullBleed && "-mt-8 md:-mt-10",
-        "relative mx-auto w-full",
-        className,
-      )}
+    <PageLayout
+      fullBleed={fullBleed}
+      navigation={showTabs ? { tabs: <CoachSectionTabs /> } : undefined}
     >
-      <PageLayout
-        fullBleed={fullBleed}
-        navigation={showTabs ? { tabs: <CoachSectionTabs /> } : undefined}
-      >
-        {children}
-      </PageLayout>
-    </div>
+      {children}
+    </PageLayout>
   );
 }
