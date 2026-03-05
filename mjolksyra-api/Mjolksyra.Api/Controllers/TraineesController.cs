@@ -7,6 +7,7 @@ using Mjolksyra.UseCases.Trainees.ChargeNowTrainee;
 using Mjolksyra.UseCases.Trainees.CreateTrainee;
 using Mjolksyra.UseCases.Trainees.GetTraineeById;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
+using Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 using System.Net;
 
@@ -89,6 +90,17 @@ public class TraineesController : Controller
             UserId = await _userContext
                 .GetUserId(cancellationToken)
                 .ContinueWith(x => x.Result!.Value, cancellationToken)
+        }, cancellationToken);
+    }
+
+    [HttpPost("{traineeId:guid}/transactions/{transactionId:guid}/refund")]
+    public async Task Refund(Guid traineeId, Guid transactionId, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new RefundTraineeTransactionCommand
+        {
+            TraineeId = traineeId,
+            TransactionId = transactionId,
+            UserId = await _userContext.GetUserId(cancellationToken).ContinueWith(x => x.Result!.Value, cancellationToken)
         }, cancellationToken);
     }
 

@@ -122,6 +122,7 @@ public class CreateTraineeCommandHandlerTests
                 LastChargedAt = null,
                 NextChargedAt = null
             },
+            Transactions = [],
             CreatedAt = DateTimeOffset.UtcNow
         };
     }

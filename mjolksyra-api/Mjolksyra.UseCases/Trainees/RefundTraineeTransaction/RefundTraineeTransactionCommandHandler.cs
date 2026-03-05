@@ -1,0 +1,77 @@
+using MediatR;
+using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Notifications;
+
+namespace Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
+
+public class RefundTraineeTransactionCommandHandler : IRequestHandler<RefundTraineeTransactionCommand>
+{
+    private readonly ITraineeRepository _traineeRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IStripeRefundGateway _stripeRefundGateway;
+    private readonly INotificationService _notificationService;
+
+    public RefundTraineeTransactionCommandHandler(
+        ITraineeRepository traineeRepository,
+        IUserRepository userRepository,
+        IStripeRefundGateway stripeRefundGateway,
+        INotificationService notificationService)
+    {
+        _traineeRepository = traineeRepository;
+        _userRepository = userRepository;
+        _stripeRefundGateway = stripeRefundGateway;
+        _notificationService = notificationService;
+    }
+
+    public async Task Handle(RefundTraineeTransactionCommand request, CancellationToken cancellationToken)
+    {
+        var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
+        if (trainee is null) return;
+        if (trainee.CoachUserId != request.UserId) return;
+
+        var transaction = trainee.Transactions.FirstOrDefault(t => t.Id == request.TransactionId);
+        if (transaction is null) return;
+        if (transaction.Status != TraineeTransactionStatus.Succeeded) return;
+
+        await _stripeRefundGateway.RefundInvoiceAsync(transaction.PaymentIntentId, cancellationToken);
+
+        transaction.Status = TraineeTransactionStatus.Refunded;
+        transaction.StatusRaw = "refunded";
+
+        await _traineeRepository.Update(trainee, cancellationToken);
+
+        var coach = await _userRepository.GetById(trainee.CoachUserId, cancellationToken);
+        var athlete = await _userRepository.GetById(trainee.AthleteUserId, cancellationToken);
+
+        var amount = transaction.Cost.Total;
+        var currency = transaction.Cost.Currency.ToUpperInvariant();
+        var coachName = DisplayName(coach);
+        var athleteName = DisplayName(athlete);
+
+        await _notificationService.Notify(
+            athlete.Id,
+            "billing.refunded",
+            "Payment refunded",
+            $"Your payment of {amount} {currency} was refunded by {coachName}.",
+            "/app/athlete",
+            cancellationToken);
+
+        await _notificationService.Notify(
+            coach.Id,
+            "billing.refunded",
+            "Refund issued",
+            $"You refunded {athleteName} {amount} {currency}.",
+            "/app/coach/athletes",
+            cancellationToken);
+    }
+
+    private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)
+        => string.Join(" ", new[] { user.GivenName, user.FamilyName }
+            .Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
+        {
+            "" => user.Email.Value,
+            var value => value
+        };
+}

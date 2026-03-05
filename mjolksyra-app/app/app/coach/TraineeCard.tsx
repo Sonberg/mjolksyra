@@ -4,11 +4,14 @@ import { Trainee } from "@/services/trainees/type";
 import {
   CalendarClockIcon,
   CheckCircle2Icon,
+  ChevronDownIcon,
   ClipboardCheckIcon,
   CreditCardIcon,
   DumbbellIcon,
   MoreHorizontalIcon,
   PencilIcon,
+  ReceiptIcon,
+  UndoIcon,
   XIcon,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -18,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { chargeTrainee } from "@/services/trainees/chargeTrainee";
+import { refundTraineeTransaction } from "@/services/trainees/refundTraineeTransaction";
 import { updateTraineeCost } from "@/services/trainees/updateTraineeCost";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -58,6 +62,7 @@ export function TraineeCard({
   );
   const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
   const [isActionsOpen, setActionsOpen] = useState(false);
+  const [isTransactionsOpen, setTransactionsOpen] = useState(false);
 
   useEffect(() => {
     setPrice(initialPrice);
@@ -81,6 +86,11 @@ export function TraineeCard({
   const chargeNow = useMutation({
     mutationKey: ["trainee", trainee.id, "charge-now"],
     mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
+    onSettled: () => router.refresh(),
+  });
+  const refund = useMutation({
+    mutationFn: (transactionId: string) =>
+      refundTraineeTransaction({ traineeId: trainee.id, transactionId }),
     onSettled: () => router.refresh(),
   });
 
@@ -270,6 +280,70 @@ export function TraineeCard({
           </div>
         ))}
       </div>
+
+      {trainee.transactions.length > 0 && (
+        <div className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+          <button
+            type="button"
+            onClick={() => setTransactionsOpen((v) => !v)}
+            className="flex w-full items-center justify-between px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] md:px-6"
+          >
+            <span className="flex items-center gap-2">
+              <ReceiptIcon className="h-3.5 w-3.5" />
+              Transactions ({trainee.transactions.length})
+            </span>
+            <ChevronDownIcon
+              className={cn(
+                "h-4 w-4 transition-transform",
+                isTransactionsOpen && "rotate-180",
+              )}
+            />
+          </button>
+          {isTransactionsOpen && (
+            <div className="divide-y-2 divide-[var(--shell-border)] px-5 pb-3 md:px-6">
+              {trainee.transactions.map((tx) => (
+                <div
+                  key={tx.id}
+                  className="flex items-center justify-between gap-4 py-2.5"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span
+                      className={cn(
+                        "shrink-0 inline-flex items-center rounded-none border-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+                        tx.status === "Succeeded" &&
+                          "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+                        tx.status === "Refunded" &&
+                          "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+                        tx.status === "Failed" &&
+                          "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+                      )}
+                    >
+                      {tx.status}
+                    </span>
+                    <span className="text-sm text-[var(--shell-ink)]">
+                      {tx.amount} {tx.currency.toUpperCase()}
+                    </span>
+                    <span className="truncate text-xs text-[var(--shell-muted)]">
+                      {format(new Date(tx.createdAt), "MMM d, yyyy")}
+                    </span>
+                  </div>
+                  {tx.status === "Succeeded" && (
+                    <button
+                      type="button"
+                      disabled={refund.isPending}
+                      onClick={() => refund.mutate(tx.id)}
+                      className="shrink-0 inline-flex items-center gap-1.5 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
+                    >
+                      <UndoIcon className="h-3 w-3" />
+                      Refund
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3 bg-[var(--shell-surface)] px-5 py-4 md:px-6">
         <button

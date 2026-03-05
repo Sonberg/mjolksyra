@@ -61,6 +61,10 @@ public static class Configure
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>
             new StripeSubscriptionServiceAdapter(sp.GetRequiredService<IStripeClient>()));
+        services.AddScoped<IStripeInvoiceService>(sp =>
+            new StripeInvoiceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
+        services.AddScoped<IStripeRefundService>(sp =>
+            new StripeRefundServiceAdapter(sp.GetRequiredService<IStripeClient>()));
 
         ConventionRegistry.Register("EnumStringConvention", new ConventionPack
         {

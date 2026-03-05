@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const transactionSchema = z.object({
+  id: z.string(),
+  status: z.enum(["Succeeded", "Failed", "Refunded"]),
+  amount: z.number(),
+  currency: z.string(),
+  createdAt: z.coerce.date(),
+});
+
 const userSchema = z.object({
   id: z.string(),
   email: z.string(),
@@ -44,4 +52,5 @@ export const schema = z.object({
   nextWorkoutAt: z.coerce.date().nullable(),
   lastWorkoutAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
+  transactions: z.array(transactionSchema).optional().default([]),
 });

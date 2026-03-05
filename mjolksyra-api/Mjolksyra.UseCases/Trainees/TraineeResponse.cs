@@ -17,4 +17,6 @@ public class TraineeResponse
     public required TraineeBillingResponse Billing { get; set; }
 
     public required DateTimeOffset CreatedAt { get; set; }
+
+    public required ICollection<TraineeTransactionResponse> Transactions { get; set; }
 }

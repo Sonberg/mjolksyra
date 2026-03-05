@@ -132,6 +132,17 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
                 LastChargedAt = lastChargedAt,
                 NextChargedAt = nextChargedAt
             },
+            Transactions = trainee.Transactions
+                .OrderByDescending(t => t.CreatedAt)
+                .Select(t => new TraineeTransactionResponse
+                {
+                    Id = t.Id,
+                    Status = t.Status.ToString(),
+                    Amount = t.Cost.Total,
+                    Currency = t.Cost.Currency,
+                    CreatedAt = t.CreatedAt
+                })
+                .ToList(),
             CreatedAt = trainee.CreatedAt
         };
     }

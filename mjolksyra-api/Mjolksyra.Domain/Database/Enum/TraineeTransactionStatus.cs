@@ -4,5 +4,6 @@ public enum TraineeTransactionStatus
 {
     Pending,
     Succeeded,
-    Failed
+    Failed,
+    Refunded
 }

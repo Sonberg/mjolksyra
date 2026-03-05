@@ -60,6 +60,7 @@ export default {
           nextWorkoutAt: dayjs().add(1, "day").toDate(),
           lastWorkoutAt: dayjs().subtract(1, "day").toDate(),
           createdAt: dayjs().subtract(2, "day").toDate(),
+          transactions: [],
         },
       ]}
       user={{
