@@ -4,7 +4,7 @@ export const StripeSection = () => {
   return (
     <section className="bg-[var(--home-surface)]/70 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4 text-center">
-        <h2 className="font-[var(--font-display)] mb-12 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-3xl text-[var(--home-text)] md:text-4xl">
           Powered by Stripe
         </h2>
         <div className="flex flex-wrap items-center justify-center gap-8">

@@ -21,7 +21,12 @@ export function PageSectionHeader({
   titleClassName,
 }: PageSectionHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between",
+        className,
+      )}
+    >
       <div className="flex min-w-0 items-start gap-3">
         {leading ? <div className="shrink-0">{leading}</div> : null}
         <div className="min-w-0">
@@ -32,14 +37,16 @@ export function PageSectionHeader({
           ) : null}
           <h1
             className={cn(
-              "text-2xl font-semibold tracking-tight text-[var(--shell-ink)] md:text-3xl",
+              "text-2xl tracking-tight text-[var(--shell-ink)] md:text-3xl",
               titleClassName,
             )}
           >
             {title}
           </h1>
           {description ? (
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">{description}</p>
+            <p className="mt-1 text-sm text-[var(--shell-muted)]">
+              {description}
+            </p>
           ) : null}
         </div>
       </div>
@@ -47,4 +54,3 @@ export function PageSectionHeader({
     </div>
   );
 }
-

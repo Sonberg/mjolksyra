@@ -26,7 +26,7 @@ export function ExerciseStarred({ exercises }: Props) {
   return (
     <section>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-[var(--shell-ink)]">
+        <h3 className="font-[var(--font-display)] text-sm tracking-[0.08em] text-[var(--shell-ink)]">
           Starred
         </h3>
         <span className="text-xs text-[var(--shell-muted)]">{data?.length ?? 0}</span>

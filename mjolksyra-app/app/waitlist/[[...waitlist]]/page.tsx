@@ -8,7 +8,7 @@ export default function WaitlistPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Early access
           </p>
-          <h1 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-100 md:text-5xl">
+          <h1 className="mt-3 font-[var(--font-display)] text-3xl text-zinc-100 md:text-5xl">
             Join the Mjolksyra Waitlist
           </h1>
           <p className="mt-3 text-sm text-zinc-400 md:text-base">

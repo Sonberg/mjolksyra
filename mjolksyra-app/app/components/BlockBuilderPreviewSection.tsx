@@ -31,7 +31,7 @@ export function BlockBuilderPreviewSection() {
               <Layers3Icon className="h-3.5 w-3.5" />
               New Preview
             </p>
-            <h2 className="font-[var(--font-display)] text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+            <h2 className="font-[var(--font-display)] text-3xl text-[var(--home-text)] md:text-4xl">
               Create Reusable Training Blocks
             </h2>
             <p className="mt-3 max-w-2xl text-base text-[var(--home-muted)]">
@@ -49,7 +49,7 @@ export function BlockBuilderPreviewSection() {
                 className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-4"
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-[var(--home-text)]">
+                  <h3 className="text-base text-[var(--home-text)]">
                     {item.week}
                   </h3>
                   <span className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--home-muted)]">

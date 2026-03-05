@@ -43,7 +43,7 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
               Workout details
             </p>
-            <h1 className="text-xl font-semibold text-[var(--shell-ink)] md:text-2xl">
+            <h1 className="text-xl text-[var(--shell-ink)] md:text-2xl">
               Log sets and complete exercises
             </h1>
           </div>

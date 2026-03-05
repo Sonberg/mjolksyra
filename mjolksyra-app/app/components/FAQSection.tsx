@@ -32,7 +32,7 @@ export const FAQSection = () => {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 text-center text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-center text-3xl text-[var(--home-text)] md:text-4xl">
           Frequently Asked Questions
         </h2>
         <div className="mx-auto grid max-w-3xl gap-4">

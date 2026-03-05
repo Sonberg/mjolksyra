@@ -19,7 +19,7 @@ export const CalculatorSection = () => {
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <h2 className="font-[var(--font-display)] mb-6 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+            <h2 className="font-[var(--font-display)] mb-6 text-3xl text-[var(--home-text)] md:text-4xl">
               Calculate your earnings
             </h2>
             <p className="mb-8 text-lg text-[var(--home-muted)]">

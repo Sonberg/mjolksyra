@@ -24,7 +24,7 @@ export function CoachDashboardTodoSection({ items }: Props) {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
           Coach to-do
         </p>
-        <h2 className="mt-2 text-2xl font-semibold text-[var(--shell-ink)] md:text-3xl">
+        <h2 className="mt-2 text-2xl text-[var(--shell-ink)] md:text-3xl">
           Follow-ups
         </h2>
         <p className="mt-1 text-sm text-[var(--shell-muted)]">

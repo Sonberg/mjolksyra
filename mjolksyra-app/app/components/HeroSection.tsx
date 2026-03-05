@@ -3,6 +3,7 @@
 import { isBeta } from "@/constants/isBeta";
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import { SignupForm } from "./SignupForm";
+import { HeroIllustration } from "./HeroIllustration";
 
 export const HeroSection = () => {
   return (
@@ -14,7 +15,7 @@ export const HeroSection = () => {
           <div className="mb-6 inline-flex items-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Coaching Platform
           </div>
-          <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl font-semibold leading-tight tracking-tight md:text-5xl xl:text-6xl">
+          <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
             <span className="text-[var(--home-text)]">
               Transform Your Coaching <br />
               Into a Business
@@ -43,16 +44,9 @@ export const HeroSection = () => {
           </div>
         </div>
         <div className="relative hidden lg:col-span-5 lg:mt-0 lg:flex">
-          <img
-            src="/images/landing-page/healthy-habit-custom.svg"
-            alt="Healthy training habit illustration"
-            className="relative z-10 h-auto w-full p-6 dark:hidden"
-          />
-          <img
-            src="/images/landing-page/healthy-habit-custom-dark.svg"
-            alt="Healthy training habit illustration"
-            className="relative z-10 h-auto w-full p-6 hidden dark:block"
-          />
+          <div className="relative z-10 h-auto w-full p-6">
+            <HeroIllustration />
+          </div>
         </div>
       </div>
     </section>

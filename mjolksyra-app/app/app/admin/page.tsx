@@ -49,7 +49,7 @@ export default async function AdminPage() {
 
       <section className="mt-8 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-[var(--shell-ink)]">Coach revenue and fee subscription</h2>
+          <h2 className="text-lg text-[var(--shell-ink)]">Coach revenue and fee subscription</h2>
           <p className="mt-1 text-sm text-[var(--shell-muted)]">
             Monthly athlete revenue, historical revenue, and coach platform fee status.
           </p>

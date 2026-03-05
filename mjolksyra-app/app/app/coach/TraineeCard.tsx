@@ -171,7 +171,7 @@ export function TraineeCard({
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="truncate text-lg font-semibold text-[var(--shell-ink)] transition-colors">
+            <h3 className="truncate text-lg text-[var(--shell-ink)] transition-colors">
               {trainee.athlete.givenName
                 ? `${trainee.athlete.givenName} ${
                     trainee.athlete.familyName || ""

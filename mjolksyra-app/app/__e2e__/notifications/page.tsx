@@ -24,7 +24,7 @@ export default function NotificationsE2EPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
               E2E Harness
             </p>
-            <h1 className="mt-2 text-2xl font-semibold">Notifications</h1>
+            <h1 className="mt-2 text-2xl">Notifications</h1>
           </div>
 
           <div className="flex items-center justify-end">

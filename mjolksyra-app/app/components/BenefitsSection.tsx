@@ -30,7 +30,7 @@ export const BenefitsSection = () => {
   return (
     <section className="bg-[var(--home-surface)]/70 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-3xl text-[var(--home-text)] md:text-4xl">
           Coach with a clear pricing model
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -44,7 +44,7 @@ export const BenefitsSection = () => {
                   <benefit.icon className="h-5 w-5 text-[var(--home-text)]" />
                 </div>
               )}
-              <h3 className="mb-2 text-xl font-semibold text-[var(--home-text)]">
+              <h3 className="mb-2 text-xl text-[var(--home-text)]">
                 {benefit.title}
               </h3>
               <p className="text-[var(--home-muted)]">{benefit.text}</p>

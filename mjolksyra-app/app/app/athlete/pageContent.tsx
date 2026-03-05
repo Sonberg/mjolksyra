@@ -45,7 +45,7 @@ export function PageContent({
                 <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
                   Athlete
                 </p>
-                <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight text-[var(--shell-ink)] md:text-4xl">
+                <h1 className="font-[var(--font-display)] text-3xl tracking-tight text-[var(--shell-ink)] md:text-4xl">
                   {athleteName}
                 </h1>
                 <p className="max-w-2xl text-sm text-[var(--shell-muted)] md:text-base">

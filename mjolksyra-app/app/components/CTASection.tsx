@@ -7,7 +7,7 @@ export const CTASection = () => {
     <section className="bg-[var(--home-surface)]/70 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4 text-center">
         <div className="mx-auto max-w-3xl rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-12 md:px-10">
-          <h2 className="font-[var(--font-display)] mb-6 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+          <h2 className="font-[var(--font-display)] mb-6 text-3xl text-[var(--home-text)] md:text-4xl">
           Ready to start your coaching journey?
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-[var(--home-muted)]">

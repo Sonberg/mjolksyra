@@ -70,7 +70,7 @@ export function CoachAthletesContent({ trainees }: Props) {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
               Athlete management
             </p>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)] md:text-3xl">
+            <h2 className="text-2xl text-[var(--shell-ink)] md:text-3xl">
               Athletes
             </h2>
             <p className="text-sm text-[var(--shell-muted)]">
@@ -111,7 +111,7 @@ export function CoachAthletesContent({ trainees }: Props) {
         </div>
       ) : (
         <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] p-12 text-center">
-          <h3 className="text-xl font-semibold text-[var(--shell-ink)]">No athletes yet</h3>
+          <h3 className="text-xl text-[var(--shell-ink)]">No athletes yet</h3>
           <p className="mt-2 text-sm text-[var(--shell-muted)]">
             Send your first invitation to start building your coaching roster.
           </p>
@@ -120,7 +120,7 @@ export function CoachAthletesContent({ trainees }: Props) {
 
       {invitaions.data.length > 0 ? (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-[var(--shell-ink)]">Pending invitations</h3>
+          <h3 className="text-lg text-[var(--shell-ink)]">Pending invitations</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {invitaions.data.map((invitation) => (
               <TraineeInvitationCard key={invitation.id} invitation={invitation} />

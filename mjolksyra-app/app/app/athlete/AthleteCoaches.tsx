@@ -16,7 +16,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
   const active =
     user.coaches?.length > 0 ? (
       <div className="mt-5 space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+        <h3 className="text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
           Active
         </h3>
         {user.coaches.map((x) => (
@@ -33,7 +33,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
 
   const invitations = user.invitations.length ? (
     <div className="mt-5">
-      <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+      <h3 className="text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
         Pending invitations
       </h3>
       <AthleteInvitations invitations={user.invitations} />
@@ -47,7 +47,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
         onClick={() => setOpen((state) => !state)}
       >
         <div>
-          <h2 className="text-xl font-semibold text-[var(--shell-ink)]">Your coaches</h2>
+          <h2 className="text-xl text-[var(--shell-ink)]">Your coaches</h2>
           <p className="mt-1 text-sm text-[var(--shell-muted)]">
             {user.coaches.length} active connection
             {user.coaches.length === 1 ? "" : "s"}

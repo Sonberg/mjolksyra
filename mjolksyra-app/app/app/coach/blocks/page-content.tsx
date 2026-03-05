@@ -246,7 +246,7 @@ export function BlocksPageContent() {
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-semibold text-[var(--shell-ink)]">
+                      <h2 className="text-xl text-[var(--shell-ink)]">
                         {block.name}
                       </h2>
                       <span className="rounded-none border-2 border-[var(--shell-border)] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">

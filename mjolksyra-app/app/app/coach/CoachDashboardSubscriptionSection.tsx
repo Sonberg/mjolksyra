@@ -47,7 +47,7 @@ export function CoachDashboardSubscriptionSection({
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
               Payments
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[var(--shell-ink)] md:text-3xl">
+            <h2 className="mt-2 text-2xl text-[var(--shell-ink)] md:text-3xl">
               Coach subscription
             </h2>
             <p className="mt-2 text-sm text-[var(--shell-muted)]">

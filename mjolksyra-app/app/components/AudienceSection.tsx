@@ -27,7 +27,7 @@ export function AudienceSection() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Who It&apos;s For
           </p>
-          <h2 className="font-[var(--font-display)] mt-3 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+          <h2 className="font-[var(--font-display)] mt-3 text-3xl text-[var(--home-text)] md:text-4xl">
             Built for coaches in performance and strength
           </h2>
         </div>
@@ -40,7 +40,7 @@ export function AudienceSection() {
               <div className="mb-4 inline-flex rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
                 <audience.icon className="h-5 w-5 text-[var(--home-text)]" />
               </div>
-              <h3 className="text-xl font-semibold text-[var(--home-text)]">{audience.title}</h3>
+              <h3 className="text-xl text-[var(--home-text)]">{audience.title}</h3>
               <p className="mt-1 text-sm font-medium text-[var(--home-muted)]">
                 {audience.subtitle}
               </p>

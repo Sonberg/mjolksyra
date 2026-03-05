@@ -41,7 +41,7 @@ export function ExerciseBrowser({ exercies }: Props) {
   return (
     <section className="mb-24">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-[var(--shell-ink)]">
+        <h3 className="font-[var(--font-display)] text-sm tracking-[0.08em] text-[var(--shell-ink)]">
           Browser
         </h3>
         <span className="text-xs text-[var(--shell-muted)]">{browser.data.length}</span>

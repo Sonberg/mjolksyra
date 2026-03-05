@@ -7,7 +7,7 @@ export const DemoSection = () => {
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="mb-12">
-          <h2 className="font-[var(--font-display)] mb-4 text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+          <h2 className="font-[var(--font-display)] mb-4 text-3xl text-[var(--home-text)] md:text-4xl">
             Try our workout planner
           </h2>
           <p className="text-lg text-[var(--home-muted)]">
@@ -20,7 +20,7 @@ export const DemoSection = () => {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Planner Demo
           </p>
-          <h3 className="mt-2 text-xl font-semibold text-[var(--home-text)]">
+          <h3 className="mt-2 text-xl text-[var(--home-text)]">
             Best viewed on desktop
           </h3>
           <p className="mt-3 text-[var(--home-muted)]">

@@ -16,7 +16,7 @@ export function TraineeInvitationCard({ invitation }: Props) {
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h3 className="truncate text-sm font-semibold text-[var(--shell-ink)] transition-colors">
+          <h3 className="truncate text-sm text-[var(--shell-ink)] transition-colors">
             {invitation.email}
           </h3>
           <p className="mt-1 text-xs text-[var(--shell-muted)]">
