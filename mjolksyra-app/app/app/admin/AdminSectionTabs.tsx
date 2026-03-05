@@ -2,9 +2,10 @@
 import { usePathname } from "next/navigation";
 import { NavigationTabs } from "@/components/Navigation/NavigationTabs";
 
-type AdminTab = "dashboard" | "feedback";
+type AdminTab = "dashboard" | "feedback" | "discount";
 
 function getActiveTab(pathname: string): AdminTab {
+  if (pathname.startsWith("/app/admin/discount")) return "discount";
   if (pathname.startsWith("/app/admin/feedback")) return "feedback";
   return "dashboard";
 }
@@ -16,6 +17,7 @@ export function AdminSectionTabs() {
   const tabs: Array<{ key: AdminTab; href: string; label: string }> = [
     { key: "dashboard", href: "/app/admin", label: "Dashboard" },
     { key: "feedback", href: "/app/admin/feedback", label: "Feedback" },
+    { key: "discount", href: "/app/admin/discount", label: "Discount" },
   ];
 
   return (

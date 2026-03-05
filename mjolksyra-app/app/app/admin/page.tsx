@@ -1,16 +1,13 @@
 import { getAuth } from "@/context/Auth";
 import { getAdminStats } from "@/services/admin/getAdminStats";
 import { getCoachRevenue } from "@/services/admin/getCoachRevenue";
-import { getDiscountCodes } from "@/services/admin/getDiscountCodes";
 import { UsersIcon, BriefcaseIcon, PersonStandingIcon, ActivityIcon, CircleDollarSignIcon } from "lucide-react";
-import { DiscountCodesSection } from "./DiscountCodesSection";
 
 export default async function AdminPage() {
   const auth = await getAuth({ redirect: true });
-  const [stats, coachRevenue, discountCodes] = await Promise.all([
+  const [stats, coachRevenue] = await Promise.all([
     getAdminStats({ accessToken: auth!.accessToken }),
     getCoachRevenue({ accessToken: auth!.accessToken }),
-    getDiscountCodes({ accessToken: auth!.accessToken }),
   ]);
 
   const formatted = new Intl.NumberFormat("sv-SE", {
@@ -107,8 +104,6 @@ export default async function AdminPage() {
           </table>
         </div>
       </section>
-
-      <DiscountCodesSection initialCodes={discountCodes} />
     </div>
   );
 }
