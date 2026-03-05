@@ -13,6 +13,9 @@ public class GetCoachRevenueRequestHandlerTests
     {
         var coachAId = Guid.NewGuid();
         var coachBId = Guid.NewGuid();
+        var traineeA1Id = Guid.NewGuid();
+        var traineeA2Id = Guid.NewGuid();
+        var traineeBId = Guid.NewGuid();
 
         var userRepository = new Mock<IUserRepository>();
         userRepository.Setup(x => x.GetCoachUsersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([
@@ -52,62 +55,60 @@ public class GetCoachRevenueRequestHandlerTests
             {
                 CoachUserId = coachAId,
                 AthleteUserId = Guid.NewGuid(),
-                Id = Guid.NewGuid(),
+                Id = traineeA1Id,
                 Status = TraineeStatus.Active,
                 Cost = new TraineeCost { Amount = 600 },
-                Transactions =
-                [
-                    new TraineeTransaction
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentIntentId = "pi_1",
-                        Status = TraineeTransactionStatus.Succeeded,
-                        Cost = new TraineeTransactionCost { Total = 600, Currency = "SEK" },
-                        CreatedAt = DateTimeOffset.UtcNow,
-                    }
-                ]
             },
             new Trainee
             {
                 CoachUserId = coachAId,
                 AthleteUserId = Guid.NewGuid(),
-                Id = Guid.NewGuid(),
+                Id = traineeA2Id,
                 Status = TraineeStatus.Cancelled,
                 Cost = new TraineeCost { Amount = 450 },
-                Transactions =
-                [
-                    new TraineeTransaction
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentIntentId = "pi_2",
-                        Status = TraineeTransactionStatus.Succeeded,
-                        Cost = new TraineeTransactionCost { Total = 450, Currency = "SEK" },
-                        CreatedAt = DateTimeOffset.UtcNow,
-                    }
-                ]
             },
             new Trainee
             {
                 CoachUserId = coachBId,
                 AthleteUserId = Guid.NewGuid(),
-                Id = Guid.NewGuid(),
+                Id = traineeBId,
                 Status = TraineeStatus.Active,
                 Cost = new TraineeCost { Amount = 300 },
-                Transactions =
-                [
-                    new TraineeTransaction
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentIntentId = "pi_3",
-                        Status = TraineeTransactionStatus.Failed,
-                        Cost = new TraineeTransactionCost { Total = 300, Currency = "SEK" },
-                        CreatedAt = DateTimeOffset.UtcNow,
-                    }
-                ]
             }
         ]);
 
-        var sut = new GetCoachRevenueRequestHandler(userRepository.Object, traineeRepository.Object);
+        var transactionRepository = new Mock<ITraineeTransactionRepository>();
+        transactionRepository.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([
+            new TraineeTransaction
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = traineeA1Id,
+                PaymentIntentId = "pi_1",
+                Status = TraineeTransactionStatus.Succeeded,
+                Cost = new TraineeTransactionCost { Total = 600, Currency = "SEK" },
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
+            new TraineeTransaction
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = traineeA2Id,
+                PaymentIntentId = "pi_2",
+                Status = TraineeTransactionStatus.Succeeded,
+                Cost = new TraineeTransactionCost { Total = 450, Currency = "SEK" },
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
+            new TraineeTransaction
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = traineeBId,
+                PaymentIntentId = "pi_3",
+                Status = TraineeTransactionStatus.Failed,
+                Cost = new TraineeTransactionCost { Total = 300, Currency = "SEK" },
+                CreatedAt = DateTimeOffset.UtcNow,
+            }
+        ]);
+
+        var sut = new GetCoachRevenueRequestHandler(userRepository.Object, traineeRepository.Object, transactionRepository.Object);
 
         var result = (await sut.Handle(new GetCoachRevenueRequest(), CancellationToken.None)).ToList();
 
@@ -154,7 +155,10 @@ public class GetCoachRevenueRequestHandlerTests
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
-        var sut = new GetCoachRevenueRequestHandler(userRepository.Object, traineeRepository.Object);
+        var transactionRepository = new Mock<ITraineeTransactionRepository>();
+        transactionRepository.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        var sut = new GetCoachRevenueRequestHandler(userRepository.Object, traineeRepository.Object, transactionRepository.Object);
 
         var result = await sut.Handle(new GetCoachRevenueRequest(), CancellationToken.None);
 

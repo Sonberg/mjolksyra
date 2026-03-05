@@ -15,26 +15,31 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
     private readonly IUserRepository _userRepository;
     private readonly IPlannedWorkoutRepository _plannedWorkoutRepository;
     private readonly IStripeClient _stripeClient;
+    private readonly ITraineeTransactionRepository _transactionRepository;
 
     public TraineeResponseBuilder(
         IUserRepository userRepository,
         IPlannedWorkoutRepository plannedWorkoutRepository,
-        IStripeClient stripeClient)
+        IStripeClient stripeClient,
+        ITraineeTransactionRepository transactionRepository)
     {
         _userRepository = userRepository;
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _stripeClient = stripeClient;
+        _transactionRepository = transactionRepository;
     }
 
     public async Task<TraineeResponse> Build(Trainee trainee, CancellationToken cancellationToken)
     {
         var athleteTask = _userRepository.GetById(trainee.AthleteUserId, cancellationToken);
         var coachTask = _userRepository.GetById(trainee.CoachUserId, cancellationToken);
+        var transactionsTask = _transactionRepository.GetByTraineeId(trainee.Id, cancellationToken);
 
-        await Task.WhenAll(athleteTask, coachTask);
+        await Task.WhenAll(athleteTask, coachTask, transactionsTask);
 
         var athlete = athleteTask.Result;
         var coach = coachTask.Result;
+        var transactions = transactionsTask.Result;
         var hasPrice = trainee.Cost.Amount > 0;
         var hasSubscription = trainee.StripeSubscriptionId is not null;
         var athletePaymentReady =
@@ -43,7 +48,7 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
         var coachStripeReady =
             coach.Coach?.Stripe?.AccountId is not null &&
             coach.Coach.Stripe.Status == StripeStatus.Succeeded;
-        var lastChargedAt = trainee.Transactions
+        var lastChargedAt = transactions
             .Where(x => x.Status == TraineeTransactionStatus.Succeeded)
             .OrderByDescending(x => x.CreatedAt)
             .Select(x => (DateTimeOffset?)x.CreatedAt)
@@ -132,7 +137,7 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
                 LastChargedAt = lastChargedAt,
                 NextChargedAt = nextChargedAt
             },
-            Transactions = trainee.Transactions
+            Transactions = transactions
                 .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new TraineeTransactionResponse
                 {

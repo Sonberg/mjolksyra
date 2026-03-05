@@ -8,4 +8,5 @@ public class StripeInvoiceServiceAdapter(IStripeClient stripeClient) : IStripeIn
 
     public Task<Invoice> GetAsync(string id, CancellationToken cancellationToken = default)
         => _invoiceService.GetAsync(id, cancellationToken: cancellationToken);
+
 }

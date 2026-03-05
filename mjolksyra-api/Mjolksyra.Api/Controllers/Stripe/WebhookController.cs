@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MediatR;
 using Mjolksyra.Api.Options;
@@ -26,6 +24,7 @@ public class WebhookController : Controller
     private readonly IUserRepository _userRepository;
 
     private readonly ITraineeRepository _traineeRepository;
+    private readonly ITraineeTransactionRepository _transactionRepository;
     private readonly IUserEventPublisher _userEvents;
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
@@ -38,6 +37,7 @@ public class WebhookController : Controller
         IStripeClient stripeClient,
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
+        ITraineeTransactionRepository transactionRepository,
         IUserEventPublisher userEvents,
         IEmailSender emailSender,
         IConfiguration configuration,
@@ -49,6 +49,7 @@ public class WebhookController : Controller
         _stripeClient = stripeClient;
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
+        _transactionRepository = transactionRepository;
         _userEvents = userEvents;
         _emailSender = emailSender;
         _configuration = configuration;
@@ -241,28 +242,18 @@ public class WebhookController : Controller
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
         var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
 
-        var existing = trainee.Transactions.FirstOrDefault(x => x.PaymentIntentId == invoice.Id);
-        if (existing is null)
+        var transaction = new TraineeTransaction
         {
-            var transactionCost = TraineeTransactionCost.From(trainee.Cost);
-            trainee.Transactions.Add(new TraineeTransaction
-            {
-                Id = Guid.NewGuid(),
-                PaymentIntentId = invoice.Id,
-                Cost = transactionCost,
-                Status = TraineeTransactionStatus.Succeeded,
-                StatusRaw = "invoice.payment_succeeded",
-                CreatedAt = DateTimeOffset.UtcNow,
-            });
-        }
-        else
-        {
-            existing.Status = TraineeTransactionStatus.Succeeded;
-            existing.StatusRaw = "invoice.payment_succeeded";
-            existing.Cost = TraineeTransactionCost.From(trainee.Cost);
-        }
+            Id = Guid.NewGuid(),
+            TraineeId = trainee.Id,
+            PaymentIntentId = invoice.Id,
+            Cost = TraineeTransactionCost.From(trainee.Cost),
+            Status = TraineeTransactionStatus.Succeeded,
+            StatusRaw = "invoice.payment_succeeded",
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
 
-        await _traineeRepository.Update(trainee, CancellationToken.None);
+        await _transactionRepository.Upsert(transaction, CancellationToken.None);
 
         await _emailSender.SendPaymentSucceededToAthlete(athlete.Email.Value, new AthleteBillingEmail
         {
@@ -298,28 +289,18 @@ public class WebhookController : Controller
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
         var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
 
-        var existing = trainee.Transactions.FirstOrDefault(x => x.PaymentIntentId == invoice.Id);
-        if (existing is null)
+        var transaction = new TraineeTransaction
         {
-            var transactionCost = TraineeTransactionCost.From(trainee.Cost);
-            trainee.Transactions.Add(new TraineeTransaction
-            {
-                Id = Guid.NewGuid(),
-                PaymentIntentId = invoice.Id,
-                Cost = transactionCost,
-                Status = TraineeTransactionStatus.Failed,
-                StatusRaw = "invoice.payment_failed",
-                CreatedAt = DateTimeOffset.UtcNow,
-            });
-        }
-        else
-        {
-            existing.Status = TraineeTransactionStatus.Failed;
-            existing.StatusRaw = "invoice.payment_failed";
-            existing.Cost = TraineeTransactionCost.From(trainee.Cost);
-        }
+            Id = Guid.NewGuid(),
+            TraineeId = trainee.Id,
+            PaymentIntentId = invoice.Id,
+            Cost = TraineeTransactionCost.From(trainee.Cost),
+            Status = TraineeTransactionStatus.Failed,
+            StatusRaw = "invoice.payment_failed",
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
 
-        await _traineeRepository.Update(trainee, CancellationToken.None);
+        await _transactionRepository.Upsert(transaction, CancellationToken.None);
 
         var billingEmail = new AthleteBillingEmail
         {
@@ -377,8 +358,8 @@ public class WebhookController : Controller
             {
                 user.GivenName, user.FamilyName
             }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-        {
-            "" => user.Email.Value,
-            var value => value
-        };
+            {
+                "" => user.Email.Value,
+                var value => value
+            };
 }

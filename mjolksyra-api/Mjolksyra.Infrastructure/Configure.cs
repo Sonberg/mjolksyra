@@ -47,6 +47,7 @@ public static class Configure
             client.BaseAddress = new Uri("https://api.clerk.com/");
         });
         services.AddScoped<ITraineeRepository, TraineeRepository>();
+        services.AddScoped<ITraineeTransactionRepository, TraineeTransactionRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();

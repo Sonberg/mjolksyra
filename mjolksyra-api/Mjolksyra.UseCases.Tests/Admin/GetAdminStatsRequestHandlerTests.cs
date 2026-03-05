@@ -16,9 +16,11 @@ public class GetAdminStatsRequestHandlerTests
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository.Setup(x => x.CountActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(40L);
-        traineeRepository.Setup(x => x.TotalRevenueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(12345.67m);
 
-        var sut = new GetAdminStatsRequestHandler(userRepository.Object, traineeRepository.Object);
+        var transactionRepository = new Mock<ITraineeTransactionRepository>();
+        transactionRepository.Setup(x => x.TotalRevenueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(12345.67m);
+
+        var sut = new GetAdminStatsRequestHandler(userRepository.Object, traineeRepository.Object, transactionRepository.Object);
 
         var result = await sut.Handle(new GetAdminStatsRequest(), CancellationToken.None);
 
@@ -39,9 +41,11 @@ public class GetAdminStatsRequestHandlerTests
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository.Setup(x => x.CountActiveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(0L);
-        traineeRepository.Setup(x => x.TotalRevenueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(0m);
 
-        var sut = new GetAdminStatsRequestHandler(userRepository.Object, traineeRepository.Object);
+        var transactionRepository = new Mock<ITraineeTransactionRepository>();
+        transactionRepository.Setup(x => x.TotalRevenueAsync(It.IsAny<CancellationToken>())).ReturnsAsync(0m);
+
+        var sut = new GetAdminStatsRequestHandler(userRepository.Object, traineeRepository.Object, transactionRepository.Object);
 
         var result = await sut.Handle(new GetAdminStatsRequest(), CancellationToken.None);
 

@@ -23,6 +23,4 @@ public interface ITraineeRepository
     Task<bool> ExistsActiveRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct);
 
     Task<long> CountActiveAsync(CancellationToken ct);
-
-    Task<decimal> TotalRevenueAsync(CancellationToken ct);
 }

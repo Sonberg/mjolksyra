@@ -4,6 +4,8 @@ public class TraineeTransaction
 {
     public Guid Id { get; set; }
 
+    public Guid TraineeId { get; set; }
+
     public required string PaymentIntentId { get; set; }
 
     public required TraineeTransactionStatus Status { get; set; }

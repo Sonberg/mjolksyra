@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Caching.Hybrid;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Mjolksyra.Infrastructure.Database;
@@ -105,24 +104,4 @@ public class TraineeRepository : ITraineeRepository
             cancellationToken: ct);
     }
 
-    public async Task<decimal> TotalRevenueAsync(CancellationToken ct)
-    {
-        var pipeline = new BsonDocument[]
-        {
-            new("$unwind", "$transactions"),
-            new("$match", new BsonDocument("transactions.status", "Succeeded")),
-            new("$group", new BsonDocument
-            {
-                { "_id", BsonNull.Value },
-                { "total", new BsonDocument("$sum", "$transactions.cost.total") }
-            })
-        };
-
-        var result = await _context.Trainees
-            .Aggregate<BsonDocument>(pipeline, cancellationToken: ct)
-            .FirstOrDefaultAsync(ct);
-
-        if (result == null || !result.Contains("total")) return 0m;
-        return (decimal)result["total"].ToInt32();
-    }
 }

@@ -7,16 +7,22 @@ namespace Mjolksyra.UseCases.Admin.GetCoachRevenue;
 
 public class GetCoachRevenueRequestHandler(
     IUserRepository userRepository,
-    ITraineeRepository traineeRepository
+    ITraineeRepository traineeRepository,
+    ITraineeTransactionRepository transactionRepository
 ) : IRequestHandler<GetCoachRevenueRequest, ICollection<CoachRevenueItem>>
 {
     public async Task<ICollection<CoachRevenueItem>> Handle(GetCoachRevenueRequest request, CancellationToken cancellationToken)
     {
         var coaches = await userRepository.GetCoachUsersAsync(cancellationToken);
         var trainees = await traineeRepository.GetAllAsync(cancellationToken);
+        var allTransactions = await transactionRepository.GetAllAsync(cancellationToken);
 
         var traineesByCoach = trainees
             .GroupBy(x => x.CoachUserId)
+            .ToDictionary(x => x.Key, x => x.ToList());
+
+        var transactionsByTrainee = allTransactions
+            .GroupBy(x => x.TraineeId)
             .ToDictionary(x => x.Key, x => x.ToList());
 
         var now = DateTimeOffset.UtcNow;
@@ -31,7 +37,7 @@ public class GetCoachRevenueRequestHandler(
                     .Where(x => x.Status == TraineeStatus.Active)
                     .Sum(x => (decimal)x.Cost.Amount);
                 var totalAthleteRevenue = items
-                    .SelectMany(x => x.Transactions)
+                    .SelectMany(x => transactionsByTrainee.TryGetValue(x.Id, out var txns) ? txns : [])
                     .Where(x => x.Status == TraineeTransactionStatus.Succeeded)
                     .Sum(x => (decimal)x.Cost.Total);
 

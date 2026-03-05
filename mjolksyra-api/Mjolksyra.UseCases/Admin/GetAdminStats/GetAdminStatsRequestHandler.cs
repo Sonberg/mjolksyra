@@ -5,7 +5,8 @@ namespace Mjolksyra.UseCases.Admin.GetAdminStats;
 
 public class GetAdminStatsRequestHandler(
     IUserRepository userRepository,
-    ITraineeRepository traineeRepository
+    ITraineeRepository traineeRepository,
+    ITraineeTransactionRepository transactionRepository
 ) : IRequestHandler<GetAdminStatsRequest, AdminStatsResponse>
 {
     public async Task<AdminStatsResponse> Handle(GetAdminStatsRequest request, CancellationToken cancellationToken)
@@ -14,7 +15,7 @@ public class GetAdminStatsRequestHandler(
         var totalCoaches = await userRepository.CountCoachesAsync(cancellationToken);
         var totalAthletes = await userRepository.CountAthletesAsync(cancellationToken);
         var activeSubscriptions = await traineeRepository.CountActiveAsync(cancellationToken);
-        var totalRevenue = await traineeRepository.TotalRevenueAsync(cancellationToken);
+        var totalRevenue = await transactionRepository.TotalRevenueAsync(cancellationToken);
 
         return new AdminStatsResponse
         {

@@ -24,6 +24,8 @@ public interface IMongoDbContext
     IMongoCollection<Notification> Notifications { get; }
 
     IMongoCollection<FeedbackReport> FeedbackReports { get; }
+
+    IMongoCollection<TraineeTransaction> TraineeTransactions { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -49,6 +51,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<Notification> Notifications => Database.GetCollection<Notification>("notifications");
 
     public IMongoCollection<FeedbackReport> FeedbackReports => Database.GetCollection<FeedbackReport>("feedback-reports");
+
+    public IMongoCollection<TraineeTransaction> TraineeTransactions => Database.GetCollection<TraineeTransaction>("trainee-transactions");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

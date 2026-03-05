@@ -1,5 +1,8 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Mjolksyra.Domain.Database.Models;
 
+[BsonIgnoreExtraElements]
 public class Trainee
 {
     public Guid Id { get; set; }
@@ -13,8 +16,6 @@ public class Trainee
     public required TraineeStatus Status { get; set; }
 
     public TraineeCost Cost { get; set; } = new();
-
-    public ICollection<TraineeTransaction> Transactions { get; set; } = [];
 
     public string? StripeSubscriptionId { get; set; }
 

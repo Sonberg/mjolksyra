@@ -1,6 +1,5 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
-using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Notifications;
 
@@ -9,17 +8,20 @@ namespace Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
 public class RefundTraineeTransactionCommandHandler : IRequestHandler<RefundTraineeTransactionCommand>
 {
     private readonly ITraineeRepository _traineeRepository;
+    private readonly ITraineeTransactionRepository _transactionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IStripeRefundGateway _stripeRefundGateway;
     private readonly INotificationService _notificationService;
 
     public RefundTraineeTransactionCommandHandler(
         ITraineeRepository traineeRepository,
+        ITraineeTransactionRepository transactionRepository,
         IUserRepository userRepository,
         IStripeRefundGateway stripeRefundGateway,
         INotificationService notificationService)
     {
         _traineeRepository = traineeRepository;
+        _transactionRepository = transactionRepository;
         _userRepository = userRepository;
         _stripeRefundGateway = stripeRefundGateway;
         _notificationService = notificationService;
@@ -31,8 +33,9 @@ public class RefundTraineeTransactionCommandHandler : IRequestHandler<RefundTrai
         if (trainee is null) return;
         if (trainee.CoachUserId != request.UserId) return;
 
-        var transaction = trainee.Transactions.FirstOrDefault(t => t.Id == request.TransactionId);
+        var transaction = await _transactionRepository.GetById(request.TransactionId, cancellationToken);
         if (transaction is null) return;
+        if (transaction.TraineeId != request.TraineeId) return;
         if (transaction.Status != TraineeTransactionStatus.Succeeded) return;
 
         await _stripeRefundGateway.RefundInvoiceAsync(transaction.PaymentIntentId, cancellationToken);
@@ -40,7 +43,7 @@ public class RefundTraineeTransactionCommandHandler : IRequestHandler<RefundTrai
         transaction.Status = TraineeTransactionStatus.Refunded;
         transaction.StatusRaw = "refunded";
 
-        await _traineeRepository.Update(trainee, cancellationToken);
+        await _transactionRepository.Upsert(transaction, cancellationToken);
 
         var coach = await _userRepository.GetById(trainee.CoachUserId, cancellationToken);
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, cancellationToken);
