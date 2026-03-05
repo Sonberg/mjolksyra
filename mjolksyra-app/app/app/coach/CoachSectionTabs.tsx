@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { shellSectionTabClass } from "@/components/Navigation/shellStyles";
+import { NavigationTabs } from "@/components/Navigation/NavigationTabs";
 
 type CoachTab = "dashboard" | "athletes" | "blocks";
 
@@ -26,21 +25,7 @@ export function CoachSectionTabs() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {tabs.map((tab) => {
-          const isActive = tab.key === activeTab;
-
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
-              className={shellSectionTabClass(isActive)}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
+      <NavigationTabs tabs={tabs} activeTab={activeTab} />
     </div>
   );
 }

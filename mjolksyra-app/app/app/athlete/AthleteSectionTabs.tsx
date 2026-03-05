@@ -1,12 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { UserTrainee } from "@/services/users/type";
-import {
-  shellSectionTabClass,
-  shellSegmentedContainerClass,
-} from "@/components/Navigation/shellStyles";
+import { NavigationTabs } from "@/components/Navigation/NavigationTabs";
 
 type AthleteTab = "workouts" | "transactions" | "settings";
 
@@ -39,21 +35,7 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
 
   return (
     <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
-      <div className={`flex w-full ${shellSegmentedContainerClass}`}>
-        {tabs.map((tab) => {
-          const isActive = tab.key === activeTab;
-
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
-              className={`${shellSectionTabClass(isActive)} flex-1 text-center`}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </div>
+      <NavigationTabs tabs={tabs} activeTab={activeTab}  />
       {coaches.length > 0 ? (
         <div className="flex w-full items-center gap-2 md:ml-auto md:w-auto">
           <span className="sr-only text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)] md:not-sr-only">
