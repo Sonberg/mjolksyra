@@ -25,10 +25,8 @@ export function OnboardingCard({
     "bg-[var(--shell-surface-strong)]": variant === "purple",
   });
 
-  const titleStyles = cn("mb-4 font-[var(--font-display)] text-2xl font-semibold tracking-tight", {
-    "text-[var(--shell-ink)]": variant === "default",
-    "text-[var(--shell-ink)]": variant === "purple",
-  });
+  const titleStyles =
+    "mb-4 font-[var(--font-display)] text-2xl font-semibold tracking-tight text-[var(--shell-ink)]";
 
   return (
     <div
