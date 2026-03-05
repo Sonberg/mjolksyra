@@ -107,4 +107,36 @@ export default {
       }}
     />
   ),
+
+  OnboardingStarted: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Started", coach: "NotStarted" },
+      }}
+    />
+  ),
+
+  PendingInvitationsOnly: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "NotStarted", coach: "NotStarted" },
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "John",
+            familyName: "Doe",
+            status: "PendingInvitation",
+          },
+          {
+            traineeId: "2",
+            givenName: "Maria",
+            familyName: "Karlsson",
+            status: "PendingInvitation",
+          },
+        ],
+      }}
+    />
+  ),
 };

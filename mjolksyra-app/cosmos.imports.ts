@@ -5,8 +5,12 @@
 import type { RendererConfig, UserModuleWrappers } from 'react-cosmos-core';
 
 import * as fixture0 from './app/app/athlete/Athlete.fixture';
-import * as fixture1 from './app/app/coach/Coach.fixture';
-import * as fixture2 from './components/Navigation/NavigationNotifications.fixture';
+import * as fixture1 from './app/app/athlete/AthleteCoach.fixture';
+import * as fixture2 from './app/app/coach/Coach.fixture';
+import * as fixture3 from './app/app/coach/CoachAthletesContent.fixture';
+import * as fixture4 from './app/app/coach/TraineeCard.fixture';
+import * as fixture5 from './app/app/coach/TraineeInvitationCard.fixture';
+import * as fixture6 from './components/Navigation/NavigationNotifications.fixture';
 
 import * as decorator0 from './cosmos.decorator';
 
@@ -17,8 +21,12 @@ export const rendererConfig: RendererConfig = {
 
 const fixtures = {
   'app/app/athlete/Athlete.fixture.tsx': { module: fixture0 },
-  'app/app/coach/Coach.fixture.tsx': { module: fixture1 },
-  'components/Navigation/NavigationNotifications.fixture.tsx': { module: fixture2 }
+  'app/app/athlete/AthleteCoach.fixture.tsx': { module: fixture1 },
+  'app/app/coach/Coach.fixture.tsx': { module: fixture2 },
+  'app/app/coach/CoachAthletesContent.fixture.tsx': { module: fixture3 },
+  'app/app/coach/TraineeCard.fixture.tsx': { module: fixture4 },
+  'app/app/coach/TraineeInvitationCard.fixture.tsx': { module: fixture5 },
+  'components/Navigation/NavigationNotifications.fixture.tsx': { module: fixture6 }
 };
 
 const decorators = {
