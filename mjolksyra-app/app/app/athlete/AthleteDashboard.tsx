@@ -71,7 +71,7 @@ export function AthleteDashboard({
             <PageSectionHeader
               title="Transactions"
               titleClassName="text-xl md:text-2xl"
-              description="Billing and payment history will appear here."
+              description="Your billing and payment history."
             />
           </div>
           <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
@@ -81,9 +81,53 @@ export function AthleteDashboard({
             <p className="mt-2 text-sm text-[var(--shell-ink)]">{billingStatusText}</p>
             {data.billing.lastChargedAt ? (
               <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                Last charge: {new Date(data.billing.lastChargedAt).toLocaleDateString()}
+                Last charge:{" "}
+                {new Date(data.billing.lastChargedAt).toLocaleDateString()}
               </p>
             ) : null}
+          </div>
+          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+            {data.transactions.length === 0 ? (
+              <div className="p-8 text-center">
+                <p className="text-sm text-[var(--shell-muted)]">
+                  No transactions yet.
+                </p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-[var(--shell-border)]/30">
+                {data.transactions.map((t) => {
+                  const statusColor =
+                    t.status === "Succeeded"
+                      ? "text-green-600 dark:text-green-400"
+                      : t.status === "Failed"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-[var(--shell-muted)]";
+                  return (
+                    <li
+                      key={t.id}
+                      className="flex items-center justify-between px-4 py-3"
+                    >
+                      <div>
+                        <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${statusColor}`}>
+                          {t.status}
+                        </p>
+                        <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
+                          {new Date(t.createdAt).toLocaleDateString("sv-SE")}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-[var(--shell-ink)]">
+                        {new Intl.NumberFormat("sv-SE", {
+                          style: "currency",
+                          currency: t.currency.toUpperCase(),
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(t.amount)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       ) : null}
