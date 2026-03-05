@@ -84,11 +84,11 @@ export function HeroIllustration() {
       <text x="450" y="606" className="hi-ink hi-body" fontSize="31" fontWeight="600">Athletes</text>
 
       {/* Weekly Focus */}
-      <rect x="104" y="662" width="536" height="138" className="hi-surface-strong hi-border" strokeWidth="3" />
+      <rect x="104" y="662" width="536" height="152" className="hi-surface-strong hi-border" strokeWidth="3" />
       <text x="126" y="702" className="hi-ink hi-body" fontSize="25" fontWeight="700">Weekly Focus</text>
-      <text x="126" y="740" className="hi-muted hi-body" fontSize="24">{"Mon  Intervals"}</text>
-      <text x="126" y="772" className="hi-muted hi-body" fontSize="24">{"Wed  Strength"}</text>
-      <text x="126" y="804" className="hi-muted hi-body" fontSize="24">{"Sat  Long Run"}</text>
+      <text x="126" y="738" className="hi-muted hi-body" fontSize="23">{"Mon: Intervals"}</text>
+      <text x="126" y="768" className="hi-muted hi-body" fontSize="23">{"Wed: Strength"}</text>
+      <text x="126" y="798" className="hi-muted hi-body" fontSize="23">{"Sat: Long Run"}</text>
 
       {/* Athlete snapshot panel */}
       <rect x="770" y="182" width="358" height="648" className="hi-surface hi-border" strokeWidth="3" />

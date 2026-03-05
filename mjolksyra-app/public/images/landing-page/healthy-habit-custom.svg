@@ -39,11 +39,11 @@
   <rect x="410" y="566" width="230" height="62" fill="#ECDCC5" stroke="#2A241D" stroke-width="3"/>
   <text x="450" y="606" fill="#141414" font-family="'DM Sans', Arial, sans-serif" font-size="31" font-weight="600">Athletes</text>
 
-  <rect x="104" y="662" width="536" height="138" fill="#ECDCC5" stroke="#2A241D" stroke-width="3"/>
+  <rect x="104" y="662" width="536" height="152" fill="#ECDCC5" stroke="#2A241D" stroke-width="3"/>
   <text x="126" y="702" fill="#141414" font-family="'DM Sans', Arial, sans-serif" font-size="25" font-weight="700">Weekly Focus</text>
-  <text x="126" y="740" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="24">Mon  Intervals</text>
-  <text x="126" y="772" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="24">Wed  Strength</text>
-  <text x="126" y="804" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="24">Sat  Long Run</text>
+  <text x="126" y="738" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="23">Mon  Intervals</text>
+  <text x="126" y="768" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="23">Wed  Strength</text>
+  <text x="126" y="798" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="23">Sat  Long Run</text>
 
   <rect x="770" y="182" width="358" height="648" fill="#FFF7EC" stroke="#2A241D" stroke-width="3"/>
   <text x="796" y="236" fill="#5E5448" font-family="'DM Sans', Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2.8">ATHLETE SNAPSHOT</text>
