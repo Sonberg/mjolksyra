@@ -23,9 +23,5 @@ export function CoachSectionTabs() {
     { key: "blocks", href: "/app/coach/blocks", label: "Blocks" },
   ];
 
-  return (
-    <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
-      <NavigationTabs tabs={tabs} activeTab={activeTab} />
-    </div>
-  );
+  return <NavigationTabs tabs={tabs} activeTab={activeTab} />;
 }
