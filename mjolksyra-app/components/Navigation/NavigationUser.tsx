@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { CSSProperties } from "react";
 import { useAuth } from "@/context/Auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGravatar } from "@/hooks/useGravatar";
@@ -31,6 +32,14 @@ type NavigationUserProps = {
 export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
   const auth = useAuth();
   const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
+  const dropdownVars = {
+    "--shell-surface": "#fff7ec",
+    "--shell-surface-strong": "#ecdcc5",
+    "--shell-border": "#2a241d",
+    "--shell-ink": "#101010",
+    "--shell-muted": "#5e5448",
+    "--shell-accent": "#f03a17",
+  } as CSSProperties;
   const resolvedUser = {
     name: user?.name ?? auth.name ?? null,
     email: user?.email ?? auth.email ?? null,
@@ -65,7 +74,8 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-52 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+        style={dropdownVars}
+        className="w-52 rounded-none border-2 border-[var(--shell-border)] bg-[#fff7ec] text-black"
       >
         <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
           <Link href="/app/profile">
