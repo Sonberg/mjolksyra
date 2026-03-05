@@ -44,7 +44,7 @@ export default async function Page({ params, searchParams }: Props) {
     <PageContent
       user={user}
       initialCoachTraineeId={routeParams.traineeId}
-      initialDashboardTab="workouts"
+      view="workouts"
       initialWorkoutTab={initialWorkoutTab}
     />
   );

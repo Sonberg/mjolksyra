@@ -33,7 +33,7 @@ export default async function Page({ params, searchParams }: Props) {
   return (
     <PageContent
       user={user}
-      initialDashboardTab="workouts"
+      view="workouts"
       initialCoachTraineeId={routeParams.traineeId}
       detailWorkoutId={routeParams.workoutId}
       initialWorkoutTab={backTab}

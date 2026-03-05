@@ -25,7 +25,7 @@ export default async function Page({ params }: Props) {
     <PageContent
       user={user}
       initialCoachTraineeId={routeParams.traineeId}
-      initialDashboardTab="settings"
+      view="settings"
     />
   );
 }

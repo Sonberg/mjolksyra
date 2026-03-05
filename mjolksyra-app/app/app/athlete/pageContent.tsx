@@ -4,6 +4,8 @@ import { User, UserTrainee } from "@/services/users/type";
 import { AthleteOnboardingFlow } from "@/components/AthleteOnboardingFlow/AthleteOnboardingFlow";
 import { useState } from "react";
 import { AthleteDashboard } from "./AthleteDashboard";
+import { AthleteTransactions } from "./AthleteTransactions";
+import { AthleteSettings } from "./AthleteSettings";
 import { AthleteCoaches } from "./AthleteCoaches";
 import { AthleteSectionTabs } from "./AthleteSectionTabs";
 
@@ -14,7 +16,7 @@ type Props = {
   detailWorkoutId?: string;
   detailBackTab?: "past" | "future";
   initialWorkoutTab?: "past" | "future";
-  initialDashboardTab?: "workouts" | "transactions" | "settings";
+  view?: "workouts" | "transactions" | "settings";
 };
 
 export function PageContent({
@@ -24,7 +26,7 @@ export function PageContent({
   detailWorkoutId,
   detailBackTab,
   initialWorkoutTab,
-  initialDashboardTab = "workouts",
+  view = "workouts",
 }: Props) {
   const [coach, setCoach] = useState<UserTrainee | null>(
     user.coaches.find((x) => x.traineeId === initialCoachTraineeId) ??
@@ -91,14 +93,19 @@ export function PageContent({
           ) : null}
           <div className="mx-auto w-full max-w-6xl px-4 pt-8 md:px-6 md:pt-16">
             {coach ? (
-              <AthleteDashboard
-                coach={coach}
-                focusWorkoutId={focusWorkoutId}
-                detailWorkoutId={detailWorkoutId}
-                detailBackTab={detailBackTab}
-                initialWorkoutTab={initialWorkoutTab}
-                selectedTab={initialDashboardTab}
-              />
+              view === "workouts" ? (
+                <AthleteDashboard
+                  coach={coach}
+                  focusWorkoutId={focusWorkoutId}
+                  detailWorkoutId={detailWorkoutId}
+                  detailBackTab={detailBackTab}
+                  initialWorkoutTab={initialWorkoutTab}
+                />
+              ) : view === "transactions" ? (
+                <AthleteTransactions coach={coach} />
+              ) : (
+                <AthleteSettings coach={coach} />
+              )
             ) : (
               <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-center">
                 <p className="text-lg font-semibold text-[var(--shell-ink)]">
