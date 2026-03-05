@@ -80,34 +80,36 @@ export function UsersTab({ initialCoaches }: Props) {
   }
 
   return (
-    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h2 className="text-lg text-[var(--shell-ink)]">Coach revenue and fee subscription</h2>
-          <p className="mt-1 text-sm text-[var(--shell-muted)]">
-            Monthly athlete revenue, coach billing setup, athlete statuses, and subscription sync actions.
-          </p>
+    <div className="space-y-4">
+      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h2 className="text-lg text-[var(--shell-ink)]">Coachs & Athletes</h2>
+            <p className="mt-1 text-sm text-[var(--shell-muted)]">
+              Monthly athlete revenue, coach billing setup, athlete statuses, and subscription sync actions.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void syncAll()}
+            disabled={isSyncingAll}
+            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)] disabled:opacity-50"
+          >
+            {isSyncingAll ? "Syncing..." : "Sync all subscriptions"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => void syncAll()}
-          disabled={isSyncingAll}
-          className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)] disabled:opacity-50"
-        >
-          {isSyncingAll ? "Syncing..." : "Sync all subscriptions"}
-        </button>
-      </div>
 
-      {syncSummary ? (
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-          {syncSummary}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-accent)]">
-          {error}
-        </p>
-      ) : null}
+        {syncSummary ? (
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+            {syncSummary}
+          </p>
+        ) : null}
+        {error ? (
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-accent)]">
+            {error}
+          </p>
+        ) : null}
+      </section>
 
       <div className="grid gap-4 lg:grid-cols-[19rem_1fr]">
         <aside className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
@@ -128,7 +130,7 @@ export function UsersTab({ initialCoaches }: Props) {
                         : "bg-[var(--shell-surface)] hover:bg-[var(--shell-surface-strong)]"
                     }`}
                   >
-                    <p className="text-sm font-semibold text-[var(--shell-ink)]">{coach.coachName}</p>
+                    <p className="text-sm text-[var(--shell-ink)]">{coach.coachName}</p>
                     <p className="text-xs text-[var(--shell-muted)]">{coach.coachEmail}</p>
                     <p className="mt-1 text-[11px] text-[var(--shell-muted)]">
                       {coach.activeSubscriptions} active subscriptions
@@ -200,7 +202,7 @@ export function UsersTab({ initialCoaches }: Props) {
           )}
         </section>
       </div>
-    </section>
+    </div>
   );
 }
 
