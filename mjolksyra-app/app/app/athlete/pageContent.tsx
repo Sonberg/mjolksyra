@@ -8,6 +8,7 @@ import { AthleteTransactions } from "./AthleteTransactions";
 import { AthleteSettings } from "./AthleteSettings";
 import { AthleteCoaches } from "./AthleteCoaches";
 import { AthleteSectionTabs } from "./AthleteSectionTabs";
+import { PageLayout } from "@/app/components/PageLayout";
 
 type Props = {
   user: User;
@@ -37,10 +38,10 @@ export function PageContent({
   const needsOnboarding = user.onboarding.athlete !== "Completed" || !hasCoachData;
   const athleteName = user.givenName || "Athlete";
 
-  return (
-    <div className="relative w-full space-y-8 pb-8 md:pb-10">
-      {needsOnboarding ? (
-        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 md:px-6">
+  if (needsOnboarding) {
+    return (
+      <PageLayout fullBleed>
+        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-8 pt-8 md:px-6 md:pb-10 md:pt-10">
           <section className="relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-10">
             <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-[var(--shell-border)]/40" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -85,48 +86,51 @@ export function PageContent({
             />
           )}
         </div>
-      ) : (
-        <>
-          {coach ? (
-            <div className="sticky top-0 z-40 w-full border-b-2 border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface),transparent_10%)] py-2 backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--shell-surface),transparent_6%)]">
-              <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout
+      navigation={
+        coach
+          ? {
+              tabs: (
                 <AthleteSectionTabs
                   traineeId={coach.traineeId}
                   coaches={user.coaches}
                   onCoachChange={setCoach}
                 />
-              </div>
-            </div>
-          ) : null}
-          <div className="mx-auto w-full max-w-6xl px-4 pt-8 md:px-6 md:pt-16">
-            {coach ? (
-              view === "workouts" ? (
-                <AthleteDashboard
-                  coach={coach}
-                  focusWorkoutId={focusWorkoutId}
-                  detailWorkoutId={detailWorkoutId}
-                  detailBackTab={detailBackTab}
-                  initialWorkoutTab={initialWorkoutTab}
-                />
-              ) : view === "transactions" ? (
-                <AthleteTransactions coach={coach} />
-              ) : (
-                <AthleteSettings coach={coach} />
-              )
-            ) : (
-              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-center">
-                <p className="text-lg font-semibold text-[var(--shell-ink)]">
-                  No active coach selected
-                </p>
-                <p className="mt-2 text-sm text-[var(--shell-muted)]">
-                  Accept an invitation or choose a coach to see your training
-                  program.
-                </p>
-              </div>
-            )}
-          </div>
-        </>
+              ),
+            }
+          : undefined
+      }
+    >
+      {coach ? (
+        view === "workouts" ? (
+          <AthleteDashboard
+            coach={coach}
+            focusWorkoutId={focusWorkoutId}
+            detailWorkoutId={detailWorkoutId}
+            detailBackTab={detailBackTab}
+            initialWorkoutTab={initialWorkoutTab}
+          />
+        ) : view === "transactions" ? (
+          <AthleteTransactions coach={coach} />
+        ) : (
+          <AthleteSettings coach={coach} />
+        )
+      ) : (
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-center">
+          <p className="text-lg font-semibold text-[var(--shell-ink)]">
+            No active coach selected
+          </p>
+          <p className="mt-2 text-sm text-[var(--shell-muted)]">
+            Accept an invitation or choose a coach to see your training
+            program.
+          </p>
+        </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
