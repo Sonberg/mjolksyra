@@ -339,8 +339,8 @@ export function BlockEditorContent({ blockId }: Props) {
                 ) : (
                   <>
                     {interactionMode === "edit" ? (
-                      <div className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-6">
-                        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                      <div className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                           Edit mode
                         </div>
                         <div className="mt-2 text-sm text-[var(--shell-ink)]">

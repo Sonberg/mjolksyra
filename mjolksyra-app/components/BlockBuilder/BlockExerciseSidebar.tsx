@@ -165,8 +165,8 @@ export function BlockExerciseSidebar({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b-2 border-[var(--shell-border)]/30 bg-[var(--shell-surface)] px-6 py-6">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--shell-muted)]">Editing</div>
+      <div className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Editing</div>
         <div className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{exercise.name}</div>
         <div className="mt-1 text-xs text-[var(--shell-muted)]">{title}</div>
         <div className="mt-2 text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
@@ -181,7 +181,7 @@ export function BlockExerciseSidebar({
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="space-y-3">
           <Textarea
             value={exercise.note ?? ""}
@@ -212,7 +212,7 @@ export function BlockExerciseSidebar({
               {sets.map((set, setIndex) => (
                 <div
                   key={`${exercise.id}-set-${setIndex}`}
-                  className="space-y-2 rounded-none border-2 border-[var(--shell-border)]/60 bg-[var(--shell-surface-strong)]/55 p-2"
+                  className="space-y-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]/55 p-2"
                 >
                   <div className="flex items-center justify-between">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">

@@ -23,14 +23,14 @@ export function BlockWeek({
   mode,
 }: Props) {
   return (
-    <section className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/95 backdrop-blur-sm">
-      <div className="flex select-none items-center justify-between border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]/70 px-3 py-2">
+    <section className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="flex select-none items-center justify-between border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
         <div className="text-sm font-semibold text-[var(--shell-ink)]">Week {week}</div>
         <div className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
           Block plan
         </div>
       </div>
-      <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)] border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]/45">
+      <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)] border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]">
         {DAY_NAMES.map((dayName, index) => {
           const dayOfWeek = index + 1;
           const workout = workouts.find(
