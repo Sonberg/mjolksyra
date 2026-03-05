@@ -35,6 +35,15 @@ export const coachRevenueItemSchema = z.object({
   billingSetupStatus: z.string(),
   platformFeeStatus: z.string(),
   platformFeeTrialEndsAt: z.coerce.date().nullable(),
+  athletes: z.array(
+    z.object({
+      athleteUserId: z.string(),
+      athleteName: z.string(),
+      athleteEmail: z.string(),
+      relationshipStatus: z.string(),
+      billingStatus: z.string(),
+    }),
+  ),
 });
 
 export const coachRevenueListSchema = z.array(coachRevenueItemSchema);

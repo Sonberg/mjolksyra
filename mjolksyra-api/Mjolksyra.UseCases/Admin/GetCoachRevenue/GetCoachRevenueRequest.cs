@@ -25,4 +25,19 @@ public class CoachRevenueItem
     public required string PlatformFeeStatus { get; set; }
 
     public DateTimeOffset? PlatformFeeTrialEndsAt { get; set; }
+
+    public required ICollection<CoachAthleteStatusItem> Athletes { get; set; }
+}
+
+public class CoachAthleteStatusItem
+{
+    public required Guid AthleteUserId { get; set; }
+
+    public required string AthleteName { get; set; }
+
+    public required string AthleteEmail { get; set; }
+
+    public required string RelationshipStatus { get; set; }
+
+    public required string BillingStatus { get; set; }
 }

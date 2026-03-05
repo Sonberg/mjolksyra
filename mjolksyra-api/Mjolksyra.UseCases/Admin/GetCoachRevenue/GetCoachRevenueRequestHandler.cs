@@ -16,6 +16,11 @@ public class GetCoachRevenueRequestHandler(
         var coaches = await userRepository.GetCoachUsersAsync(cancellationToken);
         var trainees = await traineeRepository.GetAllAsync(cancellationToken);
         var allTransactions = await transactionRepository.GetAllAsync(cancellationToken);
+        var athleteIds = trainees.Select(x => x.AthleteUserId).Distinct().ToList();
+        var athletes = athleteIds.Count == 0
+            ? new Dictionary<Guid, User>()
+            : (await userRepository.GetManyById(athleteIds, cancellationToken))
+                .ToDictionary(x => x.Id, x => x);
 
         var traineesByCoach = trainees
             .GroupBy(x => x.CoachUserId)
@@ -53,6 +58,21 @@ public class GetCoachRevenueRequestHandler(
                     BillingSetupStatus = ResolveBillingSetupStatus(stripe),
                     PlatformFeeStatus = ResolvePlatformFeeStatus(stripe, now),
                     PlatformFeeTrialEndsAt = stripe?.TrialEndsAt,
+                    Athletes = items
+                        .Select(trainee =>
+                        {
+                            athletes.TryGetValue(trainee.AthleteUserId, out var athlete);
+                            return new CoachAthleteStatusItem
+                            {
+                                AthleteUserId = trainee.AthleteUserId,
+                                AthleteName = ResolveAthleteName(athlete),
+                                AthleteEmail = athlete?.Email.Value ?? "Unknown",
+                                RelationshipStatus = trainee.Status.ToString(),
+                                BillingStatus = ResolveAthleteBillingStatus(athlete, trainee),
+                            };
+                        })
+                        .OrderBy(x => x.AthleteName)
+                        .ToList(),
                 };
             })
             .OrderByDescending(x => x.TotalAthleteRevenue)
@@ -98,5 +118,33 @@ public class GetCoachRevenueRequestHandler(
         var feeSubscriptionReady = !string.IsNullOrWhiteSpace(stripe?.PlatformSubscriptionId);
 
         return stripeReady && feeSubscriptionReady ? "Configured" : "Needs action";
+    }
+
+    private static string ResolveAthleteName(User? athlete)
+    {
+        if (athlete is null) return "Unknown athlete";
+
+        var fullName = $"{athlete.GivenName} {athlete.FamilyName}".Trim();
+        return string.IsNullOrWhiteSpace(fullName) ? athlete.Email.Value : fullName;
+    }
+
+    private static string ResolveAthleteBillingStatus(User? athlete, Trainee trainee)
+    {
+        if (trainee.Status != TraineeStatus.Active)
+        {
+            return "Inactive relationship";
+        }
+
+        if (athlete?.Athlete?.Stripe?.Status != StripeStatus.Succeeded)
+        {
+            return "Payment method missing";
+        }
+
+        if (string.IsNullOrWhiteSpace(trainee.StripeSubscriptionId))
+        {
+            return "Subscription missing";
+        }
+
+        return "Configured";
     }
 }
