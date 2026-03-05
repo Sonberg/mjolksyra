@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { uniqBy } from "@/lib/uniqBy";
 import { sortBy } from "@/lib/sortBy";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { useQuery } from "@tanstack/react-query";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -218,46 +219,49 @@ export function WorkoutViewer({
 
   return (
     <>
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xl font-bold sm:text-3xl">
-          {viewerMode === "coach"
+      <PageSectionHeader
+        className="mb-4"
+        title={
+          viewerMode === "coach"
             ? mode === "future"
               ? "Upcoming workouts"
               : mode === "changes"
                 ? "Workouts with changes"
-              : "Completed workouts"
+                : "Completed workouts"
             : mode === "future"
               ? "Upcoming workouts"
-              : "Past workouts"}
-        </div>
-        <SelectionTabs
-          items={[
-            {
-              key: "future",
-              label: "Upcoming",
-              onSelect: () => setModeWithUrl("future"),
-            },
-            {
-              key: "past",
-              label: "Past",
-              onSelect: () => setModeWithUrl("past"),
-            },
-            ...(viewerMode === "coach"
-              ? [
-                  {
-                    key: "changes" as const,
-                    label: "Changes",
-                    onSelect: () => setModeWithUrl("changes"),
-                  },
-                ]
-              : []),
-          ]}
-          activeKey={mode}
-          size="md"
-          fullWidth
-          className="w-full max-w-[34rem]"
-        />
-      </div>
+              : "Past workouts"
+        }
+        actions={
+          <SelectionTabs
+            items={[
+              {
+                key: "future",
+                label: "Upcoming",
+                onSelect: () => setModeWithUrl("future"),
+              },
+              {
+                key: "past",
+                label: "Past",
+                onSelect: () => setModeWithUrl("past"),
+              },
+              ...(viewerMode === "coach"
+                ? [
+                    {
+                      key: "changes" as const,
+                      label: "Changes",
+                      onSelect: () => setModeWithUrl("changes"),
+                    },
+                  ]
+                : []),
+            ]}
+            activeKey={mode}
+            size="md"
+            fullWidth
+            className="w-full max-w-[34rem]"
+          />
+        }
+      />
       <div className="grid gap-4 sm:gap-8">
         {data.map((x) => (
           <Workout

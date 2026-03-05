@@ -19,6 +19,7 @@ import { createBlock } from "@/services/blocks/createBlock";
 import { deleteBlock } from "@/services/blocks/deleteBlock";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/dialogs/ConfirmDialog";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { CoachWorkspaceShell } from "../CoachWorkspaceShell";
 import { Block } from "@/services/blocks/type";
 
@@ -141,31 +142,27 @@ export function BlocksPageContent() {
       <section className="relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
         <div className="pointer-events-none absolute -right-12 -top-10 h-32 w-32 rotate-12 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]/40" />
         <div className="pointer-events-none absolute left-10 top-16 h-px w-28 bg-[var(--shell-border)]/40" />
-        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-              Block management
-            </p>
-            <h1 className="text-2xl font-semibold text-[var(--shell-ink)] md:text-3xl">
-              Training Blocks
-            </h1>
-            <p className="max-w-2xl text-sm text-[var(--shell-muted)]">
-              Build reusable training plans and organize sessions week by week.
-            </p>
-          </div>
-          <Button
-            onClick={handleCreate}
-            disabled={createMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-surface)] transition hover:bg-[#ce2f10] disabled:opacity-60"
-          >
-            {createMutation.isPending ? (
-              <Loader2Icon className="h-4 w-4 animate-spin" />
-            ) : (
-              <PlusIcon className="h-4 w-4" />
-            )}
-            New Block
-          </Button>
-        </div>
+        <PageSectionHeader
+          className="relative"
+          eyebrow="Block management"
+          title="Training Blocks"
+          titleClassName="text-2xl md:text-3xl"
+          description="Build reusable training plans and organize sessions week by week."
+          actions={
+            <Button
+              onClick={handleCreate}
+              disabled={createMutation.isPending}
+              className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-surface)] transition hover:bg-[#ce2f10] disabled:opacity-60"
+            >
+              {createMutation.isPending ? (
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              ) : (
+                <PlusIcon className="h-4 w-4" />
+              )}
+              New Block
+            </Button>
+          }
+        />
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">

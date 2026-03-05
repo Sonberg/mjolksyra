@@ -7,6 +7,7 @@ import { User, UserTrainee, UserInvitation } from "@/services/users/type";
 import { useAuth } from "@/context/Auth";
 import { offboardCoach } from "@/services/stripe/offboardCoach";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -330,7 +331,10 @@ export function ProfilePageContent({ user }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 md:py-10">
-      <h1 className="text-2xl font-semibold text-[var(--shell-ink)]">Profile</h1>
+      <PageSectionHeader
+        title="Profile"
+        titleClassName="text-2xl md:text-3xl"
+      />
       <ProfileCard />
       {showCoachCard && <CoachCard user={user} />}
       {showAthleteCard && <AthleteCard user={user} />}
