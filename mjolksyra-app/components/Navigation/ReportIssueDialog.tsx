@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { MessageSquareWarningIcon } from "lucide-react";
 import { createFeedbackReport } from "@/services/feedbackReports/createFeedbackReport";
@@ -29,6 +29,15 @@ export function ReportIssueDialog({
   open,
   onOpenChange,
 }: ReportIssueDialogProps) {
+  const dialogVars = {
+    "--shell-surface": "#fff7ec",
+    "--shell-surface-strong": "#ecdcc5",
+    "--shell-border": "#2a241d",
+    "--shell-ink": "#101010",
+    "--shell-muted": "#5e5448",
+    "--shell-accent": "#f03a17",
+  } as CSSProperties;
+
   const pathname = usePathname();
   const [internalOpen, setInternalOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -82,7 +91,10 @@ export function ReportIssueDialog({
           )}
         </DialogTrigger>
       ) : null}
-      <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-lg">
+      <DialogContent
+        style={dialogVars}
+        className="rounded-none border-2 border-[var(--shell-border)] bg-[#fff7ec] text-black sm:max-w-lg [&>button]:rounded-none [&>button]:border-2 [&>button]:border-[var(--shell-border)] [&>button]:bg-[var(--shell-surface)] [&>button]:p-1 [&>button]:text-[var(--shell-ink)] [&>button]:opacity-100 [&>button]:ring-0 [&>button]:hover:bg-[var(--shell-surface-strong)] [&>button]:focus:ring-0 [&>button]:focus:ring-offset-0 [&>button_svg]:h-4 [&>button_svg]:w-4"
+      >
         <DialogHeader>
           <DialogTitle>Report issue</DialogTitle>
           <DialogDescription className="text-[var(--shell-muted)]">
@@ -128,7 +140,7 @@ export function ReportIssueDialog({
             type="button"
             variant="outline"
             onClick={() => setOpen(false)}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+            className="h-10 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
           >
             Close
           </Button>
@@ -136,7 +148,7 @@ export function ReportIssueDialog({
             type="button"
             onClick={() => create.mutate()}
             disabled={create.isPending || message.trim().length === 0}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-surface)] hover:bg-[#ce2f10]"
+            className="h-10 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-surface)] hover:bg-[#ce2f10]"
           >
             {create.isPending ? "Sending..." : "Send report"}
           </Button>

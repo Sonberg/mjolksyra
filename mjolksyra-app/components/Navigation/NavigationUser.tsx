@@ -51,7 +51,7 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
   const url = useGravatar(resolvedUser.email ?? "", 32);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
@@ -92,8 +92,7 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
+          onSelect={() => {
             setIsReportIssueOpen(true);
           }}
           className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
