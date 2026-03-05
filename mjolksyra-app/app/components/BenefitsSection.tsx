@@ -1,57 +1,53 @@
 "use client";
 
-import { DollarSignIcon, CheckCircle2Icon, ArrowRightIcon } from "lucide-react";
-
-type Point = {
-  title: string;
-  text?: string;
-  icon?: React.ElementType;
-};
-
-const benefits: Point[] = [
+const benefits = [
   {
-    title: "Coach plan pricing",
-    text: "$39/month includes 10 athletes, then $4 per additional athlete.",
-    icon: DollarSignIcon,
+    stat: "399 kr",
+    title: "Coach plan",
+    text: "Flat monthly fee includes 10 athletes. No hidden costs.",
   },
   {
-    title: "Stripe-powered payouts",
-    text: "Manage payouts and account settings securely through Stripe.",
-    icon: CheckCircle2Icon,
+    stat: "39 kr",
+    title: "Per extra athlete",
+    text: "Scale up freely. Each athlete beyond 10 costs 39 kr/mo.",
   },
   {
-    title: "Build your business",
-    text: "Organize athletes, plan training blocks, and deliver structured coaching.",
-    icon: ArrowRightIcon,
+    stat: "Stripe",
+    title: "Secure payouts",
+    text: "Automated weekly payouts directly to your bank account.",
   },
 ];
 
 export const BenefitsSection = () => {
   return (
-    <section className="bg-[var(--home-surface)]/70 py-20 lg:py-32">
+    <section className="bg-[var(--home-accent)] py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 text-3xl text-[var(--home-text)] md:text-4xl">
-          Coach with a clear pricing model
-        </h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {benefits.map((benefit) => (
+
+        <div className="mb-16 border-b-2 border-white/20 pb-8">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-white/50">
+            Pricing
+          </p>
+          <h2 className="font-[var(--font-display)] text-3xl text-white md:text-4xl">
+            Coach with a clear pricing model
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 divide-y-2 divide-white/20 md:grid-cols-3 md:divide-x-2 md:divide-y-0">
+          {benefits.map((b) => (
             <div
-              key={benefit.title}
-              className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-6 transition-colors hover:bg-[var(--home-surface-strong)]"
+              key={b.title}
+              className="py-10 md:px-10 md:py-0 md:first:pl-0 md:last:pr-0"
             >
-              {benefit.icon && (
-                <div className="mb-4 inline-flex rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
-                  <benefit.icon className="h-5 w-5 text-[var(--home-text)]" />
-                </div>
-              )}
-              <h3 className="mb-2 text-xl text-[var(--home-text)]">
-                {benefit.title}
-              </h3>
-              <p className="text-[var(--home-muted)]">{benefit.text}</p>
+              <div className="font-[var(--font-display)] mb-4 text-5xl text-white">
+                {b.stat}
+              </div>
+              <h3 className="mb-2 text-xl text-white">{b.title}</h3>
+              <p className="text-white/60">{b.text}</p>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );
-}; 
+};
