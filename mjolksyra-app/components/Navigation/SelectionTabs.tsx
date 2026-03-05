@@ -21,7 +21,7 @@ export type SelectionTabItem<TKey extends string = string> = {
 };
 
 type SelectionTabsProps<TKey extends string = string> = {
-  items: SelectionTabItem<TKey>[];
+  items: readonly SelectionTabItem<TKey>[];
   activeKey?: TKey;
   size?: SelectionTabSize;
   className?: string;
