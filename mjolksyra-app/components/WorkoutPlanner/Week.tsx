@@ -114,7 +114,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
       >
         <div
           className={cn(
-            "flex select-none items-center justify-between border-b border-[var(--shell-border)]/20 bg-[var(--shell-surface-strong)] px-3 py-2",
+            "flex select-none items-center justify-between border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2",
             {
               ...draggingStyle({ canDrop, isOver }),
             }
@@ -167,7 +167,7 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)]/20">
+        <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)]">
           {day("Mon")}
           {day("Tue")}
           {day("Wed")}

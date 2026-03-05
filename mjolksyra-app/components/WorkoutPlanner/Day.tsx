@@ -116,7 +116,7 @@ export function Day({ date, plannedWorkout }: Props) {
       <>
         <div className="flex min-h-32 min-w-0 flex-col p-2">
           <div
-            className="flex h-9 min-w-0 items-center justify-between rounded-none border border-[var(--shell-border)]/20 bg-[var(--shell-surface-strong)] px-1.5 text-xs font-bold"
+            className="flex h-9 min-w-0 items-center justify-between rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 text-xs font-bold"
             ref={setDraggableNodeRef}
           >
             <div className="flex min-w-0 items-center gap-1.5">
@@ -225,7 +225,7 @@ export function Day({ date, plannedWorkout }: Props) {
                 ))}
               </SortableContext>
             ) : (
-              <div className="grid min-h-32 place-items-center rounded-none border border-dashed border-[var(--shell-border)]/20 px-4 text-center text-sm text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100">
+              <div className="grid min-h-32 place-items-center rounded-none border border-dashed border-[var(--shell-border)] px-4 text-center text-sm text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100">
                 <div className="select-none">
                   {canPlan
                     ? "Drag & drop exercises to start planning"
