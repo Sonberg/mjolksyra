@@ -71,7 +71,7 @@ export function BlockDay({
       ) : (
         <div
           className={cn(
-            "grid flex-1 place-items-center rounded-none border-2 border-dashed border-[var(--shell-border)]/40 text-center text-xs text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100",
+            "grid flex-1 place-items-center rounded-none border-2 border-dashed border-[var(--shell-border)] text-center text-xs text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100",
             { "opacity-100": isOver && isExerciseDragging }
           )}
         >
