@@ -1,0 +1,76 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0e0e0e"/>
+      <stop offset="1" stop-color="#121212"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(210 120) rotate(18) scale(430 270)">
+      <stop stop-color="#F03A17" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#F03A17" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 780) rotate(-14) scale(500 260)">
+      <stop stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <rect width="1200" height="900" fill="url(#glowA)"/>
+  <rect width="1200" height="900" fill="url(#glowB)"/>
+
+  <rect x="36" y="32" width="1128" height="836" fill="#171717" stroke="#d4d4d4" stroke-width="4"/>
+
+  <rect x="72" y="64" width="1056" height="86" fill="#171717" stroke="#d4d4d4" stroke-width="3"/>
+  <rect x="94" y="84" width="48" height="46" fill="#171717" stroke="#d4d4d4" stroke-width="3"/>
+  <path d="M104 120V91H116V103H123V91H134V120" stroke="#efefef" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="162" y="116" fill="#efefef" font-family="'Alfa Slab One', 'Alfa Slab One Fallback', Georgia, serif" font-size="42" letter-spacing="0.4">mjölksyra</text>
+  <text x="842" y="116" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3">TRAINING SYSTEM</text>
+
+  <rect x="72" y="182" width="670" height="648" fill="#171717" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="104" y="236" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2.8">COACH VIEW</text>
+  <text x="104" y="312" fill="#efefef" font-family="'Alfa Slab One', 'Alfa Slab One Fallback', Georgia, serif" font-size="86">Run.</text>
+  <text x="104" y="392" fill="#efefef" font-family="'Alfa Slab One', 'Alfa Slab One Fallback', Georgia, serif" font-size="86">Lift.</text>
+  <text x="104" y="472" fill="#efefef" font-family="'Alfa Slab One', 'Alfa Slab One Fallback', Georgia, serif" font-size="86">Progress.</text>
+  <text x="104" y="524" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="27">Plan sessions for runners and lifters in one workspace.</text>
+
+  <rect x="104" y="566" width="292" height="62" fill="#F03A17" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="140" y="606" fill="#efefef" font-family="'DM Sans', Arial, sans-serif" font-size="31" font-weight="700">Open Planner</text>
+
+  <rect x="410" y="566" width="230" height="62" fill="#242424" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="450" y="606" fill="#efefef" font-family="'DM Sans', Arial, sans-serif" font-size="31" font-weight="600">Athletes</text>
+
+  <rect x="104" y="662" width="536" height="138" fill="#242424" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="126" y="702" fill="#efefef" font-family="'DM Sans', Arial, sans-serif" font-size="25" font-weight="700">Weekly Focus</text>
+  <text x="126" y="740" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="24">Mon  Intervals</text>
+  <text x="126" y="772" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="24">Wed  Strength</text>
+  <text x="126" y="804" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="24">Sat  Long Run</text>
+
+  <rect x="770" y="182" width="358" height="648" fill="#171717" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="796" y="236" fill="#a3a3a3" font-family="'DM Sans', Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2.8">ATHLETE SNAPSHOT</text>
+
+  <rect x="796" y="266" width="306" height="158" fill="#242424" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="822" y="306" fill="#efefef" font-family="'DM Sans', Arial, sans-serif" font-size="24" font-weight="700">Running Block</text>
+  <path d="M824 366H1076" stroke="#d4d4d4" stroke-width="3"/>
+  <path d="M824 382C850 350 876 412 902 382C928 350 954 412 980 382C1006 350 1032 412 1058 382" stroke="#F03A17" stroke-width="4" fill="none"/>
+
+  <rect x="796" y="444" width="306" height="178" fill="#242424" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="822" y="486" fill="#efefef" font-family="'DM Sans', Arial, sans-serif" font-size="24" font-weight="700">Strength Block</text>
+
+  <rect x="822" y="516" width="28" height="40" fill="#efefef"/>
+  <rect x="848" y="526" width="54" height="20" fill="#efefef"/>
+  <rect x="900" y="516" width="28" height="40" fill="#efefef"/>
+
+  <rect x="968" y="516" width="28" height="40" fill="#efefef"/>
+  <rect x="994" y="526" width="54" height="20" fill="#efefef"/>
+  <rect x="1046" y="516" width="28" height="40" fill="#efefef"/>
+
+  <rect x="796" y="642" width="306" height="158" fill="#242424" stroke="#d4d4d4" stroke-width="3"/>
+  <text x="822" y="684" fill="#efefef" font-family="'DM Sans', Arial, sans-serif" font-size="24" font-weight="700">Runner Form</text>
+
+  <circle cx="904" cy="723" r="16" fill="#efefef"/>
+  <path d="M904 742L936 764L918 792" stroke="#efefef" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M904 742L876 772L850 760" stroke="#efefef" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M914 752L946 736" stroke="#efefef" stroke-width="10" stroke-linecap="round"/>
+
+  <path d="M98 844H1104" stroke="#d4d4d4" stroke-width="1.8" opacity="0.45"/>
+</svg>

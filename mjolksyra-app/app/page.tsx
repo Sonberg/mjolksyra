@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
 import { HeroSection } from "./components/HeroSection";
 import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
@@ -21,23 +20,8 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  const themeVars = {
-    "--home-bg": "#f6eedf",
-    "--home-surface": "#fff7ec",
-    "--home-surface-strong": "#ecdcc5",
-    "--home-border": "#2a241d",
-    "--home-text": "#161311",
-    "--home-muted": "#5e5448",
-    "--home-accent": "#f03a17",
-    "--home-accent-2": "#151515",
-    "--font-display": '"Alfa Slab One", "Alfa Slab One Fallback"',
-  } as CSSProperties;
-
   return (
-    <div
-      style={themeVars}
-      className="home-shell font-[var(--font-body)] relative min-h-screen overflow-y-auto"
-    >
+    <div className="home-shell font-[var(--font-body)] relative min-h-screen overflow-y-auto">
       <div className="home-glow pointer-events-none fixed inset-0" />
 
       <div className="home-content relative z-10">
@@ -55,8 +39,29 @@ export default function Home() {
 
       <style>{`
         .home-shell {
+          --home-bg: #f6eedf;
+          --home-surface: #fff7ec;
+          --home-surface-strong: #ecdcc5;
+          --home-border: #2a241d;
+          --home-text: #161311;
+          --home-muted: #5e5448;
+          --home-accent: #f03a17;
+          --home-accent-2: #151515;
+          --font-display: "Alfa Slab One", "Alfa Slab One Fallback";
           background: var(--home-bg);
           color: var(--home-text);
+        }
+
+        .dark .home-shell,
+        [data-theme="dark"] .home-shell {
+          --home-bg: #0e0e0e;
+          --home-surface: #171717;
+          --home-surface-strong: #242424;
+          --home-border: #d4d4d4;
+          --home-text: #efefef;
+          --home-muted: #a3a3a3;
+          --home-accent: #f03a17;
+          --home-accent-2: #efefef;
         }
 
         .home-glow {

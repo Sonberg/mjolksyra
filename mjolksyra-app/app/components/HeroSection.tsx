@@ -46,7 +46,12 @@ export const HeroSection = () => {
           <img
             src="/images/landing-page/healthy-habit-custom.svg"
             alt="Healthy training habit illustration"
-            className="relative z-10 h-auto w-full p-6"
+            className="relative z-10 h-auto w-full p-6 dark:hidden"
+          />
+          <img
+            src="/images/landing-page/healthy-habit-custom-dark.svg"
+            alt="Healthy training habit illustration"
+            className="relative z-10 h-auto w-full p-6 hidden dark:block"
           />
         </div>
       </div>
