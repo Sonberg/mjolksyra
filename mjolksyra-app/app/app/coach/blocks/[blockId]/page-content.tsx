@@ -228,67 +228,67 @@ export function BlockEditorContent({ blockId }: Props) {
               >
                 <div className="flex h-full min-h-0 flex-col">
                 <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
-                  <div className="flex flex-col gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 md:flex-row md:items-center md:justify-between">
-                    <div className="flex min-w-0 flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="min-w-0 flex-1 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-lg font-semibold text-[var(--shell-ink)]"
+                      placeholder="Block name"
+                    />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="text-sm text-[var(--shell-muted)]">Weeks:</span>
                       <Input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="max-w-xs border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-lg font-semibold text-[var(--shell-ink)]"
-                        placeholder="Block name"
+                        type="number"
+                        min={1}
+                        max={52}
+                        value={numberOfWeeks}
+                        onChange={(e) => {
+                          const nextNumberOfWeeks = Math.max(1, parseInt(e.target.value) || 1);
+                          setNumberOfWeeks(nextNumberOfWeeks);
+                          setWorkouts((prev) =>
+                            prev.filter((workout) => workout.week >= 1 && workout.week <= nextNumberOfWeeks)
+                          );
+                        }}
+                        className="w-16 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                       />
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-[var(--shell-muted)]">Weeks:</span>
-                        <Input
-                          type="number"
-                          min={1}
-                          max={52}
-                          value={numberOfWeeks}
-                          onChange={(e) => {
-                            const nextNumberOfWeeks = Math.max(1, parseInt(e.target.value) || 1);
-                            setNumberOfWeeks(nextNumberOfWeeks);
-                            setWorkouts((prev) =>
-                              prev.filter((workout) => workout.week >= 1 && workout.week <= nextNumberOfWeeks)
-                            );
-                          }}
-                          className="w-20 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
-                        />
-                      </div>
+                    </div>
+                    <div className="ml-auto flex shrink-0 items-center gap-2">
                       <Button
                         onClick={handleSave}
                         disabled={saveMutation.isPending}
                         size="sm"
                         className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-surface)] hover:bg-[#ce2f10]"
                       >
-                        <SaveIcon className="h-4 w-4 mr-2" />
+                        <SaveIcon className="mr-2 h-4 w-4" />
                         {saveMutation.isPending ? "Saving..." : "Save"}
                       </Button>
-                    </div>
-                    <div className="flex items-center self-end overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] md:ml-auto md:self-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setInteractionMode("arrange");
-                          setSelectedExercise(null);
-                        }}
-                        className={
-                          interactionMode === "arrange"
-                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
-                        }
-                      >
-                        Arrange
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setInteractionMode("edit")}
-                        className={
-                          interactionMode === "edit"
-                            ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-                            : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
-                        }
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center overflow-hidden rounded-none border-2 border-[var(--shell-border)]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInteractionMode("arrange");
+                            setSelectedExercise(null);
+                          }}
+                          className={
+                            interactionMode === "arrange"
+                              ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+                              : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                          }
+                        >
+                          Arrange
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setInteractionMode("edit")}
+                          className={
+                            interactionMode === "edit"
+                              ? "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+                              : "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                          }
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -339,7 +339,7 @@ export function BlockEditorContent({ blockId }: Props) {
                 ) : (
                   <>
                     {interactionMode === "edit" ? (
-                      <div className="border-b-2 border-[var(--shell-border)]/30 bg-[var(--shell-surface)] px-6 py-6">
+                      <div className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-6">
                         <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                           Edit mode
                         </div>
