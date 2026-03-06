@@ -26,7 +26,11 @@ public sealed class ApplyDiscountCodeCommandHandler
         ApplyDiscountCodeCommand request,
         CancellationToken cancellationToken)
     {
-        var discountCode = await _discountCodeRepository.GetByCode(request.Code, cancellationToken);
+        var normalizedCode = request.Code.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedCode))
+            return new DiscountCodeNotFound();
+
+        var discountCode = await _discountCodeRepository.GetByCode(normalizedCode, cancellationToken);
 
         if (discountCode is null)
             return new DiscountCodeNotFound();

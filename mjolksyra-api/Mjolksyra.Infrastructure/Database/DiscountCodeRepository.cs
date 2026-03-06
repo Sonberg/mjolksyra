@@ -1,6 +1,8 @@
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Text.RegularExpressions;
 
 namespace Mjolksyra.Infrastructure.Database;
 
@@ -15,8 +17,15 @@ public class DiscountCodeRepository : IDiscountCodeRepository
 
     public async Task<DiscountCode?> GetByCode(string code, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(code))
+            return null;
+
+        var normalizedCode = code.Trim();
+        var exactMatchIgnoreCasePattern = $"^{Regex.Escape(normalizedCode)}$";
+        var filter = Builders<DiscountCode>.Filter.Regex(x => x.Code, new BsonRegularExpression(exactMatchIgnoreCasePattern, "i"));
+
         return await _context.DiscountCodes
-            .Find(x => x.Code == code)
+            .Find(filter)
             .Limit(1)
             .ToListAsync(ct)
             .ContinueWith(t => t.Result.SingleOrDefault(), ct);
