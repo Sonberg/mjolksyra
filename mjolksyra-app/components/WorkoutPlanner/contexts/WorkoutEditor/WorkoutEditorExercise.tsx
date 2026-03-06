@@ -260,9 +260,10 @@ export function WorkoutEditorExercise({
         </div>
       </div>
       <Textarea
-        className="mt-4"
+        className="mt-4 min-h-[92px] w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm font-medium text-[var(--shell-ink)] placeholder:uppercase placeholder:tracking-[0.06em] placeholder:text-[var(--shell-muted)] focus-visible:ring-0 focus-visible:ring-offset-0"
         value={plannedExercise.note ?? ""}
         onChange={(ev) => onUpdateNote(ev.target.value)}
+        placeholder="Exercise note (optional)"
       />
       <div className="mt-4 space-y-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
@@ -388,7 +389,7 @@ export function WorkoutEditorExercise({
                       note: ev.target.value || null,
                     })
                   }
-                  className="min-h-[72px] w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-sm"
+                  className="min-h-[84px] w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm font-medium text-[var(--shell-ink)] placeholder:uppercase placeholder:tracking-[0.06em] placeholder:text-[var(--shell-muted)] focus-visible:ring-0 focus-visible:ring-offset-0"
                   placeholder="Set note (optional)"
                 />
               </div>
