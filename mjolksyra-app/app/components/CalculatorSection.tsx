@@ -1,23 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getPlans } from "@/services/plans/getPlans";
+import type { Plan } from "@/services/plans/type";
+import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
+import {
+  FALLBACK_CALCULATOR_PLAN,
+  computePlanCost,
+  pickCheapestPlan,
+  sortPlans,
+} from "./calculatorUtils";
 
 const sliderClass =
   "h-2.5 w-full cursor-pointer appearance-none rounded-none [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[var(--home-border)] [&::-moz-range-thumb]:bg-[var(--home-accent)] [&::-moz-range-thumb]:shadow-none [&::-webkit-slider-runnable-track]:h-2.5 [&::-webkit-slider-runnable-track]:rounded-none [&::-webkit-slider-thumb]:-mt-[3px] [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[var(--home-border)] [&::-webkit-slider-thumb]:bg-[var(--home-accent)] [&::-webkit-slider-thumb]:shadow-none";
 
-export const CalculatorSection = () => {
-  const [athleteCount, setAthleteCount] = useState(5);
-  const [monthlyFee, setMonthlyFee] = useState(999);
+type CalculatorSectionProps = {
+  plansOverride?: Plan[];
+  forceFallbackPricing?: boolean;
+  initialAthleteCount?: number;
+  initialMonthlyFee?: number;
+  initialSelectedPlanId?: string;
+};
+
+export const CalculatorSection = ({
+  plansOverride,
+  forceFallbackPricing = false,
+  initialAthleteCount = 5,
+  initialMonthlyFee = 999,
+  initialSelectedPlanId,
+}: CalculatorSectionProps = {}) => {
+  const [athleteCount, setAthleteCount] = useState(initialAthleteCount);
+  const [monthlyFee, setMonthlyFee] = useState(initialMonthlyFee);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
+    initialSelectedPlanId ?? null,
+  );
+  const [hasManualPlanSelection, setHasManualPlanSelection] = useState(
+    Boolean(initialSelectedPlanId),
+  );
+
+  const { data: apiPlans = [], isError } = useQuery({
+    queryKey: ["homepage-calculator", "plans"],
+    queryFn: getPlans,
+    enabled: !plansOverride && !forceFallbackPricing,
+    retry: false,
+  });
+
+  const isUsingFallbackPricing = forceFallbackPricing || (
+    !plansOverride && (isError || apiPlans.length === 0)
+  );
+
+  const plans = useMemo(() => {
+    if (forceFallbackPricing) {
+      return [FALLBACK_CALCULATOR_PLAN];
+    }
+
+    if (plansOverride && plansOverride.length > 0) {
+      return sortPlans(plansOverride);
+    }
+
+    if (apiPlans.length > 0) {
+      return sortPlans(apiPlans);
+    }
+
+    return [FALLBACK_CALCULATOR_PLAN];
+  }, [apiPlans, forceFallbackPricing, plansOverride]);
+
+  const cheapestPlan = pickCheapestPlan(plans, athleteCount) ?? FALLBACK_CALCULATOR_PLAN;
+  const manuallySelectedPlan = selectedPlanId
+    ? plans.find((x) => x.id === selectedPlanId)
+    : undefined;
+  const selectedPlan =
+    hasManualPlanSelection && manuallySelectedPlan
+      ? manuallySelectedPlan
+      : cheapestPlan;
 
   const monthlyRevenue = athleteCount * monthlyFee;
-  const overageAthletes = Math.max(0, athleteCount - 10);
-  const platformCost = 399 + overageAthletes * 39;
+  const platformCost = computePlanCost(selectedPlan, athleteCount);
   const netRevenue = monthlyRevenue - platformCost;
+  const overageAthletes = Math.max(0, athleteCount - selectedPlan.includedAthletes);
   const athleteSliderPct = ((athleteCount - 1) / 19) * 100;
   const feeSliderPct = (monthlyFee / 5000) * 100;
 
+  const planItems = plans.map((plan) => ({
+    key: plan.id,
+    label: plan.name,
+    onSelect: () => {
+      setSelectedPlanId(plan.id);
+      setHasManualPlanSelection(true);
+    },
+  }));
+
   return (
-    <section className="py-20 lg:py-32">
+    <section className="py-20 lg:py-32" data-testid="calculator-section">
       <div className="mx-auto max-w-screen-xl px-4">
 
         <div className="mb-12 border-b-2 border-[var(--home-border)] pb-8">
@@ -27,6 +102,30 @@ export const CalculatorSection = () => {
           <h2 className="font-[var(--font-display)] text-3xl text-[var(--home-text)] md:text-4xl">
             Calculate your earnings
           </h2>
+        </div>
+
+        <div className="mb-6 border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
+              Plan
+            </span>
+            <span className="text-xs text-[var(--home-muted)]">
+              {selectedPlan.monthlyPriceSek} kr/mo · includes {selectedPlan.includedAthletes}
+            </span>
+          </div>
+          <SelectionTabs
+            items={planItems}
+            activeKey={selectedPlan.id}
+            size="sm"
+            className="w-full"
+            itemClassName="px-3"
+            fullWidth
+          />
+          {isUsingFallbackPricing ? (
+            <p className="mt-3 text-xs text-[var(--home-muted)]" data-testid="calculator-fallback-pricing">
+              Using fallback pricing data.
+            </p>
+          ) : null}
         </div>
 
         <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
@@ -91,7 +190,8 @@ export const CalculatorSection = () => {
             </div>
 
             <p className="text-sm text-[var(--home-muted)]">
-              399 kr/mo base plan includes 10 athletes. Each additional athlete is 39 kr/mo.
+              {selectedPlan.monthlyPriceSek} kr/mo includes {selectedPlan.includedAthletes} athletes.
+              {" "}Each additional athlete is {selectedPlan.extraAthletePriceSek} kr/mo.
             </p>
           </div>
 
@@ -111,7 +211,10 @@ export const CalculatorSection = () => {
                     {athleteCount} × {monthlyFee.toLocaleString("sv-SE")} kr
                   </div>
                 </div>
-                <span className="font-[var(--font-display)] text-2xl text-[var(--home-text)]">
+                <span
+                  className="font-[var(--font-display)] text-2xl text-[var(--home-text)]"
+                  data-testid="calculator-revenue"
+                >
                   {monthlyRevenue.toLocaleString("sv-SE")} kr
                 </span>
               </div>
@@ -121,11 +224,14 @@ export const CalculatorSection = () => {
                   <div className="text-sm text-[var(--home-text)]">Platform cost</div>
                   <div className="text-xs text-[var(--home-muted)]">
                     {overageAthletes > 0
-                      ? `399 kr + ${overageAthletes} extra × 39 kr`
-                      : "399 kr base plan"}
+                      ? `${selectedPlan.monthlyPriceSek} kr + ${overageAthletes} extra × ${selectedPlan.extraAthletePriceSek} kr`
+                      : `${selectedPlan.monthlyPriceSek} kr ${selectedPlan.name} plan`}
                   </div>
                 </div>
-                <span className="font-[var(--font-display)] text-2xl text-[var(--home-muted)]">
+                <span
+                  className="font-[var(--font-display)] text-2xl text-[var(--home-muted)]"
+                  data-testid="calculator-platform-cost"
+                >
                   −{platformCost.toLocaleString("sv-SE")} kr
                 </span>
               </div>
@@ -135,7 +241,10 @@ export const CalculatorSection = () => {
               <div className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-surface)]/80">
                 You keep
               </div>
-              <div className="font-[var(--font-display)] text-5xl text-[var(--home-surface)]">
+              <div
+                className="font-[var(--font-display)] text-5xl text-[var(--home-surface)]"
+                data-testid="calculator-net-revenue"
+              >
                 {netRevenue.toLocaleString("sv-SE")} kr
               </div>
               <div className="mt-2 text-xs text-[var(--home-surface)]/70">

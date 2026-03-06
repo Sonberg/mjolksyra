@@ -10,7 +10,8 @@ import * as fixture2 from './app/app/coach/Coach.fixture';
 import * as fixture3 from './app/app/coach/CoachAthletesContent.fixture';
 import * as fixture4 from './app/app/coach/TraineeCard.fixture';
 import * as fixture5 from './app/app/coach/TraineeInvitationCard.fixture';
-import * as fixture6 from './components/Navigation/NavigationNotifications.fixture';
+import * as fixture6 from './app/components/CalculatorSection.fixture';
+import * as fixture7 from './components/Navigation/NavigationNotifications.fixture';
 
 import * as decorator0 from './cosmos.decorator';
 
@@ -26,7 +27,8 @@ const fixtures = {
   'app/app/coach/CoachAthletesContent.fixture.tsx': { module: fixture3 },
   'app/app/coach/TraineeCard.fixture.tsx': { module: fixture4 },
   'app/app/coach/TraineeInvitationCard.fixture.tsx': { module: fixture5 },
-  'components/Navigation/NavigationNotifications.fixture.tsx': { module: fixture6 }
+  'app/components/CalculatorSection.fixture.tsx': { module: fixture6 },
+  'components/Navigation/NavigationNotifications.fixture.tsx': { module: fixture7 }
 };
 
 const decorators = {
