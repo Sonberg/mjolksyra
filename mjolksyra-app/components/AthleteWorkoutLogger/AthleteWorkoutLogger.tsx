@@ -260,10 +260,21 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               Done
             </span>
           ) : null}
+          <button
+            type="button"
+            onClick={() => {
+              setCompletionNote(workout.completionNote ?? "");
+              setIsLogging((x) => !x);
+            }}
+            className="hidden shrink-0 items-center gap-1.5 border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 sm:inline-flex"
+          >
+            <CheckCircle2Icon className="h-3.5 w-3.5" />
+            {isCompleted ? "Edit completion" : "Complete workout"}
+          </button>
         </div>
       </div>
 
-      <div className="grid gap-4 pb-28 pt-4">
+      <div className="grid gap-4 pb-28 pt-4 sm:pb-6">
         {/* Coach note */}
         {workout.note?.trim() ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
@@ -359,8 +370,8 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
         ) : null}
       </div>
 
-      {/* Sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-[var(--shell-border)] bg-[var(--shell-bg)] px-4 py-4">
+      {/* Sticky bottom bar — mobile only */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-[var(--shell-border)] bg-[var(--shell-bg)] px-4 py-4 sm:hidden">
         <div className="mx-auto max-w-6xl">
           <button
             type="button"
