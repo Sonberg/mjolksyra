@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { DayExercise } from "./DayExercise";
 import {
@@ -8,7 +8,10 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
+import {
+  PlannedExercise,
+  PlannedWorkout,
+} from "@/services/plannedWorkouts/type";
 import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { draggingStyle } from "@/lib/draggingStyle";
@@ -19,6 +22,10 @@ import { useWorkoutEditor } from "./contexts/WorkoutEditor";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
 import { useWorkouts } from "./contexts/Workouts";
 import { monthId } from "@/lib/monthId";
+import { ExerciseQuickSearchOverlay } from "../ExerciseLibrary/ExerciseQuickSearchOverlay";
+import type { Exercise as LibraryExercise } from "@/services/exercises/type";
+import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
+import { v4 } from "uuid";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
@@ -39,12 +46,13 @@ export function Day({ date, plannedWorkout }: Props) {
   const id = useMemo(() => date.format(PLANNED_AT), [date]);
   const isPastDay = useMemo(
     () => date.startOf("day").isBefore(dayjs().startOf("day")),
-    [date]
+    [date],
   );
   const isCompleted = !!plannedWorkout?.completedAt;
   const isPast = isPastDay || isCompleted;
   const isLocked = isPast;
   const canPlan = !isPast;
+  const [isQuickSearchOpen, setIsQuickSearchOpen] = useState(false);
 
   const data = useMemo(
     () => ({
@@ -58,7 +66,7 @@ export function Day({ date, plannedWorkout }: Props) {
       canPlan,
       isLocked,
     }),
-    [date, plannedWorkout, canPlan, isLocked]
+    [date, plannedWorkout, canPlan, isLocked],
   );
 
   const {
@@ -108,7 +116,64 @@ export function Day({ date, plannedWorkout }: Props) {
   const isOverContainer = useMemo(
     () =>
       isOver || exercises.some((x) => x.id === over?.id || x.id === active?.id),
-    [exercises, over?.id, active?.id, isOver]
+    [exercises, over?.id, active?.id, isOver],
+  );
+
+  const addExerciseFromOverlay = useCallback(
+    async (exercise: LibraryExercise) => {
+      const newExercise: PlannedExercise = {
+        id: v4(),
+        exerciseId: exercise.id,
+        name: exercise.name,
+        note: "",
+        isPublished: false,
+        isDone: false,
+        prescription: inferPrescriptionFromMechanic(exercise.mechanic),
+        images: [],
+      };
+
+      if (plannedWorkout) {
+        const updatedWorkout: PlannedWorkout = {
+          ...plannedWorkout,
+          exercises: [...plannedWorkout.exercises, newExercise],
+        };
+
+        await actions.update({ plannedWorkout: updatedWorkout });
+        workouts.dispatch({
+          type: "SET_WORKOUT",
+          payload: {
+            monthId: monthId(plannedWorkout.plannedAt),
+            plannedWorkout: updatedWorkout,
+          },
+        });
+        return;
+      }
+
+      const newWorkout: PlannedWorkout = {
+        id: v4(),
+        traineeId: workouts.traineeId,
+        name: null,
+        note: null,
+        completionNote: null,
+        plannedAt: date.format(PLANNED_AT),
+        completedAt: null,
+        reviewedAt: null,
+        reviewNote: null,
+        exercises: [newExercise],
+        createdAt: null,
+        appliedBlock: null,
+      };
+
+      await actions.create({ plannedWorkout: newWorkout });
+      workouts.dispatch({
+        type: "SET_MONTH",
+        payload: {
+          monthId: monthId(date),
+          workouts: [...(workouts.data[monthId(date)] ?? []), newWorkout],
+        },
+      });
+    },
+    [plannedWorkout, workouts, date, actions],
   );
 
   return useMemo(
@@ -126,7 +191,8 @@ export function Day({ date, plannedWorkout }: Props) {
               <div
                 className={cn({
                   "select-none rounded-none px-1.5 py-0.5 text-[var(--shell-muted)]": true,
-                  "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]": isToday,
+                  "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]":
+                    isToday,
                 })}
               >
                 {date.date()}
@@ -181,7 +247,7 @@ export function Day({ date, plannedWorkout }: Props) {
                         ? plannedWorkout?.reviewedAt
                           ? "border-[var(--shell-border)] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
                           : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
-                        : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]"
+                        : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
                     )}
                     title={
                       isCompleted
@@ -225,22 +291,41 @@ export function Day({ date, plannedWorkout }: Props) {
                 ))}
               </SortableContext>
             ) : (
-              <div className="grid min-h-32 place-items-center rounded-none border border-dashed border-[var(--shell-border)] px-4 text-center text-sm text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100">
+              <div
+                onClick={() => setIsQuickSearchOpen(true)}
+                className="grid  cursor-pointer h-full min-h-32 place-items-center rounded-none border border-dashed border-[var(--shell-border)] px-4 text-center text-sm text-[var(--shell-muted)] opacity-30 transition-all hover:opacity-100"
+              >
                 <div className="select-none">
                   {canPlan
-                    ? "Drag & drop exercises to start planning"
+                    ? "Drag & drop exercises or click here to start planning"
                     : "Planning is available for today and future days"}
                 </div>
               </div>
             )}
+            {canPlan && exercises.length ? (
+              <button
+                type="button"
+                onClick={() => setIsQuickSearchOpen(true)}
+                className="mt-2 inline-flex h-8 items-center justify-between rounded-none  bg-[var(--shell-surface)] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] border-2  border-[var(--shell-surface-strong)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              >
+                <span>Add exercise</span>
+              </button>
+            ) : null}
           </div>
         </div>
+        <ExerciseQuickSearchOverlay
+          open={isQuickSearchOpen}
+          onOpenChange={setIsQuickSearchOpen}
+          onSelectExercise={addExerciseFromOverlay}
+          title={`Add exercise · ${date.format("ddd D MMM")}`}
+        />
       </>
     ),
     [
       date,
       editor,
       exercises,
+      addExerciseFromOverlay,
       actions,
       workouts,
       plannedWorkout,
@@ -248,11 +333,12 @@ export function Day({ date, plannedWorkout }: Props) {
       isCompleted,
       isLocked,
       canPlan,
+      isQuickSearchOpen,
       isOverContainer,
       canDrop,
       listeners,
       setDraggableNodeRef,
       setDroppableNodeRef,
-    ]
+    ],
   );
 }

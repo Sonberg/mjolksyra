@@ -18,12 +18,14 @@ type Args = {
 };
 
 type ContextValue = {
+  traineeId: string;
   data: MonthWorkouts;
   dispatch: Dispatch<Action>;
   reload: (monthId: string) => Promise<void>;
 };
 
 const Context = createContext<ContextValue>({
+  traineeId: "",
   data: {},
   dispatch() {},
   reload: async () => {},
@@ -86,6 +88,7 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
     <Context.Provider
       children={children}
       value={{
+        traineeId,
         data,
         dispatch,
         reload: (monthId: string) => reload(monthId),

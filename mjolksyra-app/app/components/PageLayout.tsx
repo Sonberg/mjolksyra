@@ -26,8 +26,8 @@ export function PageLayout({ children, fullBleed = false, navigation }: Props) {
       ) : null}
       <div
         className={[
-          "mx-auto w-full max-w-6xl space-y-8 pt-16",
-          fullBleed ? "max-w-none pt-0" : "px-4 md:px-6",
+          "mx-auto w-full max-w-6xl space-y-8 ",
+          fullBleed ? "max-w-none pt-0" : "px-4 md:px-6 pt-16",
         ].join(" ")}
       >
         {children}
