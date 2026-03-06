@@ -1,3 +1,5 @@
+"use client";
+
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import dayjs from "dayjs";

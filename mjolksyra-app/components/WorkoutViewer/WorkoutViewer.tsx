@@ -1,3 +1,5 @@
+"use client";
+
 import { useWorkouts } from "./useWorkouts";
 import dayjs from "dayjs";
 import { Workout } from "./Workout";
