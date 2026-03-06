@@ -35,12 +35,13 @@ export function PageContent({
       user.coaches[0] ??
       null,
   );
-  const needsOnboarding = user.onboarding.athlete !== "Completed" || !hasCoachData;
+  const needsOnboarding =
+    user.onboarding.athlete !== "Completed" || !hasCoachData;
   const athleteName = user.givenName || "Athlete";
 
   if (needsOnboarding) {
     return (
-      <PageLayout fullBleed>
+      <PageLayout>
         <div className="px-4 pb-8 md:px-6 md:pb-10">
           <section className="relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-10">
             <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-[var(--shell-border)]/40" />
@@ -53,7 +54,8 @@ export function PageContent({
                   {athleteName}
                 </h1>
                 <p className="max-w-2xl text-sm text-[var(--shell-muted)] md:text-base">
-                  Accept your coach invitation and prepare billing setup to get started.
+                  Accept your coach invitation and prepare billing setup to get
+                  started.
                 </p>
               </div>
               <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-5 py-4">
@@ -70,12 +72,18 @@ export function PageContent({
           {hasCoachData ? (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
               <div className="lg:col-span-4">
-                <AthleteCoaches user={user} selected={coach} onSelect={setCoach} />
+                <AthleteCoaches
+                  user={user}
+                  selected={coach}
+                  onSelect={setCoach}
+                />
               </div>
               <div className="lg:col-span-8">
                 <AthleteOnboardingFlow
                   hasCoachContext
-                  isPaymentSetupComplete={user.onboarding.athlete === "Completed"}
+                  isPaymentSetupComplete={
+                    user.onboarding.athlete === "Completed"
+                  }
                 />
               </div>
             </div>
@@ -126,8 +134,7 @@ export function PageContent({
             No active coach selected
           </p>
           <p className="mt-2 text-sm text-[var(--shell-muted)]">
-            Accept an invitation or choose a coach to see your training
-            program.
+            Accept an invitation or choose a coach to see your training program.
           </p>
         </div>
       )}
