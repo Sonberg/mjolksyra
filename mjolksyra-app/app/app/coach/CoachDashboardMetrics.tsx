@@ -48,7 +48,7 @@ export function CoachDashboardMetrics({
         <p className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">
           {netAfterCoachPlan.toLocaleString("sv-SE")} kr
         </p>
-        <p className="mt-1 text-sm text-[var(--shell-muted)]">Athlete billing minus 399 kr plan</p>
+        <p className="mt-1 text-sm text-[var(--shell-muted)]">Athlete billing minus {coachPlanMonthlySek} kr plan</p>
       </div>
       <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">

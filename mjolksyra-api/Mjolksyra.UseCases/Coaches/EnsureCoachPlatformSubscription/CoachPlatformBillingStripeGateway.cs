@@ -5,8 +5,6 @@ namespace Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 
 public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStripeGateway
 {
-    private const long MonthlyAmountOre = 39900;
-    private const long OverageAmountOre = 3900;
     private const string Currency = "sek";
     private const string ProductName = "Mjolksyra Coach Subscription";
     private const string OverageProductName = "Mjolksyra Coach Overage";
@@ -65,13 +63,15 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
         Guid userId,
         string customerId,
         int overageQuantity,
+        long baseAmountOre,
+        long overageAmountOre,
         CancellationToken cancellationToken,
         string? couponId = null)
     {
         var basePrice = await CreateMonthlyPriceAsync(
             userId,
             ProductName,
-            MonthlyAmountOre,
+            baseAmountOre,
             "coach-platform-subscription",
             "coach-platform-subscription-price",
             $"coach-sub-price-{userId}-{DateTime.UtcNow:yyyyMM}",
@@ -79,7 +79,7 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
         var overagePrice = await CreateMonthlyPriceAsync(
             userId,
             OverageProductName,
-            OverageAmountOre,
+            overageAmountOre,
             "coach-platform-overage",
             "coach-platform-overage-price",
             $"coach-overage-price-{userId}-{DateTime.UtcNow:yyyyMM}",
@@ -180,49 +180,90 @@ public sealed class CoachPlatformBillingStripeGateway : ICoachPlatformBillingStr
             && item.Metadata.TryGetValue("Type", out var type)
             && type == "coach-platform-overage");
 
+        if (overageItem is null) return;
+
+        var itemService = new SubscriptionItemService(_stripeClient);
+        await itemService.UpdateAsync(
+            overageItem.Id,
+            new SubscriptionItemUpdateOptions
+            {
+                Quantity = effectiveOverageQuantity
+            },
+            new RequestOptions
+            {
+                IdempotencyKey = $"coach-overage-item-{userId}-{subscriptionId}-{effectiveOverageQuantity}"
+            },
+            cancellationToken);
+    }
+
+    public async Task UpdateSubscriptionPlanAsync(
+        Guid userId,
+        string subscriptionId,
+        long baseAmountOre,
+        long overageAmountOre,
+        int overageQuantity,
+        CancellationToken ct)
+    {
+        var subscriptionService = new SubscriptionService(_stripeClient);
+        var subscription = await subscriptionService.GetAsync(
+            subscriptionId,
+            new SubscriptionGetOptions { Expand = ["items.data.price"] },
+            cancellationToken: ct);
+
+        var baseItem = subscription.Items.Data.FirstOrDefault(item =>
+            item.Metadata is not null
+            && item.Metadata.TryGetValue("Type", out var type)
+            && type == "coach-platform-base");
+        var overageItem = subscription.Items.Data.FirstOrDefault(item =>
+            item.Metadata is not null
+            && item.Metadata.TryGetValue("Type", out var type)
+            && type == "coach-platform-overage");
+
+        var planTag = $"{baseAmountOre}-{overageAmountOre}";
+        var newBasePrice = await CreateMonthlyPriceAsync(
+            userId,
+            ProductName,
+            baseAmountOre,
+            "coach-platform-subscription",
+            "coach-platform-subscription-price",
+            $"coach-sub-price-{userId}-{planTag}",
+            ct);
+        var newOveragePrice = await CreateMonthlyPriceAsync(
+            userId,
+            OverageProductName,
+            overageAmountOre,
+            "coach-platform-overage",
+            "coach-platform-overage-price",
+            $"coach-overage-price-{userId}-{planTag}",
+            ct);
+
+        var effectiveOverage = Math.Max(0, overageQuantity);
+        var itemService = new SubscriptionItemService(_stripeClient);
+
+        if (baseItem is not null)
+        {
+            await itemService.UpdateAsync(
+                baseItem.Id,
+                new SubscriptionItemUpdateOptions
+                {
+                    Price = newBasePrice.Id,
+                    ProrationBehavior = "none",
+                },
+                cancellationToken: ct);
+        }
+
         if (overageItem is not null)
         {
-            var itemService = new SubscriptionItemService(_stripeClient);
             await itemService.UpdateAsync(
                 overageItem.Id,
                 new SubscriptionItemUpdateOptions
                 {
-                    Quantity = effectiveOverageQuantity
+                    Price = newOveragePrice.Id,
+                    Quantity = effectiveOverage,
+                    ProrationBehavior = "none",
                 },
-                new RequestOptions
-                {
-                    IdempotencyKey = $"coach-overage-item-{userId}-{subscriptionId}-{effectiveOverageQuantity}"
-                },
-                cancellationToken);
-            return;
+                cancellationToken: ct);
         }
-
-        var overagePrice = await CreateMonthlyPriceAsync(
-            userId,
-            OverageProductName,
-            OverageAmountOre,
-            "coach-platform-overage",
-            "coach-platform-overage-price",
-            $"coach-overage-price-{userId}-{DateTime.UtcNow:yyyyMM}",
-            cancellationToken);
-
-        var itemCreateService = new SubscriptionItemService(_stripeClient);
-        await itemCreateService.CreateAsync(
-            new SubscriptionItemCreateOptions
-            {
-                Subscription = subscriptionId,
-                Price = overagePrice.Id,
-                Quantity = effectiveOverageQuantity,
-                Metadata = new Dictionary<string, string>
-                {
-                    ["Type"] = "coach-platform-overage"
-                }
-            },
-            new RequestOptions
-            {
-                IdempotencyKey = $"coach-overage-create-{userId}-{subscriptionId}-{effectiveOverageQuantity}"
-            },
-            cancellationToken);
     }
 
     private async Task<Price> CreateMonthlyPriceAsync(

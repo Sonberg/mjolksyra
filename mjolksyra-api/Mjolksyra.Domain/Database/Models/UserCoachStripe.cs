@@ -17,4 +17,6 @@ public class UserCoachStripe
     public DateTimeOffset? TrialEndsAt { get; set; }
 
     public string? DiscountCodeId { get; set; }
+
+    public Guid? PlanId { get; set; }
 }

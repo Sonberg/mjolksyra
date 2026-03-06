@@ -4,6 +4,9 @@ import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import type { Plan } from "@/services/plans/type";
+import { CoachPlanSelector } from "./CoachPlanSelector";
+import { CoachPlanNudge } from "./CoachPlanNudge";
 
 type CoachPaymentStatus = {
   label: string;
@@ -13,9 +16,10 @@ type CoachPaymentStatus = {
 
 type Props = {
   coachPaymentStatus: CoachPaymentStatus;
-  includedAthletes: number;
-  overagePriceSek: number;
+  currentPlan: Plan;
+  plans: Plan[];
   overageAthletes: number;
+  athleteCount: number;
   isOpeningStripe: boolean;
   onOpenStripeDashboard: () => Promise<void> | void;
   trialEndsAt?: Date | null;
@@ -23,16 +27,16 @@ type Props = {
 
 export function CoachDashboardSubscriptionSection({
   coachPaymentStatus,
-  includedAthletes,
-  overagePriceSek,
+  currentPlan,
+  plans,
   overageAthletes,
+  athleteCount,
   isOpeningStripe,
   onOpenStripeDashboard,
   trialEndsAt,
 }: Props) {
-  const basePlanSek = 399;
-  const overageTotalSek = overageAthletes * overagePriceSek;
-  const estimatedTotalSek = basePlanSek + overageTotalSek;
+  const overageTotalSek = overageAthletes * currentPlan.extraAthletePriceSek;
+  const estimatedTotalSek = currentPlan.monthlyPriceSek + overageTotalSek;
 
   const now = new Date();
   const isTrialing = trialEndsAt != null && trialEndsAt > now;
@@ -105,6 +109,12 @@ export function CoachDashboardSubscriptionSection({
           </div>
         )}
 
+        <CoachPlanNudge
+          currentPlan={currentPlan}
+          plans={plans}
+          athleteCount={athleteCount}
+        />
+
         <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Discount code</p>
           <div className="mt-2 flex gap-2">
@@ -134,6 +144,14 @@ export function CoachDashboardSubscriptionSection({
           )}
         </div>
 
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
+          <CoachPlanSelector
+            plans={plans}
+            currentPlanId={currentPlan.id}
+            athleteCount={athleteCount}
+          />
+        </div>
+
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
@@ -144,7 +162,7 @@ export function CoachDashboardSubscriptionSection({
                 <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                   Base plan
                 </p>
-                <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{basePlanSek} kr</p>
+                <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{currentPlan.monthlyPriceSek} kr</p>
               </div>
               <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
@@ -154,7 +172,7 @@ export function CoachDashboardSubscriptionSection({
                   {overageTotalSek} kr
                 </p>
                 <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                  {overageAthletes} x {overagePriceSek} kr
+                  {overageAthletes} x {currentPlan.extraAthletePriceSek} kr
                 </p>
               </div>
               <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
@@ -167,8 +185,8 @@ export function CoachDashboardSubscriptionSection({
               </div>
             </div>
             <p className="mt-3 text-sm text-[var(--shell-muted)]">
-              Includes {includedAthletes} athletes. Athlete roster management lives in
-              the Athletes tab. Overage quantity is synced to Stripe as active athletes above {includedAthletes}.
+              Includes {currentPlan.includedAthletes} athletes. Athlete roster management lives in
+              the Athletes tab. Overage quantity is synced to Stripe as active athletes above {currentPlan.includedAthletes}.
             </p>
           </div>
 

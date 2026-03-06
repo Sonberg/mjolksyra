@@ -28,6 +28,8 @@ public interface IMongoDbContext
     IMongoCollection<TraineeTransaction> TraineeTransactions { get; }
 
     IMongoCollection<DiscountCode> DiscountCodes { get; }
+
+    IMongoCollection<Plan> Plans { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -57,6 +59,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<TraineeTransaction> TraineeTransactions => Database.GetCollection<TraineeTransaction>("trainee-transactions");
 
     public IMongoCollection<DiscountCode> DiscountCodes => Database.GetCollection<DiscountCode>("discount-codes");
+
+    public IMongoCollection<Plan> Plans => Database.GetCollection<Plan>("plans");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

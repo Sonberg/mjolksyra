@@ -15,8 +15,18 @@ public interface ICoachPlatformBillingStripeGateway
         Guid userId,
         string customerId,
         int overageQuantity,
+        long baseAmountOre,
+        long overageAmountOre,
         CancellationToken cancellationToken,
         string? couponId = null);
+
+    Task UpdateSubscriptionPlanAsync(
+        Guid userId,
+        string subscriptionId,
+        long baseAmountOre,
+        long overageAmountOre,
+        int overageQuantity,
+        CancellationToken ct);
 
     Task ApplyCouponToSubscriptionAsync(
         string subscriptionId,

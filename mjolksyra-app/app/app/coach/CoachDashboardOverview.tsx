@@ -5,12 +5,24 @@ import { Trainee } from "@/services/trainees/type";
 import { User } from "@/services/users/type";
 import { useCallback, useState } from "react";
 import { AlertTriangleIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getPlans } from "@/services/plans/getPlans";
+import type { Plan } from "@/services/plans/type";
 import { CoachDashboardMetrics } from "./CoachDashboardMetrics";
 import {
   CoachDashboardTodoSection,
   type CoachTodoItem,
 } from "./CoachDashboardTodoSection";
 import { CoachDashboardSubscriptionSection } from "./CoachDashboardSubscriptionSection";
+
+const STARTER_FALLBACK: Plan = {
+  id: "00000000-0000-0000-0000-000000000001",
+  name: "Starter",
+  monthlyPriceSek: 199,
+  includedAthletes: 5,
+  extraAthletePriceSek: 49,
+  sortOrder: 1,
+};
 
 type Props = {
   user: User;
@@ -26,11 +38,23 @@ const formatNames = (items: Trainee[], limit = 3) => {
 
 export function CoachDashboardOverview({ user, trainees }: Props) {
   const [isOpeningStripe, setIsOpeningStripe] = useState(false);
-  const includedAthletes = 10;
-  const overagePriceSek = 39;
+
+  const { data: plans = [] } = useQuery({
+    queryKey: ["plans"],
+    queryFn: getPlans,
+  });
+
+  const currentPlan =
+    plans.find((p) => p.id === user.onboarding.coachPlanId) ??
+    plans.find((p) => p.id === STARTER_FALLBACK.id) ??
+    STARTER_FALLBACK;
+
+  const includedAthletes = currentPlan.includedAthletes;
+  const overagePriceSek = currentPlan.extraAthletePriceSek;
+  const coachPlanMonthlySek = currentPlan.monthlyPriceSek;
+
   const overageAthletes = Math.max(0, trainees.length - includedAthletes);
   const freeAthleteSpotsLeft = Math.max(0, includedAthletes - trainees.length);
-  const coachPlanMonthlySek = 399;
   const recurringAthleteBilling = trainees.reduce((acc, trainee) => {
     if (!trainee.cost) return acc;
     return acc + trainee.cost.total;
@@ -158,9 +182,10 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       <CoachDashboardTodoSection items={todoItems} />
       <CoachDashboardSubscriptionSection
         coachPaymentStatus={coachPaymentStatus}
-        includedAthletes={includedAthletes}
-        overagePriceSek={overagePriceSek}
+        currentPlan={currentPlan}
+        plans={plans}
         overageAthletes={overageAthletes}
+        athleteCount={trainees.length}
         isOpeningStripe={isOpeningStripe}
         onOpenStripeDashboard={openStripeDashboard}
         trialEndsAt={user.onboarding.coachTrialEndsAt ?? null}

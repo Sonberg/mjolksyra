@@ -46,6 +46,7 @@ public class GetUserRequestHandler(
                     _ => UserOnboardingStatus.NotStarted
                 },
                 CoachTrialEndsAt = user.Coach?.Stripe?.TrialEndsAt,
+                CoachPlanId = user.Coach?.Stripe?.PlanId,
             },
             Athletes = activeTrainees
                 .Where(x => x.CoachUserId == request.UserId)
