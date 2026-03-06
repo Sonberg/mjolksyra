@@ -12,11 +12,12 @@ import * as fixture4 from './app/app/coach/TraineeCard.fixture';
 import * as fixture5 from './app/app/coach/TraineeInvitationCard.fixture';
 import * as fixture6 from './app/components/CalculatorSection.fixture';
 import * as fixture7 from './components/Navigation/NavigationNotifications.fixture';
+import * as fixture8 from './components/Navigation/ThemeToggle.fixture';
 
 import * as decorator0 from './cosmos.decorator';
 
 export const rendererConfig: RendererConfig = {
-  "webSocketUrl": "ws://192.168.0.126:5001",
+  "webSocketUrl": "ws://192.168.86.248:5001",
   "rendererUrl": "http://localhost:3000/cosmos/<fixture>"
 };
 
@@ -28,7 +29,8 @@ const fixtures = {
   'app/app/coach/TraineeCard.fixture.tsx': { module: fixture4 },
   'app/app/coach/TraineeInvitationCard.fixture.tsx': { module: fixture5 },
   'app/components/CalculatorSection.fixture.tsx': { module: fixture6 },
-  'components/Navigation/NavigationNotifications.fixture.tsx': { module: fixture7 }
+  'components/Navigation/NavigationNotifications.fixture.tsx': { module: fixture7 },
+  'components/Navigation/ThemeToggle.fixture.tsx': { module: fixture8 }
 };
 
 const decorators = {

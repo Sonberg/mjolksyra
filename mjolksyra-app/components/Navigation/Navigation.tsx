@@ -11,6 +11,7 @@ import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 type NavigationAuthSnapshot = {
   isAuthenticated: boolean;
@@ -101,6 +102,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
             </>
           ) : (
             <>
+              <ThemeToggle />
               <RegisterDialog
                 trigger={
                   <Button className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-surface)] transition-colors hover:bg-[#ce2f10]">

@@ -16,6 +16,18 @@ test("homepage renders brand and CTA", async ({ page }) => {
   await expect(cta.first()).toBeVisible();
 });
 
+test("unauthenticated users can toggle theme mode", async ({ page }) => {
+  await page.goto("/");
+
+  const themeToggle = page.getByRole("button", { name: /switch to dark mode|switch to light mode/i });
+  await expect(themeToggle).toBeVisible();
+
+  const previousTheme = (await page.locator("html").getAttribute("data-theme")) ?? "light";
+  await themeToggle.click();
+
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme", previousTheme);
+});
+
 test.describe("homepage calculator", () => {
   test.beforeEach(async ({ page }) => {
     await page.route("**/api/plans", async (route) => {
