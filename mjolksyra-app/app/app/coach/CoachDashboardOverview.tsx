@@ -1,9 +1,7 @@
 "use client";
 
-import { ApiClient } from "@/services/client";
 import { Trainee } from "@/services/trainees/type";
 import { User } from "@/services/users/type";
-import { useCallback, useState } from "react";
 import { AlertTriangleIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getPlans } from "@/services/plans/getPlans";
@@ -13,7 +11,6 @@ import {
   CoachDashboardTodoSection,
   type CoachTodoItem,
 } from "./CoachDashboardTodoSection";
-import { CoachDashboardSubscriptionSection } from "./CoachDashboardSubscriptionSection";
 
 const STARTER_FALLBACK: Plan = {
   id: "00000000-0000-0000-0000-000000000001",
@@ -37,8 +34,6 @@ const formatNames = (items: Trainee[], limit = 3) => {
 };
 
 export function CoachDashboardOverview({ user, trainees }: Props) {
-  const [isOpeningStripe, setIsOpeningStripe] = useState(false);
-
   const { data: plans = [] } = useQuery({
     queryKey: ["plans"],
     queryFn: getPlans,
@@ -50,27 +45,15 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
     STARTER_FALLBACK;
 
   const includedAthletes = currentPlan.includedAthletes;
-  const overagePriceSek = currentPlan.extraAthletePriceSek;
   const coachPlanMonthlySek = currentPlan.monthlyPriceSek;
 
-  const overageAthletes = Math.max(0, trainees.length - includedAthletes);
   const freeAthleteSpotsLeft = Math.max(0, includedAthletes - trainees.length);
   const recurringAthleteBilling = trainees.reduce((acc, trainee) => {
     if (!trainee.cost) return acc;
     return acc + trainee.cost.total;
   }, 0);
   const netAfterCoachPlan = Math.max(0, recurringAthleteBilling - coachPlanMonthlySek);
-  const openStripeDashboard = useCallback(async () => {
-    setIsOpeningStripe(true);
-    try {
-      const { data } = await ApiClient.get<{ url: string }>("/api/stripe/dashboard");
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
-    } finally {
-      setIsOpeningStripe(false);
-    }
-  }, []);
+
   const paymentBlocked = trainees.filter(
     (x) =>
       x.billing.status === "AwaitingAthletePaymentMethod" ||
@@ -89,6 +72,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       (Date.now() - new Date(x.lastWorkoutAt).getTime()) / (1000 * 60 * 60);
     return hoursSince >= 0 && hoursSince <= 72;
   });
+
   const todoItems: CoachTodoItem[] = [
     {
       key: "payments",
@@ -151,24 +135,6 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
           : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
   ];
-  const coachPaymentStatus =
-    user.onboarding.coach === "Completed"
-      ? {
-          label: "Stripe connected",
-          text: "Payouts and coach billing setup are active.",
-          badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
-        }
-      : user.onboarding.coach === "Started"
-        ? {
-            label: "Setup in progress",
-            text: "Complete your Stripe onboarding to enable coach billing and payouts.",
-            badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
-          }
-        : {
-            label: "Not connected",
-            text: "Connect Stripe to receive payouts and manage coach billing settings.",
-            badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
-          };
 
   return (
     <div className="space-y-8">
@@ -180,16 +146,6 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         includedAthletes={includedAthletes}
       />
       <CoachDashboardTodoSection items={todoItems} />
-      <CoachDashboardSubscriptionSection
-        coachPaymentStatus={coachPaymentStatus}
-        currentPlan={currentPlan}
-        plans={plans}
-        overageAthletes={overageAthletes}
-        athleteCount={trainees.length}
-        isOpeningStripe={isOpeningStripe}
-        onOpenStripeDashboard={openStripeDashboard}
-        trialEndsAt={user.onboarding.coachTrialEndsAt ?? null}
-      />
     </div>
   );
 }
