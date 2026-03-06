@@ -31,33 +31,38 @@ export function NavigationTabs<TKey extends string = string>({
   tabClassName,
 }: NavigationTabsProps<TKey>) {
   return (
-    <nav
-      className={cn(
-        segmented
-          ? cn("flex w-full", shellSegmentedContainerClass)
-          : "flex flex-wrap items-center gap-1.5",
-        className,
-      )}
-    >
-      {tabs.map((tab) => {
-        const isActive = tab.key === activeTab;
+    <div className="w-full overflow-x-auto">
+      <nav
+        className={cn(
+          segmented
+            ? cn(
+                "inline-flex min-w-max items-center",
+                fullWidth && "w-full min-w-0",
+                shellSegmentedContainerClass,
+              )
+            : "inline-flex min-w-max flex-nowrap items-center gap-1.5 whitespace-nowrap",
+          className,
+        )}
+      >
+        {tabs.map((tab) => {
+          const isActive = tab.key === activeTab;
 
-        return (
-          <Link
-            key={tab.key}
-            href={tab.href}
-            aria-current={isActive ? "page" : undefined}
-            className={cn(
-              shellSectionTabClass(isActive),
-              fullWidth && "flex-1 text-center",
-              tabClassName,
-            )}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
-    </nav>
+          return (
+            <Link
+              key={tab.key}
+              href={tab.href}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                shellSectionTabClass(isActive),
+                fullWidth && "flex-1 text-center",
+                tabClassName,
+              )}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
   );
 }
-
