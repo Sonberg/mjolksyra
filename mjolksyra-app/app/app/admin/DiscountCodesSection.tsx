@@ -26,8 +26,18 @@ export function DiscountCodesSection({ initialCodes }: Props) {
   async function handleCreate() {
     setError(null);
     const value = parseInt(discountValue, 10);
-    if (!code.trim() || !description.trim() || isNaN(value) || value <= 0) {
+    const repeatingMonthsInput = Number(durationInMonths);
+    const repeatingMonths =
+      duration === "Repeating" && Number.isFinite(repeatingMonthsInput)
+        ? Math.trunc(repeatingMonthsInput)
+        : undefined;
+
+    if (!code.trim() || isNaN(value) || value <= 0) {
       setError("Please fill in all required fields with valid values.");
+      return;
+    }
+    if (duration === "Repeating" && (!repeatingMonths || repeatingMonths <= 0)) {
+      setError("Duration in months is required for repeating discounts.");
       return;
     }
     setIsCreating(true);
@@ -37,11 +47,11 @@ export function DiscountCodesSection({ initialCodes }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: code.trim().toUpperCase(),
-          description: description.trim(),
+          description: description.trim() ? description.trim() : undefined,
           discountType,
           discountValue: value,
           duration,
-          durationInMonths: duration === "Repeating" && durationInMonths ? parseInt(durationInMonths, 10) : undefined,
+          durationInMonths: duration === "Repeating" ? repeatingMonths : undefined,
           maxRedemptions: maxRedemptions ? parseInt(maxRedemptions, 10) : undefined,
         }),
       });
@@ -140,12 +150,12 @@ export function DiscountCodesSection({ initialCodes }: Props) {
             />
           </div>
           <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-2">
-            <label className="text-xs text-[var(--shell-muted)]">Description *</label>
+            <label className="text-xs text-[var(--shell-muted)]">Description (optional)</label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="50% off forever"
+              placeholder="Auto-generated if empty"
               className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
             />
           </div>

@@ -7,7 +7,7 @@ export type DiscountDuration = "Forever" | "Once" | "Repeating";
 type Args = {
   accessToken: string;
   code: string;
-  description: string;
+  description?: string;
   discountType: DiscountType;
   discountValue: number;
   duration: DiscountDuration;

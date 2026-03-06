@@ -103,6 +103,12 @@ public class AdminController(IMediator mediator, IUserContext userContext, IUser
     {
         if (!await userContext.IsAdminAsync(ct)) return Forbid();
 
+        if (body.Duration == DiscountDuration.Repeating &&
+            (!body.DurationInMonths.HasValue || body.DurationInMonths.Value <= 0))
+        {
+            return BadRequest(new { title = "DurationInMonths must be set to a positive value for repeating discounts." });
+        }
+
         var result = await mediator.Send(new CreateDiscountCodeCommand
         {
             Code = body.Code,
@@ -144,7 +150,7 @@ public class CreateDiscountCodeBody
 {
     public required string Code { get; set; }
 
-    public required string Description { get; set; }
+    public string? Description { get; set; }
 
     public required DiscountType DiscountType { get; set; }
 

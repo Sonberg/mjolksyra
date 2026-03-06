@@ -18,10 +18,20 @@ public sealed class CreateDiscountCodeCommandHandler : IRequestHandler<CreateDis
 
     public async Task<CreateDiscountCodeResult> Handle(CreateDiscountCodeCommand request, CancellationToken cancellationToken)
     {
+        if (request.Duration == DiscountDuration.Repeating &&
+            (!request.DurationInMonths.HasValue || request.DurationInMonths.Value <= 0))
+        {
+            throw new ArgumentException("DurationInMonths must be set to a positive value for repeating discounts.");
+        }
+
+        var effectiveDescription = string.IsNullOrWhiteSpace(request.Description)
+            ? BuildDescription(request)
+            : request.Description.Trim();
+
         var couponService = new CouponService(_stripeClient);
         var couponOptions = new CouponCreateOptions
         {
-            Name = request.Description,
+            Name = request.Code,
             Duration = request.Duration switch
             {
                 DiscountDuration.Forever => "forever",
@@ -50,7 +60,7 @@ public sealed class CreateDiscountCodeCommandHandler : IRequestHandler<CreateDis
             Id = Guid.NewGuid(),
             Code = request.Code,
             StripeCouponId = coupon.Id,
-            Description = request.Description,
+            Description = effectiveDescription,
             MaxRedemptions = request.MaxRedemptions,
             RedeemedCount = 0,
             IsActive = true,
@@ -63,5 +73,23 @@ public sealed class CreateDiscountCodeCommandHandler : IRequestHandler<CreateDis
             Code = discountCode.Code,
             Description = discountCode.Description,
         };
+    }
+
+    public static string BuildDescription(CreateDiscountCodeCommand request)
+    {
+        var discountPart = request.DiscountType == DiscountType.Percent
+            ? $"{request.DiscountValue}% off"
+            : $"{request.DiscountValue / 100m:0.##} kr off";
+
+        var durationPart = request.Duration switch
+        {
+            DiscountDuration.Forever => "forever",
+            DiscountDuration.Once => "once",
+            DiscountDuration.Repeating when request.DurationInMonths.HasValue => $"repeating ({request.DurationInMonths.Value} months)",
+            DiscountDuration.Repeating => "repeating",
+            _ => "forever",
+        };
+
+        return $"{discountPart} · {durationPart}";
     }
 }

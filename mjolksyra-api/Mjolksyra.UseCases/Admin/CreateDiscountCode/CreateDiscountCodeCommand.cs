@@ -19,7 +19,7 @@ public class CreateDiscountCodeCommand : IRequest<CreateDiscountCodeResult>
 {
     public required string Code { get; set; }
 
-    public required string Description { get; set; }
+    public string? Description { get; set; }
 
     public required DiscountType DiscountType { get; set; }
 
