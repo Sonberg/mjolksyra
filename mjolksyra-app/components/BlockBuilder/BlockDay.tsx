@@ -11,7 +11,7 @@ type Props = {
   dayOfWeek: number;
   workout: BlockWorkout | undefined;
   onRemoveExercise: (exerciseId: string) => void;
-  onEditExercise: (exerciseId: string) => void;
+  onAddExercise: () => void;
   isActiveWorkout: boolean;
 };
 
@@ -20,7 +20,7 @@ export function BlockDay({
   dayOfWeek,
   workout,
   onRemoveExercise,
-  onEditExercise,
+  onAddExercise,
   isActiveWorkout,
 }: Props) {
   const id = `block-day-${week}-${dayOfWeek}`;
@@ -39,42 +39,50 @@ export function BlockDay({
     active?.data.current?.type === "exercise" ||
     active?.data.current?.type === "blockExercise";
 
+  const hasExercises = (workout?.exercises.length ?? 0) > 0;
+
   return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        "flex min-h-32 flex-col gap-1.5 p-2 transition-colors",
-        {
-          "bg-[var(--shell-accent)]/10": isOver && isExerciseDragging,
-        },
-      )}
-    >
-      {workout ? (
-        <SortableContext
-          items={workout.exercises.map((e) => e.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {workout.exercises.map((exercise) => (
-            <BlockDayExercise
-              key={exercise.id}
-              exercise={exercise}
-              blockWorkoutId={workout.id}
-              onRemove={() => onRemoveExercise(exercise.id)}
-              onEdit={() => onEditExercise(exercise.id)}
-              isActive={isActiveWorkout}
-            />
-          ))}
-        </SortableContext>
-      ) : (
-        <div
-          className={cn(
-            "grid flex-1 place-items-center rounded-none border-2 border-dashed border-[var(--shell-border)] text-center text-xs text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100",
-            { "opacity-100": isOver && isExerciseDragging },
-          )}
-        >
-          Drop exercises
-        </div>
-      )}
+    <div className="flex min-h-32 flex-col p-2">
+      <div
+        ref={setNodeRef}
+        className={cn(
+          "relative flex h-full min-h-24 flex-1 flex-col rounded-none border border-transparent transition-colors",
+          isOver && isExerciseDragging && "border-[var(--shell-accent)] bg-[var(--shell-accent)]/10",
+        )}
+      >
+        {hasExercises ? (
+          <>
+            <SortableContext
+              items={workout!.exercises.map((e) => e.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {workout!.exercises.map((exercise) => (
+                <BlockDayExercise
+                  key={exercise.id}
+                  exercise={exercise}
+                  blockWorkoutId={workout!.id}
+                  onRemove={() => onRemoveExercise(exercise.id)}
+                  isActive={isActiveWorkout}
+                />
+              ))}
+            </SortableContext>
+            <button
+              type="button"
+              onClick={onAddExercise}
+              className="mt-2 inline-flex h-8 items-center rounded-none border-2 border-[var(--shell-surface-strong)] bg-[var(--shell-surface)] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+            >
+              Add exercise
+            </button>
+          </>
+        ) : (
+          <div
+            onClick={onAddExercise}
+            className="grid h-full min-h-32 cursor-pointer place-items-center rounded-none border border-dashed border-[var(--shell-border)] px-4 text-center text-xs text-[var(--shell-muted)] opacity-30 transition-all hover:opacity-100"
+          >
+            <div className="select-none">Drag &amp; drop exercises or click to add</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

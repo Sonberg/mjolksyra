@@ -14,7 +14,8 @@ type Props = {
   workouts: BlockWorkout[];
   numberOfWeeks: number;
   onChange: (workouts: BlockWorkout[]) => void;
-  onEditExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
+  onEditExercise: (week: number, dayOfWeek: number) => void;
+  onAddExercise: (week: number, dayOfWeek: number) => void;
   selectedWorkout: { week: number; dayOfWeek: number } | null;
 };
 
@@ -23,6 +24,7 @@ export function BlockBuilder({
   numberOfWeeks,
   onChange,
   onEditExercise,
+  onAddExercise,
   selectedWorkout,
 }: Props) {
   function defaultBlockPrescription(): ExercisePrescription {
@@ -186,6 +188,7 @@ export function BlockBuilder({
           workouts={workouts}
           onRemoveExercise={handleRemoveExercise}
           onEditExercise={onEditExercise}
+          onAddExercise={onAddExercise}
           selectedWorkout={selectedWorkout}
         />
       ))}

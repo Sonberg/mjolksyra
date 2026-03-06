@@ -11,13 +11,19 @@ import {
   pointerWithin,
 } from "@dnd-kit/core";
 
+import { v4 } from "uuid";
 import { getBlock } from "@/services/blocks/getBlock";
 import { updateBlock } from "@/services/blocks/updateBlock";
 import { BlockWorkout } from "@/services/blocks/type";
 import { BlockBuilder } from "@/components/BlockBuilder/BlockBuilder";
 import { BlockWorkoutEditor } from "@/components/BlockBuilder/BlockWorkoutEditor";
+import { ExerciseQuickSearchOverlay } from "@/components/ExerciseLibrary/ExerciseQuickSearchOverlay";
 import { DraggingExercise } from "@/components/DraggingExercise";
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
+import {
+  ExercisePrescriptionTargetType,
+} from "@/lib/exercisePrescription";
+import type { Exercise } from "@/services/exercises/type";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +57,10 @@ export function BlockEditorContent({ blockId }: Props) {
   const [workouts, setWorkouts] = useState<BlockWorkout[]>([]);
   const [draggingLabel, setDraggingLabel] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<{
+    week: number;
+    dayOfWeek: number;
+  } | null>(null);
+  const [addExerciseTarget, setAddExerciseTarget] = useState<{
     week: number;
     dayOfWeek: number;
   } | null>(null);
@@ -93,6 +103,48 @@ export function BlockEditorContent({ blockId }: Props) {
 
   const onDragStart = (event: DragStartEvent) => {
     setDraggingLabel(event.active.data.current?.label ?? null);
+  };
+
+  const handleAddExerciseFromSearch = (exercise: Exercise) => {
+    if (!addExerciseTarget) return;
+    const { week, dayOfWeek } = addExerciseTarget;
+    const newExercise = {
+      id: v4(),
+      exerciseId: exercise.id,
+      name: exercise.name,
+      note: null,
+      prescription: {
+        targetType: ExercisePrescriptionTargetType.SetsReps,
+        sets: [
+          {
+            target: {
+              reps: null,
+              durationSeconds: null,
+              distanceMeters: null,
+              weightKg: null,
+              note: null,
+            },
+            actual: null,
+          },
+        ],
+      },
+    };
+    setWorkouts((prev) => {
+      const existing = prev.find(
+        (w) => w.week === week && w.dayOfWeek === dayOfWeek,
+      );
+      if (existing) {
+        return prev.map((w) =>
+          w.week === week && w.dayOfWeek === dayOfWeek
+            ? { ...w, exercises: [...w.exercises, newExercise] }
+            : w,
+        );
+      }
+      return [
+        ...prev,
+        { id: v4(), name: null, note: null, week, dayOfWeek, exercises: [newExercise] },
+      ];
+    });
   };
 
   const handleWorkoutUpdate = (updated: BlockWorkout) => {
@@ -143,8 +195,8 @@ export function BlockEditorContent({ blockId }: Props) {
                 className="min-h-0 overflow-hidden"
               >
                 <div className="flex h-full min-h-0 flex-col">
-                  <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5">
-                    <div className="flex items-center gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+                  <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5 border-b-2 border-[var(--shell-border)]">
+                    <div className="flex items-center gap-3 rounded-none">
                       <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -180,7 +232,7 @@ export function BlockEditorContent({ blockId }: Props) {
                           onClick={handleSave}
                           disabled={saveMutation.isPending}
                           size="sm"
-                          className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
+                          className="rounded-none border-2 h-10 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
                         >
                           <SaveIcon className="mr-2 h-4 w-4" />
                           {saveMutation.isPending ? "Saving..." : "Save"}
@@ -189,17 +241,20 @@ export function BlockEditorContent({ blockId }: Props) {
                     </div>
                   </div>
 
-                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-8 md:px-8">
+                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-8 md:px-8 pt-8">
                     <BlockBuilder
                       workouts={workouts}
                       numberOfWeeks={numberOfWeeks}
                       onChange={setWorkouts}
-                      onEditExercise={(week, dayOfWeek, _exerciseId) =>
+                      onEditExercise={(week, dayOfWeek) =>
                         setSelectedWorkout((cur) =>
                           cur?.week === week && cur?.dayOfWeek === dayOfWeek
                             ? null
                             : { week, dayOfWeek },
                         )
+                      }
+                      onAddExercise={(week, dayOfWeek) =>
+                        setAddExerciseTarget({ week, dayOfWeek })
                       }
                       selectedWorkout={selectedWorkout}
                     />
@@ -219,6 +274,12 @@ export function BlockEditorContent({ blockId }: Props) {
                   <BlockWorkoutEditor
                     workout={activeWorkout}
                     onUpdate={handleWorkoutUpdate}
+                    onAddExercise={() =>
+                      setAddExerciseTarget({
+                        week: activeWorkout.week,
+                        dayOfWeek: activeWorkout.dayOfWeek,
+                      })
+                    }
                     onClose={() => setSelectedWorkout(null)}
                   />
                 ) : (
@@ -236,6 +297,14 @@ export function BlockEditorContent({ blockId }: Props) {
               </ResizablePanel>
             </ResizablePanelGroup>
           </div>
+          <ExerciseQuickSearchOverlay
+            open={addExerciseTarget !== null}
+            onOpenChange={(open) => {
+              if (!open) setAddExerciseTarget(null);
+            }}
+            onSelectExercise={handleAddExerciseFromSearch}
+            title="Add exercise"
+          />
           {draggingLabel
             ? createPortal(
                 <DragOverlay>

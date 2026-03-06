@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpIcon, ArrowDownIcon, XIcon } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon, PlusIcon, XIcon } from "lucide-react";
 import { arrayMove } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,10 +21,11 @@ const DAY_NAMES = [
 type Props = {
   workout: BlockWorkout;
   onUpdate: (workout: BlockWorkout) => void;
+  onAddExercise: () => void;
   onClose: () => void;
 };
 
-export function BlockWorkoutEditor({ workout, onUpdate, onClose }: Props) {
+export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }: Props) {
   const dayName = DAY_NAMES[workout.dayOfWeek - 1] ?? "";
 
   function updateExercise(
@@ -59,13 +60,23 @@ export function BlockWorkoutEditor({ workout, onUpdate, onClose }: Props) {
               {dayName}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-0.5 grid h-8 w-8 place-content-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
-          >
-            <XIcon className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onAddExercise}
+              className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+            >
+              <PlusIcon className="h-3.5 w-3.5" />
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="grid h-8 w-8 place-content-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+            >
+              <XIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 

@@ -10,7 +10,6 @@ type Props = {
   exercise: BlockExercise;
   blockWorkoutId: string;
   onRemove: () => void;
-  onEdit: () => void;
   isActive: boolean;
 };
 
@@ -18,7 +17,6 @@ export function BlockDayExercise({
   exercise,
   blockWorkoutId,
   onRemove,
-  onEdit,
   isActive,
 }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -44,7 +42,6 @@ export function BlockDayExercise({
         prescription={exercise.prescription ?? null}
         isActive={isActive}
         isDragging={isDragging}
-        onClick={onEdit}
         leftSlot={
           <div
             {...listeners}
