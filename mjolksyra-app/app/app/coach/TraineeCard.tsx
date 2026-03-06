@@ -40,11 +40,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 
 type TraineeCardProps = {
   trainee: Trainee;
   hasUnpublishedChanges?: boolean;
 };
+
+function getMutationErrorMessage(error: unknown, fallback: string) {
+  if (!axios.isAxiosError(error)) return fallback;
+
+  const responseMessage =
+    typeof error.response?.data === "string"
+      ? error.response.data
+      : (error.response?.data?.error as string | undefined)
+        ?? (error.response?.data?.message as string | undefined);
+
+  return responseMessage || fallback;
+}
 
 export function TraineeCard({
   trainee,
@@ -63,6 +76,10 @@ export function TraineeCard({
   const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
   const [isActionsOpen, setActionsOpen] = useState(false);
   const [isTransactionsOpen, setTransactionsOpen] = useState(false);
+  const [chargeNowMessage, setChargeNowMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     setPrice(initialPrice);
@@ -81,11 +98,51 @@ export function TraineeCard({
       }
       await updateTraineeCost({ traineeId: trainee.id, amount, billingMode });
     },
+    onMutate: () => {
+      setChargeNowMessage(null);
+    },
+    onSuccess: () => {
+      if (billingMode === "ChargeNow") {
+        setChargeNowMessage({
+          type: "success",
+          text: "Price saved and charge completed. Billing cycle was reset.",
+        });
+      }
+    },
+    onError: (error) => {
+      if (billingMode === "ChargeNow") {
+        setChargeNowMessage({
+          type: "error",
+          text: getMutationErrorMessage(
+            error,
+            "Price was not saved and charge failed. Try again in a moment.",
+          ),
+        });
+      }
+    },
     onSettled: () => router.refresh(),
   });
   const chargeNow = useMutation({
     mutationKey: ["trainee", trainee.id, "charge-now"],
     mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
+    onMutate: () => {
+      setChargeNowMessage(null);
+    },
+    onSuccess: () => {
+      setChargeNowMessage({
+        type: "success",
+        text: "Charge completed. Billing cycle was reset.",
+      });
+    },
+    onError: (error) => {
+      setChargeNowMessage({
+        type: "error",
+        text: getMutationErrorMessage(
+          error,
+          "Charge failed. Try again in a moment.",
+        ),
+      });
+    },
     onSettled: () => router.refresh(),
   });
   const refund = useMutation({
@@ -243,7 +300,7 @@ export function TraineeCard({
               disabled={chargeNow.isPending || !canChargeNow}
               onSelect={() => {
                 setActionsOpen(false);
-                chargeNow.mutateAsync();
+                chargeNow.mutate();
               }}
               className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
@@ -366,6 +423,21 @@ export function TraineeCard({
         </button>
       </div>
 
+      {chargeNowMessage && (
+        <div className="border-t-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-3 md:px-6">
+          <p
+            className={cn(
+              "text-sm",
+              chargeNowMessage.type === "success"
+                ? "text-[var(--shell-ink)]"
+                : "text-[var(--shell-accent)]",
+            )}
+          >
+            {chargeNowMessage.text}
+          </p>
+        </div>
+      )}
+
       <Dialog open={isPriceEditorOpen} onOpenChange={setPriceEditorOpen}>
         <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-md">
           <DialogHeader>
@@ -471,6 +543,11 @@ export function TraineeCard({
                 </span>
               </button>
             </div>
+            {billingMode === "ChargeNow" && chargeNowMessage?.type === "error" && (
+              <p className="text-xs text-[var(--shell-accent)]">
+                {chargeNowMessage.text}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button
