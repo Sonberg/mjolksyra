@@ -237,7 +237,7 @@ builder.Services.AddHostedService<ExerciseSeeder>();
 builder.Services.AddHostedService<SearchIndexBuilder>();
 builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
 builder.Services.AddHostedService<TraineeIndexBuilder>();
-builder.Services.AddHostedService<PingPublisherBackgroundService>();
+//builder.Services.AddHostedService<PingPublisherBackgroundService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddZeta();
 
