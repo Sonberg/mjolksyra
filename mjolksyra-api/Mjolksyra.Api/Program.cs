@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json.Serialization;
 using Azure.Identity;
 using MassTransit;
@@ -26,6 +27,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
+using StackExchange.Redis;
 using Stripe;
 using Zeta.AspNetCore;
 
@@ -75,10 +77,7 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services.AddSingleton(Options.Create(stripe!));
-builder.Services.ConfigureHttpJsonOptions(opt =>
-{
-    opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
+builder.Services.ConfigureHttpJsonOptions(opt => { opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services.AddOpenApi(opt =>
 {
@@ -155,7 +154,7 @@ builder.Services
         opt.AddConsumer<PingPongConsumer>();
 
         var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")
-            ?? throw new InvalidOperationException("RabbitMQ URL must be configured via RabbitMq:Url or ConnectionStrings:rabbitmq.");
+                          ?? throw new InvalidOperationException("RabbitMQ URL must be configured via RabbitMq:Url or ConnectionStrings:rabbitmq.");
 
         opt.UsingRabbitMq((context, cfg) =>
         {
@@ -240,15 +239,8 @@ builder.Services.AddHostedService<TraineeIndexBuilder>();
 //builder.Services.AddHostedService<PingPublisherBackgroundService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddZeta();
+builder.Services.AddSignalR();
 
-var redisBackplaneConnectionString = builder.Configuration.GetConnectionString("redis")
-                                    ?? builder.Configuration["Redis:ConnectionString"];
-var signalR = builder.Services.AddSignalR();
-
-if (!string.IsNullOrWhiteSpace(redisBackplaneConnectionString))
-{
-    signalR.AddStackExchangeRedis(redisBackplaneConnectionString);
-}
 builder.Services.AddSingleton<IUserEventPublisher, SignalRUserEventPublisher>();
 builder.Services.AddSingleton<INotificationRealtimePublisher, NotificationRealtimePublisher>();
 builder.Services.AddUseCases();
