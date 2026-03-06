@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mjolksyra.Api.Common;
 using Mjolksyra.Api.Common.UserEvents;
+using Mjolksyra.Api.Controllers.Stripe;
 using Mjolksyra.Api.Converters;
 using Mjolksyra.Api.Migration;
 using Mjolksyra.Api.Options;
@@ -66,6 +67,11 @@ builder.Services
 builder.Services
     .AddOptions<ClerkOptions>()
     .Bind(builder.Configuration.GetSection(ClerkOptions.SectionName))
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<PingPongOptions>()
+    .Bind(builder.Configuration.GetSection(PingPongOptions.SectionName))
     .ValidateOnStart();
 
 builder.Services.AddSingleton(Options.Create(stripe!));
@@ -146,9 +152,9 @@ builder.Services
         opt.AddConsumer<NotificationSideEffectManyConsumer>();
         opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
         opt.AddConsumer<TraineeCancellationConsumer>();
+        opt.AddConsumer<PingPongConsumer>();
 
-        var rabbitMqUrl = builder.Configuration["RabbitMq:Url"]
-            ?? builder.Configuration.GetConnectionString("rabbitmq")
+        var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")
             ?? throw new InvalidOperationException("RabbitMQ URL must be configured via RabbitMq:Url or ConnectionStrings:rabbitmq.");
 
         opt.UsingRabbitMq((context, cfg) =>
@@ -226,10 +232,12 @@ builder.Services.AddTransient<IStripeClient, StripeClient>(s =>
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<InvoiceWebhookHandler>();
 builder.Services.AddHostedService<ExerciseSeeder>();
 builder.Services.AddHostedService<SearchIndexBuilder>();
 builder.Services.AddHostedService<PlannedExerciseIndexBuilder>();
 builder.Services.AddHostedService<TraineeIndexBuilder>();
+builder.Services.AddHostedService<PingPublisherBackgroundService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddZeta();
 

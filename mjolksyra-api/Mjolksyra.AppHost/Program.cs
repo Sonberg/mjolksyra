@@ -5,7 +5,8 @@ var rabbitMq = builder.AddRabbitMQ("rabbitmq", port: 5672);
 var api = builder.AddProject<Projects.Mjolksyra_Api>("api")
     .WithReference(redis)
     .WithReference(rabbitMq)
-    .WithEnvironment("RabbitMq__Url", rabbitMq.Resource.ConnectionStringExpression);
+    .WaitFor(redis)
+    .WaitFor(rabbitMq);
 
 const string otlpEndpoint = "http://localhost:18890";
 

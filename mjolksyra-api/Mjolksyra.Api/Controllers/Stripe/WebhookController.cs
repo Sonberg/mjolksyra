@@ -24,38 +24,35 @@ public class WebhookController : Controller
     private readonly IUserRepository _userRepository;
 
     private readonly ITraineeRepository _traineeRepository;
-    private readonly ITraineeTransactionRepository _transactionRepository;
     private readonly IUserEventPublisher _userEvents;
     private readonly IEmailSender _emailSender;
-    private readonly IConfiguration _configuration;
     private readonly INotificationService _notificationService;
     private readonly ILogger<WebhookController> _logger;
     private readonly IMediator _mediator;
+    private readonly InvoiceWebhookHandler _invoiceHandler;
 
     public WebhookController(
         IOptions<StripeOptions> options,
         IStripeClient stripeClient,
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
-        ITraineeTransactionRepository transactionRepository,
         IUserEventPublisher userEvents,
         IEmailSender emailSender,
-        IConfiguration configuration,
         INotificationService notificationService,
         ILogger<WebhookController> logger,
-        IMediator mediator)
+        IMediator mediator,
+        InvoiceWebhookHandler invoiceHandler)
     {
         _options = options.Value;
         _stripeClient = stripeClient;
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
-        _transactionRepository = transactionRepository;
         _userEvents = userEvents;
         _emailSender = emailSender;
-        _configuration = configuration;
         _notificationService = notificationService;
         _logger = logger;
         _mediator = mediator;
+        _invoiceHandler = invoiceHandler;
     }
 
     [HttpPost]
@@ -101,14 +98,14 @@ public class WebhookController : Controller
             case "invoice.payment_succeeded":
                 if (stripeEvent.Data.Object is Invoice invoiceSucceeded)
                 {
-                    await HandleInvoiceSucceeded(invoiceSucceeded);
+                    await _invoiceHandler.HandleSucceeded(invoiceSucceeded);
                 }
 
                 break;
             case "invoice.payment_failed":
                 if (stripeEvent.Data.Object is Invoice invoiceFailed)
                 {
-                    await HandleInvoiceFailed(invoiceFailed);
+                    await _invoiceHandler.HandleFailed(invoiceFailed);
                 }
 
                 break;
@@ -233,105 +230,6 @@ public class WebhookController : Controller
         }
     }
 
-    private async Task HandleInvoiceSucceeded(Invoice invoice)
-    {
-        if (invoice.SubscriptionId is null) return;
-
-        var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
-        if (trainee is null) return;
-        var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
-        var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
-
-        var transaction = new TraineeTransaction
-        {
-            Id = Guid.NewGuid(),
-            TraineeId = trainee.Id,
-            PaymentIntentId = invoice.Id,
-            ReceiptUrl = invoice.HostedInvoiceUrl ?? invoice.InvoicePdf,
-            Cost = TraineeTransactionCost.From(trainee.Cost),
-            Status = TraineeTransactionStatus.Succeeded,
-            StatusRaw = "invoice.payment_succeeded",
-            CreatedAt = DateTimeOffset.UtcNow,
-        };
-
-        await _transactionRepository.Upsert(transaction, CancellationToken.None);
-
-        await _emailSender.SendPaymentSucceededToAthlete(athlete.Email.Value, new AthleteBillingEmail
-        {
-            Coach = DisplayName(coach),
-            Athlete = DisplayName(athlete),
-            Email = athlete.Email.Value,
-            PriceSek = trainee.Cost.Amount,
-            Date = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
-            NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
-        }, CancellationToken.None);
-
-        await _notificationService.Notify(athlete.Id,
-            "billing.payment-succeeded",
-            "Payment succeeded",
-            $"Payment for {trainee.Cost.Amount} SEK to {DisplayName(coach)} was successful.",
-            "/app/athlete",
-            CancellationToken.None);
-
-        await _notificationService.Notify(coach.Id,
-            "billing.payment-succeeded",
-            "Athlete payment succeeded",
-            $"{DisplayName(athlete)} payment of {trainee.Cost.Amount} SEK succeeded.",
-            "/app/coach/athletes",
-            CancellationToken.None);
-    }
-
-    private async Task HandleInvoiceFailed(Invoice invoice)
-    {
-        if (invoice.SubscriptionId is null) return;
-
-        var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
-        if (trainee is null) return;
-        var athlete = await _userRepository.GetById(trainee.AthleteUserId, CancellationToken.None);
-        var coach = await _userRepository.GetById(trainee.CoachUserId, CancellationToken.None);
-
-        var transaction = new TraineeTransaction
-        {
-            Id = Guid.NewGuid(),
-            TraineeId = trainee.Id,
-            PaymentIntentId = invoice.Id,
-            ReceiptUrl = invoice.HostedInvoiceUrl ?? invoice.InvoicePdf,
-            Cost = TraineeTransactionCost.From(trainee.Cost),
-            Status = TraineeTransactionStatus.Failed,
-            StatusRaw = "invoice.payment_failed",
-            CreatedAt = DateTimeOffset.UtcNow,
-        };
-
-        await _transactionRepository.Upsert(transaction, CancellationToken.None);
-
-        var billingEmail = new AthleteBillingEmail
-        {
-            Coach = DisplayName(coach),
-            Athlete = DisplayName(athlete),
-            Email = athlete.Email.Value,
-            PriceSek = trainee.Cost.Amount,
-            Link = $"{GetAppBaseUrl()}/app/athlete",
-            Reason = invoice.Description ?? invoice.Status
-        };
-
-        await _emailSender.SendPaymentFailedToAthlete(athlete.Email.Value, billingEmail, CancellationToken.None);
-        await _emailSender.SendPaymentFailedToCoach(coach.Email.Value, billingEmail, CancellationToken.None);
-
-        await _notificationService.Notify(athlete.Id,
-            "billing.payment-failed",
-            "Payment failed",
-            "Your coaching payment failed. Update your payment method to continue.",
-            "/app/athlete",
-            CancellationToken.None);
-
-        await _notificationService.Notify(coach.Id,
-            "billing.payment-failed",
-            "Athlete payment failed",
-            $"{DisplayName(athlete)} payment failed.",
-            "/app/coach/athletes",
-            CancellationToken.None);
-    }
-
     private async Task HandleSubscriptionDeleted(Subscription subscription)
     {
         var trainee = await _traineeRepository.GetBySubscriptionId(subscription.Id, CancellationToken.None);
@@ -352,8 +250,6 @@ public class WebhookController : Controller
             trainee.CoachUserId == trainee.AthleteUserId ? "/app" : null,
             CancellationToken.None);
     }
-
-    private string GetAppBaseUrl() => _configuration["App:BaseUrl"] ?? "http://localhost:3000";
 
     private static string DisplayName(User user)
         => string.Join(" ", new[]
