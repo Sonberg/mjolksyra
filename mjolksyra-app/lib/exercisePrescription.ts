@@ -25,6 +25,70 @@ export type ExercisePrescription = {
   }> | null;
 };
 
+export function targetForType(
+  targetType: ExercisePrescription["targetType"],
+  source?: {
+    reps: number | null;
+    durationSeconds: number | null;
+    distanceMeters: number | null;
+    weightKg: number | null;
+    note: string | null;
+  } | null,
+) {
+  if (targetType === ExercisePrescriptionTargetType.SetsReps) {
+    return {
+      target: {
+        reps: source?.reps ?? null,
+        durationSeconds: null,
+        distanceMeters: null,
+        weightKg: source?.weightKg ?? null,
+        note: source?.note ?? null,
+      },
+      actual: null,
+    };
+  }
+
+  if (targetType === ExercisePrescriptionTargetType.DurationSeconds) {
+    return {
+      target: {
+        reps: null,
+        durationSeconds: source?.durationSeconds ?? 30,
+        distanceMeters: null,
+        weightKg: null,
+        note: source?.note ?? null,
+      },
+      actual: null,
+    };
+  }
+
+  return {
+    target: {
+      reps: null,
+      durationSeconds: null,
+      distanceMeters: source?.distanceMeters ?? 1000,
+      weightKg: null,
+      note: source?.note ?? null,
+    },
+    actual: null,
+  };
+}
+
+export function normalizedSets(prescription: ExercisePrescription) {
+  if (prescription.sets?.length) {
+    return prescription.sets;
+  }
+
+  if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
+    return [targetForType(ExercisePrescriptionTargetType.SetsReps)];
+  }
+
+  if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
+    return [targetForType(ExercisePrescriptionTargetType.DurationSeconds)];
+  }
+
+  return [targetForType(ExercisePrescriptionTargetType.DistanceMeters)];
+}
+
 export function inferPrescriptionFromMechanic(
   mechanic: string | null | undefined,
 ): ExercisePrescription {

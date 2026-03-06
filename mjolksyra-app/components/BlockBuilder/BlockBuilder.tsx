@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  DragEndEvent,
-  useDndMonitor,
-} from "@dnd-kit/core";
+import { DragEndEvent, useDndMonitor } from "@dnd-kit/core";
 import { v4 } from "uuid";
 
 import { BlockWorkout, BlockExercise } from "@/services/blocks/type";
@@ -18,8 +15,7 @@ type Props = {
   numberOfWeeks: number;
   onChange: (workouts: BlockWorkout[]) => void;
   onEditExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
-  activeExerciseId: string | null;
-  mode: "arrange" | "edit";
+  selectedWorkout: { week: number; dayOfWeek: number } | null;
 };
 
 export function BlockBuilder({
@@ -27,8 +23,7 @@ export function BlockBuilder({
   numberOfWeeks,
   onChange,
   onEditExercise,
-  activeExerciseId,
-  mode,
+  selectedWorkout,
 }: Props) {
   function defaultBlockPrescription(): ExercisePrescription {
     return {
@@ -84,7 +79,7 @@ export function BlockBuilder({
       if (!sourceWorkout) return;
 
       const targetWorkout = workouts.find(
-        (w) => w.week === week && w.dayOfWeek === dayOfWeek
+        (w) => w.week === week && w.dayOfWeek === dayOfWeek,
       );
 
       if (sourceWorkout.week === week && sourceWorkout.dayOfWeek === dayOfWeek) {
@@ -108,8 +103,8 @@ export function BlockBuilder({
           updated.map((w) =>
             w.week === week && w.dayOfWeek === dayOfWeek
               ? { ...w, exercises: [...w.exercises, exercise] }
-              : w
-          )
+              : w,
+          ),
         );
       } else {
         onChange([
@@ -130,10 +125,10 @@ export function BlockBuilder({
   const addExerciseToDay = (
     week: number,
     dayOfWeek: number,
-    exercise: BlockExercise
+    exercise: BlockExercise,
   ) => {
     const existing = workouts.find(
-      (w) => w.week === week && w.dayOfWeek === dayOfWeek
+      (w) => w.week === week && w.dayOfWeek === dayOfWeek,
     );
 
     if (existing) {
@@ -141,8 +136,8 @@ export function BlockBuilder({
         workouts.map((w) =>
           w.week === week && w.dayOfWeek === dayOfWeek
             ? { ...w, exercises: [...w.exercises, exercise] }
-            : w
-        )
+            : w,
+        ),
       );
     } else {
       onChange([
@@ -162,7 +157,7 @@ export function BlockBuilder({
   const handleRemoveExercise = (
     week: number,
     dayOfWeek: number,
-    exerciseId: string
+    exerciseId: string,
   ) => {
     const updated = workouts
       .map((w) => {
@@ -191,8 +186,7 @@ export function BlockBuilder({
           workouts={workouts}
           onRemoveExercise={handleRemoveExercise}
           onEditExercise={onEditExercise}
-          activeExerciseId={activeExerciseId}
-          mode={mode}
+          selectedWorkout={selectedWorkout}
         />
       ))}
     </div>

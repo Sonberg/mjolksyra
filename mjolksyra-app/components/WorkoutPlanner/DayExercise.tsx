@@ -11,7 +11,7 @@ import { useWorkouts } from "./contexts/Workouts";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
 import { monthId } from "@/lib/monthId";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { formatPrescription } from "@/lib/exercisePrescription";
+import { ExerciseCard } from "@/components/ExerciseCard";
 
 type Props = {
   plannedExercise: PlannedExercise;
@@ -45,7 +45,7 @@ export function DayExercise({
       allowedTypes: ["plannedExercise"],
       label: plannedExercise.name,
     }),
-    [date, index, plannedWorkout, plannedExercise]
+    [date, index, plannedWorkout, plannedExercise],
   );
 
   const {
@@ -72,7 +72,7 @@ export function DayExercise({
         },
       });
     },
-    [actions, workouts]
+    [actions, workouts],
   );
 
   const onDelete = useCallback(() => {
@@ -87,7 +87,7 @@ export function DayExercise({
     const newPlannedWorkout = {
       ...plannedWorkout,
       exercises: plannedWorkout.exercises.filter(
-        (x) => x.id !== plannedExercise.id
+        (x) => x.id !== plannedExercise.id,
       ),
     };
 
@@ -96,56 +96,50 @@ export function DayExercise({
 
   return useMemo(
     () => (
-      <>
-        <div
-          className={cn({
-            "opacity-40": isDragging || isGhost,
-            "bg-[var(--shell-surface-strong)]": isDragging || isGhost,
-            "group rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1.5 text-xs transition hover:bg-[var(--shell-surface)]":
-              true,
-            "mb-1.5": !isLast,
-          })}
-          ref={setNodeRef}
-          style={{ transform: CSS.Translate.toString(transform), transition }}
-          {...attributes}
-          role="row"
-        >
-          <div className="flex w-full items-center gap-1 text-sm">
-            {!locked ? (
-              <DraggingToolTip
-                listeners={listeners}
-                icon={<EllipsisVertical className="h-4 text-[var(--shell-muted)]" />}
-                onDelete={onDelete}
-              />
-            ) : null}
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="min-w-0 flex-1">
-                    <span className="block min-w-0 select-none overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm text-[var(--shell-ink)]">
-                      {plannedExercise.name}
-                    </span>
-                    {formatPrescription(plannedExercise.prescription) ? (
-                      <span className="block text-[10px] text-[var(--shell-muted)]">
-                        {formatPrescription(plannedExercise.prescription)}
-                      </span>
-                    ) : null}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-80 break-words">
-                  {plannedExercise.name}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            {plannedExercise.isPublished ? null : (
-              <span
-                className="h-1.5 w-1.5 shrink-0 rounded-none bg-[var(--shell-accent)]"
-                title="Draft change"
-              />
-            )}
-          </div>
-        </div>
-      </>
+      <div
+        ref={setNodeRef}
+        style={{ transform: CSS.Translate.toString(transform), transition }}
+        {...attributes}
+        className={cn({ "mb-1.5": !isLast })}
+        role="row"
+      >
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ExerciseCard
+                  name={plannedExercise.name}
+                  prescription={plannedExercise.prescription ?? null}
+                  isDragging={isDragging}
+                  isGhost={isGhost}
+                  leftSlot={
+                    !locked ? (
+                      <DraggingToolTip
+                        listeners={listeners}
+                        icon={
+                          <EllipsisVertical className="h-4 text-[var(--shell-muted)]" />
+                        }
+                        onDelete={onDelete}
+                      />
+                    ) : null
+                  }
+                  rightSlot={
+                    !plannedExercise.isPublished ? (
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 self-center rounded-none bg-[var(--shell-accent)]"
+                        title="Draft change"
+                      />
+                    ) : null
+                  }
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-80 break-words">
+              {plannedExercise.name}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     ),
     [
       plannedExercise,
@@ -159,6 +153,6 @@ export function DayExercise({
       isGhost,
       isLast,
       locked,
-    ]
+    ],
   );
 }

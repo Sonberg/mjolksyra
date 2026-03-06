@@ -10,8 +10,7 @@ type Props = {
   workouts: BlockWorkout[];
   onRemoveExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
   onEditExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
-  activeExerciseId: string | null;
-  mode: "arrange" | "edit";
+  selectedWorkout: { week: number; dayOfWeek: number } | null;
 };
 
 export function BlockWeek({
@@ -19,8 +18,7 @@ export function BlockWeek({
   workouts,
   onRemoveExercise,
   onEditExercise,
-  activeExerciseId,
-  mode,
+  selectedWorkout,
 }: Props) {
   return (
     <section className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
@@ -33,11 +31,6 @@ export function BlockWeek({
       <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)] border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]">
         {DAY_NAMES.map((dayName, index) => {
           const dayOfWeek = index + 1;
-          const workout = workouts.find(
-            (w) => w.week === week && w.dayOfWeek === dayOfWeek
-          );
-          const firstExercise = workout?.exercises[0] ?? null;
-
           return (
             <div
               key={`day-header-${dayOfWeek}`}
@@ -46,12 +39,6 @@ export function BlockWeek({
               <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
                 {dayName}
               </div>
-              {mode === "edit" && !firstExercise ? (
-                <span
-                  className="h-4 w-4"
-                  aria-hidden
-                />
-              ) : null}
             </div>
           );
         })}
@@ -60,8 +47,10 @@ export function BlockWeek({
         {DAY_NAMES.map((_, index) => {
           const dayOfWeek = index + 1;
           const workout = workouts.find(
-            (w) => w.week === week && w.dayOfWeek === dayOfWeek
+            (w) => w.week === week && w.dayOfWeek === dayOfWeek,
           );
+          const isActiveWorkout =
+            selectedWorkout?.week === week && selectedWorkout?.dayOfWeek === dayOfWeek;
           return (
             <BlockDay
               key={dayOfWeek}
@@ -74,8 +63,7 @@ export function BlockWeek({
               onEditExercise={(exerciseId) =>
                 onEditExercise(week, dayOfWeek, exerciseId)
               }
-              activeExerciseId={activeExerciseId}
-              mode={mode}
+              isActiveWorkout={isActiveWorkout}
             />
           );
         })}

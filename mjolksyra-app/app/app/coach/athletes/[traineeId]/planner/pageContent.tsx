@@ -38,7 +38,11 @@ type Props = {
   traineeId: string;
 };
 
-function PlannerChangesTabLabel({ pendingWorkoutCount }: { pendingWorkoutCount: number }) {
+function PlannerChangesTabLabel({
+  pendingWorkoutCount,
+}: {
+  pendingWorkoutCount: number;
+}) {
   return (
     <span className="inline-flex w-full items-center justify-center gap-1.5">
       Changes
@@ -56,7 +60,10 @@ type PlannerChangesPanelProps = {
   onDraftsChanged: () => Promise<unknown>;
 };
 
-function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesPanelProps) {
+function PlannerChangesPanel({
+  draftWorkouts,
+  onDraftsChanged,
+}: PlannerChangesPanelProps) {
   const { dispatch } = useWorkouts();
   const { update, delete: deleteWorkout } = usePlannedWorkoutActions();
   const [isSaving, setIsSaving] = useState(false);
@@ -100,7 +107,9 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
     setIsSaving(true);
     try {
       for (const workout of draftWorkouts) {
-        const publishedOnly = workout.exercises.filter((exercise) => exercise.isPublished);
+        const publishedOnly = workout.exercises.filter(
+          (exercise) => exercise.isPublished,
+        );
 
         if (publishedOnly.length === 0) {
           await deleteWorkout({ plannedWorkout: workout });
@@ -176,7 +185,9 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
             </div>
           ) : (
             draftWorkouts.map((workout) => {
-              const draftExercises = workout.exercises.filter((exercise) => !exercise.isPublished);
+              const draftExercises = workout.exercises.filter(
+                (exercise) => !exercise.isPublished,
+              );
               return (
                 <div
                   key={workout.id}
@@ -206,9 +217,9 @@ function PlannerChangesPanel({ draftWorkouts, onDraftsChanged }: PlannerChangesP
 export function PageContent({ traineeId }: Props) {
   const router = useRouter();
   const { subscribe } = useUserEvents();
-  const [rightSideTab, setRightSideTab] = useState<"exercises" | "blocks" | "changes">(
-    "exercises",
-  );
+  const [rightSideTab, setRightSideTab] = useState<
+    "exercises" | "blocks" | "changes"
+  >("exercises");
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "plannerHeader"],
     queryFn: ({ signal }) => getTrainee({ id: traineeId, signal }),
@@ -218,10 +229,7 @@ export function PageContent({ traineeId }: Props) {
       ? `${trainee?.athlete?.givenName ?? ""} ${trainee?.athlete?.familyName ?? ""}`.trim()
       : trainee?.athlete?.name || "Athlete";
 
-  const {
-    data: draftWorkouts = [],
-    refetch: refetchDraftWorkouts,
-  } = useQuery({
+  const { data: draftWorkouts = [], refetch: refetchDraftWorkouts } = useQuery({
     queryKey: ["planned-workouts", "drafts", traineeId],
     queryFn: async ({ signal }) => {
       const workouts: PlannedWorkout[] = [];
@@ -307,7 +315,9 @@ export function PageContent({ traineeId }: Props) {
                 {
                   key: "changes",
                   label: (
-                    <PlannerChangesTabLabel pendingWorkoutCount={draftWorkouts.length} />
+                    <PlannerChangesTabLabel
+                      pendingWorkoutCount={draftWorkouts.length}
+                    />
                   ),
                   onSelect: () => setRightSideTab("changes"),
                 },

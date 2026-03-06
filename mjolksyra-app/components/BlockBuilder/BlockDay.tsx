@@ -12,8 +12,7 @@ type Props = {
   workout: BlockWorkout | undefined;
   onRemoveExercise: (exerciseId: string) => void;
   onEditExercise: (exerciseId: string) => void;
-  activeExerciseId: string | null;
-  mode: "arrange" | "edit";
+  isActiveWorkout: boolean;
 };
 
 export function BlockDay({
@@ -22,8 +21,7 @@ export function BlockDay({
   workout,
   onRemoveExercise,
   onEditExercise,
-  activeExerciseId,
-  mode,
+  isActiveWorkout,
 }: Props) {
   const id = `block-day-${week}-${dayOfWeek}`;
   const { active } = useDndContext();
@@ -48,7 +46,7 @@ export function BlockDay({
         "flex min-h-32 flex-col gap-1.5 p-2 transition-colors",
         {
           "bg-[var(--shell-accent)]/10": isOver && isExerciseDragging,
-        }
+        },
       )}
     >
       {workout ? (
@@ -63,8 +61,7 @@ export function BlockDay({
               blockWorkoutId={workout.id}
               onRemove={() => onRemoveExercise(exercise.id)}
               onEdit={() => onEditExercise(exercise.id)}
-              isActive={activeExerciseId === exercise.id}
-              mode={mode}
+              isActive={isActiveWorkout}
             />
           ))}
         </SortableContext>
@@ -72,7 +69,7 @@ export function BlockDay({
         <div
           className={cn(
             "grid flex-1 place-items-center rounded-none border-2 border-dashed border-[var(--shell-border)] text-center text-xs text-[var(--shell-muted)] opacity-0 transition-all hover:opacity-100",
-            { "opacity-100": isOver && isExerciseDragging }
+            { "opacity-100": isOver && isExerciseDragging },
           )}
         >
           Drop exercises
