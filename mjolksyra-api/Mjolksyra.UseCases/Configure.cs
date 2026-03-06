@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.UseCases.Baseload;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
+using Mjolksyra.UseCases.Coaches.GetAppliedDiscountCode;
 using Mjolksyra.UseCases.Trainees;
 using Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
 
@@ -15,6 +16,7 @@ public static class Configure
         services.AddValidatorsFromAssemblyContaining<UseCasesAssemblyMarker>();
         services.AddScoped<ITraineeResponseBuilder, TraineeResponseBuilder>();
         services.AddScoped<ICoachPlatformBillingStripeGateway, CoachPlatformBillingStripeGateway>();
+        services.AddScoped<ICoachDiscountConfigurationStripeGateway, CoachDiscountConfigurationStripeGateway>();
         services.AddScoped<IStripeRefundGateway, StripeRefundGateway>();
         services.AddScoped<IStripeInvoiceListGateway, StripeInvoiceListGateway>();
     }

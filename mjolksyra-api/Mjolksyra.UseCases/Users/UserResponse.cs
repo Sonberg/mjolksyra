@@ -18,6 +18,13 @@ public class UserOnboardingResponse
     public Guid? CoachPlanId { get; set; }
 }
 
+public class UserDiscountResponse
+{
+    public string? Code { get; set; }
+
+    public string? Description { get; set; }
+}
+
 public class UserResponse
 {
     public required Guid Id { get; set; }
@@ -35,4 +42,6 @@ public class UserResponse
     public required List<UserInvitationResponse> Invitations { get; set; }
 
     public required bool IsAdmin { get; set; }
+
+    public UserDiscountResponse? Discount { get; set; }
 }

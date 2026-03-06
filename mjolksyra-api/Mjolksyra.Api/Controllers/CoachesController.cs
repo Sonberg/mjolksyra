@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Coaches.ApplyDiscountCode;
+using Mjolksyra.UseCases.Coaches.GetAppliedDiscountCode;
 using Mjolksyra.UseCases.Coaches.UpdateCoachPlan;
 
 namespace Mjolksyra.Api.Controllers;
@@ -12,6 +13,17 @@ namespace Mjolksyra.Api.Controllers;
 [Route("api/coaches")]
 public class CoachesController(IMediator mediator, IUserContext userContext) : ControllerBase
 {
+    [HttpGet("discout-code")]
+    [HttpGet("discount-code")]
+    public async Task<ActionResult<GetAppliedDiscountCodeResponse>> GetAppliedDiscountCode(CancellationToken ct)
+    {
+        var userId = await userContext.GetUserId(ct);
+        if (userId is null) return Unauthorized();
+
+        var response = await mediator.Send(new GetAppliedDiscountCodeQuery(userId.Value), ct);
+        return Ok(response);
+    }
+
     [HttpPost("discount-code")]
     public async Task<IActionResult> ApplyDiscountCode(
         [FromBody] ApplyDiscountCodeBody body,

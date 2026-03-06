@@ -3,10 +3,13 @@
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getAppliedDiscountCode } from "@/services/coaches/getAppliedDiscountCode";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { Plan } from "@/services/plans/type";
 import { CoachPlanSelector } from "./CoachPlanSelector";
 import { CoachPlanNudge } from "./CoachPlanNudge";
+import { AppliedDiscountCard } from "./AppliedDiscountCard";
 
 type CoachPaymentStatus = {
   label: string;
@@ -23,6 +26,10 @@ type Props = {
   isOpeningStripe: boolean;
   onOpenStripeDashboard: () => Promise<void> | void;
   trialEndsAt?: Date | null;
+  discount?: {
+    code?: string | null;
+    description?: string | null;
+  } | null;
 };
 
 export function CoachDashboardSubscriptionSection({
@@ -34,7 +41,9 @@ export function CoachDashboardSubscriptionSection({
   isOpeningStripe,
   onOpenStripeDashboard,
   trialEndsAt,
+  discount,
 }: Props) {
+  const queryClient = useQueryClient();
   const overageTotalSek = overageAthletes * currentPlan.extraAthletePriceSek;
   const estimatedTotalSek = currentPlan.monthlyPriceSek + overageTotalSek;
 
@@ -47,6 +56,26 @@ export function CoachDashboardSubscriptionSection({
   const [discountCode, setDiscountCode] = useState("");
   const [isApplyingCode, setIsApplyingCode] = useState(false);
   const [discountMessage, setDiscountMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [activeDiscountCode, setActiveDiscountCode] = useState<string | null>(null);
+  const [activeDiscountDescription, setActiveDiscountDescription] = useState<string | null>(null);
+  const [activeDiscountStripeCouponId, setActiveDiscountStripeCouponId] = useState<string | null>(null);
+
+  const { data: liveDiscount } = useQuery({
+    queryKey: ["coach-applied-discount"],
+    queryFn: getAppliedDiscountCode,
+  });
+
+  const effectiveDiscountCode = activeDiscountCode
+    ?? liveDiscount?.code
+    ?? discount?.code
+    ?? null;
+  const effectiveDiscountDescription = activeDiscountDescription
+    ?? liveDiscount?.description
+    ?? discount?.description
+    ?? null;
+  const effectiveDiscountStripeCouponId = activeDiscountStripeCouponId
+    ?? liveDiscount?.stripeCouponId
+    ?? null;
 
   async function handleApplyCode() {
     if (!discountCode.trim()) return;
@@ -60,7 +89,11 @@ export function CoachDashboardSubscriptionSection({
       });
       if (res.ok) {
         setDiscountMessage({ type: "success", text: "Discount applied to your subscription." });
+        setActiveDiscountCode(discountCode.trim());
+        setActiveDiscountDescription(null);
+        setActiveDiscountStripeCouponId(null);
         setDiscountCode("");
+        await queryClient.invalidateQueries({ queryKey: ["coach-applied-discount"] });
       } else if (res.status === 404) {
         setDiscountMessage({ type: "error", text: "Discount code not found." });
       } else {
@@ -117,6 +150,13 @@ export function CoachDashboardSubscriptionSection({
 
         <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Discount code</p>
+          <AppliedDiscountCard
+            code={effectiveDiscountCode}
+            description={effectiveDiscountDescription}
+            stripeCouponId={effectiveDiscountStripeCouponId}
+            stripePromotionCodeId={liveDiscount?.stripePromotionCodeId ?? null}
+            stripeCoupon={liveDiscount?.stripeCoupon ?? null}
+          />
           <div className="mt-2 flex gap-2">
             <input
               type="text"

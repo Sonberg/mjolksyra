@@ -33,5 +33,12 @@ export const userSchema = z.object({
     coachTrialEndsAt: z.coerce.date().nullable().optional(),
     coachPlanId: z.string().nullable().optional(),
   }),
+  discount: z
+    .object({
+      code: z.string().nullable().optional(),
+      description: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
   isAdmin: z.boolean().default(false),
 });

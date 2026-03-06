@@ -79,6 +79,7 @@ export function PaymentsPageContent({ user, trainees }: Props) {
       isOpeningStripe={isOpeningStripe}
       onOpenStripeDashboard={openStripeDashboard}
       trialEndsAt={user.onboarding.coachTrialEndsAt ?? null}
+      discount={user.discount ?? null}
     />
   );
 }

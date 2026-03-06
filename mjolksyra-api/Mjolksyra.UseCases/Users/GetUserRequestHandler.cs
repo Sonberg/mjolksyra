@@ -7,7 +7,8 @@ namespace Mjolksyra.UseCases.Users;
 public class GetUserRequestHandler(
     IUserRepository userRepository,
     ITraineeRepository traineeRepository,
-    ITraineeInvitationsRepository traineeInvitationsRepository
+    ITraineeInvitationsRepository traineeInvitationsRepository,
+    IDiscountCodeRepository discountCodeRepository
 ) : IRequestHandler<GetUserRequest, UserResponse>
 {
     public async Task<UserResponse> Handle(GetUserRequest request, CancellationToken cancellationToken)
@@ -24,6 +25,10 @@ public class GetUserRequestHandler(
 
         var traineeUsers = await userRepository.GetManyById(userIds, cancellationToken);
         var traineeUsersLookup = traineeUsers.ToDictionary(x => x.Id);
+        var coachDiscountCode = user.Coach?.Stripe?.DiscountCodeId is { Length: > 0 } discountCodeId &&
+            Guid.TryParse(discountCodeId, out var discountCodeGuid)
+            ? await discountCodeRepository.GetById(discountCodeGuid, cancellationToken)
+            : null;
         var response = new UserResponse
         {
             Id = user.Id,
@@ -48,6 +53,13 @@ public class GetUserRequestHandler(
                 CoachTrialEndsAt = user.Coach?.Stripe?.TrialEndsAt,
                 CoachPlanId = user.Coach?.Stripe?.PlanId,
             },
+            Discount = coachDiscountCode is null
+                ? null
+                : new UserDiscountResponse
+                {
+                    Code = coachDiscountCode.Code,
+                    Description = coachDiscountCode.Description,
+                },
             Athletes = activeTrainees
                 .Where(x => x.CoachUserId == request.UserId)
                 .Select(x => new UserTraineeResponse
