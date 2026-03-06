@@ -27,25 +27,45 @@ public class AcceptTraineeInvitationCommandHandler(
         if (invitation.Email.Normalized != athlete.Email.Normalized) return;
         var coach = await userRepository.GetById(invitation.CoachUserId, cancellationToken);
 
-        if (await traineeRepository.ExistsActiveRelationship(invitation.CoachUserId, request.AthleteUserId, cancellationToken))
+        var existingRelationship = await traineeRepository.GetRelationship(
+            invitation.CoachUserId,
+            request.AthleteUserId,
+            cancellationToken);
+
+        if (existingRelationship?.Status == TraineeStatus.Active)
         {
             await traineeInvitationsRepository.AcceptAsync(invitation.Id, cancellationToken);
             return;
         }
 
-        var trainee = await traineeRepository.Create(new Trainee
+        Trainee trainee;
+        if (existingRelationship is not null)
         {
-            Id = Guid.NewGuid(),
-            Status = TraineeStatus.Active,
-            AthleteUserId = request.AthleteUserId,
-            CoachUserId = invitation.CoachUserId,
-            TraineeInvitationId = invitation.Id,
-            Cost = new TraineeCost
+            existingRelationship.Status = TraineeStatus.Active;
+            existingRelationship.TraineeInvitationId = invitation.Id;
+            existingRelationship.Cost = new TraineeCost
             {
                 Amount = Math.Max(0, invitation.MonthlyPriceAmount ?? 0)
-            },
-            CreatedAt = DateTimeOffset.UtcNow
-        }, cancellationToken);
+            };
+
+            trainee = await traineeRepository.Update(existingRelationship, cancellationToken);
+        }
+        else
+        {
+            trainee = await traineeRepository.Create(new Trainee
+            {
+                Id = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+                AthleteUserId = request.AthleteUserId,
+                CoachUserId = invitation.CoachUserId,
+                TraineeInvitationId = invitation.Id,
+                Cost = new TraineeCost
+                {
+                    Amount = Math.Max(0, invitation.MonthlyPriceAmount ?? 0)
+                },
+                CreatedAt = DateTimeOffset.UtcNow
+            }, cancellationToken);
+        }
 
         await traineeInvitationsRepository.AcceptAsync(
             invitation.Id,

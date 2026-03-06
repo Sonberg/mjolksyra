@@ -97,6 +97,15 @@ public class TraineeRepository : ITraineeRepository
             .AnyAsync(ct);
     }
 
+    public async Task<Trainee?> GetRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct)
+    {
+        return await _context.Trainees
+            .Find(x => x.CoachUserId == coachUserId && x.AthleteUserId == athleteUserId)
+            .Limit(1)
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
+    }
+
     public async Task<long> CountActiveAsync(CancellationToken ct)
     {
         return await _context.Trainees.CountDocumentsAsync(

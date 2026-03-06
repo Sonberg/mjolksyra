@@ -30,8 +30,16 @@ public class InvitationDecisionHandlersTests
 
         var trainees = new Mock<ITraineeRepository>();
         trainees
-            .Setup(x => x.ExistsActiveRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(x => x.GetRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = Guid.NewGuid(),
+                CoachUserId = coach.Id,
+                AthleteUserId = athlete.Id,
+                Status = TraineeStatus.Active,
+                Cost = new TraineeCost { Amount = 500 },
+                CreatedAt = DateTimeOffset.UtcNow
+            });
         var mediator = new Mock<IMediator>();
 
         var sut = new AcceptTraineeInvitationCommandHandler(
@@ -50,6 +58,66 @@ public class InvitationDecisionHandlersTests
 
         invitations.Verify(x => x.AcceptAsync(invitation.Id, It.IsAny<CancellationToken>()), Times.Once);
         trainees.Verify(x => x.Create(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()), Times.Never);
+        trainees.Verify(x => x.Update(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task AcceptInvitation_WhenRelationshipExistsButCancelled_ReactivatesWithoutCreatingDuplicate()
+    {
+        var invitation = CreateInvitation();
+        var athlete = CreateUser(invitation.Email.Value);
+        var coach = CreateUser("coach@example.com");
+        invitation.CoachUserId = coach.Id;
+
+        var invitations = new Mock<ITraineeInvitationsRepository>();
+        invitations.Setup(x => x.GetByIdAsync(invitation.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invitation);
+
+        var users = new Mock<IUserRepository>();
+        users.Setup(x => x.GetById(athlete.Id, It.IsAny<CancellationToken>())).ReturnsAsync(athlete);
+        users.Setup(x => x.GetById(coach.Id, It.IsAny<CancellationToken>())).ReturnsAsync(coach);
+
+        var existing = new Trainee
+        {
+            Id = Guid.NewGuid(),
+            CoachUserId = coach.Id,
+            AthleteUserId = athlete.Id,
+            Status = TraineeStatus.Cancelled,
+            Cost = new TraineeCost { Amount = 100 },
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        var trainees = new Mock<ITraineeRepository>();
+        trainees
+            .Setup(x => x.GetRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        trainees
+            .Setup(x => x.Update(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Trainee t, CancellationToken _) => t);
+
+        var mediator = new Mock<IMediator>();
+        var sut = new AcceptTraineeInvitationCommandHandler(
+            trainees.Object,
+            invitations.Object,
+            users.Object,
+            Mock.Of<IEmailSender>(),
+            Mock.Of<INotificationService>(),
+            mediator.Object);
+
+        await sut.Handle(new AcceptTraineeInvitationCommand
+        {
+            TraineeInvitationId = invitation.Id,
+            AthleteUserId = athlete.Id
+        }, CancellationToken.None);
+
+        trainees.Verify(x => x.Create(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()), Times.Never);
+        trainees.Verify(x => x.Update(
+            It.Is<Trainee>(t =>
+                t.Id == existing.Id
+                && t.Status == TraineeStatus.Active
+                && t.TraineeInvitationId == invitation.Id
+                && t.Cost.Amount == invitation.MonthlyPriceAmount),
+            It.IsAny<CancellationToken>()), Times.Once);
+        invitations.Verify(x => x.AcceptAsync(invitation.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -118,8 +186,8 @@ public class InvitationDecisionHandlersTests
         var createdTraineeId = Guid.NewGuid();
         var trainees = new Mock<ITraineeRepository>();
         trainees
-            .Setup(x => x.ExistsActiveRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(x => x.GetRelationship(coach.Id, athlete.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Trainee?)null);
         trainees
             .Setup(x => x.Create(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Trainee t, CancellationToken _) =>

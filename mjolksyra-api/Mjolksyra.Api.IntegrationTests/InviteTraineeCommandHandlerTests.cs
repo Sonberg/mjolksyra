@@ -175,6 +175,7 @@ public class InviteTraineeCommandHandlerTests
     private sealed class FakeTraineeRepository : ITraineeRepository
     {
         public bool ExistsActiveRelationshipResult { get; set; }
+        public Trainee? ExistingRelationship { get; set; }
 
         public Task<Trainee> Create(Trainee trainee, CancellationToken ct) => Task.FromResult(trainee);
 
@@ -198,6 +199,9 @@ public class InviteTraineeCommandHandlerTests
 
         public Task<bool> ExistsActiveRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct) =>
             Task.FromResult(ExistsActiveRelationshipResult);
+
+        public Task<Trainee?> GetRelationship(Guid coachUserId, Guid athleteUserId, CancellationToken ct) =>
+            Task.FromResult(ExistingRelationship);
     }
 
     private sealed class FakeEmailSender : IEmailSender
