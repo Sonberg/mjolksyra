@@ -88,7 +88,7 @@ export function CoachAthletesContent({ trainees }: Props) {
             trigger={
               <Button
                 disabled={false}
-                className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-surface)] transition hover:bg-[#ce2f10]"
+                className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
                 size="lg"
               >
                 <UserPlusIcon className="h-5 w-5" />

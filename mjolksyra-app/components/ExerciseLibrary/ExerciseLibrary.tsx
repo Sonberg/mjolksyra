@@ -181,7 +181,7 @@ export function ExerciseLibrary({ exercies }: Props) {
           <CreateExerciseDialog
             exercises={exercies}
             trigger={
-              <Button className="h-10 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[#ce2f10]">
+              <Button className="h-10 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]">
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New Exercise
               </Button>

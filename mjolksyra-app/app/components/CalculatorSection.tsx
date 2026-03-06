@@ -238,16 +238,16 @@ export const CalculatorSection = ({
             </div>
 
             <div className="bg-[var(--home-accent)] px-6 py-6">
-              <div className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-surface)]/80">
+              <div className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-accent-ink)] opacity-80">
                 You keep
               </div>
               <div
-                className="font-[var(--font-display)] text-5xl text-[var(--home-surface)]"
+                className="font-[var(--font-display)] text-5xl text-[var(--home-accent-ink)]"
                 data-testid="calculator-net-revenue"
               >
                 {netRevenue.toLocaleString("sv-SE")} kr
               </div>
-              <div className="mt-2 text-xs text-[var(--home-surface)]/70">
+              <div className="mt-2 text-xs text-[var(--home-accent-ink)] opacity-70">
                 per month — excl. taxes &amp; payment fees
               </div>
             </div>

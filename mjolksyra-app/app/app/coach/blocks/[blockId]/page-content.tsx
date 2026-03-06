@@ -257,7 +257,7 @@ export function BlockEditorContent({ blockId }: Props) {
                         onClick={handleSave}
                         disabled={saveMutation.isPending}
                         size="sm"
-                        className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-surface)] hover:bg-[#ce2f10]"
+                        className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
                       >
                         <SaveIcon className="mr-2 h-4 w-4" />
                         {saveMutation.isPending ? "Saving..." : "Save"}

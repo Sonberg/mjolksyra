@@ -199,7 +199,7 @@ export function CoachDashboardSubscriptionSection({
               type="button"
               onClick={onOpenStripeDashboard}
               disabled={isOpeningStripe}
-              className="mt-4 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-semibold text-[var(--shell-surface)] hover:bg-[#ce2f10] disabled:opacity-60"
+              className="mt-4 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-semibold text-[var(--shell-accent-ink)] hover:bg-[#ce2f10] disabled:opacity-60"
             >
               {isOpeningStripe ? <Spinner size={14} /> : "Open Stripe"}
             </Button>

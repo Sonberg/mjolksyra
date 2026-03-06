@@ -46,6 +46,7 @@ export default function Home() {
           --home-text: #161311;
           --home-muted: #5e5448;
           --home-accent: #f03a17;
+          --home-accent-ink: #141414;
           --home-accent-2: #151515;
           --font-display: "Alfa Slab One", "Alfa Slab One Fallback";
           background: var(--home-bg);
@@ -61,6 +62,7 @@ export default function Home() {
           --home-text: #efefef;
           --home-muted: #a3a3a3;
           --home-accent: #f03a17;
+          --home-accent-ink: #141414;
           --home-accent-2: #efefef;
         }
 

@@ -100,7 +100,7 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-surface)] hover:bg-[#ce2f10]"
+                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
               >
                 {isLoading ? "Saving..." : "Complete Setup"}
               </Button>

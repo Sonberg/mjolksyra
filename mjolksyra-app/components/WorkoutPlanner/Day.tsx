@@ -126,7 +126,7 @@ export function Day({ date, plannedWorkout }: Props) {
               <div
                 className={cn({
                   "select-none rounded-none px-1.5 py-0.5 text-[var(--shell-muted)]": true,
-                  "bg-[var(--shell-accent)] text-[var(--shell-surface)]": isToday,
+                  "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]": isToday,
                 })}
               >
                 {date.date()}

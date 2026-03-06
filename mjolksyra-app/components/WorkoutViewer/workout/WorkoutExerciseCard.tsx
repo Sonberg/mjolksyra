@@ -40,7 +40,7 @@ export function WorkoutExerciseCard({
   return (
     <div className="grid gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 sm:p-4">
       <div className="flex items-start gap-3 sm:items-center sm:gap-4">
-        <div className="grid h-8 w-8 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-surface)]">
+        <div className="grid h-8 w-8 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)]">
           {index + 1}
         </div>
         <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2 sm:gap-3">

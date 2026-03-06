@@ -5,7 +5,6 @@ using Mjolksyra.UseCases.Coaches.GetPlans;
 
 namespace Mjolksyra.Api.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/plans")]
 public class PlansController(IMediator mediator) : ControllerBase
