@@ -30,19 +30,19 @@ body {
 }
 
 .dark .shell-dropdown {
-  background-color: #1b1410;
-  color: #f2e8df;
-  border-color: #3d2e26;
+  background-color: #191615;
+  color: #ede7e4;
+  border-color: #342f2d;
 }
 
 .dark .theme-shell-two,
 [data-theme="dark"] .theme-shell-two {
-  --shell-bg: #110c0a;
-  --shell-surface: #1b1410;
-  --shell-surface-strong: #2a1f18;
-  --shell-ink: #f2e8df;
-  --shell-border: #3d2e26;
-  --shell-muted: #9e8c82;
+  --shell-bg: #110e0d;
+  --shell-surface: #191615;
+  --shell-surface-strong: #24211e;
+  --shell-ink: #ede7e4;
+  --shell-border: #342f2d;
+  --shell-muted: #948d89;
   --shell-accent: #ff4520;
   --shell-accent-ink: #141414;
 }
@@ -97,33 +97,33 @@ body {
     --radius: var(--mjolksyra-radius-md);
   }
   .dark {
-    --shell-bg: #110c0a;
-    --shell-surface: #1b1410;
-    --shell-surface-strong: #2a1f18;
-    --shell-ink: #f2e8df;
-    --shell-border: #3d2e26;
-    --shell-muted: #9e8c82;
+    --shell-bg: #110e0d;
+    --shell-surface: #191615;
+    --shell-surface-strong: #24211e;
+    --shell-ink: #ede7e4;
+    --shell-border: #342f2d;
+    --shell-muted: #948d89;
     --shell-accent: #ff4520;
     --shell-accent-ink: #141414;
 
-    --background: 15 25% 4%;
+    --background: 15 10% 4%;
     --foreground: 0 0% 98%;
-    --card: 15 20% 7%;
+    --card: 15 8% 7%;
     --card-foreground: 0 0% 98%;
-    --popover: 15 20% 7%;
+    --popover: 15 8% 7%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 15 15% 13%;
+    --secondary: 15 8% 13%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 15 15% 13%;
-    --muted-foreground: 20 12% 62%;
-    --accent: 15 15% 13%;
+    --muted: 15 8% 13%;
+    --muted-foreground: 20 6% 62%;
+    --accent: 15 8% 13%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 15 15% 13%;
-    --input: 15 15% 13%;
+    --border: 15 8% 13%;
+    --input: 15 8% 13%;
     --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -133,12 +133,12 @@ body {
   }
 
   :root[data-theme="dark"] {
-    --shell-bg: #110c0a;
-    --shell-surface: #1b1410;
-    --shell-surface-strong: #2a1f18;
-    --shell-ink: #f2e8df;
-    --shell-border: #3d2e26;
-    --shell-muted: #9e8c82;
+    --shell-bg: #110e0d;
+    --shell-surface: #191615;
+    --shell-surface-strong: #24211e;
+    --shell-ink: #ede7e4;
+    --shell-border: #342f2d;
+    --shell-muted: #948d89;
     --shell-accent: #ff4520;
     --shell-accent-ink: #141414;
   }

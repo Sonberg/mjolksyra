@@ -55,15 +55,15 @@ export default function Home() {
 
         .dark .home-shell,
         [data-theme="dark"] .home-shell {
-          --home-bg: #110c0a;
-          --home-surface: #1b1410;
-          --home-surface-strong: #2a1f18;
-          --home-border: #3d2e26;
-          --home-text: #f2e8df;
-          --home-muted: #9e8c82;
+          --home-bg: #110e0d;
+          --home-surface: #191615;
+          --home-surface-strong: #24211e;
+          --home-border: #342f2d;
+          --home-text: #ede7e4;
+          --home-muted: #948d89;
           --home-accent: #ff4520;
           --home-accent-ink: #141414;
-          --home-accent-2: #f2e8df;
+          --home-accent-2: #ede7e4;
         }
 
         .home-glow {
