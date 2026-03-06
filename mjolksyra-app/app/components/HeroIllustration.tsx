@@ -24,17 +24,17 @@ export function HeroIllustration() {
         .hi-display { font-family: var(--font-display, 'Alfa Slab One', Georgia, serif); }
         .hi-body { font-family: var(--font-body, 'DM Sans', Arial, sans-serif); }
 
-        .dark .hi-bg-s1, [data-theme="dark"] .hi-bg-s1 { stop-color: #0e0e0e; }
-        .dark .hi-bg-s2, [data-theme="dark"] .hi-bg-s2 { stop-color: #121212; }
-        .dark .hi-glow-s1, [data-theme="dark"] .hi-glow-s1 { stop-color: #ffffff; stop-opacity: 0.06; }
-        .dark .hi-glow-s2, [data-theme="dark"] .hi-glow-s2 { stop-color: #ffffff; stop-opacity: 0; }
-        .dark .hi-surface, [data-theme="dark"] .hi-surface { fill: #171717; }
-        .dark .hi-surface-strong, [data-theme="dark"] .hi-surface-strong { fill: #242424; }
-        .dark .hi-border, [data-theme="dark"] .hi-border { stroke: #d4d4d4; }
-        .dark .hi-ink, [data-theme="dark"] .hi-ink { fill: #efefef; }
-        .dark .hi-ink-s, [data-theme="dark"] .hi-ink-s { stroke: #efefef; }
-        .dark .hi-muted, [data-theme="dark"] .hi-muted { fill: #a3a3a3; }
-        .dark .hi-deco, [data-theme="dark"] .hi-deco { stroke: #d4d4d4; }
+        .dark .hi-bg-s1, [data-theme="dark"] .hi-bg-s1 { stop-color: #110c0a; }
+        .dark .hi-bg-s2, [data-theme="dark"] .hi-bg-s2 { stop-color: #1b1410; }
+        .dark .hi-glow-s1, [data-theme="dark"] .hi-glow-s1 { stop-color: #f2e8df; stop-opacity: 0.04; }
+        .dark .hi-glow-s2, [data-theme="dark"] .hi-glow-s2 { stop-color: #f2e8df; stop-opacity: 0; }
+        .dark .hi-surface, [data-theme="dark"] .hi-surface { fill: #1b1410; }
+        .dark .hi-surface-strong, [data-theme="dark"] .hi-surface-strong { fill: #2a1f18; }
+        .dark .hi-border, [data-theme="dark"] .hi-border { stroke: #3d2e26; }
+        .dark .hi-ink, [data-theme="dark"] .hi-ink { fill: #f2e8df; }
+        .dark .hi-ink-s, [data-theme="dark"] .hi-ink-s { stroke: #f2e8df; }
+        .dark .hi-muted, [data-theme="dark"] .hi-muted { fill: #9e8c82; }
+        .dark .hi-deco, [data-theme="dark"] .hi-deco { stroke: #3d2e26; }
       `}</style>
 
       <defs>

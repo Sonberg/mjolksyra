@@ -30,20 +30,20 @@ body {
 }
 
 .dark .shell-dropdown {
-  background-color: #171717;
-  color: #efefef;
-  border-color: #d4d4d4;
+  background-color: #1b1410;
+  color: #f2e8df;
+  border-color: #3d2e26;
 }
 
 .dark .theme-shell-two,
 [data-theme="dark"] .theme-shell-two {
-  --shell-bg: #0e0e0e;
-  --shell-surface: #171717;
-  --shell-surface-strong: #242424;
-  --shell-ink: #efefef;
-  --shell-border: #d4d4d4;
-  --shell-muted: #a3a3a3;
-  --shell-accent: #f03a17;
+  --shell-bg: #110c0a;
+  --shell-surface: #1b1410;
+  --shell-surface-strong: #2a1f18;
+  --shell-ink: #f2e8df;
+  --shell-border: #3d2e26;
+  --shell-muted: #9e8c82;
+  --shell-accent: #ff4520;
   --shell-accent-ink: #141414;
 }
 
@@ -97,36 +97,33 @@ body {
     --radius: var(--mjolksyra-radius-md);
   }
   .dark {
-    --shell-bg: #0e0e0e;
-    --shell-surface: #171717;
-    --shell-surface-strong: #242424;
-    --shell-ink: #efefef;
-    --shell-border: #d4d4d4;
-    --shell-muted: #a3a3a3;
-    --shell-accent: #f03a17;
+    --shell-bg: #110c0a;
+    --shell-surface: #1b1410;
+    --shell-surface-strong: #2a1f18;
+    --shell-ink: #f2e8df;
+    --shell-border: #3d2e26;
+    --shell-muted: #9e8c82;
+    --shell-accent: #ff4520;
     --shell-accent-ink: #141414;
 
-    /* --background: 240 10% 3.9%; */
-    /* --background: 223 14.3% 9.6%; */
-    --background: 0 0% 0%;
+    --background: 15 25% 4%;
     --foreground: 0 0% 98%;
-    /* --card: 240 10% 3.9%; */
-    --card: 223 14.3% 9.6%;
+    --card: 15 20% 7%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 15 20% 7%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 15 15% 13%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --muted: 15 15% 13%;
+    --muted-foreground: 20 12% 62%;
+    --accent: 15 15% 13%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 15 15% 13%;
+    --input: 15 15% 13%;
     --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -136,13 +133,13 @@ body {
   }
 
   :root[data-theme="dark"] {
-    --shell-bg: #0e0e0e;
-    --shell-surface: #171717;
-    --shell-surface-strong: #242424;
-    --shell-ink: #efefef;
-    --shell-border: #d4d4d4;
-    --shell-muted: #a3a3a3;
-    --shell-accent: #f03a17;
+    --shell-bg: #110c0a;
+    --shell-surface: #1b1410;
+    --shell-surface-strong: #2a1f18;
+    --shell-ink: #f2e8df;
+    --shell-border: #3d2e26;
+    --shell-muted: #9e8c82;
+    --shell-accent: #ff4520;
     --shell-accent-ink: #141414;
   }
 }
