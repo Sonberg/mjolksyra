@@ -17,29 +17,36 @@ export const HeroSection = () => {
           </div>
           <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
             <span className="text-[var(--home-text)]">
-              Transform Your Coaching <br />
-              Into a Business
+              Build and manage strength training programs for your clients
             </span>
           </h1>
           <p className="mb-8 max-w-2xl text-[var(--home-muted)] md:text-lg lg:text-xl">
-            Start your coaching journey today. Create and sell workout
-            programs with our intuitive platform. Perfect for Personal
-            Trainers, Powerlifters, Crossfitters, and Weightlifters.
+            Plan workouts, track progression, and give feedback in one place.
+            Built for coaches in strength training, powerlifting, and functional
+            fitness.
           </p>
           <div className="mb-8 inline-flex items-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] px-4 py-2 text-sm font-medium text-[var(--home-text)]">
-            14-day free trial. No commitment.
+            14-day free trial. Cancel anytime.
           </div>
-          <div className="space-y-4 sm:flex sm:space-x-4 sm:space-y-0">
+          <div className="space-y-3 sm:flex sm:space-x-3 sm:space-y-0">
             {isBeta ? (
               <SignupForm />
             ) : (
-              <RegisterDialog
-                trigger={
-                  <button className="inline-flex items-center justify-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[#ce2f10]">
-                    Get Started Now
-                  </button>
-                }
-              />
+              <>
+                <RegisterDialog
+                  trigger={
+                    <button className="inline-flex items-center justify-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[#ce2f10]">
+                      Start free trial
+                    </button>
+                  }
+                />
+                <a
+                  href="#planner-demo"
+                  className="inline-flex items-center justify-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-8 py-4 text-lg font-semibold text-[var(--home-text)] transition hover:bg-[var(--home-surface-strong)]"
+                >
+                  Try live demo
+                </a>
+              </>
             )}
           </div>
         </div>

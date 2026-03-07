@@ -7,7 +7,7 @@ export const DemoSection = () => {
   const [isDemoRunning, setIsDemoRunning] = useState(false);
 
   return (
-    <section className="py-20 lg:py-32">
+    <section id="planner-demo" className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="mb-12">
           <h2 className="font-[var(--font-display)] mb-4 text-3xl text-[var(--home-text)] md:text-4xl">

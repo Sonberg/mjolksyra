@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HeroSection } from "./components/HeroSection";
 import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
+import { FeatureDemosSection } from "./components/FeatureDemosSection";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { CalculatorSection } from "./components/CalculatorSection";
 import { DemoSection } from "./components/DemoSection";
@@ -31,6 +32,7 @@ export default async function Home() {
         <HeroSection />
         <AudienceSection />
         <FeaturesSection />
+        <FeatureDemosSection />
         <BenefitsSection plans={plans} />
         <CalculatorSection plansOverride={plans} />
         <DemoSection />
