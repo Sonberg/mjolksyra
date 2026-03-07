@@ -9,6 +9,7 @@ import { BlockBuilderPreviewSection } from "./components/BlockBuilderPreviewSect
 import { StripeSection } from "./components/StripeSection";
 import { FAQSection } from "./components/FAQSection";
 import { CTASection } from "./components/CTASection";
+import { getPlans } from "@/services/plans/getPlans";
 
 export const metadata: Metadata = {
   title: "Coaching Platform for Athletes and Coaches",
@@ -19,7 +20,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const plans = await getPlans().catch(() => []);
+
   return (
     <div className="home-shell font-[var(--font-body)] relative min-h-screen overflow-y-auto">
       <div className="home-glow pointer-events-none fixed inset-0" />
@@ -28,8 +31,8 @@ export default function Home() {
         <HeroSection />
         <AudienceSection />
         <FeaturesSection />
-        <BenefitsSection />
-        <CalculatorSection />
+        <BenefitsSection plans={plans} />
+        <CalculatorSection plansOverride={plans} />
         <DemoSection />
         <BlockBuilderPreviewSection />
         <StripeSection />
