@@ -1,8 +1,11 @@
 "use client";
 
 import { WorkoutPlannerDemo } from "@/components/WorkoutPlannerDemo/WorkoutPlannerDemo";
+import { useState } from "react";
 
 export const DemoSection = () => {
+  const [isDemoRunning, setIsDemoRunning] = useState(false);
+
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
@@ -30,10 +33,37 @@ export const DemoSection = () => {
         </div>
       </div>
       <div className="mx-auto hidden max-w-screen-2xl px-4 md:block">
-        <div className="overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
-          <div className="pointer-events-none select-none">
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setIsDemoRunning((state) => !state)}
+            className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-text)] shadow-[3px_3px_0_var(--home-border)] transition hover:bg-[var(--home-surface-strong)]"
+          >
+            {isDemoRunning ? "Stop demo" : "Start demo"}
+          </button>
+        </div>
+
+        <div className="relative overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
+          <div className={isDemoRunning ? "" : "pointer-events-none select-none"}>
             <WorkoutPlannerDemo />
           </div>
+
+          {!isDemoRunning ? (
+            <div className="absolute inset-0 z-10 grid place-items-center bg-zinc-500/40">
+              <div className="flex flex-col items-center gap-3">
+                <div className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--home-muted)]">
+                  Demo paused
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDemoRunning(true)}
+                  className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-3 text-base font-semibold uppercase tracking-[0.08em] text-[var(--home-accent-ink)] shadow-[4px_4px_0_var(--home-border)] transition hover:brightness-95"
+                >
+                  Start demo
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
