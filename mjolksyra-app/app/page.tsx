@@ -56,6 +56,7 @@ export default async function Home() {
           --font-display: "Alfa Slab One", "Alfa Slab One Fallback";
           background: var(--home-bg);
           color: var(--home-text);
+          padding-bottom: 6rem;
         }
 
         .dark .home-shell,
