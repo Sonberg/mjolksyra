@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3Icon, ClipboardCheckIcon, LayoutGridIcon } from "lucide-react";
+import { ClipboardCheckIcon, LayoutGridIcon, MessageSquareMoreIcon } from "lucide-react";
 
 export function FeatureDemosSection() {
   return (
@@ -44,25 +44,30 @@ export function FeatureDemosSection() {
 
           <article className="border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-5">
             <div className="mb-4 inline-flex items-center gap-2 border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--home-muted)]">
-              <BarChart3Icon className="h-3.5 w-3.5" />
-              Progress tracking
+              <MessageSquareMoreIcon className="h-3.5 w-3.5" />
+              Coach follow-up
             </div>
             <div className="border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3">
-              <div className="mb-2 flex items-end gap-1.5">
-                {[35, 46, 52, 61, 72, 83].map((h, index) => (
-                  <div
-                    key={`progress-bar-${index}`}
-                    className="w-full border-2 border-[var(--home-border)] bg-[var(--home-accent)]"
-                    style={{ height: `${h}px` }}
-                  />
-                ))}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1.5 text-xs">
+                  <span className="text-[var(--home-text)]">Athlete A</span>
+                  <span className="border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--home-accent-ink)]">
+                    Needs action
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1.5 text-xs">
+                  <span className="text-[var(--home-text)]">Athlete B</span>
+                  <span className="border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--home-text)]">
+                    On track
+                  </span>
+                </div>
               </div>
-              <div className="text-[11px] uppercase tracking-[0.08em] text-[var(--home-muted)]">
-                Last 6 sessions load trend
+              <div className="mt-2 text-[11px] uppercase tracking-[0.08em] text-[var(--home-muted)]">
+                Follow-up view with status and fast actions
               </div>
             </div>
             <p className="mt-3 text-sm text-[var(--home-muted)]">
-              Track progression and spot athletes that need follow-up.
+              Prioritize athletes that need attention and jump into planner or review.
             </p>
           </article>
 
