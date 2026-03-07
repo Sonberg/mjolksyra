@@ -1,6 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
-import useOnScreen from "@/hooks/useOnScreen";
 import { PlusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getDatesBetween } from "@/lib/getDatesBetween";
@@ -16,40 +15,64 @@ export function WorkoutSidebar() {
   });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const start = useOnScreen();
-  const end = useOnScreen();
+  const [startNode, setStartNode] = useState<HTMLDivElement | null>(null);
+  const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
+  const prependLockedRef = useRef(false);
+  const appendLockedRef = useRef(false);
 
   useEffect(() => {
-    if (!start.isIntersecting) {
-      return;
-    }
+    if (!startNode) return;
 
-    setPreviousHeight(containerRef.current?.scrollHeight ?? null);
-    setDates((state) => {
-      const day = state[0].add(-1, "day");
-      const startOfWeek = day.startOf("month");
-      const endOfWeek = day.endOf("month");
-      const newDates = getDatesBetween(startOfWeek, endOfWeek);
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || prependLockedRef.current) {
+        return;
+      }
 
-      return [...newDates, ...state];
+      prependLockedRef.current = true;
+      setPreviousHeight(containerRef.current?.scrollHeight ?? null);
+      setDates((state) => {
+        const day = state[0].add(-1, "day");
+        const startOfWeek = day.startOf("month");
+        const endOfWeek = day.endOf("month");
+        const newDates = getDatesBetween(startOfWeek, endOfWeek);
+
+        return [...newDates, ...state];
+      });
+
+      requestAnimationFrame(() => {
+        prependLockedRef.current = false;
+      });
     });
-  }, [start.isIntersecting]);
+    observer.observe(startNode);
+    return () => observer.disconnect();
+  }, [startNode]);
 
   useEffect(() => {
-    if (!end.isIntersecting) {
-      return;
-    }
+    if (!endNode) return;
 
-    setPreviousHeight(null);
-    setDates((state) => {
-      const day = state[state.length - 1].add(1, "day");
-      const startOfWeek = day.startOf("month");
-      const endOfWeek = day.endOf("month");
-      const newDates = getDatesBetween(startOfWeek, endOfWeek);
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || appendLockedRef.current) {
+        return;
+      }
 
-      return [...state, ...newDates];
+      appendLockedRef.current = true;
+      setPreviousHeight(null);
+      setDates((state) => {
+        const day = state[state.length - 1].add(1, "day");
+        const startOfWeek = day.startOf("month");
+        const endOfWeek = day.endOf("month");
+        const newDates = getDatesBetween(startOfWeek, endOfWeek);
+
+        return [...state, ...newDates];
+      });
+
+      requestAnimationFrame(() => {
+        appendLockedRef.current = false;
+      });
     });
-  }, [end.isIntersecting]);
+    observer.observe(endNode);
+    return () => observer.disconnect();
+  }, [endNode]);
 
   useEffect(() => {
     if (previousHeight === null) {
@@ -84,7 +107,7 @@ export function WorkoutSidebar() {
 
   return (
     <div ref={containerRef} className="overflow-y-scroll  h-full">
-      <div className="w-full h-1" ref={start.measureRef} />
+      <div className="w-full h-1" ref={setStartNode} />
 
       {dates.map((x) => (
         <Fragment key={x.toISOString()}>
@@ -117,7 +140,7 @@ export function WorkoutSidebar() {
         </Fragment>
       ))}
 
-      <div className="w-full h-1" ref={end.measureRef} />
+      <div className="w-full h-1" ref={setEndNode} />
     </div>
   );
 }

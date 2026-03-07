@@ -3,8 +3,7 @@
 import { useWorkouts } from "./useWorkouts";
 import dayjs from "dayjs";
 import { Workout } from "./Workout";
-import useOnScreen from "@/hooks/useOnScreen";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { uniqBy } from "@/lib/uniqBy";
 import { sortBy } from "@/lib/sortBy";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
@@ -84,31 +83,25 @@ export function WorkoutViewer({
       : mode === "changes"
         ? changes.hasNextPage
         : past.hasNextPage || completed.hasNextPage;
-  const fetchNextPage = async () => {
-    if (mode === "future") {
-      await future.fetchNextPage();
-      return;
-    }
 
-    if (mode === "changes") {
-      await changes.fetchNextPage();
-      return;
+  const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
+  const [isEndIntersecting, setIsEndIntersecting] = useState(false);
+  const endRef = useCallback((node: HTMLDivElement | null) => {
+    setEndNode(node);
+    if (!node) {
+      setIsEndIntersecting(false);
     }
+  }, []);
 
-    const actions: Array<Promise<unknown>> = [];
-    if (past.hasNextPage) {
-      actions.push(past.fetchNextPage());
-    }
-    if (completed.hasNextPage) {
-      actions.push(completed.fetchNextPage());
-    }
+  useEffect(() => {
+    if (!endNode) return;
 
-    if (actions.length > 0) {
-      await Promise.all(actions);
-    }
-  };
-
-  const end = useOnScreen();
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsEndIntersecting(entry.isIntersecting);
+    });
+    observer.observe(endNode);
+    return () => observer.disconnect();
+  }, [endNode]);
   const sourceData = useMemo(() => {
     if (mode === "future") {
       return future.data;
@@ -194,19 +187,44 @@ export function WorkoutViewer({
   );
 
   useEffect(() => {
-    const next = initialTab ?? defaultMode;
-    setMode(next);
-  }, [initialTab, defaultMode]);
-
-  useEffect(() => {
-    if (!end.isIntersecting) {
+    if (!isEndIntersecting) {
       return;
     }
 
-    if (hasNextPage) {
-      fetchNextPage();
+    if (!hasNextPage) {
+      return;
     }
-  }, [end.isIntersecting, hasNextPage, fetchNextPage]);
+
+    if (mode === "future") {
+      void future.fetchNextPage();
+      return;
+    }
+
+    if (mode === "changes") {
+      void changes.fetchNextPage();
+      return;
+    }
+
+    const actions: Array<Promise<unknown>> = [];
+    if (past.hasNextPage) {
+      actions.push(past.fetchNextPage());
+    }
+    if (completed.hasNextPage) {
+      actions.push(completed.fetchNextPage());
+    }
+
+    if (actions.length > 0) {
+      void Promise.all(actions);
+    }
+  }, [
+    isEndIntersecting,
+    hasNextPage,
+    mode,
+    future,
+    changes,
+    past,
+    completed,
+  ]);
 
   function setModeWithUrl(nextMode: "past" | "future" | "changes") {
     setMode(nextMode);
@@ -283,7 +301,7 @@ export function WorkoutViewer({
             : "No more workouts planned"}
         </div>
       ) : null}
-      <div className="w-full h-8 opacity-0" ref={end.measureRef} children="d" />
+      <div className="w-full h-8 opacity-0" ref={endRef} children="d" />
     </>
   );
 }

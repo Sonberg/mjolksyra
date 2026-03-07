@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { SaveIcon } from "lucide-react";
 import {
@@ -43,18 +43,53 @@ import { CoachWorkspaceShell } from "../../CoachWorkspaceShell";
 type Props = {
   blockId: string;
 };
+type BlockData = NonNullable<Awaited<ReturnType<typeof getBlock>>>;
 
 export function BlockEditorContent({ blockId }: Props) {
-  const client = useQueryClient();
-
-  const { data: block, isLoading } = useQuery({
+  const { data: block, isLoading, dataUpdatedAt } = useQuery({
     queryKey: ["blocks", blockId],
     queryFn: () => getBlock({ blockId }),
   });
 
-  const [name, setName] = useState("");
-  const [numberOfWeeks, setNumberOfWeeks] = useState(4);
-  const [workouts, setWorkouts] = useState<BlockWorkout[]>([]);
+  if (isLoading) {
+    return (
+      <CoachWorkspaceShell>
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
+          Loading...
+        </div>
+      </CoachWorkspaceShell>
+    );
+  }
+
+  if (!block) {
+    return (
+      <CoachWorkspaceShell>
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
+          Block not found.
+        </div>
+      </CoachWorkspaceShell>
+    );
+  }
+
+  return (
+    <BlockEditorWorkspace
+      key={`${blockId}:${dataUpdatedAt}`}
+      blockId={blockId}
+      block={block}
+    />
+  );
+}
+
+type BlockEditorWorkspaceProps = {
+  blockId: string;
+  block: BlockData;
+};
+
+function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
+  const client = useQueryClient();
+  const [name, setName] = useState(block.name);
+  const [numberOfWeeks, setNumberOfWeeks] = useState(block.numberOfWeeks);
+  const [workouts, setWorkouts] = useState<BlockWorkout[]>(block.workouts);
   const [draggingLabel, setDraggingLabel] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<{
     week: number;
@@ -64,15 +99,6 @@ export function BlockEditorContent({ blockId }: Props) {
     week: number;
     dayOfWeek: number;
   } | null>(null);
-
-  useEffect(() => {
-    if (block) {
-      setName(block.name);
-      setNumberOfWeeks(block.numberOfWeeks);
-      setWorkouts(block.workouts);
-      setSelectedWorkout(null);
-    }
-  }, [block]);
 
   const activeWorkout = useMemo(
     () =>
@@ -154,26 +180,6 @@ export function BlockEditorContent({ blockId }: Props) {
       ),
     );
   };
-
-  if (isLoading) {
-    return (
-      <CoachWorkspaceShell>
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
-          Loading...
-        </div>
-      </CoachWorkspaceShell>
-    );
-  }
-
-  if (!block) {
-    return (
-      <CoachWorkspaceShell>
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
-          Block not found.
-        </div>
-      </CoachWorkspaceShell>
-    );
-  }
 
   return (
     <CoachWorkspaceShell fullBleed>

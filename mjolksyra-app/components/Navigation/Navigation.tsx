@@ -62,10 +62,10 @@ export function Navigation({ initialAuth }: NavigationProps) {
         >
           <div className="mr-1 flex items-center rounded-none">
             <Image
-              className="h-10 w-10 dark:invert"
+              className="h-8 w-8 md:h-10 md:w-10 dark:invert"
               alt="Logo"
-              width={34}
-              height={34}
+              width={32}
+              height={32}
               src={"/images/logo.svg"}
             />
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { CheckCircle2Icon, ChevronLeftIcon } from "lucide-react";
@@ -26,10 +26,6 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
   const [completionNote, setCompletionNote] = useState(
     workout.completionNote ?? "",
   );
-
-  useEffect(() => {
-    setCompletionNote(workout.completionNote ?? "");
-  }, [workout.completionNote]);
 
   function buildLogPayload(overrides: {
     completedAt?: Date | null;

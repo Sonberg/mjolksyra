@@ -298,11 +298,6 @@ export function Workout({
   }
 
   useEffect(() => {
-    setCompletionNote(workout.completionNote ?? "");
-    setReviewNote(workout.reviewNote ?? "");
-  }, [workout.completionNote, workout.reviewNote]);
-
-  useEffect(() => {
     if (!isHighlighted) {
       return;
     }
@@ -429,7 +424,10 @@ export function Workout({
               )}
               <button
                 type="button"
-                onClick={() => setIsReviewing((x) => !x)}
+                onClick={() => {
+                  setReviewNote(workout.reviewNote ?? "");
+                  setIsReviewing((x) => !x);
+                }}
                 className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
               >
                 {isReviewing ? "Hide review details" : "Review details"}

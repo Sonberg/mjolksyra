@@ -1,7 +1,6 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ExerciseRow } from "./ExerciseRow";
 import { useBrowseExercises } from "./hooks/useBrowserExercises";
-import useOnScreen from "@/hooks/useOnScreen";
 
 import { GetExercises } from "@/services/exercises/getExercises";
 import { DeleteExercise } from "@/services/exercises/deleteExercise";
@@ -20,10 +19,28 @@ type Props = {
 
 export function ExerciseBrowser({ exercies }: Props) {
   const browser = useBrowseExercises({ exercies });
-  const end = useOnScreen();
+  const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
+  const [isEndIntersecting, setIsEndIntersecting] = useState(false);
+  const endRef = useCallback((node: HTMLDivElement | null) => {
+    setEndNode(node);
+    if (!node) {
+      setIsEndIntersecting(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!end.isIntersecting) {
+    if (!endNode) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsEndIntersecting(entry.isIntersecting);
+    });
+
+    observer.observe(endNode);
+    return () => observer.disconnect();
+  }, [endNode]);
+
+  useEffect(() => {
+    if (!isEndIntersecting) {
       return;
     }
 
@@ -32,7 +49,7 @@ export function ExerciseBrowser({ exercies }: Props) {
     }
 
     browser.fetchNextPage();
-  }, [browser, end.isIntersecting]);
+  }, [browser, isEndIntersecting]);
 
   if (!browser.isFetched) {
     return null;
@@ -53,7 +70,7 @@ export function ExerciseBrowser({ exercies }: Props) {
         ))}
       </div>
 
-      <div ref={end.measureRef} className="h-1 text-transparent">
+      <div ref={endRef} className="h-1 text-transparent">
         end
       </div>
       {browser.hasNextPage ? (

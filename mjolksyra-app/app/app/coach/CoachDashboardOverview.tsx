@@ -6,6 +6,7 @@ import { AlertTriangleIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } fr
 import { useQuery } from "@tanstack/react-query";
 import { getPlans } from "@/services/plans/getPlans";
 import type { Plan } from "@/services/plans/type";
+import { useState } from "react";
 import { CoachDashboardMetrics } from "./CoachDashboardMetrics";
 import {
   CoachDashboardTodoSection,
@@ -34,6 +35,7 @@ const formatNames = (items: Trainee[], limit = 3) => {
 };
 
 export function CoachDashboardOverview({ user, trainees }: Props) {
+  const [nowMs] = useState(() => Date.now());
   const { data: plans = [] } = useQuery({
     queryKey: ["plans"],
     queryFn: getPlans,
@@ -63,13 +65,13 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   const programEndingSoon = trainees.filter((x) => {
     if (!x.nextWorkoutAt) return true;
     const daysUntilNext =
-      (new Date(x.nextWorkoutAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      (new Date(x.nextWorkoutAt).getTime() - nowMs) / (1000 * 60 * 60 * 24);
     return daysUntilNext >= 0 && daysUntilNext <= 7;
   });
   const needsFeedback = trainees.filter((x) => {
     if (!x.lastWorkoutAt) return false;
     const hoursSince =
-      (Date.now() - new Date(x.lastWorkoutAt).getTime()) / (1000 * 60 * 60);
+      (nowMs - new Date(x.lastWorkoutAt).getTime()) / (1000 * 60 * 60);
     return hoursSince >= 0 && hoursSince <= 72;
   });
 
