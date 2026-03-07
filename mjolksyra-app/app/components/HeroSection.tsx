@@ -1,5 +1,3 @@
-"use client";
-
 import { isBeta } from "@/constants/isBeta";
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import { SignupForm } from "./SignupForm";

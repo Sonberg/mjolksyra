@@ -1,5 +1,3 @@
-"use client";
-
 import { ClipboardCheckIcon, LayoutGridIcon, MessageSquareMoreIcon } from "lucide-react";
 
 export function FeatureDemosSection() {

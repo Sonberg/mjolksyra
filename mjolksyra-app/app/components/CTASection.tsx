@@ -1,5 +1,3 @@
-"use client";
-
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
 
 export const CTASection = () => {

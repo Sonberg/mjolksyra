@@ -1,5 +1,3 @@
-"use client";
-
 import { Layers3Icon } from "lucide-react";
 
 const previewWeeks = [

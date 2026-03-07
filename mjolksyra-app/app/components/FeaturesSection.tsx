@@ -1,5 +1,3 @@
-"use client";
-
 import { DumbbellIcon, CheckCircle2Icon, UsersIcon } from "lucide-react";
 
 type Point = {

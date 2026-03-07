@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { HeroSection } from "./components/HeroSection";
 import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { FeatureDemosSection } from "./components/FeatureDemosSection";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { CalculatorSection } from "./components/CalculatorSection";
-import { DemoSection } from "./components/DemoSection";
 import { BlockBuilderPreviewSection } from "./components/BlockBuilderPreviewSection";
 import { StripeSection } from "./components/StripeSection";
-import { FAQSection } from "./components/FAQSection";
 import { CTASection } from "./components/CTASection";
 import { getPlans } from "@/services/plans/getPlans";
+
+const DemoSection = dynamic(
+  () => import("./components/DemoSection").then((module) => module.DemoSection),
+  {
+    loading: () => (
+      <section className="py-20 lg:py-32">
+        <div className="mx-auto max-w-screen-xl px-4">
+          <div className="h-72 animate-pulse border-2 border-[var(--home-border)] bg-[var(--home-surface)]" />
+        </div>
+      </section>
+    ),
+  },
+);
+
+const FAQSection = dynamic(
+  () => import("./components/FAQSection").then((module) => module.FAQSection),
+);
 
 export const metadata: Metadata = {
   title: "Coaching Platform for Athletes and Coaches",

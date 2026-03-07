@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { Alfa_Slab_One, DM_Sans } from "next/font/google";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Navigation } from "@/components/Navigation";
@@ -7,17 +6,6 @@ import { getUserMe } from "@/services/users/getUserMe";
 
 import "./globals.css";
 import { Providers } from "./providers";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
 const displayFont = Alfa_Slab_One({
   subsets: ["latin"],
@@ -126,7 +114,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('mjolksyra-theme');var d=document.documentElement;var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){d.classList.add('dark');d.dataset.theme='dark';}else{d.dataset.theme='light';}}catch(e){}})()` }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} ${bodyFont.variable} antialiased flex h-[100vh] flex-col overflow-hidden`}
+        className={`${displayFont.variable} ${bodyFont.variable} antialiased flex h-[100vh] flex-col overflow-hidden`}
       >
         <Providers>
           <Navigation initialAuth={initialAuth} />

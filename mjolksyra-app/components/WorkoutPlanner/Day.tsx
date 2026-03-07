@@ -292,8 +292,13 @@ export function Day({ date, plannedWorkout }: Props) {
               </SortableContext>
             ) : (
               <div
-                onClick={() => setIsQuickSearchOpen(true)}
-                className="grid  cursor-pointer h-full min-h-32 place-items-center rounded-none border border-dashed border-[var(--shell-border)] px-4 text-center text-sm text-[var(--shell-muted)] opacity-30 transition-all hover:opacity-100"
+                onClick={() => (canPlan ? setIsQuickSearchOpen(true) : null)}
+                className={cn(
+                  "grid  h-full min-h-32 place-items-center rounded-none px-4 text-center text-sm text-[var(--shell-muted)] opacity-30 transition-all ",
+                  canPlan
+                    ? "border cursor-pointer border-dashed border-[var(--shell-border)] hover:opacity-100"
+                    : "",
+                )}
               >
                 <div className="select-none">
                   {canPlan

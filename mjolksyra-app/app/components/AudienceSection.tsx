@@ -1,5 +1,3 @@
-"use client";
-
 import { FlameIcon, DumbbellIcon } from "lucide-react";
 
 const audiences = [
