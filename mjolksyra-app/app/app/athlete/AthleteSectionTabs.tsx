@@ -38,7 +38,7 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
       <div className="min-w-0 flex-1">
         <NavigationTabs tabs={tabs} activeTab={activeTab} />
       </div>
-      {coaches.length > 0 ? (
+      {coaches.length > 1 ? (
         <div className="flex shrink-0 items-center gap-2">
           <span className="sr-only text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
             Coach
