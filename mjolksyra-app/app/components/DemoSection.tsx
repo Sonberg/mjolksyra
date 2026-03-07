@@ -43,8 +43,8 @@ export const DemoSection = () => {
           </button>
         </div>
 
-        <div className="relative overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
-          <div className={isDemoRunning ? "" : "pointer-events-none select-none"}>
+        <div className="relative h-[78vh] max-h-[78vh] overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
+          <div className={`h-full ${isDemoRunning ? "" : "pointer-events-none select-none"}`}>
             <WorkoutPlannerDemo />
           </div>
 
