@@ -34,11 +34,13 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
   ];
 
   return (
-    <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
-      <NavigationTabs tabs={tabs} activeTab={activeTab}  />
+    <div className="flex w-full items-center gap-2 overflow-hidden">
+      <div className="min-w-0 flex-1">
+        <NavigationTabs tabs={tabs} activeTab={activeTab} />
+      </div>
       {coaches.length > 0 ? (
-        <div className="flex w-full items-center gap-2 md:ml-auto md:w-auto">
-          <span className="sr-only text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)] md:not-sr-only">
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="sr-only text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
             Coach
           </span>
           <select
@@ -49,7 +51,7 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
               onCoachChange(selectedCoach);
               router.push(`/app/athlete/${selectedCoach.traineeId}/${activeTab}`);
             }}
-            className="h-10 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none transition hover:bg-[var(--shell-surface-strong)] focus:border-[var(--shell-accent)] md:w-auto md:min-w-56"
+            className="h-10 w-[160px] rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none transition hover:bg-[var(--shell-surface-strong)] focus:border-[var(--shell-accent)] md:w-auto md:min-w-56"
           >
             {coaches.map((coach) => (
               <option key={coach.traineeId} value={coach.traineeId}>
