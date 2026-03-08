@@ -100,7 +100,7 @@ export function DayExercise({
         ref={setNodeRef}
         style={{ transform: CSS.Translate.toString(transform), transition }}
         {...attributes}
-        className={cn({ "mb-1.5": !isLast })}
+        className={cn({ "mb-1": !isLast })}
         role="row"
       >
         <TooltipProvider delayDuration={100}>
@@ -112,24 +112,26 @@ export function DayExercise({
                   prescription={plannedExercise.prescription ?? null}
                   isDragging={isDragging}
                   isGhost={isGhost}
-                  leftSlot={
-                    !locked ? (
-                      <DraggingToolTip
-                        listeners={listeners}
-                        icon={
-                          <EllipsisVertical className="h-4 text-[var(--shell-muted)]" />
-                        }
-                        onDelete={onDelete}
-                      />
-                    ) : null
-                  }
                   rightSlot={
-                    !plannedExercise.isPublished ? (
-                      <span
-                        className="h-1.5 w-1.5 shrink-0 self-center rounded-none bg-[var(--shell-accent)]"
-                        title="Draft change"
-                      />
-                    ) : null
+                    <div className="mt-0.5 flex shrink-0 items-start gap-1">
+                      {!plannedExercise.isPublished ? (
+                        <span
+                          className="mt-2 h-1.5 w-1.5 rounded-none bg-[var(--shell-accent)]"
+                          title="Draft change"
+                        />
+                      ) : null}
+                      {!locked ? (
+                        <DraggingToolTip
+                          listeners={listeners}
+                          icon={
+                            <div className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]">
+                              <EllipsisVertical className="h-3.5 w-3.5" />
+                            </div>
+                          }
+                          onDelete={onDelete}
+                        />
+                      ) : null}
+                    </div>
                   }
                 />
               </div>

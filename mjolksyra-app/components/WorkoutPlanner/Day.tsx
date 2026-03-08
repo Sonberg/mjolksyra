@@ -235,10 +235,10 @@ export function Day({ date, plannedWorkout }: Props) {
                   <DayExercise
                     key={x.id}
                     index={index}
+                    isLast={index === exercises.length - 1}
                     date={date}
                     plannedExercise={x}
                     plannedWorkout={plannedWorkout}
-                    isLast={index === exercises.length - 1}
                     isGhost={x.isGhost ?? false}
                     locked={isLocked}
                   />
