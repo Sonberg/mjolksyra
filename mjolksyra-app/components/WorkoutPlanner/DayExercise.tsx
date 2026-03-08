@@ -10,7 +10,6 @@ import { DraggingToolTip } from "../DraggingToolTip";
 import { useWorkouts } from "./contexts/Workouts";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
 import { monthId } from "@/lib/monthId";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { ExerciseCard } from "@/components/ExerciseCard";
 
 type Props = {
@@ -103,44 +102,34 @@ export function DayExercise({
         className={cn({ "mb-1": !isLast })}
         role="row"
       >
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <ExerciseCard
-                  name={plannedExercise.name}
-                  prescription={plannedExercise.prescription ?? null}
-                  isDragging={isDragging}
-                  isGhost={isGhost}
-                  rightSlot={
-                    <div className="mt-0.5 flex shrink-0 items-start gap-1">
-                      {!plannedExercise.isPublished ? (
-                        <span
-                          className="mt-2 h-1.5 w-1.5 rounded-none bg-[var(--shell-accent)]"
-                          title="Draft change"
-                        />
-                      ) : null}
-                      {!locked ? (
-                        <DraggingToolTip
-                          listeners={listeners}
-                          icon={
-                            <div className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]">
-                              <EllipsisVertical className="h-3.5 w-3.5" />
-                            </div>
-                          }
-                          onDelete={onDelete}
-                        />
-                      ) : null}
+        <ExerciseCard
+          name={plannedExercise.name}
+          prescription={plannedExercise.prescription ?? null}
+          isDragging={isDragging}
+          isGhost={isGhost}
+          rightSlot={
+            <div className="mt-0.5 flex shrink-0 items-start gap-1">
+              {!plannedExercise.isPublished ? (
+                <span
+                  className="mt-2 h-1.5 w-1.5 rounded-none bg-[var(--shell-accent)]"
+                  title="Draft change"
+                />
+              ) : null}
+              {!locked ? (
+                <DraggingToolTip
+                  listeners={listeners}
+                  label={plannedExercise.name}
+                  icon={
+                    <div className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]">
+                      <EllipsisVertical className="h-3.5 w-3.5" />
                     </div>
                   }
+                  onDelete={onDelete}
                 />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-80 break-words">
-              {plannedExercise.name}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              ) : null}
+            </div>
+          }
+        />
       </div>
     ),
     [

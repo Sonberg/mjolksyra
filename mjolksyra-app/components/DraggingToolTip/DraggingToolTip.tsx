@@ -9,9 +9,10 @@ type Props = {
   icon: ReactNode;
   listeners: SyntheticListenerMap | undefined;
   onDelete: () => void;
+  label?: string;
 };
 
-export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
+export function DraggingToolTip({ icon, listeners, onDelete, label }: Props) {
   const [isHovering, setHover] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(
     null,
@@ -54,7 +55,7 @@ export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
       const rect = triggerRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      const estimatedHeight = 38;
+      const estimatedHeight = label ? 96 : 48;
       const topAbove = rect.top - estimatedHeight - 8;
       const topBelow = rect.bottom + 8;
       const top = topAbove < 8 ? topBelow : topAbove;
@@ -73,7 +74,7 @@ export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
-  }, [isHovering]);
+  }, [isHovering, label]);
 
   return (
     <div
@@ -85,38 +86,48 @@ export function DraggingToolTip({ icon, listeners, onDelete }: Props) {
       {icon}
       {isHovering && typeof window !== "undefined" && position
         ? createPortal(
-        <div
-          className="fixed z-[80] rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-1 py-2 shadow-[0_12px_30px_rgba(42,36,29,0.25)]"
-          style={{
-            top: position.top,
-            left: position.left,
-            transform: "translateX(-50%)",
-          }}
-          onMouseEnter={openTooltip}
-          onMouseLeave={closeTooltipSoon}
-        >
-          <div
-            onClick={(ev) => ev.preventDefault()}
-            className="flex gap-2 px-1"
-          >
-            <MoveIcon
-              {...listeners}
-              data-action="move"
-              className="h-4 cursor-move text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
-            />
-            <CopyIcon
-              {...listeners}
-              data-action="clone"
-              className="h-4 cursor-copy text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
-            />
-            <TrashIcon
-              onClick={onDelete}
-              className="h-4 cursor-pointer text-[var(--shell-accent)] transition hover:brightness-90"
-            />
-          </div>
-        </div>,
-        document.body,
-      )
+            <div
+              className="fixed z-[80] min-w-44 max-w-80 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-2 shadow-[0_12px_30px_rgba(42,36,29,0.25)]"
+              style={{
+                top: position.top,
+                left: position.left,
+                transform: "translateX(-50%)",
+              }}
+              onMouseEnter={openTooltip}
+              onMouseLeave={closeTooltipSoon}
+            >
+              {label ? (
+                <div className="mb-2 border-b border-[var(--shell-border)] px-1 pb-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                    Exercise
+                  </div>
+                  <div className="break-words pt-1 text-sm font-semibold leading-tight text-[var(--shell-ink)]">
+                    {label}
+                  </div>
+                </div>
+              ) : null}
+              <div
+                onClick={(ev) => ev.preventDefault()}
+                className="flex items-center gap-2 px-1"
+              >
+                <MoveIcon
+                  {...listeners}
+                  data-action="move"
+                  className="h-8 w-8 cursor-move border border-[var(--shell-border)] p-2 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+                />
+                <CopyIcon
+                  {...listeners}
+                  data-action="clone"
+                  className="h-8 w-8 cursor-copy border border-[var(--shell-border)] p-2 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+                />
+                <TrashIcon
+                  onClick={onDelete}
+                  className="h-8 w-8 cursor-pointer border border-[var(--shell-border)] p-2 text-[var(--shell-accent)] transition hover:brightness-90"
+                />
+              </div>
+            </div>,
+            document.body,
+          )
         : null}
     </div>
   );

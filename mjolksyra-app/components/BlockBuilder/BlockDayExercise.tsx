@@ -47,6 +47,7 @@ export function BlockDayExercise({
           <div className="mt-0.5 flex shrink-0 items-start">
             <DraggingToolTip
               listeners={listeners}
+              label={exercise.name}
               icon={
                 <div className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]">
                   <EllipsisVertical className="h-3.5 w-3.5" />
