@@ -116,8 +116,8 @@ function BlockDayHeader({
   });
 
   return (
-    <div className="flex items-center justify-between gap-1 px-2 py-1">
-      <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+    <div className="flex items-center justify-between gap-2 px-3 py-2">
+      <div className="text-center text-sm font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
         {dayName}
       </div>
       {workout ? (
@@ -126,9 +126,9 @@ function BlockDayHeader({
             icon={
               <div
                 ref={setDraggableNodeRef}
-                className="grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+                className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
               >
-                <RectangleEllipsisIcon className="h-3.5 w-3.5" />
+                <RectangleEllipsisIcon className="h-3 w-3" />
               </div>
             }
             listeners={listeners}
@@ -137,16 +137,14 @@ function BlockDayHeader({
           <button
             type="button"
             className={cn(
-              "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition",
-              isActiveWorkout
-                ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-                : "hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]",
+              "grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]",
+              isActiveWorkout && "text-[var(--shell-ink)]",
             )}
             onClick={onEditWorkout}
             title={isActiveWorkout ? "Close editor" : "Edit workout"}
             aria-label={isActiveWorkout ? "Close editor" : "Edit workout"}
           >
-            <PencilIcon className="h-3.5 w-3.5" />
+            <PencilIcon className="h-3 w-3" />
           </button>
         </div>
       ) : (

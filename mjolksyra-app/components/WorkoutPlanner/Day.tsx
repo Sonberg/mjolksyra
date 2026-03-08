@@ -12,8 +12,6 @@ import {
   PlannedExercise,
   PlannedWorkout,
 } from "@/services/plannedWorkouts/type";
-import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
-import { DraggingToolTip } from "../DraggingToolTip";
 import { draggingStyle } from "@/lib/draggingStyle";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { useCloning } from "./contexts/Planner";
@@ -26,6 +24,7 @@ import { ExerciseQuickSearchOverlay } from "../ExerciseLibrary/ExerciseQuickSear
 import type { Exercise as LibraryExercise } from "@/services/exercises/type";
 import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
 import { v4 } from "uuid";
+import { DayHeader } from "./DayHeader";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
@@ -176,99 +175,54 @@ export function Day({ date, plannedWorkout }: Props) {
     [plannedWorkout, workouts, date, actions],
   );
 
+  const onDeleteWorkout = useCallback(() => {
+    if (!plannedWorkout) {
+      return;
+    }
+
+    actions.delete({ plannedWorkout });
+    workouts.dispatch({
+      type: "DELETE_WORKOUT",
+      payload: {
+        monthId: monthId(plannedWorkout.plannedAt),
+        plannedWorkoutId: plannedWorkout.id,
+      },
+    });
+  }, [actions, plannedWorkout, workouts]);
+
+  const onToggleEditor = useCallback(() => {
+    if (!plannedWorkout) {
+      return;
+    }
+
+    if (editor.plannedWorkoutId === plannedWorkout.id) {
+      editor.close();
+      return;
+    }
+
+    editor.open(plannedWorkout.id);
+  }, [editor, plannedWorkout]);
+
   return useMemo(
     () => (
       <>
-        <div className="flex min-h-32 min-w-0 flex-col p-2">
-          <div
-            className="flex h-9 min-w-0 items-center justify-between rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 text-xs font-bold"
-            ref={setDraggableNodeRef}
-          >
-            <div className="flex min-w-0 items-center gap-1.5">
-              <div className="select-none text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-                {date.format("dd")}
-              </div>
-              <div
-                className={cn({
-                  "select-none rounded-none px-1.5 py-0.5 text-[var(--shell-muted)]": true,
-                  "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]":
-                    isToday,
-                })}
-              >
-                {date.date()}
-              </div>
-            </div>
-            {plannedWorkout ? (
-              <div className="flex shrink-0 items-center gap-1">
-                {canPlan ? (
-                  <>
-                    <DraggingToolTip
-                      icon={
-                        <div className="grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]">
-                          <RectangleEllipsisIcon className="h-3.5 w-3.5" />
-                        </div>
-                      }
-                      listeners={listeners}
-                      onDelete={() => {
-                        actions.delete({ plannedWorkout });
-                        workouts.dispatch({
-                          type: "DELETE_WORKOUT",
-                          payload: {
-                            monthId: monthId(plannedWorkout.plannedAt),
-                            plannedWorkoutId: plannedWorkout.id,
-                          },
-                        });
-                      }}
-                    />
-                    <div
-                      className={cn({
-                        "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
-                        "bg-[var(--shell-ink)] text-[var(--shell-surface)]":
-                          editor.plannedWorkoutId === plannedWorkout.id,
-                        "hover:bg-[var(--shell-surface)]":
-                          editor.plannedWorkoutId !== plannedWorkout.id,
-                        "hover:bg-[var(--shell-ink-soft)]":
-                          editor.plannedWorkoutId === plannedWorkout.id,
-                      })}
-                      onClick={() =>
-                        editor.plannedWorkoutId === plannedWorkout.id
-                          ? editor.close()
-                          : editor.open(plannedWorkout.id)
-                      }
-                    >
-                      <PencilIcon className="h-3.5 w-3.5" />
-                    </div>
-                  </>
-                ) : (
-                  <span
-                    className={cn(
-                      "rounded-none border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
-                      isCompleted
-                        ? plannedWorkout?.reviewedAt
-                          ? "border-[var(--shell-border)] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-                          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
-                        : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
-                    )}
-                    title={
-                      isCompleted
-                        ? "Completed days are locked from planning changes."
-                        : "Planning is available for today and future days."
-                    }
-                  >
-                    {isCompleted
-                      ? plannedWorkout?.reviewedAt
-                        ? "Reviewed"
-                        : "Done"
-                      : "Past"}
-                  </span>
-                )}
-              </div>
-            ) : null}
-          </div>
+        <div className="flex min-h-32 min-w-0 flex-col">
+          <DayHeader
+            date={date}
+            isToday={isToday}
+            plannedWorkout={plannedWorkout}
+            canPlan={canPlan}
+            isCompleted={isCompleted}
+            isActiveEditor={editor.plannedWorkoutId === plannedWorkout?.id}
+            listeners={listeners}
+            setDraggableNodeRef={setDraggableNodeRef}
+            onDeleteWorkout={onDeleteWorkout}
+            onToggleEditor={onToggleEditor}
+          />
           <div
             ref={setDroppableNodeRef}
             className={cn({
-              "relative mt-2 flex h-full min-h-24 flex-1 flex-col rounded-none border border-transparent": true,
+              "relative flex h-full min-h-24 flex-1 flex-col rounded-none border border-transparent p-2": true,
               ...draggingStyle({ canDrop, isOver: isOverContainer }),
             })}
           >
@@ -331,8 +285,6 @@ export function Day({ date, plannedWorkout }: Props) {
       editor,
       exercises,
       addExerciseFromOverlay,
-      actions,
-      workouts,
       plannedWorkout,
       isToday,
       isCompleted,
@@ -342,6 +294,8 @@ export function Day({ date, plannedWorkout }: Props) {
       isOverContainer,
       canDrop,
       listeners,
+      onDeleteWorkout,
+      onToggleEditor,
       setDraggableNodeRef,
       setDroppableNodeRef,
     ],
