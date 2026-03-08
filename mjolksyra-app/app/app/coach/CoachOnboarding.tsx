@@ -1,3 +1,5 @@
+"use client";
+
 import { ApiClient } from "@/services/client";
 import { User } from "@/services/users/type";
 import { Spinner } from "@/components/Spinner";

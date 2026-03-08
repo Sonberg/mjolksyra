@@ -112,6 +112,22 @@ export default {
     />
   ),
 
+  PaymentFailed: () => (
+    <TraineeCard
+      trainee={{
+        ...baseTrainee,
+        cost: { currency: "SEK", total: 1000 },
+        billing: {
+          status: "PaymentFailed",
+          hasPrice: true,
+          hasSubscription: true,
+          lastChargedAt: dayjs().subtract(2, "month").toDate(),
+          nextChargedAt: null,
+        },
+      }}
+    />
+  ),
+
   WithTransactions: () => (
     <TraineeCard
       trainee={{
