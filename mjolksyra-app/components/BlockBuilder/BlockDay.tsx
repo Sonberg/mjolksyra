@@ -57,13 +57,14 @@ export function BlockDay({
               strategy={verticalListSortingStrategy}
             >
               {workout!.exercises.map((exercise) => (
-                <BlockDayExercise
-                  key={exercise.id}
-                  exercise={exercise}
-                  blockWorkoutId={workout!.id}
-                  onRemove={() => onRemoveExercise(exercise.id)}
-                  isActive={isActiveWorkout}
-                />
+                <div key={exercise.id} className="mb-1 last:mb-0">
+                  <BlockDayExercise
+                    exercise={exercise}
+                    blockWorkoutId={workout!.id}
+                    onRemove={() => onRemoveExercise(exercise.id)}
+                    isActive={isActiveWorkout}
+                  />
+                </div>
               ))}
             </SortableContext>
             <button

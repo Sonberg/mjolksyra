@@ -53,6 +53,7 @@ export function DayHeader({
           {canPlan ? (
             <>
               <DraggingToolTip
+                label={date.format("dddd, D MMM")}
                 icon={
                   <div className="grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]">
                     <RectangleEllipsisIcon className="h-3.5 w-3.5" />
