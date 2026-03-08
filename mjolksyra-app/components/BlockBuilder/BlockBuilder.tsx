@@ -27,6 +27,15 @@ export function BlockBuilder({
   onAddExercise,
   selectedWorkout,
 }: Props) {
+  const getActionTarget = (el: HTMLElement | null): HTMLElement | null => {
+    if (!el) return null;
+    return el.hasAttribute("data-action")
+      ? el
+      : el.parentElement
+        ? getActionTarget(el.parentElement)
+        : null;
+  };
+
   function defaultBlockPrescription(): ExercisePrescription {
     return {
       targetType: ExercisePrescriptionTargetType.SetsReps,
@@ -55,6 +64,10 @@ export function BlockBuilder({
     const activeData = active.data.current;
 
     if (!overData || overData.type !== "blockDay") return;
+    const action = getActionTarget(event.activatorEvent.target as HTMLElement)?.getAttribute(
+      "data-action",
+    );
+    const isCloneAction = action === "clone";
 
     const { week, dayOfWeek } = overData as { week: number; dayOfWeek: number };
 
@@ -85,26 +98,34 @@ export function BlockBuilder({
       );
 
       if (sourceWorkout.week === week && sourceWorkout.dayOfWeek === dayOfWeek) {
-        return; // same day, no-op (sorting within day handled by sortable)
+        if (!isCloneAction) {
+          return; // same day, no-op (sorting within day handled by sortable)
+        }
+
+        addExerciseToDay(week, dayOfWeek, { ...exercise, id: v4() });
+        return;
       }
 
       // Remove from source, add to target
-      const updated = workouts
-        .map((w) => {
-          if (w.id === sourceWorkoutId) {
-            const remaining = w.exercises.filter((e) => e.id !== exercise.id);
-            if (remaining.length === 0) return null; // will be filtered
-            return { ...w, exercises: remaining };
-          }
-          return w;
-        })
-        .filter(Boolean) as BlockWorkout[];
+      const exerciseToAdd = isCloneAction ? { ...exercise, id: v4() } : exercise;
+      const updated = isCloneAction
+        ? workouts
+        : (workouts
+            .map((w) => {
+              if (w.id === sourceWorkoutId) {
+                const remaining = w.exercises.filter((e) => e.id !== exercise.id);
+                if (remaining.length === 0) return null; // will be filtered
+                return { ...w, exercises: remaining };
+              }
+              return w;
+            })
+            .filter(Boolean) as BlockWorkout[]);
 
       if (targetWorkout) {
         onChange(
           updated.map((w) =>
             w.week === week && w.dayOfWeek === dayOfWeek
-              ? { ...w, exercises: [...w.exercises, exercise] }
+              ? { ...w, exercises: [...w.exercises, exerciseToAdd] }
               : w,
           ),
         );
@@ -117,10 +138,90 @@ export function BlockBuilder({
             note: null,
             week,
             dayOfWeek,
-            exercises: [exercise],
+            exercises: [exerciseToAdd],
           },
         ]);
       }
+    }
+
+    if (activeData?.type === "blockWorkout") {
+      const sourceWorkout = activeData.workout as BlockWorkout | undefined;
+      if (!sourceWorkout) return;
+
+      const targetWorkout = workouts.find(
+        (w) => w.week === week && w.dayOfWeek === dayOfWeek,
+      );
+
+      if (sourceWorkout.week === week && sourceWorkout.dayOfWeek === dayOfWeek) {
+        if (!isCloneAction) {
+          return;
+        }
+
+        const clonedExercises = sourceWorkout.exercises.map((exercise) => ({
+          ...exercise,
+          id: v4(),
+        }));
+
+        onChange(
+          workouts.map((w) =>
+            w.week === week && w.dayOfWeek === dayOfWeek
+              ? { ...w, exercises: [...w.exercises, ...clonedExercises] }
+              : w,
+          ),
+        );
+        return;
+      }
+
+      if (isCloneAction) {
+        const clonedExercises = sourceWorkout.exercises.map((exercise) => ({
+          ...exercise,
+          id: v4(),
+        }));
+
+        if (targetWorkout) {
+          onChange(
+            workouts.map((w) =>
+              w.week === week && w.dayOfWeek === dayOfWeek
+                ? { ...w, exercises: [...w.exercises, ...clonedExercises] }
+                : w,
+            ),
+          );
+        } else {
+          onChange([
+            ...workouts,
+            {
+              ...sourceWorkout,
+              id: v4(),
+              week,
+              dayOfWeek,
+              exercises: clonedExercises,
+            },
+          ]);
+        }
+        return;
+      }
+
+      const withoutSource = workouts.filter((w) => w.id !== sourceWorkout.id);
+
+      if (targetWorkout) {
+        onChange(
+          withoutSource.map((w) =>
+            w.id === targetWorkout.id
+              ? { ...w, exercises: [...w.exercises, ...sourceWorkout.exercises] }
+              : w,
+          ),
+        );
+      } else {
+        onChange([
+          ...withoutSource,
+          {
+            ...sourceWorkout,
+            week,
+            dayOfWeek,
+          },
+        ]);
+      }
+      return;
     }
   };
 
@@ -173,6 +274,10 @@ export function BlockBuilder({
     onChange(updated);
   };
 
+  const handleRemoveWorkout = (week: number, dayOfWeek: number) => {
+    onChange(workouts.filter((w) => !(w.week === week && w.dayOfWeek === dayOfWeek)));
+  };
+
   const weeks = Array.from({ length: numberOfWeeks }, (_, i) => i + 1);
 
   useDndMonitor({
@@ -189,6 +294,7 @@ export function BlockBuilder({
           onRemoveExercise={handleRemoveExercise}
           onEditExercise={onEditExercise}
           onAddExercise={onAddExercise}
+          onRemoveWorkout={handleRemoveWorkout}
           selectedWorkout={selectedWorkout}
         />
       ))}

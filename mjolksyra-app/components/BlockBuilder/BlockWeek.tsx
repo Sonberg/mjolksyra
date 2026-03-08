@@ -2,7 +2,9 @@
 
 import { BlockWorkout } from "@/services/blocks/type";
 import { BlockDay } from "./BlockDay";
-import { PencilIcon } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { DraggingToolTip } from "@/components/DraggingToolTip";
+import { PencilIcon, RectangleEllipsisIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -13,6 +15,7 @@ type Props = {
   onRemoveExercise: (week: number, dayOfWeek: number, exerciseId: string) => void;
   onEditExercise: (week: number, dayOfWeek: number) => void;
   onAddExercise: (week: number, dayOfWeek: number) => void;
+  onRemoveWorkout: (week: number, dayOfWeek: number) => void;
   selectedWorkout: { week: number; dayOfWeek: number } | null;
 };
 
@@ -22,6 +25,7 @@ export function BlockWeek({
   onRemoveExercise,
   onEditExercise,
   onAddExercise,
+  onRemoveWorkout,
   selectedWorkout,
 }: Props) {
   return (
@@ -37,34 +41,17 @@ export function BlockWeek({
           );
           const isActiveWorkout =
             selectedWorkout?.week === week && selectedWorkout?.dayOfWeek === dayOfWeek;
-
           return (
-            <div
+            <BlockDayHeader
               key={`day-header-${dayOfWeek}`}
-              className="flex items-center justify-between gap-1 px-2 py-1"
-            >
-              <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-                {dayName}
-              </div>
-              {workout ? (
-                <button
-                  type="button"
-                  className={cn(
-                    "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition",
-                    isActiveWorkout
-                      ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-                      : "hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]",
-                  )}
-                  onClick={() => onEditExercise(week, dayOfWeek)}
-                  title={isActiveWorkout ? "Close editor" : "Edit workout"}
-                  aria-label={isActiveWorkout ? "Close editor" : "Edit workout"}
-                >
-                  <PencilIcon className="h-3.5 w-3.5" />
-                </button>
-              ) : (
-                <span className="h-6 w-6" aria-hidden />
-              )}
-            </div>
+              dayName={dayName}
+              week={week}
+              dayOfWeek={dayOfWeek}
+              workout={workout}
+              isActiveWorkout={isActiveWorkout}
+              onEditWorkout={() => onEditExercise(week, dayOfWeek)}
+              onDeleteWorkout={() => onRemoveWorkout(week, dayOfWeek)}
+            />
           );
         })}
       </div>
@@ -92,5 +79,79 @@ export function BlockWeek({
         })}
       </div>
     </section>
+  );
+}
+
+type BlockDayHeaderProps = {
+  dayName: string;
+  week: number;
+  dayOfWeek: number;
+  workout: BlockWorkout | undefined;
+  isActiveWorkout: boolean;
+  onEditWorkout: () => void;
+  onDeleteWorkout: () => void;
+};
+
+function BlockDayHeader({
+  dayName,
+  week,
+  dayOfWeek,
+  workout,
+  isActiveWorkout,
+  onEditWorkout,
+  onDeleteWorkout,
+}: BlockDayHeaderProps) {
+  const { listeners, setDraggableNodeRef } = useSortable({
+    id: `block-workout-${week}-${dayOfWeek}`,
+    data: {
+      type: "blockWorkout",
+      week,
+      dayOfWeek,
+      workout,
+      label: workout
+        ? `Week ${week} · Day ${dayOfWeek} · ${workout.exercises.length} exercises`
+        : `Week ${week} · Day ${dayOfWeek}`,
+    },
+    disabled: !workout,
+  });
+
+  return (
+    <div className="flex items-center justify-between gap-1 px-2 py-1">
+      <div className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+        {dayName}
+      </div>
+      {workout ? (
+        <div className="flex shrink-0 items-center gap-1">
+          <DraggingToolTip
+            icon={
+              <div
+                ref={setDraggableNodeRef}
+                className="grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+              >
+                <RectangleEllipsisIcon className="h-3.5 w-3.5" />
+              </div>
+            }
+            listeners={listeners}
+            onDelete={onDeleteWorkout}
+          />
+          <button
+            type="button"
+            className={cn(
+              "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition",
+              isActiveWorkout
+                ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+                : "hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]",
+            )}
+            onClick={onEditWorkout}
+            title={isActiveWorkout ? "Close editor" : "Edit workout"}
+            aria-label={isActiveWorkout ? "Close editor" : "Edit workout"}
+          >
+            <PencilIcon className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ) : (
+        <span className="h-6 w-6" aria-hidden />
+      )}
+    </div>
   );
 }

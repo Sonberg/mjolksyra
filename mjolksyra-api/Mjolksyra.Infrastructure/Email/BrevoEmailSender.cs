@@ -14,6 +14,14 @@ public class BrevoEmailSender : IEmailSender
     private readonly ContactsApi _contactsApi;
     private readonly BrevoOptions _options;
 
+    private record TemplateParameters
+    {
+        public string? Title { get; init; }
+        public string? Body { get; init; }
+        public string? ButtonText { get; init; }
+        public string? ButtonLink { get; init; }
+    }
+
     public BrevoEmailSender(IOptions<BrevoOptions> options)
     {
         _options = options.Value;

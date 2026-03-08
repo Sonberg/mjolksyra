@@ -2,9 +2,10 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { BlockExercise } from "@/services/blocks/type";
 import { ExerciseCard } from "@/components/ExerciseCard";
+import { DraggingToolTip } from "@/components/DraggingToolTip";
 
 type Props = {
   exercise: BlockExercise;
@@ -43,27 +44,13 @@ export function BlockDayExercise({
         isActive={isActive}
         isDragging={isDragging}
         leftSlot={
-          <div
-            {...listeners}
-            className="shrink-0 cursor-grab pt-1 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-          >
-            <GripVertical className="h-3 w-3" />
-          </div>
-        }
-        rightSlot={
-          <div className="mt-0.5 flex items-center gap-1">
-            <button
-              type="button"
-              onClick={(ev) => {
-                ev.stopPropagation();
-                onRemove();
-              }}
-              className="grid h-5 w-5 place-content-center rounded-none text-[var(--shell-muted)] opacity-0 transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-accent)] group-hover:opacity-100"
-              title="Remove exercise"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
+          <DraggingToolTip
+            listeners={listeners}
+            icon={<EllipsisVertical className="h-4 text-[var(--shell-muted)]" />}
+            onDelete={() => {
+              onRemove();
+            }}
+          />
         }
       />
     </div>
