@@ -6,5 +6,6 @@ public enum TraineeBillingStatus
     AwaitingAthletePaymentMethod,
     AwaitingCoachStripeSetup,
     SubscriptionActive,
-    PriceSet
+    PriceSet,
+    PaymentFailed
 }

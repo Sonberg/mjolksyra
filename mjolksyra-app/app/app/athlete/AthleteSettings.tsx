@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import { ChangePaymentMethodDialog } from "@/components/ChangePaymentMethod/ChangePaymentMethodDialog";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { UserTrainee } from "@/services/users/type";
@@ -9,6 +13,7 @@ type Props = {
 };
 
 export function AthleteSettings({ coach }: Props) {
+  const [changeCardOpen, setChangeCardOpen] = useState(false);
   const cancel = useMutation({
     mutationKey: ["trainees", coach.traineeId, "cancel"],
     mutationFn: () => cancelTrainee({ traineeId: coach.traineeId }),
@@ -34,7 +39,7 @@ export function AthleteSettings({ coach }: Props) {
         />
       </div>
       <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
-        <div>
+        <div className="divide-y divide-[var(--shell-border)]/30">
           <div className="flex items-center justify-between py-4">
             <div>
               <p className="text-sm font-medium text-[var(--shell-ink)]">
@@ -60,6 +65,24 @@ export function AthleteSettings({ coach }: Props) {
               <p className="text-sm text-[var(--shell-muted)]">Not set</p>
             )}
           </div>
+
+          <div className="flex items-center justify-between py-4">
+            <div>
+              <p className="text-sm font-medium text-[var(--shell-ink)]">
+                Payment method
+              </p>
+              <p className="text-xs text-[var(--shell-muted)]">
+                Card used for monthly billing
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setChangeCardOpen(true)}
+              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+            >
+              Change card
+            </button>
+          </div>
         </div>
 
         <div className="mt-6">
@@ -73,6 +96,10 @@ export function AthleteSettings({ coach }: Props) {
           </button>
         </div>
       </div>
+      <ChangePaymentMethodDialog
+        open={changeCardOpen}
+        onClose={() => setChangeCardOpen(false)}
+      />
     </div>
   );
 }

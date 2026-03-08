@@ -18,17 +18,20 @@ public class SetupIntentController : Controller
     private readonly IUserContext _userContext;
 
     private readonly IUserRepository _userRepository;
+    private readonly ITraineeRepository _traineeRepository;
     private readonly IUserEventPublisher _userEvents;
 
     public SetupIntentController(
         IStripeClient stripeClient,
         IUserContext userContext,
         IUserRepository userRepository,
+        ITraineeRepository traineeRepository,
         IUserEventPublisher userEvents)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
         _userRepository = userRepository;
+        _traineeRepository = traineeRepository;
         _userEvents = userEvents;
     }
 
@@ -125,6 +128,28 @@ public class SetupIntentController : Controller
         user.Athlete.Stripe.Message = setupIntent.LastSetupError?.Message;
 
         await _userRepository.Update(user, cancellationToken);
+
+        if (setupIntent.Status == "succeeded" && setupIntent.PaymentMethodId is { } newPaymentMethodId)
+        {
+            var userId = user.Id;
+            var trainees = await _traineeRepository.Get(userId, cancellationToken);
+            var subscriptionService = new SubscriptionService(_stripeClient);
+
+            foreach (var trainee in trainees.Where(t => t.StripeSubscriptionId != null))
+            {
+                await subscriptionService.UpdateAsync(trainee.StripeSubscriptionId!, new SubscriptionUpdateOptions
+                {
+                    DefaultPaymentMethod = newPaymentMethodId
+                }, cancellationToken: cancellationToken);
+
+                if (trainee.PaymentFailedAt != null)
+                {
+                    trainee.PaymentFailedAt = null;
+                    await _traineeRepository.Update(trainee, cancellationToken);
+                }
+            }
+        }
+
         await _userEvents.Publish(user.Id, "user.updated", new
         {
             scope = "athlete-stripe",

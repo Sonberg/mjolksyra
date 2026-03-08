@@ -77,7 +77,9 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
 
         nextChargedAt ??= hasSubscription ? lastChargedAt?.AddMonths(1) : null;
 
-        var billingStatus = hasSubscription
+        var billingStatus = hasSubscription && trainee.PaymentFailedAt != null
+            ? TraineeBillingStatus.PaymentFailed
+            : hasSubscription
             ? TraineeBillingStatus.SubscriptionActive
             : !hasPrice
                 ? TraineeBillingStatus.PriceNotSet

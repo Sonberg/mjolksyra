@@ -19,6 +19,8 @@ public class Trainee
 
     public string? StripeSubscriptionId { get; set; }
 
+    public DateTimeOffset? PaymentFailedAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }

@@ -153,6 +153,127 @@ public class InvoiceWebhookHandlerTests
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
 
+    [Fact]
+    public async Task HandleFailed_SetsPaymentFailedAtOnTrainee()
+    {
+        var traineeId = Guid.NewGuid();
+        var athleteId = Guid.NewGuid();
+        var coachId = Guid.NewGuid();
+
+        var traineeRepo = new FakeTraineeRepository
+        {
+            TraineeBySubscriptionId = new Trainee
+            {
+                Id = traineeId,
+                AthleteUserId = athleteId,
+                CoachUserId = coachId,
+                Status = TraineeStatus.Active,
+                Cost = new TraineeCost { Amount = 1000 },
+                StripeSubscriptionId = "sub_test123"
+            }
+        };
+        var userRepo = new FakeUserRepository
+        {
+            UsersById = new Dictionary<Guid, User>
+            {
+                [athleteId] = CreateUser(athleteId, "athlete@example.com", "Ada", "Athlete"),
+                [coachId] = CreateUser(coachId, "coach@example.com", "Carl", "Coach")
+            }
+        };
+
+        var sut = CreateHandler(traineeRepo, userRepo, new FakeTransactionRepository());
+
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_test123", PaymentIntentId = "pi_test" });
+
+        Assert.NotNull(traineeRepo.UpdatedTrainee);
+        Assert.NotNull(traineeRepo.UpdatedTrainee!.PaymentFailedAt);
+    }
+
+    [Fact]
+    public async Task HandleSucceeded_ClearsPaymentFailedAtWhenPreviouslySet()
+    {
+        var traineeId = Guid.NewGuid();
+        var athleteId = Guid.NewGuid();
+        var coachId = Guid.NewGuid();
+
+        var traineeRepo = new FakeTraineeRepository
+        {
+            TraineeBySubscriptionId = new Trainee
+            {
+                Id = traineeId,
+                AthleteUserId = athleteId,
+                CoachUserId = coachId,
+                Status = TraineeStatus.Active,
+                Cost = new TraineeCost { Amount = 1000 },
+                StripeSubscriptionId = "sub_test123",
+                PaymentFailedAt = DateTimeOffset.UtcNow.AddDays(-1)
+            }
+        };
+        var userRepo = new FakeUserRepository
+        {
+            UsersById = new Dictionary<Guid, User>
+            {
+                [athleteId] = CreateUser(athleteId, "athlete@example.com", "Ada", "Athlete"),
+                [coachId] = CreateUser(coachId, "coach@example.com", "Carl", "Coach")
+            }
+        };
+
+        var sut = CreateHandler(traineeRepo, userRepo, new FakeTransactionRepository());
+
+        await sut.HandleSucceeded(new Invoice
+        {
+            Id = "in_test",
+            SubscriptionId = "sub_test123",
+            PaymentIntentId = "pi_test",
+            HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
+        });
+
+        Assert.NotNull(traineeRepo.UpdatedTrainee);
+        Assert.Null(traineeRepo.UpdatedTrainee!.PaymentFailedAt);
+    }
+
+    [Fact]
+    public async Task HandleSucceeded_WhenPaymentFailedAtNotSet_DoesNotUpdateTrainee()
+    {
+        var traineeId = Guid.NewGuid();
+        var athleteId = Guid.NewGuid();
+        var coachId = Guid.NewGuid();
+
+        var traineeRepo = new FakeTraineeRepository
+        {
+            TraineeBySubscriptionId = new Trainee
+            {
+                Id = traineeId,
+                AthleteUserId = athleteId,
+                CoachUserId = coachId,
+                Status = TraineeStatus.Active,
+                Cost = new TraineeCost { Amount = 1000 },
+                StripeSubscriptionId = "sub_test123",
+                PaymentFailedAt = null
+            }
+        };
+        var userRepo = new FakeUserRepository
+        {
+            UsersById = new Dictionary<Guid, User>
+            {
+                [athleteId] = CreateUser(athleteId, "athlete@example.com", "Ada", "Athlete"),
+                [coachId] = CreateUser(coachId, "coach@example.com", "Carl", "Coach")
+            }
+        };
+
+        var sut = CreateHandler(traineeRepo, userRepo, new FakeTransactionRepository());
+
+        await sut.HandleSucceeded(new Invoice
+        {
+            Id = "in_test",
+            SubscriptionId = "sub_test123",
+            PaymentIntentId = "pi_test",
+            HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
+        });
+
+        Assert.Null(traineeRepo.UpdatedTrainee);
+    }
+
     private static InvoiceWebhookHandler CreateHandler(
         ITraineeRepository traineeRepo,
         IUserRepository userRepo,
@@ -187,9 +308,14 @@ public class InvoiceWebhookHandlerTests
     private sealed class FakeTraineeRepository : ITraineeRepository
     {
         public Trainee? TraineeBySubscriptionId { get; set; }
+        public Trainee? UpdatedTrainee { get; private set; }
 
         public Task<Trainee> Create(Trainee trainee, CancellationToken ct) => Task.FromResult(trainee);
-        public Task<Trainee> Update(Trainee trainee, CancellationToken ct) => Task.FromResult(trainee);
+        public Task<Trainee> Update(Trainee trainee, CancellationToken ct)
+        {
+            UpdatedTrainee = trainee;
+            return Task.FromResult(trainee);
+        }
         public Task<Trainee?> GetById(Guid traineeId, CancellationToken ct) => Task.FromResult<Trainee?>(null);
         public Task<ICollection<Trainee>> GetAllAsync(CancellationToken ct) => Task.FromResult<ICollection<Trainee>>([]);
         public Task<ICollection<Trainee>> Get(Guid userId, CancellationToken ct) => Task.FromResult<ICollection<Trainee>>([]);

@@ -29,6 +29,7 @@ const billingSchema = z.object({
     "AwaitingCoachStripeSetup",
     "SubscriptionActive",
     "PriceSet",
+    "PaymentFailed",
   ]),
   hasPrice: z.boolean(),
   hasSubscription: z.boolean(),

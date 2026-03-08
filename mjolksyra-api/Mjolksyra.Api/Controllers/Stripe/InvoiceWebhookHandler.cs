@@ -55,6 +55,12 @@ public class InvoiceWebhookHandler
 
         await _transactionRepository.Upsert(transaction, CancellationToken.None);
 
+        if (trainee.PaymentFailedAt != null)
+        {
+            trainee.PaymentFailedAt = null;
+            await _traineeRepository.Update(trainee, CancellationToken.None);
+        }
+
         await _emailSender.SendPaymentSucceededToAthlete(athlete.Email.Value, new AthleteBillingEmail
         {
             Coach = DisplayName(coach),
@@ -102,6 +108,9 @@ public class InvoiceWebhookHandler
         };
 
         await _transactionRepository.Upsert(transaction, CancellationToken.None);
+
+        trainee.PaymentFailedAt = DateTimeOffset.UtcNow;
+        await _traineeRepository.Update(trainee, CancellationToken.None);
 
         var billingEmail = new AthleteBillingEmail
         {

@@ -117,6 +117,23 @@ export default {
     />
   ),
 
+  WithPaymentFailed: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "Completed", coach: "NotStarted" },
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "John",
+            familyName: "Doe",
+            status: "Active",
+          },
+        ],
+      }}
+    />
+  ),
+
   PendingInvitationsOnly: () => (
     <PageContent
       user={{

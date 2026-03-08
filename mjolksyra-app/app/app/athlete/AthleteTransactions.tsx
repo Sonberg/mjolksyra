@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import { ChangePaymentMethodDialog } from "@/components/ChangePaymentMethod/ChangePaymentMethodDialog";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { UserTrainee } from "@/services/users/type";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +12,7 @@ type Props = {
 };
 
 export function AthleteTransactions({ coach }: Props) {
+  const [changeCardOpen, setChangeCardOpen] = useState(false);
   const { data } = useQuery({
     queryKey: ["trainees", coach.traineeId],
     queryFn: ({ signal }) => getTrainee({ id: coach.traineeId, signal }),
@@ -24,6 +29,7 @@ export function AthleteTransactions({ coach }: Props) {
     AwaitingCoachStripeSetup: "Your coach needs to finish Stripe setup before billing can start.",
     PriceSet: "Price is set. Billing will activate when setup is complete.",
     SubscriptionActive: "Monthly billing is active.",
+    PaymentFailed: "Your last payment failed. Update your payment method to avoid cancellation.",
   }[data.billing.status];
   const billingStatusValue = {
     PriceNotSet: "Price not set",
@@ -31,11 +37,30 @@ export function AthleteTransactions({ coach }: Props) {
     AwaitingCoachStripeSetup: "Awaiting coach setup",
     PriceSet: "Price set",
     SubscriptionActive: "Active",
+    PaymentFailed: "Payment failed",
   }[data.billing.status];
   const formatBillingDate = (date: Date) => date.toLocaleDateString("sv-SE");
 
   return (
     <div className="space-y-4">
+      {data.billing.status === "PaymentFailed" ? (
+        <div className="flex items-center justify-between rounded-none border-2 border-red-500 bg-red-50 px-4 py-3 dark:bg-red-950">
+          <p className="text-sm font-medium text-red-700 dark:text-red-300">
+            Your last payment failed. Update your payment method to avoid cancellation.
+          </p>
+          <button
+            type="button"
+            onClick={() => setChangeCardOpen(true)}
+            className="ml-4 shrink-0 rounded-none border-2 border-red-500 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+          >
+            Update payment method
+          </button>
+        </div>
+      ) : null}
+      <ChangePaymentMethodDialog
+        open={changeCardOpen}
+        onClose={() => setChangeCardOpen(false)}
+      />
       <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
         <PageSectionHeader
           title="Transactions"
