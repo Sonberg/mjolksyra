@@ -7,4 +7,6 @@ public class ClerkOptions
     public required string Domain { get; set; }
 
     public required string SecretKey { get; set; }
+
+    public string? WebhookSecret { get; set; }
 }
