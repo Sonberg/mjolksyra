@@ -1,6 +1,6 @@
 Frontend
 - Add e2e tests with Playwright for every feature
-- Add react-cosmos-next for component testing
+- Add story / storeis to Storybook
 - BuilderBuilder & WorkoutPlanner should aways have matching, UX & design 
 
 Backend

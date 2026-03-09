@@ -154,3 +154,38 @@ export const UnreadAndRead: Story = {
 export const Empty: Story = {
   render: () => <Fixture items={[]} />,
 }
+
+function LoadingFixture() {
+  useEffect(() => {
+    const originalGet = ApiClient.get.bind(ApiClient)
+
+    ApiClient.get = (async (url: string) => {
+      if (String(url).startsWith("/api/notifications")) {
+        // Never resolves — keeps the component in loading state
+        return new Promise(() => {})
+      }
+      return originalGet(url)
+    }) as typeof ApiClient.get
+
+    window.__DISABLE_REALTIME__ = true
+
+    return () => {
+      ApiClient.get = originalGet
+      window.__DISABLE_REALTIME__ = false
+    }
+  }, [])
+
+  return (
+    <AuthContext.Provider value={mockAuth}>
+      <div className="min-h-screen bg-black p-8">
+        <div className="mx-auto flex max-w-xl justify-end rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <NavigationNotifications />
+        </div>
+      </div>
+    </AuthContext.Provider>
+  )
+}
+
+export const Loading: Story = {
+  render: () => <LoadingFixture />,
+}

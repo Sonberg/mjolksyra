@@ -1,71 +1,29 @@
 "use client"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Decorator, Meta, StoryObj } from "@storybook/react"
 import { useEffect } from "react"
 import { AthleteOnboardingFlow } from "./AthleteOnboardingFlow"
 
-function withUrlParams(params: Record<string, string>, children: React.ReactNode) {
-  return function UrlParamWrapper() {
+function withMockedFetch(fetchImpl: typeof globalThis.fetch): Decorator {
+  return (Story) => {
     useEffect(() => {
-      const url = new URL(window.location.href)
-      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
-      window.history.replaceState(null, "", url.toString())
+      const original = globalThis.fetch
+      globalThis.fetch = fetchImpl
       return () => {
-        const clean = new URL(window.location.href)
-        Object.keys(params).forEach((k) => clean.searchParams.delete(k))
-        window.history.replaceState(null, "", clean.toString())
+        globalThis.fetch = original
       }
     }, [])
-    return <>{children}</>
+    return <Story />
   }
-}
-
-function SyncingReturnFixture() {
-  useEffect(() => {
-    const url = new URL(window.location.href)
-    url.searchParams.set("setup_intent", "si_test")
-    url.searchParams.set("redirect_status", "succeeded")
-    window.history.replaceState(null, "", url.toString())
-
-    const original = globalThis.fetch
-    globalThis.fetch = () => new Promise(() => {})
-
-    return () => {
-      globalThis.fetch = original
-      const clean = new URL(window.location.href)
-      clean.searchParams.delete("setup_intent")
-      clean.searchParams.delete("redirect_status")
-      window.history.replaceState(null, "", clean.toString())
-    }
-  }, [])
-
-  return <AthleteOnboardingFlow hasCoachContext={false} isPaymentSetupComplete={false} />
-}
-
-function ReturnErrorFixture() {
-  useEffect(() => {
-    const url = new URL(window.location.href)
-    url.searchParams.set("setup_intent", "si_test")
-    url.searchParams.set("redirect_status", "succeeded")
-    window.history.replaceState(null, "", url.toString())
-
-    const original = globalThis.fetch
-    globalThis.fetch = () => Promise.reject(new Error("Failed to sync payment status"))
-
-    return () => {
-      globalThis.fetch = original
-      const clean = new URL(window.location.href)
-      clean.searchParams.delete("setup_intent")
-      clean.searchParams.delete("redirect_status")
-      window.history.replaceState(null, "", clean.toString())
-    }
-  }, [])
-
-  return <AthleteOnboardingFlow hasCoachContext={false} isPaymentSetupComplete={false} />
 }
 
 const meta = {
   title: "Onboarding/AthleteOnboardingFlow",
+  parameters: {
+    nextjs: {
+      appDirectory: true,
+    },
+  },
 } satisfies Meta
 
 export default meta
@@ -84,9 +42,35 @@ export const WithCoachContext: Story = {
 }
 
 export const SyncingReturn: Story = {
-  render: () => <SyncingReturnFixture />,
+  parameters: {
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        searchParams: new URLSearchParams({
+          redirect_status: "succeeded",
+          setup_intent: "si_test",
+        }),
+      },
+    },
+  },
+  decorators: [withMockedFetch(() => new Promise(() => {}))],
+  render: () => <AthleteOnboardingFlow hasCoachContext={false} isPaymentSetupComplete={false} />,
 }
 
 export const ReturnError: Story = {
-  render: () => <ReturnErrorFixture />,
+  parameters: {
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        searchParams: new URLSearchParams({
+          redirect_status: "succeeded",
+          setup_intent: "si_test",
+        }),
+      },
+    },
+  },
+  decorators: [
+    withMockedFetch(() => Promise.reject(new Error("Failed to sync payment status"))),
+  ],
+  render: () => <AthleteOnboardingFlow hasCoachContext={false} isPaymentSetupComplete={false} />,
 }

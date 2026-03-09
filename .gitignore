@@ -1,3 +1,4 @@
 .DS_Store
 mjolksyra-api/Mjolksyra.Api/appsettings.Development.json
 .azure
+storybook-static
