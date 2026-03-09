@@ -16,11 +16,9 @@ public class DeclineTraineeInvitationCommandHandler(
     public async Task Handle(DeclineTraineeInvitationCommand request, CancellationToken cancellationToken)
     {
         var invitation = await repository.GetByIdAsync(request.TraineeInvitationId, cancellationToken);
-        if (invitation is null) return;
         if (invitation.AcceptedAt is not null || invitation.RejectedAt is not null) return;
 
         var athlete = await userRepository.GetById(request.AthleteUserId, cancellationToken);
-        if (athlete is null) return;
         var coach = await userRepository.GetById(invitation.CoachUserId, cancellationToken);
 
         if (invitation.Email.Normalized != EmailNormalizer.Normalize(athlete.Email.Value)) return;
@@ -29,27 +27,16 @@ public class DeclineTraineeInvitationCommandHandler(
 
         await emailSender.SendInvitationDeclinedToCoach(coach.Email.Value, new InvitationStatusEmail
         {
-            Coach = DisplayName(coach),
-            Athlete = DisplayName(athlete),
-            Email = athlete.Email.Value,
+            Coach = coach,
+            Athlete = athlete,
             PriceSek = invitation.MonthlyPriceAmount
         }, cancellationToken);
 
         await notificationService.Notify(coach.Id,
             "invite.declined",
             "Invitation declined",
-            $"{DisplayName(athlete)} declined your invitation.",
+            $"{athlete.DisplayName} declined your invitation.",
             "/app/coach/athletes",
             cancellationToken);
     }
-
-    private static string DisplayName(Domain.Database.Models.User user)
-        => string.Join(" ", new[]
-            {
-                user.GivenName, user.FamilyName
-            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-            {
-                "" => user.Email.Value,
-                var value => value
-            };
 }

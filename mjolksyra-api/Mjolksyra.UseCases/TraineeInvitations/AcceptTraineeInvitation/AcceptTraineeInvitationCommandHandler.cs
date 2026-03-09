@@ -75,9 +75,8 @@ public class AcceptTraineeInvitationCommandHandler(
 
         await emailSender.SendInvitationAcceptedToCoach(coach.Email.Value, new InvitationStatusEmail
         {
-            Coach = DisplayName(coach),
-            Athlete = DisplayName(athlete),
-            Email = athlete.Email.Value,
+            Coach = coach,
+            Athlete = athlete,
             PriceSek = invitation.MonthlyPriceAmount
         }, cancellationToken);
 
@@ -103,25 +102,23 @@ public class AcceptTraineeInvitationCommandHandler(
         {
             await emailSender.SendPaymentMethodRequiredToAthlete(athlete.Email.Value, new AthleteBillingEmail
             {
-                Coach = DisplayName(coach),
-                Athlete = DisplayName(athlete),
-                Email = athlete.Email.Value,
-                PriceSek = invitation.MonthlyPriceAmount,
-                Link = "/app/athlete"
+                Coach = coach,
+                Athlete = athlete,
+                PriceSek = invitation.MonthlyPriceAmount
             }, cancellationToken);
         }
 
         await notificationService.Notify(coach.Id,
             "invite.accepted",
             "Invitation accepted",
-            $"{DisplayName(athlete)} accepted your invitation.",
+            $"{athlete.DisplayName} accepted your invitation.",
             "/app/coach/athletes",
             cancellationToken);
 
         await notificationService.Notify(athlete.Id,
             "invite.accepted",
             "Coach connection active",
-            $"You are now connected with {DisplayName(coach)}.",
+            $"You are now connected with {coach.DisplayName}.",
             "/app/athlete",
             cancellationToken);
 
@@ -135,14 +132,4 @@ public class AcceptTraineeInvitationCommandHandler(
                 cancellationToken);
         }
     }
-
-    private static string DisplayName(User user)
-        => string.Join(" ", new[]
-            {
-                user.GivenName, user.FamilyName
-            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-            {
-                "" => user.Email.Value,
-                var value => value
-            };
 }

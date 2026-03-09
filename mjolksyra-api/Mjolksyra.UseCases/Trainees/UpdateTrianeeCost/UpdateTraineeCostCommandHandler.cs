@@ -60,9 +60,8 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
         {
             await _emailSender.SendPriceChangedToAthlete(athlete.Email.Value, new AthleteBillingEmail
             {
-                Coach = DisplayName(coach),
-                Athlete = DisplayName(athlete),
-                Email = athlete.Email.Value,
+                Coach = coach,
+                Athlete = athlete,
                 PriceSek = trainee.Cost.Amount
             }, cancellationToken);
         }
@@ -70,25 +69,15 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
         await _notificationService.Notify(coach.Id,
             "billing.price-changed",
             "Price updated",
-            $"Monthly coaching price set to {trainee.Cost.Amount} SEK for {DisplayName(athlete)}.",
+            $"Monthly coaching price set to {trainee.Cost.Amount} SEK for {athlete.DisplayName}.",
             "/app/coach/athletes",
             cancellationToken);
 
         await _notificationService.Notify(athlete.Id,
             "billing.price-changed",
             "Price updated",
-            $"{DisplayName(coach)} set your monthly coaching price to {trainee.Cost.Amount} SEK.",
+            $"{coach.DisplayName} set your monthly coaching price to {trainee.Cost.Amount} SEK.",
             "/app/athlete",
             cancellationToken);
     }
-
-    private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)
-        => string.Join(" ", new[]
-            {
-                user.GivenName, user.FamilyName
-            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-            {
-                "" => user.Email.Value,
-                var value => value
-            };
 }

@@ -14,6 +14,15 @@ public class User
 
     public string? FamilyName { get; set; }
 
+    public string DisplayName => string.Join(" ", new[]
+        {
+            GivenName, FamilyName
+        }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
+        {
+            "" => Email.Value,
+            var value => value
+        };
+
     public required Email Email { get; set; }
 
     public bool IsCoach => Coach?.Stripe?.Status == StripeStatus.Succeeded;

@@ -65,10 +65,8 @@ public class InviteTraineeCommandHandler(
 
         await emailSender.SendInvitation(request.Email, new InvitationEmail
         {
-            Coach = coach.GivenName!,
-            Text = athlete is not null ? "Log in to your account" : "Create an account",
-            Link = configuration["App:BaseUrl"] ?? "http://localhost:3000",
-            Email = request.Email,
+            Coach = coach,
+            Athlete = athlete,
             PriceSek = request.MonthlyPriceAmount
         }, cancellationToken);
 
@@ -84,21 +82,12 @@ public class InviteTraineeCommandHandler(
             await notificationService.Notify(athlete.Id,
                 "invite.received",
                 "New coach invitation",
-                $"{DisplayName(coach)} invited you to coaching for {request.MonthlyPriceAmount} SEK/mo.",
+                $"{coach.DisplayName} invited you to coaching for {request.MonthlyPriceAmount} SEK/mo.",
                 "/app/athlete",
                 cancellationToken);
         }
 
         return TraineeInvitationsResponse.From(invitation, [coach]);
     }
-
-    private static string DisplayName(User user)
-        => string.Join(" ", new[]
-            {
-                user.GivenName, user.FamilyName
-            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-            {
-                "" => user.Email.Value,
-                var value => value
-            };
+    
 }

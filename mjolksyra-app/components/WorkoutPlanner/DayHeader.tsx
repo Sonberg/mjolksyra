@@ -32,7 +32,7 @@ export function DayHeader({
 }: Props) {
   return (
     <div
-      className="flex min-w-0 items-center justify-between gap-1 border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1"
+      className="flex min-w-0 items-center justify-between gap-1 border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 h-10"
       ref={setDraggableNodeRef}
     >
       <div className="flex min-w-0 items-center gap-1.5">

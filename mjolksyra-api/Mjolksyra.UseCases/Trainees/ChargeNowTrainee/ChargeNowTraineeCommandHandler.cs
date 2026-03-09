@@ -63,36 +63,24 @@ public class ChargeNowTraineeCommandHandler : IRequestHandler<ChargeNowTraineeCo
 
         await _emailSender.SendChargeNowToAthlete(athlete.Email.Value, new AthleteBillingEmail
         {
-            Coach = DisplayName(coach),
-            Athlete = DisplayName(athlete),
-            Email = athlete.Email.Value,
+            Coach = coach,
+            Athlete = athlete,
             PriceSek = trainee.Cost.Amount,
-            Date = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
             NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
         }, cancellationToken);
 
         await _notificationService.Notify(coach.Id,
             "billing.charge-now",
             "Charged athlete now",
-            $"Charged {DisplayName(athlete)} {trainee.Cost.Amount} SEK and reset billing cycle.",
+            $"Charged {athlete.DisplayName} {trainee.Cost.Amount} SEK and reset billing cycle.",
             "/app/coach/athletes",
             cancellationToken);
 
         await _notificationService.Notify(athlete.Id,
             "billing.charge-now",
             "You were charged",
-            $"{DisplayName(coach)} charged {trainee.Cost.Amount} SEK today and reset your monthly billing cycle.",
+            $"{coach.DisplayName} charged {trainee.Cost.Amount} SEK today and reset your monthly billing cycle.",
             "/app/athlete",
             cancellationToken);
     }
-
-    private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)
-        => string.Join(" ", new[]
-            {
-                user.GivenName, user.FamilyName
-            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-            {
-                "" => user.Email.Value,
-                var value => value
-            };
 }

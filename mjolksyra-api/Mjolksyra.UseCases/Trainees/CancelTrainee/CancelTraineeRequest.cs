@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Messaging;
@@ -68,37 +69,21 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
 
         var coach = await _userRepository.GetById(trainee.CoachUserId, cancellationToken);
         var athlete = await _userRepository.GetById(trainee.AthleteUserId, cancellationToken);
-        var cancelledBy = request.UserId == trainee.CoachUserId ? "coach" : "athlete";
+        var cancelledBy = request.UserId == trainee.CoachUserId ? UserRole.Coach : UserRole.Athlete;
 
-        var emailModel = new RelationshipCancelledEmail
-        {
-            Coach = DisplayName(coach),
-            Athlete = DisplayName(athlete),
-            CancelledBy = cancelledBy,
-            Email = athlete.Email.Value
-        };
 
-        await _emailSender.SendRelationshipCancelled(athlete.Email.Value, emailModel, cancellationToken);
-        await _emailSender.SendRelationshipCancelled(coach.Email.Value, new RelationshipCancelledEmail
-        {
-            Coach = emailModel.Coach,
-            Athlete = emailModel.Athlete,
-            CancelledBy = emailModel.CancelledBy,
-            Email = coach.Email.Value
-        }, cancellationToken);
+        await _emailSender.SendRelationshipCancelled(
+            cancelledBy == UserRole.Athlete ? coach.Email.Value : athlete.Email.Value,
+            new RelationshipCancelledEmail
+            {
+                Coach = coach,
+                Athlete = athlete,
+                CancelledBy = cancelledBy
+            },
+            cancellationToken);
 
-        var body = $"{emailModel.Athlete} and {emailModel.Coach} relationship was cancelled by {cancelledBy}.";
+        var body = $"{athlete.DisplayName} and {coach.DisplayName} relationship was cancelled by {cancelledBy}.";
         await _notificationService.Notify(athlete.Id, "relationship.cancelled", "Relationship cancelled", body, "/app/athlete", cancellationToken);
         await _notificationService.Notify(coach.Id, "relationship.cancelled", "Relationship cancelled", body, "/app/coach/athletes", cancellationToken);
     }
-
-    private static string DisplayName(User user)
-        => string.Join(" ", new[]
-            {
-                user.GivenName, user.FamilyName
-            }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim() switch
-            {
-                "" => user.Email.Value,
-                var value => value
-            };
 }

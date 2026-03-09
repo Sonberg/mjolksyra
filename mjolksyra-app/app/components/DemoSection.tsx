@@ -49,7 +49,7 @@ export const DemoSection = () => {
           </div>
 
           {!isDemoRunning ? (
-            <div className="absolute inset-0 z-10 grid place-items-center bg-zinc-500/40">
+            <div className="absolute inset-0 z-40 grid place-items-center bg-zinc-500/40">
               <div className="flex flex-col items-center gap-3">
                 <div className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--home-muted)]">
                   Demo paused

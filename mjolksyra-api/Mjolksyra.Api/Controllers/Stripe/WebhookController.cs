@@ -215,10 +215,8 @@ public class WebhookController : Controller
         {
             await _emailSender.SendCoachStripeStatusToCoach(user.Email.Value, new CoachStripeStatusEmail
             {
-                Coach = DisplayName(user),
-                Email = user.Email.Value,
-                Status = coach.Stripe.Status.ToString(),
-                Message = coach.Stripe.Message
+                Coach = user,
+                Status = coach.Stripe.Status
             }, CancellationToken.None);
 
             await _notificationService.Notify(user.Id,
