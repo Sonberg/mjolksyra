@@ -1,5 +1,6 @@
-import { CoachOnboarding } from "./CoachOnboarding";
-import { User } from "@/services/users/type";
+import type { Meta, StoryObj } from "@storybook/react"
+import { CoachOnboarding } from "./CoachOnboarding"
+import { User } from "@/services/users/type"
 
 const baseUser: User = {
   id: "u1",
@@ -16,18 +17,29 @@ const baseUser: User = {
   },
   discount: null,
   isAdmin: false,
-};
+}
 
-export default {
-  NotStarted: () => (
+const meta = {
+  title: "Coach/CoachOnboarding",
+} satisfies Meta
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const NotStarted: Story = {
+  render: () => (
     <CoachOnboarding user={{ ...baseUser, onboarding: { ...baseUser.onboarding, coach: "NotStarted" } }} />
   ),
+}
 
-  Started: () => (
+export const Started: Story = {
+  render: () => (
     <CoachOnboarding user={{ ...baseUser, onboarding: { ...baseUser.onboarding, coach: "Started" } }} />
   ),
+}
 
-  Completed: () => (
+export const Completed: Story = {
+  render: () => (
     <CoachOnboarding user={{ ...baseUser, onboarding: { ...baseUser.onboarding, coach: "Completed" } }} />
   ),
-};
+}

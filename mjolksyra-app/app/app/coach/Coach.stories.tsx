@@ -1,7 +1,8 @@
-import { User } from "@/services/users/type";
-import { Trainee } from "@/services/trainees/type";
-import { DashboardPageContent } from "./dashboard/pageContent";
-import dayjs from "dayjs";
+import type { Meta, StoryObj } from "@storybook/react"
+import { User } from "@/services/users/type"
+import { Trainee } from "@/services/trainees/type"
+import { DashboardPageContent } from "./dashboard/pageContent"
+import dayjs from "dayjs"
 
 const user: User = {
   id: "1",
@@ -15,12 +16,12 @@ const user: User = {
   },
   invitations: [],
   isAdmin: false,
-};
+}
 
 const onboardedUser: User = {
   ...user,
   onboarding: { coach: "Completed", athlete: "Completed" },
-};
+}
 
 const coachUser = {
   id: "c1",
@@ -28,7 +29,7 @@ const coachUser = {
   name: "Per Sonberg",
   givenName: "Per",
   familyName: "Sonberg",
-};
+}
 
 const makeAthlete = (id: string, name: string, email: string) => ({
   id,
@@ -36,7 +37,7 @@ const makeAthlete = (id: string, name: string, email: string) => ({
   name,
   givenName: name.split(" ")[0],
   familyName: name.split(" ")[1] ?? "",
-});
+})
 
 const baseTrainee = (id: string, name: string, email: string): Trainee => ({
   id,
@@ -54,12 +55,21 @@ const baseTrainee = (id: string, name: string, email: string): Trainee => ({
   lastWorkoutAt: null,
   createdAt: dayjs().subtract(7, "day").toDate(),
   transactions: [],
-});
+})
 
-export default {
-  NotOnboarded: () => <DashboardPageContent trainees={[]} user={user} />,
+const meta = {
+  title: "Coach/Coach",
+} satisfies Meta
 
-  Onboarded: () => (
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const NotOnboarded: Story = {
+  render: () => <DashboardPageContent trainees={[]} user={user} />,
+}
+
+export const Onboarded: Story = {
+  render: () => (
     <DashboardPageContent
       trainees={[]}
       user={{
@@ -68,8 +78,10 @@ export default {
       }}
     />
   ),
+}
 
-  AthleteOnboarded: () => (
+export const AthleteOnboarded: Story = {
+  render: () => (
     <DashboardPageContent
       trainees={[
         {
@@ -99,8 +111,10 @@ export default {
       user={onboardedUser}
     />
   ),
+}
 
-  WithMixedBillingStates: () => (
+export const WithMixedBillingStates: Story = {
+  render: () => (
     <DashboardPageContent
       trainees={[
         {
@@ -145,8 +159,10 @@ export default {
       user={onboardedUser}
     />
   ),
+}
 
-  WithActionItems: () => (
+export const WithActionItems: Story = {
+  render: () => (
     <DashboardPageContent
       trainees={[
         {
@@ -189,8 +205,10 @@ export default {
       user={onboardedUser}
     />
   ),
+}
 
-  StripeNotConnected: () => (
+export const StripeNotConnected: Story = {
+  render: () => (
     <DashboardPageContent
       trainees={[]}
       user={{
@@ -199,4 +217,4 @@ export default {
       }}
     />
   ),
-};
+}

@@ -1,5 +1,6 @@
-import { User } from "@/services/users/type";
-import { PageContent } from "./pageContent";
+import type { Meta, StoryObj } from "@storybook/react"
+import { User } from "@/services/users/type"
+import { PageContent } from "./pageContent"
 
 const user: User = {
   id: "1",
@@ -13,12 +14,21 @@ const user: User = {
     coach: "NotStarted",
   },
   isAdmin: false,
-};
+}
 
-export default {
-  NotOnboarded: () => <PageContent user={user} />,
+const meta = {
+  title: "Athlete/Athlete",
+} satisfies Meta
 
-  Onboarded: () => (
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const NotOnboarded: Story = {
+  render: () => <PageContent user={user} />,
+}
+
+export const Onboarded: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -26,8 +36,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithActiveCoach: () => (
+export const WithActiveCoach: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -49,8 +61,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithMixedCoaches: () => (
+export const WithMixedCoaches: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -72,8 +86,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithWorkouts: () => (
+export const WithWorkouts: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -86,12 +102,13 @@ export default {
             status: "Active",
           },
         ],
-        // Note: Workouts will be handled by AthleteWorkouts component
       }}
     />
   ),
+}
 
-  CompleteProfile: () => (
+export const CompleteProfile: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -107,8 +124,10 @@ export default {
       }}
     />
   ),
+}
 
-  OnboardingStarted: () => (
+export const OnboardingStarted: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -116,8 +135,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithPaymentFailed: () => (
+export const WithPaymentFailed: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -133,8 +154,10 @@ export default {
       }}
     />
   ),
+}
 
-  PendingInvitationsOnly: () => (
+export const PendingInvitationsOnly: Story = {
+  render: () => (
     <PageContent
       user={{
         ...user,
@@ -156,4 +179,4 @@ export default {
       }}
     />
   ),
-};
+}

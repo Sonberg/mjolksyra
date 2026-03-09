@@ -1,6 +1,7 @@
-import { Trainee } from "@/services/trainees/type";
-import { CoachAthletesContent } from "./CoachAthletesContent";
-import dayjs from "dayjs";
+import type { Meta, StoryObj } from "@storybook/react"
+import { Trainee } from "@/services/trainees/type"
+import { CoachAthletesContent } from "./CoachAthletesContent"
+import dayjs from "dayjs"
 
 const baseAthlete = (id: string) => ({
   id,
@@ -8,7 +9,7 @@ const baseAthlete = (id: string) => ({
   name: `Athlete ${id}`,
   givenName: "Athlete",
   familyName: id,
-});
+})
 
 const baseCoach = {
   id: "c1",
@@ -16,7 +17,7 @@ const baseCoach = {
   name: "Per Sonberg",
   givenName: "Per",
   familyName: "Sonberg",
-};
+}
 
 const baseBilling = {
   status: "PriceNotSet" as const,
@@ -24,7 +25,7 @@ const baseBilling = {
   hasSubscription: false,
   lastChargedAt: null,
   nextChargedAt: null,
-};
+}
 
 const baseTrainee = (id: string): Trainee => ({
   id,
@@ -36,12 +37,21 @@ const baseTrainee = (id: string): Trainee => ({
   lastWorkoutAt: null,
   createdAt: dayjs().subtract(7, "day").toDate(),
   transactions: [],
-});
+})
 
-export default {
-  NoAthletes: () => <CoachAthletesContent trainees={[]} />,
+const meta = {
+  title: "Coach/CoachAthletesContent",
+} satisfies Meta
 
-  WithAthletes: () => (
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const NoAthletes: Story = {
+  render: () => <CoachAthletesContent trainees={[]} />,
+}
+
+export const WithAthletes: Story = {
+  render: () => (
     <CoachAthletesContent
       trainees={[
         {
@@ -72,10 +82,12 @@ export default {
       ]}
     />
   ),
+}
 
-  AthleteOverage: () => (
+export const AthleteOverage: Story = {
+  render: () => (
     <CoachAthletesContent
       trainees={Array.from({ length: 12 }, (_, i) => baseTrainee(`${i + 1}`))}
     />
   ),
-};
+}

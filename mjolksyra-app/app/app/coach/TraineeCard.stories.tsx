@@ -1,6 +1,7 @@
-import { Trainee } from "@/services/trainees/type";
-import { TraineeCard } from "./TraineeCard";
-import dayjs from "dayjs";
+import type { Meta, StoryObj } from "@storybook/react"
+import { Trainee } from "@/services/trainees/type"
+import { TraineeCard } from "./TraineeCard"
+import dayjs from "dayjs"
 
 const baseAthlete = {
   id: "a1",
@@ -8,7 +9,7 @@ const baseAthlete = {
   name: "Anna Lindgren",
   givenName: "Anna",
   familyName: "Lindgren",
-};
+}
 
 const baseCoach = {
   id: "c1",
@@ -16,7 +17,7 @@ const baseCoach = {
   name: "Per Sonberg",
   givenName: "Per",
   familyName: "Sonberg",
-};
+}
 
 const baseBilling = {
   status: "PriceNotSet" as const,
@@ -24,7 +25,7 @@ const baseBilling = {
   hasSubscription: false,
   lastChargedAt: null,
   nextChargedAt: null,
-};
+}
 
 const baseTrainee: Trainee = {
   id: "t1",
@@ -36,7 +37,7 @@ const baseTrainee: Trainee = {
   lastWorkoutAt: null,
   createdAt: dayjs().subtract(7, "day").toDate(),
   transactions: [],
-};
+}
 
 const activeBilling = {
   status: "SubscriptionActive" as const,
@@ -44,12 +45,21 @@ const activeBilling = {
   hasSubscription: true,
   lastChargedAt: dayjs().subtract(1, "month").toDate(),
   nextChargedAt: dayjs().add(1, "month").toDate(),
-};
+}
 
-export default {
-  PriceNotSet: () => <TraineeCard trainee={baseTrainee} />,
+const meta = {
+  title: "Coach/TraineeCard",
+} satisfies Meta
 
-  PriceSet: () => (
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const PriceNotSet: Story = {
+  render: () => <TraineeCard trainee={baseTrainee} />,
+}
+
+export const PriceSet: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -58,8 +68,10 @@ export default {
       }}
     />
   ),
+}
 
-  AwaitingAthletePaymentMethod: () => (
+export const AwaitingAthletePaymentMethod: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -72,8 +84,10 @@ export default {
       }}
     />
   ),
+}
 
-  AwaitingCoachStripeSetup: () => (
+export const AwaitingCoachStripeSetup: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -86,8 +100,10 @@ export default {
       }}
     />
   ),
+}
 
-  SubscriptionActive: () => (
+export const SubscriptionActive: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -98,8 +114,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithUnpublishedChanges: () => (
+export const WithUnpublishedChanges: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -111,8 +129,10 @@ export default {
       hasUnpublishedChanges
     />
   ),
+}
 
-  PaymentFailed: () => (
+export const PaymentFailed: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -127,8 +147,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithTransactions: () => (
+export const WithTransactions: Story = {
+  render: () => (
     <TraineeCard
       trainee={{
         ...baseTrainee,
@@ -165,4 +187,4 @@ export default {
       }}
     />
   ),
-};
+}

@@ -1,10 +1,17 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
-import type { AxiosRequestConfig } from "axios";
-import { NavigationNotifications } from "./NavigationNotifications";
-import { AuthContext, type AuthContextValue } from "@/context/Auth/Auth";
-import { ApiClient } from "@/services/client";
+import type { Meta, StoryObj } from "@storybook/react"
+import { useEffect } from "react"
+import type { AxiosRequestConfig } from "axios"
+import { NavigationNotifications } from "./NavigationNotifications"
+import { AuthContext, type AuthContextValue } from "@/context/Auth/Auth"
+import { ApiClient } from "@/services/client"
+
+declare global {
+  interface Window {
+    __DISABLE_REALTIME__?: boolean
+  }
+}
 
 const mockAuth: AuthContextValue = {
   userId: "cosmos-user",
@@ -16,28 +23,28 @@ const mockAuth: AuthContextValue = {
   login() {},
   logout() {},
   getAccessToken: async () => null,
-};
+}
 
 type MockNotification = {
-  id: string;
-  type: string;
-  title: string;
-  body: string | null;
-  href: string | null;
-  createdAt: string;
-  readAt: string | null;
-};
+  id: string
+  type: string
+  title: string
+  body: string | null
+  href: string | null
+  createdAt: string
+  readAt: string | null
+}
 
 function Fixture({
   items,
 }: {
-  items: MockNotification[];
+  items: MockNotification[]
 }) {
   useEffect(() => {
-    const originalGet = ApiClient.get.bind(ApiClient);
-    const originalPost = ApiClient.post.bind(ApiClient);
+    const originalGet = ApiClient.get.bind(ApiClient)
+    const originalPost = ApiClient.post.bind(ApiClient)
 
-    let notifications = [...items];
+    let notifications = [...items]
 
     ApiClient.get = (async (url: string) => {
       if (String(url).startsWith("/api/notifications")) {
@@ -46,47 +53,47 @@ function Fixture({
             unreadCount: notifications.filter((x) => !x.readAt).length,
             items: notifications,
           },
-        };
+        }
       }
 
-      return originalGet(url);
-    }) as typeof ApiClient.get;
+      return originalGet(url)
+    }) as typeof ApiClient.get
 
     ApiClient.post = (async (
       url: string,
       data?: unknown,
       config?: AxiosRequestConfig<unknown>,
     ) => {
-      const path = String(url);
+      const path = String(url)
 
       if (path === "/api/notifications/read-all") {
         notifications = notifications.map((x) => ({
           ...x,
           readAt: x.readAt ?? new Date().toISOString(),
-        }));
-        return { data: null };
+        }))
+        return { data: null }
       }
 
-      const match = path.match(/^\/api\/notifications\/([^/]+)\/read$/);
+      const match = path.match(/^\/api\/notifications\/([^/]+)\/read$/)
       if (match) {
-        const id = match[1];
+        const id = match[1]
         notifications = notifications.map((x) =>
           x.id === id ? { ...x, readAt: x.readAt ?? new Date().toISOString() } : x,
-        );
-        return { data: null };
+        )
+        return { data: null }
       }
 
-      return originalPost(url, data, config);
-    }) as typeof ApiClient.post;
+      return originalPost(url, data, config)
+    }) as typeof ApiClient.post
 
-    window.__DISABLE_REALTIME__ = true;
+    window.__DISABLE_REALTIME__ = true
 
     return () => {
-      ApiClient.get = originalGet;
-      ApiClient.post = originalPost;
-      window.__DISABLE_REALTIME__ = false;
-    };
-  }, [items]);
+      ApiClient.get = originalGet
+      ApiClient.post = originalPost
+      window.__DISABLE_REALTIME__ = false
+    }
+  }, [items])
 
   return (
     <AuthContext.Provider value={mockAuth}>
@@ -96,13 +103,20 @@ function Fixture({
         </div>
       </div>
     </AuthContext.Provider>
-  );
+  )
 }
 
-const now = new Date();
+const now = new Date()
 
-export default {
-  UnreadAndRead: () => (
+const meta = {
+  title: "Navigation/NavigationNotifications",
+} satisfies Meta
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const UnreadAndRead: Story = {
+  render: () => (
     <Fixture
       items={[
         {
@@ -135,5 +149,8 @@ export default {
       ]}
     />
   ),
-  Empty: () => <Fixture items={[]} />,
-};
+}
+
+export const Empty: Story = {
+  render: () => <Fixture items={[]} />,
+}

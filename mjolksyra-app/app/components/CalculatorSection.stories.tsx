@@ -1,5 +1,6 @@
-import { CalculatorSection } from "./CalculatorSection";
-import type { Plan } from "@/services/plans/type";
+import type { Meta, StoryObj } from "@storybook/react"
+import { CalculatorSection } from "./CalculatorSection"
+import type { Plan } from "@/services/plans/type"
 
 const plans: Plan[] = [
   {
@@ -26,19 +27,35 @@ const plans: Plan[] = [
     extraAthletePriceSek: 29,
     sortOrder: 3,
   },
-];
+]
 
-export default {
-  NormalApiPlans: () => <CalculatorSection plansOverride={plans} />,
-  PreselectedNonCheapestPlan: () => (
+const meta = {
+  title: "Landing/CalculatorSection",
+} satisfies Meta
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const NormalApiPlans: Story = {
+  render: () => <CalculatorSection plansOverride={plans} />,
+}
+
+export const PreselectedNonCheapestPlan: Story = {
+  render: () => (
     <CalculatorSection plansOverride={plans} initialSelectedPlanId="scale" />
   ),
-  ApiErrorFallback: () => <CalculatorSection forceFallbackPricing />,
-  HighAthleteOverage: () => (
+}
+
+export const ApiErrorFallback: Story = {
+  render: () => <CalculatorSection forceFallbackPricing />,
+}
+
+export const HighAthleteOverage: Story = {
+  render: () => (
     <CalculatorSection
       plansOverride={plans}
       initialAthleteCount={20}
       initialMonthlyFee={1200}
     />
   ),
-};
+}

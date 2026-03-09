@@ -19,4 +19,5 @@ See the [root README](../README.md) for full setup instructions including requir
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
 | `npm test` | Jest tests |
-| `npm run cosmos` | React Cosmos component playground |
+| `npm run storybook` | Storybook component playground |
+| `npm run build-storybook` | Build static Storybook |

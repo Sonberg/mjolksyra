@@ -1,4 +1,5 @@
-import { CoachDashboardSubscriptionSection } from "./CoachDashboardSubscriptionSection";
+import type { Meta, StoryObj } from "@storybook/react"
+import { CoachDashboardSubscriptionSection } from "./CoachDashboardSubscriptionSection"
 
 const starterPlan = {
   id: "00000000-0000-0000-0000-000000000001",
@@ -7,7 +8,7 @@ const starterPlan = {
   includedAthletes: 10,
   extraAthletePriceSek: 39,
   sortOrder: 1,
-};
+}
 
 const proPlan = {
   id: "00000000-0000-0000-0000-000000000002",
@@ -16,22 +17,29 @@ const proPlan = {
   includedAthletes: 25,
   extraAthletePriceSek: 29,
   sortOrder: 2,
-};
+}
 
 const disconnectedStatus = {
   label: "Stripe not connected",
   text: "You need to connect Stripe before you can receive payments.",
   badgeClass: "border-red-500 bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-};
+}
 
 const connectedStatus = {
   label: "Stripe connected",
   text: "Payouts and coach billing setup are active.",
   badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
-};
+}
 
-export default {
-  FreeTrial: () => (
+const meta = {
+  title: "Coach/CoachDashboardSubscriptionSection",
+} satisfies Meta
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const FreeTrial: Story = {
+  render: () => (
     <CoachDashboardSubscriptionSection
       coachPaymentStatus={connectedStatus}
       currentPlan={starterPlan}
@@ -44,8 +52,10 @@ export default {
       discount={null}
     />
   ),
+}
 
-  PlanNudge: () => (
+export const PlanNudge: Story = {
+  render: () => (
     <CoachDashboardSubscriptionSection
       coachPaymentStatus={connectedStatus}
       currentPlan={starterPlan}
@@ -58,8 +68,10 @@ export default {
       discount={null}
     />
   ),
+}
 
-  StripeNotConnected: () => (
+export const StripeNotConnected: Story = {
+  render: () => (
     <CoachDashboardSubscriptionSection
       coachPaymentStatus={disconnectedStatus}
       currentPlan={starterPlan}
@@ -72,8 +84,10 @@ export default {
       discount={null}
     />
   ),
+}
 
-  OpeningStripeDashboard: () => (
+export const OpeningStripeDashboard: Story = {
+  render: () => (
     <CoachDashboardSubscriptionSection
       coachPaymentStatus={connectedStatus}
       currentPlan={starterPlan}
@@ -86,8 +100,10 @@ export default {
       discount={null}
     />
   ),
+}
 
-  WithAppliedDiscount: () => (
+export const WithAppliedDiscount: Story = {
+  render: () => (
     <CoachDashboardSubscriptionSection
       coachPaymentStatus={{
         label: "Stripe connected",
@@ -107,8 +123,10 @@ export default {
       }}
     />
   ),
+}
 
-  WithoutDiscount: () => (
+export const WithoutDiscount: Story = {
+  render: () => (
     <CoachDashboardSubscriptionSection
       coachPaymentStatus={{
         label: "Stripe connected",
@@ -125,4 +143,4 @@ export default {
       discount={null}
     />
   ),
-};
+}
