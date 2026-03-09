@@ -1,5 +1,7 @@
 using MassTransit;
 using Moq;
+using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Messaging;
@@ -22,11 +24,25 @@ public class EmailSideEffectConsumerTests
         return context;
     }
 
+    private static User CreateUser(string email, string givenName, string familyName) => new()
+    {
+        Id = Guid.NewGuid(),
+        Email = Mjolksyra.Domain.Database.Models.Email.From(email),
+        GivenName = givenName,
+        FamilyName = familyName,
+        CreatedAt = DateTimeOffset.UtcNow
+    };
+
     [Fact]
     public async Task Consume_SendInvitation_CallsSendInvitation()
     {
         var (consumer, emailSender) = Create();
-        var invitation = new InvitationEmail { Coach = "Coach", Text = "Join me", Link = "https://link" };
+        var invitation = new InvitationEmail
+        {
+            Coach = CreateUser("coach@example.com", "Coach", "One"),
+            Athlete = CreateUser("athlete@example.com", "Athlete", "One"),
+            PriceSek = 399
+        };
         var context = BuildContext(new EmailSideEffectMessage
         {
             Action = EmailSideEffectAction.SendInvitation,
@@ -74,7 +90,11 @@ public class EmailSideEffectConsumerTests
     public async Task Consume_SendPaymentSucceededToAthlete_CallsCorrectMethod()
     {
         var (consumer, emailSender) = Create();
-        var billing = new AthleteBillingEmail { Coach = "Coach", Athlete = "Athlete", Email = "a@example.com" };
+        var billing = new AthleteBillingEmail
+        {
+            Coach = CreateUser("coach@example.com", "Coach", "One"),
+            Athlete = CreateUser("athlete@example.com", "Athlete", "One")
+        };
         var context = BuildContext(new EmailSideEffectMessage
         {
             Action = EmailSideEffectAction.SendPaymentSucceededToAthlete,
@@ -91,7 +111,12 @@ public class EmailSideEffectConsumerTests
     public async Task Consume_SendRelationshipCancelled_CallsCorrectMethod()
     {
         var (consumer, emailSender) = Create();
-        var cancelled = new RelationshipCancelledEmail { Coach = "Coach", Athlete = "Athlete", CancelledBy = "Coach", Email = "c@example.com" };
+        var cancelled = new RelationshipCancelledEmail
+        {
+            Coach = CreateUser("coach@example.com", "Coach", "One"),
+            Athlete = CreateUser("athlete@example.com", "Athlete", "One"),
+            CancelledBy = UserRole.Coach
+        };
         var context = BuildContext(new EmailSideEffectMessage
         {
             Action = EmailSideEffectAction.SendRelationshipCancelled,

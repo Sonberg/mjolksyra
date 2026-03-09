@@ -16,6 +16,9 @@ public class GetCoachRevenueRequestHandlerTests
         var traineeA1Id = Guid.NewGuid();
         var traineeA2Id = Guid.NewGuid();
         var traineeBId = Guid.NewGuid();
+        var athleteA1Id = Guid.NewGuid();
+        var athleteA2Id = Guid.NewGuid();
+        var athleteBId = Guid.NewGuid();
 
         var userRepository = new Mock<IUserRepository>();
         userRepository.Setup(x => x.GetCoachUsersAsync(It.IsAny<CancellationToken>())).ReturnsAsync([
@@ -48,13 +51,44 @@ public class GetCoachRevenueRequestHandlerTests
                 }
             }
         ]);
+        userRepository.Setup(x => x.GetManyById(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new User
+                {
+                    Id = athleteA1Id,
+                    Email = Email.From("athlete.a1@example.com"),
+                    GivenName = "Athlete",
+                    FamilyName = "One",
+                    Athlete = new UserAthlete
+                    {
+                        Stripe = new UserAthleteStripe
+                        {
+                            Status = StripeStatus.Succeeded
+                        }
+                    }
+                },
+                new User
+                {
+                    Id = athleteA2Id,
+                    Email = Email.From("athlete.a2@example.com"),
+                    GivenName = "Athlete",
+                    FamilyName = "Two"
+                },
+                new User
+                {
+                    Id = athleteBId,
+                    Email = Email.From("athlete.b@example.com"),
+                    GivenName = "Athlete",
+                    FamilyName = "Three"
+                }
+            ]);
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([
             new Trainee
             {
                 CoachUserId = coachAId,
-                AthleteUserId = Guid.NewGuid(),
+                AthleteUserId = athleteA1Id,
                 Id = traineeA1Id,
                 Status = TraineeStatus.Active,
                 Cost = new TraineeCost { Amount = 600 },
@@ -62,7 +96,7 @@ public class GetCoachRevenueRequestHandlerTests
             new Trainee
             {
                 CoachUserId = coachAId,
-                AthleteUserId = Guid.NewGuid(),
+                AthleteUserId = athleteA2Id,
                 Id = traineeA2Id,
                 Status = TraineeStatus.Cancelled,
                 Cost = new TraineeCost { Amount = 450 },
@@ -70,7 +104,7 @@ public class GetCoachRevenueRequestHandlerTests
             new Trainee
             {
                 CoachUserId = coachBId,
-                AthleteUserId = Guid.NewGuid(),
+                AthleteUserId = athleteBId,
                 Id = traineeBId,
                 Status = TraineeStatus.Active,
                 Cost = new TraineeCost { Amount = 300 },

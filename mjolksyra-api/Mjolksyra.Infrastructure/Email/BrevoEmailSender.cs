@@ -13,6 +13,7 @@ public class BrevoEmailSender : IEmailSender
     private readonly TransactionalEmailsApi _transactionalEmailsApi;
 
     private readonly ContactsApi _contactsApi;
+    
     private readonly BrevoOptions _options;
 
     private record TemplateParameters
@@ -164,11 +165,11 @@ public class BrevoEmailSender : IEmailSender
     public Task SendChargeNowToAthlete(string email, AthleteBillingEmail emailModel, CancellationToken cancellationToken)
         => SendTemplate(email, new TemplateParameters
         {
-            Subject = $"Receipt from {emailModel.Coach}",
-            Preview = $"Your coach {emailModel.Coach} charged you immediately for this month...",
-            Title = $"Receipt from {emailModel.Coach}",
+            Subject = $"Receipt from {emailModel.Coach.DisplayName}",
+            Preview = $"Your coach {emailModel.Coach.DisplayName} charged you immediately for this month...",
+            Title = $"Receipt from {emailModel.Coach.DisplayName}",
             Body = $"""
-                    Your coach <strong>{emailModel.Coach}</strong> charged you immediately for this month ({emailModel.PriceSek} kr). 
+                    Your coach <strong>{emailModel.Coach.DisplayName}</strong> charged you immediately for this month ({emailModel.PriceSek} kr). 
                     Next charge date is {emailModel.NextChargeDate}.
                     """,
             ButtonText = "View your receipt",

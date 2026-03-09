@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using Mjolksyra.Api.Controllers.Stripe;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
@@ -279,20 +278,12 @@ public class InvoiceWebhookHandlerTests
         IUserRepository userRepo,
         ITraineeTransactionRepository transactionRepo)
     {
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["App:BaseUrl"] = "http://localhost:3000"
-            })
-            .Build();
-
         return new InvoiceWebhookHandler(
             traineeRepo,
             userRepo,
             transactionRepo,
             new FakeEmailSender(),
-            new FakeNotificationService(),
-            configuration);
+            new FakeNotificationService());
     }
 
     private static User CreateUser(Guid id, string email, string givenName, string familyName) => new()

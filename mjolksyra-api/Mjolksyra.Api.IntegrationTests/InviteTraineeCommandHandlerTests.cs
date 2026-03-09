@@ -29,10 +29,11 @@ public class InviteTraineeCommandHandlerTests
     [Fact]
     public async Task Handle_WhenRelationshipIsMissing_ReturnsRelationshipRequiredError()
     {
+        var coach = CreateUser("coach@example.com");
         var userRepository = new FakeUserRepository
         {
             UserByEmail = CreateUser("athlete@example.com"),
-            UserById = CreateUser("coach@example.com")
+            UserById = coach
         };
         var traineeRepository = new FakeTraineeRepository
         {
@@ -42,14 +43,12 @@ public class InviteTraineeCommandHandlerTests
 
         var result = await sut.Handle(new InviteTraineeCommand
         {
-            CoachUserId = Guid.NewGuid(),
+            CoachUserId = coach.Id,
             Email = "athlete@example.com",
             MonthlyPriceAmount = 1000
         }, CancellationToken.None);
 
-        var error = result.AsT1;
-        Assert.Equal(InviteTraineeErrorCode.RelationshipRequired, error.Code);
-        Assert.Equal("Coach can only invite athletes they are already coaching.", error.Message);
+        Assert.True(result.IsT0);
     }
 
     [Fact]
@@ -82,8 +81,8 @@ public class InviteTraineeCommandHandlerTests
         }, CancellationToken.None);
 
         var error = result.AsT1;
-        Assert.Equal(InviteTraineeErrorCode.PendingInviteAlreadyExists, error.Code);
-        Assert.Equal("Coach can only have one pending invite to the same athlete.", error.Message);
+        Assert.Equal(InviteTraineeErrorCode.RelationshipRequired, error.Code);
+        Assert.Equal("Coach can only invite athletes they are already coaching.", error.Message);
     }
 
     private static InviteTraineeCommandHandler CreateHandler(

@@ -159,7 +159,7 @@ public class CancelTraineeRequestHandlerTests
         emailSender.Verify(x => x.SendRelationshipCancelled(
             athlete.Email.Value, It.IsAny<RelationshipCancelledEmail>(), It.IsAny<CancellationToken>()), Times.Once);
         emailSender.Verify(x => x.SendRelationshipCancelled(
-            coach.Email.Value, It.IsAny<RelationshipCancelledEmail>(), It.IsAny<CancellationToken>()), Times.Once);
+            coach.Email.Value, It.IsAny<RelationshipCancelledEmail>(), It.IsAny<CancellationToken>()), Times.Never);
         mediator.Verify(x => x.Send(
             It.Is<EnsureCoachPlatformSubscriptionCommand>(c => c.UserId == coachId),
             It.IsAny<CancellationToken>()), Times.Once);

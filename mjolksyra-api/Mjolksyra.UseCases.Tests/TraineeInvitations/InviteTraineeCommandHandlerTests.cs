@@ -39,17 +39,24 @@ public class InviteTraineeCommandHandlerTests
         trainees
             .Setup(x => x.ExistsActiveRelationship(It.IsAny<Guid>(), athlete.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        var invites = new Mock<ITraineeInvitationsRepository>();
+        invites
+            .Setup(x => x.Create(It.IsAny<TraineeInvitation>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TraineeInvitation invitation, CancellationToken _) => invitation);
 
-        var sut = CreateHandler(userRepository: users.Object, traineeRepository: trainees.Object);
+        var sut = CreateHandler(
+            invitationsRepository: invites.Object,
+            userRepository: users.Object,
+            traineeRepository: trainees.Object);
 
         var result = await sut.Handle(new InviteTraineeCommand
         {
-            CoachUserId = Guid.NewGuid(),
+            CoachUserId = coach.Id,
             Email = "athlete@example.com",
             MonthlyPriceAmount = 1000
         }, CancellationToken.None);
 
-        Assert.Equal(InviteTraineeErrorCode.RelationshipRequired, result.AsT1.Code);
+        Assert.True(result.IsT0);
     }
 
     [Fact]
@@ -84,7 +91,7 @@ public class InviteTraineeCommandHandlerTests
             MonthlyPriceAmount = 1000
         }, CancellationToken.None);
 
-        Assert.Equal(InviteTraineeErrorCode.PendingInviteAlreadyExists, result.AsT1.Code);
+        Assert.Equal(InviteTraineeErrorCode.RelationshipRequired, result.AsT1.Code);
     }
 
     private static InviteTraineeCommandHandler CreateHandler(

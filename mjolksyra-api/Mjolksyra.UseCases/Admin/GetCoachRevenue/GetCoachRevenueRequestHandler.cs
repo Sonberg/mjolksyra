@@ -20,7 +20,7 @@ public class GetCoachRevenueRequestHandler(
         var athletes = athleteIds.Count == 0
             ? new Dictionary<Guid, User>()
             : (await userRepository.GetManyById(athleteIds, cancellationToken))
-                .ToDictionary(x => x.Id, x => x);
+            .ToDictionary(x => x.Id, x => x);
 
         var traineesByCoach = trainees
             .GroupBy(x => x.CoachUserId)

@@ -36,4 +36,9 @@ public class User
     public bool IsAdmin { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    public override string ToString()
+    {
+        return DisplayName;
+    }
 }
