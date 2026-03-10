@@ -99,8 +99,11 @@ public class ClerkWebhookController : Controller
                     break;
                 }
 
-                var invitationLink = TryGetString(data, "url")
-                                     ?? $"{AppBaseUrl}/sign-in?redirect_url=%2Fapp";
+                var invitationLink = TryGetString(data, "url");
+                if (string.IsNullOrWhiteSpace(invitationLink))
+                {
+                    invitationLink = $"{AppBaseUrl}/sign-in?redirect_url=%2Fapp";
+                }
                 await _emailSender.SendClerkInvitation(email, new ClerkInvitationEmail
                 {
                     SignInLink = invitationLink

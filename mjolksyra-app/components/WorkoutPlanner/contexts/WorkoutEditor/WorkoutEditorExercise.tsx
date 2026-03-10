@@ -118,7 +118,7 @@ export function WorkoutEditorExercise({
           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
             Exercise
           </p>
-          <div className="truncate font-[var(--font-display)] text-lg font-semibold text-[var(--shell-ink)]">
+          <div className="truncate font-[var(--font-display)] text-lg text-[var(--shell-ink)]">
             {index + 1}.{"  "}
             {plannedExercise.name}
           </div>

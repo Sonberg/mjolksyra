@@ -26,7 +26,7 @@ export function OnboardingCard({
   });
 
   const titleStyles =
-    "mb-4 font-[var(--font-display)] text-2xl font-semibold tracking-tight text-[var(--shell-ink)]";
+    "mb-4 font-[var(--font-display)] text-2xl tracking-tight text-[var(--shell-ink)]";
 
   return (
     <div

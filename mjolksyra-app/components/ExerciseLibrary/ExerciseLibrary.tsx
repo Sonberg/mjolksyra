@@ -90,7 +90,7 @@ export function ExerciseLibrary({ exercies }: Props) {
         <div className="sticky top-0 z-20 border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/95 p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <p className="font-[var(--font-display)] text-sm font-semibold tracking-[0.08em] text-[var(--shell-ink)]">
+              <p className="font-[var(--font-display)] text-sm tracking-[0.08em] text-[var(--shell-ink)]">
                 Exercise Library
               </p>
               <p className="text-xs text-[var(--shell-muted)]">
