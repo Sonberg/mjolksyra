@@ -12,7 +12,6 @@ import { useUserEvents } from "@/context/UserEvents";
 type Account = { accountId: string };
 type Link = { url: string };
 type Dashboard = { url: string };
-type AccountSync = { hasAccount: boolean; completed: boolean };
 type Props = {
   user: User;
 };
@@ -21,51 +20,9 @@ export function CoachOnboarding({ user }: Props) {
   const userEvents = useUserEvents();
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
-  const isStarted = user.onboarding.coach === "Started";
-
-  const syncCoachStatus = useCallback(async () => {
-    if (!isStarted) return;
-
-    try {
-      const { data } = await ApiClient.post<AccountSync>("/api/stripe/account/sync");
-      if (data.completed) {
-        router.refresh();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [isStarted, router]);
-
-  useEffect(() => {
-    const onFocus = () => {
-      if (document.visibilityState === "visible") {
-        void syncCoachStatus();
-      }
-    };
-
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onFocus);
-
-    return () => {
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onFocus);
-    };
-  }, [syncCoachStatus]);
-
-  useEffect(() => {
-    if (!isStarted) return;
-
-    void syncCoachStatus();
-    const timer = window.setInterval(() => {
-      void syncCoachStatus();
-    }, 5000);
-
-    return () => window.clearInterval(timer);
-  }, [isStarted, syncCoachStatus]);
 
   useEffect(() => {
     const onUserUpdated = () => {
-      void syncCoachStatus();
       router.refresh();
     };
     const unsubscribe = userEvents.subscribe("user.updated", onUserUpdated);
@@ -73,7 +30,7 @@ export function CoachOnboarding({ user }: Props) {
     return () => {
       unsubscribe();
     };
-  }, [router, syncCoachStatus, userEvents]);
+  }, [router, userEvents]);
 
   const dashboard = useCallback(async () => {
     setLoading(true);
