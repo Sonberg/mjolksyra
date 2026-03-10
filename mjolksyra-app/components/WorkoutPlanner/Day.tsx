@@ -25,6 +25,7 @@ import type { Exercise as LibraryExercise } from "@/services/exercises/type";
 import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
 import { v4 } from "uuid";
 import { DayHeader } from "./DayHeader";
+import type { SearchExercises } from "@/services/exercises/searchExercises";
 
 const DATE_FORMAT = "YYYY-MM-DD";
 
@@ -35,9 +36,10 @@ type Exercise = PlannedExercise & {
 type Props = {
   date: dayjs.Dayjs;
   plannedWorkout: PlannedWorkout | null;
+  searchExercisesFn?: SearchExercises;
 };
 
-export function Day({ date, plannedWorkout }: Props) {
+export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
   const cloning = useCloning();
   const editor = useWorkoutEditor();
   const workouts = useWorkouts();
@@ -277,6 +279,7 @@ export function Day({ date, plannedWorkout }: Props) {
           onOpenChange={setIsQuickSearchOpen}
           onSelectExercise={addExerciseFromOverlay}
           title={`Add exercise · ${date.format("ddd D MMM")}`}
+          searchExercisesFn={searchExercisesFn}
         />
       </>
     ),
@@ -298,6 +301,7 @@ export function Day({ date, plannedWorkout }: Props) {
       onToggleEditor,
       setDraggableNodeRef,
       setDroppableNodeRef,
+      searchExercisesFn,
     ],
   );
 }

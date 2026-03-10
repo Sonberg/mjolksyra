@@ -12,6 +12,7 @@ import { sortBy } from "@/lib/sortBy";
 import { cn } from "@/lib/utils";
 import { MonthValue } from "@/hooks/useInfinitMonths";
 import { useWorkouts } from "./contexts/Workouts";
+import type { SearchExercises } from "@/services/exercises/searchExercises";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -22,9 +23,10 @@ dayjs.updateLocale("en", { weekStart: 1 });
 
 type Props = {
   value: MonthValue;
+  searchExercisesFn?: SearchExercises;
 };
 
-export function Month({ value }: Props) {
+export function Month({ value, searchExercisesFn }: Props) {
   // const { days, isFetched, startOfMonth } = useMonthPlanner();
   const { data } = useWorkouts();
   const workouts = data[value.monthId];
@@ -48,9 +50,10 @@ export function Month({ value }: Props) {
         weekNumber={Number(key)}
         days={value}
         plannedWorkouts={workouts ?? []}
+        searchExercisesFn={searchExercisesFn}
       />
     ),
-    [workouts],
+    [workouts, searchExercisesFn],
   );
 
   return useMemo(

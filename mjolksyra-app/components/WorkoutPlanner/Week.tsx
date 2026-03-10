@@ -13,14 +13,16 @@ import { useSortable } from "@dnd-kit/sortable";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
 import { useWorkouts } from "./contexts/Workouts";
 import { monthId } from "@/lib/monthId";
+import type { SearchExercises } from "@/services/exercises/searchExercises";
 
 type Props = {
   weekNumber: number;
   days: dayjs.Dayjs[];
   plannedWorkouts: PlannedWorkout[];
+  searchExercisesFn?: SearchExercises;
 };
 
-export function Week({ weekNumber, days, plannedWorkouts }: Props) {
+export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: Props) {
   const id = useId();
   const actions = usePlannedWorkoutActions();
   const workouts = useWorkouts();
@@ -100,10 +102,11 @@ export function Week({ weekNumber, days, plannedWorkouts }: Props) {
               (x) => x.plannedAt == groupByName[dayName]?.[0].format(PLANNED_AT)
             ) ?? null
           }
+          searchExercisesFn={searchExercisesFn}
         />
       );
     },
-    [plannedWorkouts, groupByName]
+    [plannedWorkouts, groupByName, searchExercisesFn]
   );
 
   return useMemo(

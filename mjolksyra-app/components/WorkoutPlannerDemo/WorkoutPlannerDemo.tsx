@@ -4,8 +4,9 @@ import { ExerciseLibrary } from "../ExerciseLibrary";
 import { WorkoutPlanner } from "../WorkoutPlanner/WorkoutPlanner";
 import { v4 } from "uuid";
 import { Exercise } from "@/services/exercises/type";
+import type { SearchExercises } from "@/services/exercises/searchExercises";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { search } from "fast-fuzzy";
 import dayjs from "dayjs";
 
@@ -117,6 +118,17 @@ export function WorkoutPlannerDemo() {
 
   const exercises = useRef<Exercise[]>(initialExercises);
   const plannedWorkouts = useRef<PlannedWorkout[]>(initialPlannedWorkouts);
+  const demoExerciseSearch = useCallback<SearchExercises>(
+    async ({ freeText }) => {
+      return {
+        data: search(freeText, exercises.current, {
+          keySelector: (obj) => obj.name,
+        }),
+        next: null,
+      };
+    },
+    [],
+  );
 
   return (
     <div className="h-full">
@@ -137,12 +149,17 @@ export function WorkoutPlannerDemo() {
                 );
               },
               search: async ({ freeText }) => {
-                return {
-                  data: search(freeText, exercises.current, {
-                    keySelector: (obj) => obj.name,
-                  }),
-                  next: null,
-                };
+                return demoExerciseSearch({
+                  freeText,
+                  filters: {
+                    force: null,
+                    level: null,
+                    mechanic: null,
+                    category: null,
+                    createdByMe: false,
+                  },
+                  signal: new AbortController().signal,
+                });
               },
               get: async () => {
                 return {
@@ -202,6 +219,7 @@ export function WorkoutPlannerDemo() {
             };
           },
         }}
+        exerciseSearch={demoExerciseSearch}
       />
     </div>
   );

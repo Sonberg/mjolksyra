@@ -22,6 +22,7 @@ import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWo
 import { WorkoutEditor, WorkoutEditorProvider } from "./contexts/WorkoutEditor";
 import { PlannedWorkoutActionsProvider } from "./contexts/PlannedWorkoutActions";
 import { ApplyBlock } from "@/services/blocks/applyBlock";
+import type { SearchExercises } from "@/services/exercises/searchExercises";
 
 type Props = {
   traineeId: string;
@@ -36,6 +37,7 @@ type Props = {
   blocks?: {
     apply: ApplyBlock;
   };
+  exerciseSearch?: SearchExercises;
 };
 
 export function WorkoutPlanner({
@@ -44,6 +46,7 @@ export function WorkoutPlanner({
   plannedWorkouts,
   rightSide,
   blocks,
+  exerciseSearch,
 }: Props) {
   const listRef = useRef<ViewportListRef | null>(null);
   const today = useMemo(() => dayjs(), []);
@@ -84,7 +87,9 @@ export function WorkoutPlanner({
             viewportRef={containerRef}
             ref={listRef}
             items={months}
-            children={(x) => <Month key={x.monthId} value={x} />}
+            children={(x) => (
+              <Month key={x.monthId} value={x} searchExercisesFn={exerciseSearch} />
+            )}
           />
 
           {oneMonthOnly ? null : (
@@ -98,7 +103,7 @@ export function WorkoutPlanner({
         <TodayButton onClick={goToToday} />
       </>
     ),
-    [containerRef, oneMonthOnly, startRef, months, endRef, goToToday]
+    [containerRef, oneMonthOnly, startRef, months, endRef, goToToday, exerciseSearch]
   );
 
   return (

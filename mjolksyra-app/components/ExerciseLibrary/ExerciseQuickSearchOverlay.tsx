@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { searchExercises } from "@/services/exercises/searchExercises";
+import { searchExercises as searchExercisesService, type SearchExercises } from "@/services/exercises/searchExercises";
 import type { Exercise } from "@/services/exercises/type";
 
 type Props = {
@@ -17,6 +17,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   onSelectExercise: (exercise: Exercise) => Promise<void> | void;
   title?: string;
+  searchExercisesFn?: SearchExercises;
 };
 
 export function ExerciseQuickSearchOverlay({
@@ -24,6 +25,7 @@ export function ExerciseQuickSearchOverlay({
   onOpenChange,
   onSelectExercise,
   title = "Find exercise",
+  searchExercisesFn,
 }: Props) {
   const [search, setSearch] = useState("");
   const trimmedSearch = search.trim();
@@ -31,7 +33,7 @@ export function ExerciseQuickSearchOverlay({
   const { data, isLoading } = useQuery({
     queryKey: ["exercise-quick-search", trimmedSearch],
     queryFn: ({ signal }) =>
-      searchExercises({
+      (searchExercisesFn ?? searchExercisesService)({
         freeText: trimmedSearch,
         filters: {
           force: null,
