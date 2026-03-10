@@ -16,6 +16,8 @@ public enum EmailSideEffectAction
     SendRelationshipCancelled = 9,
     SendCoachStripeStatusToCoach = 10,
     SignUp = 11,
+    SendClerkInvitation = 12,
+    SendClerkInvitationAccepted = 13,
 }
 
 public class EmailSideEffectMessage
@@ -33,4 +35,8 @@ public class EmailSideEffectMessage
     public RelationshipCancelledEmail? RelationshipCancelled { get; set; }
 
     public CoachStripeStatusEmail? CoachStripeStatus { get; set; }
+
+    public ClerkInvitationEmail? ClerkInvitation { get; set; }
+
+    public ClerkInvitationAcceptedEmail? ClerkInvitationAccepted { get; set; }
 }

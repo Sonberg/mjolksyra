@@ -94,6 +94,22 @@ public class MassTransitEmailSender(IPublishEndpoint publishEndpoint) : IEmailSe
             CoachStripeStatus = emailModel,
         }, cancellationToken);
 
+    public Task SendClerkInvitation(string email, ClerkInvitationEmail emailModel, CancellationToken cancellationToken) =>
+        publishEndpoint.Publish(new EmailSideEffectMessage
+        {
+            Action = EmailSideEffectAction.SendClerkInvitation,
+            Email = email,
+            ClerkInvitation = emailModel,
+        }, cancellationToken);
+
+    public Task SendClerkInvitationAccepted(string email, ClerkInvitationAcceptedEmail emailModel, CancellationToken cancellationToken) =>
+        publishEndpoint.Publish(new EmailSideEffectMessage
+        {
+            Action = EmailSideEffectAction.SendClerkInvitationAccepted,
+            Email = email,
+            ClerkInvitationAccepted = emailModel,
+        }, cancellationToken);
+
     public Task SignUp(string email, CancellationToken cancellationToken) =>
         publishEndpoint.Publish(new EmailSideEffectMessage
         {

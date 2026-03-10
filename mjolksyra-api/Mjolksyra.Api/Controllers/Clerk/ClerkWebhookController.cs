@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Mjolksyra.Domain.Clerk;
+using Mjolksyra.Domain.Email;
 using Mjolksyra.UseCases.Users.HandleClerkUserCreated;
 using Mjolksyra.UseCases.Users.HandleClerkUserDeleted;
 using Mjolksyra.UseCases.Users.HandleClerkUserUpdated;
@@ -13,19 +14,24 @@ namespace Mjolksyra.Api.Controllers.Clerk;
 
 [ApiController]
 [Route("api/clerk/webhook")]
+[Route("clerk/webhook")]
 public class ClerkWebhookController : Controller
 {
     private readonly ClerkOptions _options;
     private readonly IMediator _mediator;
+    private readonly IEmailSender _emailSender;
     private readonly ILogger<ClerkWebhookController> _logger;
+    private const string AppBaseUrl = "https://mjolksyra.com";
 
     public ClerkWebhookController(
         IOptions<ClerkOptions> options,
         IMediator mediator,
+        IEmailSender emailSender,
         ILogger<ClerkWebhookController> logger)
     {
         _options = options.Value;
         _mediator = mediator;
+        _emailSender = emailSender;
         _logger = logger;
     }
 
@@ -84,6 +90,38 @@ public class ClerkWebhookController : Controller
                     ClerkUserId = data.GetProperty("id").GetString()!,
                 });
                 break;
+            case "invitation.created":
+            {
+                var email = TryGetString(data, "email_address");
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    _logger.LogWarning("Received invitation.created webhook without email_address.");
+                    break;
+                }
+
+                var invitationLink = TryGetString(data, "url")
+                                     ?? $"{AppBaseUrl}/sign-in?redirect_url=%2Fapp";
+                await _emailSender.SendClerkInvitation(email, new ClerkInvitationEmail
+                {
+                    SignInLink = invitationLink
+                }, HttpContext.RequestAborted);
+                break;
+            }
+            case "invitation.accepted":
+            {
+                var email = TryGetString(data, "email_address");
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    _logger.LogWarning("Received invitation.accepted webhook without email_address.");
+                    break;
+                }
+
+                await _emailSender.SendClerkInvitationAccepted(email, new ClerkInvitationAcceptedEmail
+                {
+                    AppLink = $"{AppBaseUrl}/app"
+                }, HttpContext.RequestAborted);
+                break;
+            }
 
             default:
                 _logger.LogInformation("Unhandled Clerk webhook event type: {EventType}", type);
@@ -105,5 +143,13 @@ public class ClerkWebhookController : Controller
         }
 
         return string.Empty;
+    }
+
+    private static string? TryGetString(JsonElement root, string propertyName)
+    {
+        return root.TryGetProperty(propertyName, out var element) &&
+               element.ValueKind == JsonValueKind.String
+            ? element.GetString()
+            : null;
     }
 }

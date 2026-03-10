@@ -128,4 +128,44 @@ public class EmailSideEffectConsumerTests
 
         emailSender.Verify(x => x.SendRelationshipCancelled("coach@example.com", cancelled, CancellationToken.None), Times.Once);
     }
+
+    [Fact]
+    public async Task Consume_SendClerkInvitation_CallsCorrectMethod()
+    {
+        var (consumer, emailSender) = Create();
+        var invitation = new ClerkInvitationEmail
+        {
+            SignInLink = "https://mjolksyra.com/sign-in?redirect_url=%2Fapp"
+        };
+        var context = BuildContext(new EmailSideEffectMessage
+        {
+            Action = EmailSideEffectAction.SendClerkInvitation,
+            Email = "athlete@example.com",
+            ClerkInvitation = invitation
+        });
+
+        await consumer.Consume(context.Object);
+
+        emailSender.Verify(x => x.SendClerkInvitation("athlete@example.com", invitation, CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
+    public async Task Consume_SendClerkInvitationAccepted_CallsCorrectMethod()
+    {
+        var (consumer, emailSender) = Create();
+        var accepted = new ClerkInvitationAcceptedEmail
+        {
+            AppLink = "https://mjolksyra.com/app"
+        };
+        var context = BuildContext(new EmailSideEffectMessage
+        {
+            Action = EmailSideEffectAction.SendClerkInvitationAccepted,
+            Email = "athlete@example.com",
+            ClerkInvitationAccepted = accepted
+        });
+
+        await consumer.Consume(context.Object);
+
+        emailSender.Verify(x => x.SendClerkInvitationAccepted("athlete@example.com", accepted, CancellationToken.None), Times.Once);
+    }
 }

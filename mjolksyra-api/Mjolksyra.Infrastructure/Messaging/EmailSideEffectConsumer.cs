@@ -45,6 +45,12 @@ public class EmailSideEffectConsumer([FromKeyedServices("direct")] IEmailSender 
             case EmailSideEffectAction.SendCoachStripeStatusToCoach when message.CoachStripeStatus is not null:
                 await emailSender.SendCoachStripeStatusToCoach(message.Email, message.CoachStripeStatus, context.CancellationToken);
                 break;
+            case EmailSideEffectAction.SendClerkInvitation when message.ClerkInvitation is not null:
+                await emailSender.SendClerkInvitation(message.Email, message.ClerkInvitation, context.CancellationToken);
+                break;
+            case EmailSideEffectAction.SendClerkInvitationAccepted when message.ClerkInvitationAccepted is not null:
+                await emailSender.SendClerkInvitationAccepted(message.Email, message.ClerkInvitationAccepted, context.CancellationToken);
+                break;
             case EmailSideEffectAction.SignUp:
                 await emailSender.SignUp(message.Email, context.CancellationToken);
                 break;

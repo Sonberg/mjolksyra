@@ -366,6 +366,8 @@ public class InvoiceWebhookHandlerTests
         public Task SendChargeNowToAthlete(string email, AthleteBillingEmail emailModel, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task SendRelationshipCancelled(string email, RelationshipCancelledEmail emailModel, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task SendCoachStripeStatusToCoach(string email, CoachStripeStatusEmail emailModel, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SendClerkInvitation(string email, ClerkInvitationEmail emailModel, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SendClerkInvitationAccepted(string email, ClerkInvitationAcceptedEmail emailModel, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task SignUp(string email, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 

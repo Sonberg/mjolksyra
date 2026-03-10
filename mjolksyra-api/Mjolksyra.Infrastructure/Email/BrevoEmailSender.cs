@@ -224,6 +224,34 @@ public class BrevoEmailSender : IEmailSender
             ButtonLink = "https://mjolksyra.com/app"
         });
 
+    public Task SendClerkInvitation(string email, ClerkInvitationEmail emailModel, CancellationToken cancellationToken)
+        => SendTemplate(email, new TemplateParameters
+        {
+            Subject = "You're invited to Mjolksyra",
+            Preview = "You have a pending invitation to start coaching on Mjolksyra.",
+            Title = "You're invited to Mjolksyra",
+            Body = $"""
+                    You have a pending invitation on Mjolksyra.
+                    Sign in with email <strong>{email}</strong> to continue.
+                    """,
+            ButtonText = "Sign in to accept",
+            ButtonLink = emailModel.SignInLink
+        });
+
+    public Task SendClerkInvitationAccepted(string email, ClerkInvitationAcceptedEmail emailModel, CancellationToken cancellationToken)
+        => SendTemplate(email, new TemplateParameters
+        {
+            Subject = "Thank you for accepting your invitation",
+            Preview = "Your Mjolksyra invitation is accepted and your account is ready.",
+            Title = "Thank you for joining Mjolksyra",
+            Body = """
+                   Your invitation has been accepted.
+                   You can now open the app and continue your coaching setup.
+                   """,
+            ButtonText = "Open app",
+            ButtonLink = emailModel.AppLink
+        });
+
     public async Task SignUp(string email, CancellationToken cancellationToken)
     {
         await _contactsApi.CreateContactAsync(new CreateContact

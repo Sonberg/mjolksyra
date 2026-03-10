@@ -78,10 +78,10 @@ export function ExerciseQuickSearchOverlay({
         className="w-[min(52rem,92vw)] max-w-none gap-0 overflow-hidden rounded-none border-4 border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)] [&>button]:hidden"
       >
         <DialogHeader className="space-y-0 border-b-4 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-          <DialogTitle className="font-[var(--font-display)] text-lg font-bold uppercase tracking-[0.12em] text-[var(--shell-ink)] md:text-xl">
+          <DialogTitle className="font-[var(--font-display)] text-lg uppercase tracking-[0.12em] text-[var(--shell-ink)] md:text-xl">
             {title}
           </DialogTitle>
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--shell)]">
             Search and add exercises to the workout plan.
           </p>
         </DialogHeader>

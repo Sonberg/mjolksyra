@@ -49,6 +49,16 @@ public class CoachStripeStatusEmail
     public required StripeStatus Status { get; set; }
 }
 
+public class ClerkInvitationEmail
+{
+    public required string SignInLink { get; set; }
+}
+
+public class ClerkInvitationAcceptedEmail
+{
+    public required string AppLink { get; set; }
+}
+
 public interface IEmailSender
 {
     Task SendInvitation(string email, InvitationEmail invitation, CancellationToken cancellationToken);
@@ -72,6 +82,10 @@ public interface IEmailSender
     Task SendRelationshipCancelled(string email, RelationshipCancelledEmail emailModel, CancellationToken cancellationToken);
 
     Task SendCoachStripeStatusToCoach(string email, CoachStripeStatusEmail emailModel, CancellationToken cancellationToken);
+
+    Task SendClerkInvitation(string email, ClerkInvitationEmail emailModel, CancellationToken cancellationToken);
+
+    Task SendClerkInvitationAccepted(string email, ClerkInvitationAcceptedEmail emailModel, CancellationToken cancellationToken);
 
     Task SignUp(string email, CancellationToken cancellationToken);
 }
