@@ -81,42 +81,21 @@ public class ExerciseRepository : IExerciseRepository
             baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.CreatedBy, createdBy.Value));
         }
 
-        List<Exercise> result;
         if (!string.IsNullOrWhiteSpace(freeText))
         {
-            var textFilter = Builders<Exercise>.Filter.Text(freeText, new TextSearchOptions
+            var tokens = freeText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var token in tokens)
             {
-                CaseSensitive = false,
-                DiacriticSensitive = false
-            });
-            var textFilters = baseFilters.Append(textFilter);
+                baseFilters.Add(Builders<Exercise>.Filter.Regex(
+                    x => x.Name,
+                    new MongoDB.Bson.BsonRegularExpression(token, "i")));
+            }
+        }
 
-            try
-            {
-                var projection = Builders<Exercise>.Projection.MetaTextScore("Score");
-                result = await _mongoDbContext.Exercises
-                    .Find(Builders<Exercise>.Filter.And(textFilters))
-                    .Project<Exercise>(projection)
-                    .SortByDescending(x => x.Score)
-                    .ThenBy(x => x.Name)
-                    .ToListAsync(cancellationToken);
-            }
-            catch (MongoCommandException ex) when (ex.Message.Contains("text index required", StringComparison.OrdinalIgnoreCase))
-            {
-                var regexFilter = Builders<Exercise>.Filter.Regex(x => x.Name, new MongoDB.Bson.BsonRegularExpression(freeText, "i"));
-                result = await _mongoDbContext.Exercises
-                    .Find(Builders<Exercise>.Filter.And(baseFilters.Append(regexFilter)))
-                    .SortBy(x => x.Name)
-                    .ToListAsync(cancellationToken);
-            }
-        }
-        else
-        {
-            result = await _mongoDbContext.Exercises
-                .Find(Builders<Exercise>.Filter.And(baseFilters))
-                .SortBy(x => x.Name)
-                .ToListAsync(cancellationToken);
-        }
+        var result = await _mongoDbContext.Exercises
+            .Find(Builders<Exercise>.Filter.And(baseFilters))
+            .SortBy(x => x.Name)
+            .ToListAsync(cancellationToken);
 
         return result;
     }
