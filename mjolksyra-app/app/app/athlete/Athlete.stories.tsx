@@ -180,3 +180,43 @@ export const PendingInvitationsOnly: Story = {
     />
   ),
 }
+
+export const StripeSetupNotStartedHasInvite: Story = {
+  render: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "NotStarted", coach: "NotStarted" },
+        coaches: [],
+        invitations: [
+          {
+            id: "inv-1",
+            givenName: "Alex",
+            familyName: "Coach",
+            createdAt: new Date("2026-03-12T10:00:00Z"),
+          },
+        ],
+      }}
+    />
+  ),
+}
+
+export const StripeSetupNotStartedAcceptedCoachInvite: Story = {
+  render: () => (
+    <PageContent
+      user={{
+        ...user,
+        onboarding: { athlete: "NotStarted", coach: "NotStarted" },
+        invitations: [],
+        coaches: [
+          {
+            traineeId: "1",
+            givenName: "Alex",
+            familyName: "Coach",
+            status: "Active",
+          },
+        ],
+      }}
+    />
+  ),
+}
