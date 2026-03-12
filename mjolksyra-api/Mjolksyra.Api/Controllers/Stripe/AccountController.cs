@@ -5,6 +5,8 @@ using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Email;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Stripe;
@@ -42,6 +44,8 @@ public class AccountController : Controller
     private readonly ITraineeRepository _traineeRepository;
     private readonly IUserEventPublisher _userEvents;
     private readonly IMediator _mediator;
+    private readonly IEmailSender _emailSender;
+    private readonly INotificationService _notificationService;
 
     public AccountController(
         IStripeClient stripeClient,
@@ -49,7 +53,9 @@ public class AccountController : Controller
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
         IUserEventPublisher userEvents,
-        IMediator mediator)
+        IMediator mediator,
+        IEmailSender emailSender,
+        INotificationService notificationService)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
@@ -57,6 +63,8 @@ public class AccountController : Controller
         _traineeRepository = traineeRepository;
         _userEvents = userEvents;
         _mediator = mediator;
+        _emailSender = emailSender;
+        _notificationService = notificationService;
     }
 
     [AllowAnonymous]
@@ -213,6 +221,8 @@ public class AccountController : Controller
             ? "Please complete the onboarding process"
             : "Onboarding completed";
 
+        var previousStatus = user.Coach?.Stripe?.Status;
+
         user.Coach ??= new UserCoach();
         user.Coach.Stripe ??= new UserCoachStripe();
         user.Coach.Stripe.AccountId = account.Id;
@@ -230,6 +240,30 @@ public class AccountController : Controller
         {
             await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(user.Id), cancellationToken);
         }
+
+        if (previousStatus == status)
+        {
+            return Ok(new AccountSyncResponse
+            {
+                HasAccount = true,
+                Completed = status == StripeStatus.Succeeded,
+                Status = status.ToString(),
+                Message = message,
+            });
+        }
+
+        await _emailSender.SendCoachStripeStatusToCoach(user.Email.Value, new CoachStripeStatusEmail
+        {
+            Coach = user,
+            Status = status
+        }, cancellationToken);
+
+        await _notificationService.Notify(user.Id,
+            "coach.stripe-status",
+            "Stripe account status updated",
+            message,
+            "/app/coach/dashboard",
+            cancellationToken);
 
         return Ok(new AccountSyncResponse
         {

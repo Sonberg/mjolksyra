@@ -32,7 +32,7 @@ export function CoachOnboarding({ user }: Props) {
       ),
     enabled,
     refetchOnWindowFocus: enabled,
-    refetchInterval: enabled ? 15_000 : false,
+    refetchInterval: enabled ? 10_000 : false,
   });
 
   useEffect(() => {

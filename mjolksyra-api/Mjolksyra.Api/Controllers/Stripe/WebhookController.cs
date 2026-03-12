@@ -60,8 +60,6 @@ public class WebhookController : Controller
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
-        _logger.LogInformation("Received Webhook Request: {Json}", json);
-
         Event stripeEvent;
         try
         {
