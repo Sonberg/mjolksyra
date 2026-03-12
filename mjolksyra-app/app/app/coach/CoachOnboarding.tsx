@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { OnboardingCard } from "@/components/OnboardingCard";
 import { useRouter } from "next/navigation";
 import { useUserEvents } from "@/context/UserEvents";
+import { useQuery } from "@tanstack/react-query";
 
 type Account = { accountId: string };
 type Link = { url: string };
@@ -20,6 +21,25 @@ export function CoachOnboarding({ user }: Props) {
   const userEvents = useUserEvents();
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
+
+  const enabled = user.onboarding.coach === "Started";
+
+  const { data: syncData } = useQuery({
+    queryKey: ["coach-stripe-sync"],
+    queryFn: () =>
+      ApiClient.post<{ completed: boolean }>("/api/stripe/account/sync").then(
+        (r) => r.data,
+      ),
+    enabled,
+    refetchOnWindowFocus: enabled,
+    refetchInterval: enabled ? 15_000 : false,
+  });
+
+  useEffect(() => {
+    if (syncData?.completed) {
+      router.refresh();
+    }
+  }, [syncData?.completed, router]);
 
   useEffect(() => {
     const onUserUpdated = () => {
