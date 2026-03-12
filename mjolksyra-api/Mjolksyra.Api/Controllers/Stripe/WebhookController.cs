@@ -9,6 +9,7 @@ using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
+using Mjolksyra.UseCases.Trainees.TriggerMissingSubscriptionsForUser;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -210,6 +211,7 @@ public class WebhookController : Controller
         if (coach.Stripe.Status == StripeStatus.Succeeded)
         {
             await _mediator.Send(new EnsureCoachPlatformSubscriptionCommand(user.Id));
+            await _mediator.Send(new TriggerMissingSubscriptionsForUserCommand(userId));
         }
 
         if (previousStatus != coach.Stripe.Status)

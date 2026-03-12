@@ -1,9 +1,11 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Trainees.TriggerMissingSubscriptionsForUser;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -20,19 +22,22 @@ public class SetupIntentController : Controller
     private readonly IUserRepository _userRepository;
     private readonly ITraineeRepository _traineeRepository;
     private readonly IUserEventPublisher _userEvents;
+    private readonly IMediator _mediator;
 
     public SetupIntentController(
         IStripeClient stripeClient,
         IUserContext userContext,
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
-        IUserEventPublisher userEvents)
+        IUserEventPublisher userEvents,
+        IMediator mediator)
     {
         _stripeClient = stripeClient;
         _userContext = userContext;
         _userRepository = userRepository;
         _traineeRepository = traineeRepository;
         _userEvents = userEvents;
+        _mediator = mediator;
     }
 
     [AllowAnonymous]
@@ -148,6 +153,8 @@ public class SetupIntentController : Controller
                     await _traineeRepository.Update(trainee, cancellationToken);
                 }
             }
+
+            await _mediator.Send(new TriggerMissingSubscriptionsForUserCommand(userId), cancellationToken);
         }
 
         await _userEvents.Publish(user.Id, "user.updated", new
