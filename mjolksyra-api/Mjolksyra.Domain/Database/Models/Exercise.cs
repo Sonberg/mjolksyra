@@ -11,8 +11,8 @@ public class Exercise : IDocument
     public required string Name { get; init; }
 
     public ExerciseLevel? Level { get; set; }
-    
-    public ExerciseSport? Sport { get; set; }
+
+    public ICollection<ExerciseSport> Sports { get; set; } = [];
 
 
     public ExerciseType Type { get; init; }

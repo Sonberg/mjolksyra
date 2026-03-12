@@ -30,7 +30,7 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
         {
             Name = request.Name,
             Level = request.Level,
-            Sport = request.Sport,
+            Sports = request.Sports,
             Type = request.Type,
             CreatedBy = userId,
             CreatedAt = DateTimeOffset.UtcNow

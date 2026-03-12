@@ -55,7 +55,7 @@ public class ExerciseRepository : IExerciseRepository
 
         if (sport.HasValue)
         {
-            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Sport, sport.Value));
+            baseFilters.Add(Builders<Exercise>.Filter.AnyIn(x => x.Sports, [sport.Value]));
         }
 
         if (level.HasValue)

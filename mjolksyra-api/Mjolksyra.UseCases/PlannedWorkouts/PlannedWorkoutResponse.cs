@@ -89,7 +89,7 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public ExerciseLevel? Level { get; set; }
 
-    public ExerciseSport? Sport { get; set; }
+    public ICollection<ExerciseSport> Sports { get; set; } = [];
 
     public static PlannedExerciseResponse From(PlannedExercise plannedExercise, ICollection<Exercise> exercises)
     {
@@ -138,7 +138,7 @@ public class PlannedExerciseResponse : IExerciseResponse
                         .ToList()
                 },
             Level = exercise?.Level,
-            Sport = exercise?.Sport
+            Sports = exercise?.Sports ?? []
         };
     }
 }

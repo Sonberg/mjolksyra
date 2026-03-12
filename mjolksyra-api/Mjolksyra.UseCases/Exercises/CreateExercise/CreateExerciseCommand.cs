@@ -11,7 +11,7 @@ public class CreateExerciseCommand : IRequest<OneOf<ExerciseResponse, Error>>
 
     public ExerciseLevel? Level { get; set; }
 
-    public ExerciseSport? Sport { get; set; }
+    public ICollection<ExerciseSport> Sports { get; set; } = [];
 
     public ExerciseType Type { get; set; }
 }
