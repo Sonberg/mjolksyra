@@ -46,7 +46,9 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
           actions={
             <button
               type="button"
-              onClick={() => router.push(`/app/coach/athletes/${traineeId}/planner`)}
+              onClick={() =>
+                router.push(`/app/coach/athletes/${traineeId}/planner`)
+              }
               className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
             >
               <ClipboardCheckIcon className="h-4 w-4" />
@@ -56,14 +58,12 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
         />
       </section>
 
-      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
-        <WorkoutViewer
-          traineeId={traineeId}
-          mode="coach"
-          initialTab={initialTab}
-          focusWorkoutId={focusWorkoutId}
-        />
-      </section>
+      <WorkoutViewer
+        traineeId={traineeId}
+        mode="coach"
+        initialTab={initialTab}
+        focusWorkoutId={focusWorkoutId}
+      />
     </CoachWorkspaceShell>
   );
 }

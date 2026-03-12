@@ -186,6 +186,27 @@ export function WorkoutViewer({
     [sourceData, focusedWorkout.data, focusWorkoutId, mode, viewerMode]
   );
 
+  const emptyState = useMemo(() => {
+    if (mode === "changes") {
+      return {
+        title: "No workouts with changes",
+        body: "Completed or updated workouts will appear here when athletes log and review sessions.",
+      };
+    }
+
+    if (mode === "future") {
+      return {
+        title: "No upcoming workouts",
+        body: "Planned sessions for future dates will appear here.",
+      };
+    }
+
+    return {
+      title: "No past workouts",
+      body: "Completed or previously planned sessions will appear here.",
+    };
+  }, [mode]);
+
   useEffect(() => {
     if (!isEndIntersecting) {
       return;
@@ -283,18 +304,29 @@ export function WorkoutViewer({
         }
       />
       <div className="grid gap-4 sm:gap-8">
-        {data.map((x) => (
-          <Workout
-            key={x.id}
-            workout={x}
-            viewerMode={viewerMode}
-            traineeId={traineeId}
-            isHighlighted={focusWorkoutId === x.id}
-            backTab={mode === "future" || mode === "past" ? mode : undefined}
-          />
-        ))}
+        {data.length === 0 ? (
+          <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
+            <p className="text-lg font-semibold text-[var(--shell-ink)]">
+              {emptyState.title}
+            </p>
+            <p className="mt-2 text-sm text-[var(--shell-muted)]">
+              {emptyState.body}
+            </p>
+          </section>
+        ) : (
+          data.map((x) => (
+            <Workout
+              key={x.id}
+              workout={x}
+              viewerMode={viewerMode}
+              traineeId={traineeId}
+              isHighlighted={focusWorkoutId === x.id}
+              backTab={mode === "future" || mode === "past" ? mode : undefined}
+            />
+          ))
+        )}
       </div>
-      {!hasNextPage ? (
+      {data.length > 0 && !hasNextPage ? (
         <div className="text-muted text-lg text-center mt-8">
           {mode === "changes"
             ? "No workouts with changes"
