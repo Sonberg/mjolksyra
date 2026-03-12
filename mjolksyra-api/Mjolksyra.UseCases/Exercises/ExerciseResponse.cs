@@ -9,15 +9,11 @@ public class ExerciseResponse : IExerciseResponse
 
     public required string Name { get; set; }
 
-    public required string? Force { get; set; }
+    public ExerciseLevel? Level { get; set; }
 
-    public required string? Level { get; set; }
+    public ExerciseSport? Sport { get; set; }
 
-    public required string? Mechanic { get; set; }
-
-    public required string? Category { get; set; }
-
-    public required ICollection<string> Instructions { get; set; } 
+    public ExerciseType? Type { get; set; }
 
     public required bool Starred { get; set; }
 
@@ -29,13 +25,11 @@ public class ExerciseResponse : IExerciseResponse
         {
             Id = exercise.Id,
             Name = exercise.Name,
-            Category = exercise.Category,
-            Force = exercise.Force,
             Level = exercise.Level,
-            Mechanic = exercise.Mechanic,
+            Sport = exercise.Sport,
+            Type = exercise.Type,
             Starred = userId != null && exercise.StarredBy.Contains(userId.Value),
-            CanDelete = userId != null && exercise.CreatedBy == userId,
-            Instructions = exercise.Instructions
+            CanDelete = userId != null && exercise.CreatedBy == userId
         };
     }
 }

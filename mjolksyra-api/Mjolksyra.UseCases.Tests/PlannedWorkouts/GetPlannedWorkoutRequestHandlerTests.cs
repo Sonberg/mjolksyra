@@ -85,7 +85,7 @@ public class GetPlannedWorkoutRequestHandlerTests
                         Note = "3x5",
                         Prescription = new ExercisePrescription
                         {
-                            TargetType = ExercisePrescriptionTargetType.sets_reps,
+                            Type = ExerciseType.SetsReps,
                             Sets =
                             [
                                 new ExercisePrescriptionSet

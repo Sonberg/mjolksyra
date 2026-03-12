@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Infrastructure.Database;
 using MongoDB.Driver;
@@ -23,20 +24,17 @@ public class ExerciseSeeder : BackgroundService
             .Find(Builders<Exercise>.Filter.Empty)
             .FirstOrDefaultAsync(cancellationToken: stoppingToken);
 
-        if (first is not null)
+        if (first is null)
         {
-            return;
+            var reader = new StreamReader("./exercises_2.json");
+            var content = await reader.ReadToEndAsync(stoppingToken);
+
+            var exercises = JsonSerializer.Deserialize<List<Exercise>>(content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            await context.Exercises.InsertManyAsync(exercises, new InsertManyOptions(), stoppingToken);
         }
-        
-
-        var reader = new StreamReader("./exercises.json");
-        var content = await reader.ReadToEndAsync(stoppingToken);
-
-        var exercises = JsonSerializer.Deserialize<List<Exercise>>(content, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
-
-        await context.Exercises.InsertManyAsync(exercises, new InsertManyOptions(), stoppingToken);
     }
 }

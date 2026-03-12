@@ -1,14 +1,10 @@
+using Mjolksyra.Domain.Database.Models;
+
 namespace Mjolksyra.UseCases.Common.Contracts;
 
 public interface IExerciseResponse
 {
-    public string? Force { get; set; }
+    public ExerciseLevel? Level { get; set; }
 
-    public string? Level { get; set; }
-
-    public string? Mechanic { get; set; }
-
-    public string? Category { get; set; }
-
-    public ICollection<string> Instructions { get; set; }
+    public ExerciseSport? Sport { get; set; }
 }

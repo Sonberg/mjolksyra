@@ -21,16 +21,9 @@ public class PlannedExercise
 [BsonIgnoreExtraElements]
 public class ExercisePrescription
 {
-    public ExercisePrescriptionTargetType? TargetType { get; set; }
+    public ExerciseType? Type { get; set; }
 
     public ICollection<ExercisePrescriptionSet>? Sets { get; set; }
-}
-
-public enum ExercisePrescriptionTargetType
-{
-    sets_reps,
-    duration_seconds,
-    distance_meters
 }
 
 [BsonIgnoreExtraElements]

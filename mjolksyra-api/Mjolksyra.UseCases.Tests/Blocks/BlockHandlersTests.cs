@@ -111,7 +111,7 @@ public class BlockHandlersTests
                                 Note = null,
                                 Prescription = new ExercisePrescription
                                 {
-                                    TargetType = ExercisePrescriptionTargetType.duration_seconds,
+                                    Type = ExerciseType.DurationSeconds,
                                     Sets =
                                     [
                                         new ExercisePrescriptionSet
@@ -136,8 +136,8 @@ public class BlockHandlersTests
         Assert.NotEqual(Guid.Empty, block.Workouts.First().Id);
         Assert.NotEqual(Guid.Empty, block.Workouts.First().Exercises.First().Id);
         Assert.Equal(
-            ExercisePrescriptionTargetType.duration_seconds,
-            block.Workouts.First().Exercises.First().Prescription?.TargetType);
+            ExerciseType.DurationSeconds,
+            block.Workouts.First().Exercises.First().Prescription?.Type);
         blockRepository.Verify(x => x.Update(block, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

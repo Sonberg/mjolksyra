@@ -19,7 +19,7 @@ public class PlannedExerciseRequest
 
 public class PlannedExercisePrescriptionRequest
 {
-    public ExercisePrescriptionTargetType? TargetType { get; set; }
+    public ExerciseType? Type { get; set; }
 
     public ICollection<ExercisePrescriptionSetRequest>? Sets { get; set; }
 }

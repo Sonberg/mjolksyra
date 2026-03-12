@@ -6,29 +6,48 @@ namespace Mjolksyra.Domain.Database.Models;
 [BsonIgnoreExtraElements]
 public class Exercise : IDocument
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; init; } = Guid.NewGuid();
 
-    public required string Name { get; set; }
+    public required string Name { get; init; }
 
-    public string? Force { get; set; }
-
-    public string? Level { get; set; }
-
-    public string? Mechanic { get; set; }
-
-    public string? Category { get; set; }
-
-    public ICollection<string> Instructions { get; set; } = Array.Empty<string>();
+    public ExerciseLevel? Level { get; set; }
     
-    public ICollection<string> Images { get; set; } = Array.Empty<string>();
+    public ExerciseSport? Sport { get; set; }
+
+
+    public ExerciseType Type { get; init; }
 
     public Guid? CreatedBy { get; set; }
 
-    public ICollection<Guid> StarredBy { get; set; } = Array.Empty<Guid>();
-
-    public double Score { get; set; }
+    public ICollection<Guid> StarredBy { get; set; } = [];
 
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
+}
+
+public enum ExerciseType
+{
+    SetsReps,
+    DurationSeconds,
+    DistanceMeters
+}
+
+public enum ExerciseLevel
+{
+    Beginner,
+    Intermediate,
+    Expert
+}
+
+public enum ExerciseSport
+{
+    Powerlifting,
+    Strongman,
+    OlympicWeightlifting,
+    Bodybuilding,
+    Crossfit,
+    Hyrox,
+    Calisthenics,
+    Functional
 }

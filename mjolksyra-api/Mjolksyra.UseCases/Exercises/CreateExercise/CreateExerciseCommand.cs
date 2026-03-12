@@ -1,4 +1,5 @@
 using MediatR;
+using Mjolksyra.Domain.Database.Models;
 using OneOf;
 using OneOf.Types;
 
@@ -8,11 +9,9 @@ public class CreateExerciseCommand : IRequest<OneOf<ExerciseResponse, Error>>
 {
     public required string Name { get; set; }
 
-    public string? Force { get; set; }
+    public ExerciseLevel? Level { get; set; }
 
-    public string? Level { get; set; }
+    public ExerciseSport? Sport { get; set; }
 
-    public string? Mechanic { get; set; }
-
-    public string? Category { get; set; }
+    public ExerciseType Type { get; set; }
 }

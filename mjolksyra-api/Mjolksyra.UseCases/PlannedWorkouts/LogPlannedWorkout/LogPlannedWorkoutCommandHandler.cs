@@ -65,7 +65,7 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
                     Actual = new ExercisePrescriptionSetActual
                     {
                         Reps = actualRequest.Reps,
-                        WeightKg = exercise.Prescription.TargetType == ExercisePrescriptionTargetType.sets_reps
+                        WeightKg = exercise.Prescription.Type == ExerciseType.SetsReps
                             ? actualRequest.WeightKg
                             : null,
                         DurationSeconds = actualRequest.DurationSeconds,

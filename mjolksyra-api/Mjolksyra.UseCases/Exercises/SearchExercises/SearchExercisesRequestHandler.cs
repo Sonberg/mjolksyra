@@ -21,10 +21,8 @@ public class SearchExercisesRequestHandler : IRequestHandler<SearchExercisesRequ
     {
         var userId = await _userContext.GetUserId(cancellationToken);
         var hasText = !string.IsNullOrWhiteSpace(request.FreeText);
-        var hasFilters = request.Force != null
+        var hasFilters = request.Sport != null
                          || request.Level != null
-                         || request.Mechanic != null
-                         || request.Category != null
                          || request.CreatedByMe;
 
         if (!hasText && !hasFilters)
@@ -42,10 +40,8 @@ public class SearchExercisesRequestHandler : IRequestHandler<SearchExercisesRequ
             Data = await _exerciseRepository
                 .Search(
                     request.FreeText,
-                    request.Force,
+                    request.Sport,
                     request.Level,
-                    request.Mechanic,
-                    request.Category,
                     request.CreatedByMe ? userId : null,
                     cancellationToken)
                 .ContinueWith(t => t.Result.Select(x => ExerciseResponse.From(x, userId)).ToList(), cancellationToken)

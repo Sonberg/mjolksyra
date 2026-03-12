@@ -15,10 +15,8 @@ public interface IExerciseRepository
 
     Task<ICollection<Exercise>> Search(
         string? freeText,
-        string? force,
-        string? level,
-        string? mechanic,
-        string? category,
+        ExerciseSport? sport,
+        ExerciseLevel? level,
         Guid? createdBy,
         CancellationToken cancellationToken = default);
 

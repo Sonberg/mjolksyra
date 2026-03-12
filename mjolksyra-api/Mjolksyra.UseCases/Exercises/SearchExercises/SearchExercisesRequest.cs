@@ -1,4 +1,5 @@
 using MediatR;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.UseCases.Common.Models;
 
 namespace Mjolksyra.UseCases.Exercises.SearchExercises;
@@ -7,13 +8,9 @@ public class SearchExercisesRequest : IRequest<PaginatedResponse<ExerciseRespons
 {
     public string FreeText { get; set; } = string.Empty;
 
-    public string? Force { get; set; }
+    public ExerciseSport? Sport { get; set; }
 
-    public string? Level { get; set; }
-
-    public string? Mechanic { get; set; }
-
-    public string? Category { get; set; }
+    public ExerciseLevel? Level { get; set; }
 
     public bool CreatedByMe { get; set; }
 }

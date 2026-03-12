@@ -87,23 +87,15 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public PlannedExercisePrescriptionResponse? Prescription { get; set; }
 
-    public required string? Force { get; set; }
+    public ExerciseLevel? Level { get; set; }
 
-    public required string? Level { get; set; }
-
-    public required string? Mechanic { get; set; }
-
-    public required string? Category { get; set; }
-
-    public required ICollection<string> Instructions { get; set; }
-
-    public required ICollection<string> Images { get; set; }
+    public ExerciseSport? Sport { get; set; }
 
     public static PlannedExerciseResponse From(PlannedExercise plannedExercise, ICollection<Exercise> exercises)
     {
         var exercise = exercises.FirstOrDefault(e => e.Id == plannedExercise.ExerciseId);
         var sets = plannedExercise.Prescription?.Sets;
-        var targetType = plannedExercise.Prescription?.TargetType;
+        var targetType = plannedExercise.Prescription?.Type;
 
         return new PlannedExerciseResponse
         {
@@ -117,7 +109,7 @@ public class PlannedExerciseResponse : IExerciseResponse
                 ? null
                 : new PlannedExercisePrescriptionResponse
                 {
-                    TargetType = plannedExercise.Prescription.TargetType,
+                    Type = plannedExercise.Prescription.Type,
                     Sets = plannedExercise.Prescription.Sets
                         ?.Select(x => new ExercisePrescriptionSetResponse
                         {
@@ -126,7 +118,7 @@ public class PlannedExerciseResponse : IExerciseResponse
                                 Reps = x.Target.Reps,
                                 DurationSeconds = x.Target.DurationSeconds,
                                 DistanceMeters = x.Target.DistanceMeters,
-                                WeightKg = targetType == ExercisePrescriptionTargetType.sets_reps
+                                WeightKg = targetType == ExerciseType.SetsReps
                                     ? x.Target.WeightKg
                                     : null,
                                 Note = x.Target.Note,
@@ -134,7 +126,7 @@ public class PlannedExerciseResponse : IExerciseResponse
                             Actual = x.Actual is null ? null : new ExercisePrescriptionSetActualResponse
                             {
                                 Reps = x.Actual.Reps,
-                                WeightKg = targetType == ExercisePrescriptionTargetType.sets_reps
+                                WeightKg = targetType == ExerciseType.SetsReps
                                     ? x.Actual.WeightKg
                                     : null,
                                 DurationSeconds = x.Actual.DurationSeconds,
@@ -145,19 +137,15 @@ public class PlannedExerciseResponse : IExerciseResponse
                         })
                         .ToList()
                 },
-            Category = exercise?.Category ?? string.Empty,
-            Force = exercise?.Force ?? string.Empty,
-            Level = exercise?.Level ?? string.Empty,
-            Mechanic = exercise?.Mechanic ?? string.Empty,
-            Images = exercise?.Images ?? Array.Empty<string>(),
-            Instructions = exercise?.Instructions ?? Array.Empty<string>()
+            Level = exercise?.Level,
+            Sport = exercise?.Sport
         };
     }
 }
 
 public class PlannedExercisePrescriptionResponse
 {
-    public ExercisePrescriptionTargetType? TargetType { get; set; }
+    public ExerciseType? Type { get; set; }
 
     public ICollection<ExercisePrescriptionSetResponse>? Sets { get; set; }
 }

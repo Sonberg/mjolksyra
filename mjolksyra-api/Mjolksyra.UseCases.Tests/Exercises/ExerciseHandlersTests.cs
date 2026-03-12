@@ -48,10 +48,8 @@ public class ExerciseHandlersTests
         Assert.Empty(result.Data);
         exerciseRepository.Verify(x => x.Search(
             It.IsAny<string>(),
-            It.IsAny<string?>(),
-            It.IsAny<string?>(),
-            It.IsAny<string?>(),
-            It.IsAny<string?>(),
+            It.IsAny<ExerciseSport?>(),
+            It.IsAny<ExerciseLevel?>(),
             It.IsAny<Guid?>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -64,10 +62,8 @@ public class ExerciseHandlersTests
         exerciseRepository
             .Setup(x => x.Search(
                 It.IsAny<string>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
+                It.IsAny<ExerciseSport?>(),
+                It.IsAny<ExerciseLevel?>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Exercise>());
@@ -79,19 +75,15 @@ public class ExerciseHandlersTests
         await sut.Handle(new SearchExercisesRequest
         {
             FreeText = "",
-            Force = "pull",
-            Level = "beginner",
-            Mechanic = "compound",
-            Category = "strength",
+            Sport = ExerciseSport.Powerlifting,
+            Level = ExerciseLevel.Beginner,
             CreatedByMe = true
         }, CancellationToken.None);
 
         exerciseRepository.Verify(x => x.Search(
             "",
-            "pull",
-            "beginner",
-            "compound",
-            "strength",
+            ExerciseSport.Powerlifting,
+            ExerciseLevel.Beginner,
             userId,
             It.IsAny<CancellationToken>()), Times.Once);
     }

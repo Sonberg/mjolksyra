@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Models;
@@ -44,10 +43,8 @@ public class ExerciseRepository : IExerciseRepository
 
     public async Task<ICollection<Exercise>> Search(
         string? freeText,
-        string? force,
-        string? level,
-        string? mechanic,
-        string? category,
+        ExerciseSport? sport,
+        ExerciseLevel? level,
         Guid? createdBy,
         CancellationToken cancellationToken = default)
     {
@@ -56,24 +53,14 @@ public class ExerciseRepository : IExerciseRepository
             Builders<Exercise>.Filter.Eq(x => x.DeletedAt, null)
         };
 
-        if (!string.IsNullOrWhiteSpace(force))
+        if (sport.HasValue)
         {
-            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Force, force));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Sport, sport.Value));
         }
 
-        if (!string.IsNullOrWhiteSpace(level))
+        if (level.HasValue)
         {
-            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Level, level));
-        }
-
-        if (!string.IsNullOrWhiteSpace(mechanic))
-        {
-            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Mechanic, mechanic));
-        }
-
-        if (!string.IsNullOrWhiteSpace(category))
-        {
-            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Category, category));
+            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Level, level.Value));
         }
 
         if (createdBy.HasValue)
@@ -187,33 +174,12 @@ public class ExerciseRepository : IExerciseRepository
         return result.IsAcknowledged;
     }
 
-    public async Task<ExerciseOptions> Options(CancellationToken cancellationToken = default)
+    public Task<ExerciseOptions> Options(CancellationToken cancellationToken = default)
     {
-        var categoryTask = DistinctAsync(x => x.Category, cancellationToken);
-        var forceTask = DistinctAsync(x => x.Force, cancellationToken);
-        var levelTask = DistinctAsync(x => x.Level, cancellationToken);
-        var mechanicTask = DistinctAsync(x => x.Mechanic, cancellationToken);
-
-        await Task.WhenAll(categoryTask, forceTask, levelTask, mechanicTask);
-
-        return new ExerciseOptions
+        return Task.FromResult(new ExerciseOptions
         {
-            Category = categoryTask.Result,
-            Force = forceTask.Result,
-            Level = levelTask.Result,
-            Mechanic = mechanicTask.Result
-        };
-    }
-
-
-    private Task<List<string>> DistinctAsync(Expression<Func<Exercise, string?>> selector, CancellationToken cancellationToken)
-    {
-        return _mongoDbContext.Exercises
-            .DistinctAsync(
-                selector,
-                Builders<Exercise>.Filter.Ne(selector, null),
-                cancellationToken: cancellationToken)
-            .ContinueWith(t => t.Result.ToListAsync(cancellationToken: cancellationToken), cancellationToken)
-            .ContinueWith(t => t.Result.Result.OfType<string>().ToList(), cancellationToken);
+            Level = Enum.GetNames<ExerciseLevel>().ToList(),
+            Sport = Enum.GetNames<ExerciseSport>().ToList()
+        });
     }
 }

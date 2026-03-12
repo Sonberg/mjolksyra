@@ -40,7 +40,7 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                         ? null
                         : new ExercisePrescription
                         {
-                            TargetType = e.Prescription.TargetType,
+                            Type = e.Prescription.Type,
                             Sets = e.Prescription.Sets
                                 ?.Select(x => new ExercisePrescriptionSet
                                 {
@@ -49,7 +49,7 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                                         Reps = x.Target.Reps,
                                         DurationSeconds = x.Target.DurationSeconds,
                                         DistanceMeters = x.Target.DistanceMeters,
-                                        WeightKg = e.Prescription.TargetType == ExercisePrescriptionTargetType.sets_reps
+                                        WeightKg = e.Prescription.Type == ExerciseType.SetsReps
                                             ? x.Target.WeightKg
                                             : null,
                                         Note = x.Target.Note,

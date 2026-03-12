@@ -29,10 +29,9 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
         var exercise = new Exercise
         {
             Name = request.Name,
-            Force = request.Force,
             Level = request.Level,
-            Mechanic = request.Mechanic,
-            Category = request.Category,
+            Sport = request.Sport,
+            Type = request.Type,
             CreatedBy = userId,
             CreatedAt = DateTimeOffset.UtcNow
         };

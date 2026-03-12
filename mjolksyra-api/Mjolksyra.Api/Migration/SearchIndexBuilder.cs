@@ -16,11 +16,7 @@ public class SearchIndexBuilder : IndexBuilder
     protected override async Task Build(IMongoDbContext context, CancellationToken stoppingToken)
     {
         var indexKeys = Builders<Exercise>.IndexKeys
-            .Text(x => x.Name)
-            .Text(x => x.Category)
-            .Text(x => x.Level)
-            .Text(x => x.Force)
-            .Text(x => x.Mechanic);
+            .Text(x => x.Name);
 
         await context.Exercises.Indexes
             .CreateOneAsync(new CreateIndexModel<Exercise>(indexKeys, new CreateIndexOptions
@@ -30,18 +26,6 @@ public class SearchIndexBuilder : IndexBuilder
                 {
                     {
                         nameof(Exercise.Name), 10
-                    },
-                    {
-                        nameof(Exercise.Level), 1
-                    },
-                    {
-                        nameof(Exercise.Force), 1
-                    },
-                    {
-                        nameof(Exercise.Mechanic), 1
-                    },
-                    {
-                        nameof(Exercise.Category), 5
                     }
                 }
             }), cancellationToken: stoppingToken);

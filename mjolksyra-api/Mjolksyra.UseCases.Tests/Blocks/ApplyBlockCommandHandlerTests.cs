@@ -71,7 +71,7 @@ public class ApplyBlockCommandHandlerTests
                             Note = "Note",
                             Prescription = new ExercisePrescription
                             {
-                                TargetType = ExercisePrescriptionTargetType.sets_reps,
+                                Type = ExerciseType.SetsReps,
                                 Sets =
                                 [
                                     new ExercisePrescriptionSet
@@ -138,7 +138,7 @@ public class ApplyBlockCommandHandlerTests
             It.Is<PlannedWorkout>(workout =>
                 workout.Exercises.Count == 1 &&
                 workout.Exercises.First().Prescription != null &&
-                workout.Exercises.First().Prescription!.TargetType == ExercisePrescriptionTargetType.sets_reps &&
+                workout.Exercises.First().Prescription!.Type == ExerciseType.SetsReps &&
                 workout.Exercises.First().Prescription!.Sets != null &&
                 workout.Exercises.First().Prescription!.Sets!.Count == 1 &&
                 workout.Exercises.First().Prescription!.Sets!.First().Target!.Reps == 8 &&

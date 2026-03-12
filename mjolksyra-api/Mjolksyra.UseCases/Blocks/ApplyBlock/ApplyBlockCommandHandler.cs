@@ -110,7 +110,7 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
 
         return new ExercisePrescription
         {
-            TargetType = source.TargetType,
+            Type = source.Type,
             Sets = source.Sets?.Select(set => new ExercisePrescriptionSet
             {
                 Target = set.Target is null
