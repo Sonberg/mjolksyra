@@ -5,7 +5,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { EllipsisVertical } from "lucide-react";
 import { useCallback, useMemo } from "react";
 
-import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
+import {
+  PlannedExercise,
+  PlannedWorkout,
+} from "@/services/plannedWorkouts/type";
 import { DraggingToolTip } from "../DraggingToolTip";
 import { useWorkouts } from "./contexts/Workouts";
 import { usePlannedWorkoutActions } from "./contexts/PlannedWorkoutActions";
@@ -117,6 +120,7 @@ export function DayExercise({
               ) : null}
               {!locked ? (
                 <DraggingToolTip
+                  header="Exercise"
                   listeners={listeners}
                   label={plannedExercise.name}
                   icon={

@@ -53,6 +53,7 @@ export function DayHeader({
           {canPlan ? (
             <>
               <DraggingToolTip
+                header="Day"
                 label={date.format("dddd, D MMM")}
                 icon={
                   <div className="grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]">
@@ -65,7 +66,8 @@ export function DayHeader({
               <div
                 className={cn({
                   "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
-                  "bg-[var(--shell-ink)] text-[var(--shell-surface)]": isActiveEditor,
+                  "bg-[var(--shell-ink)] text-[var(--shell-surface)]":
+                    isActiveEditor,
                   "hover:bg-[var(--shell-surface)]": !isActiveEditor,
                   "hover:bg-[var(--shell-ink-soft)]": isActiveEditor,
                 })}
@@ -90,7 +92,11 @@ export function DayHeader({
                   : "Planning is available for today and future days."
               }
             >
-              {isCompleted ? (plannedWorkout?.reviewedAt ? "Reviewed" : "Done") : "Past"}
+              {isCompleted
+                ? plannedWorkout?.reviewedAt
+                  ? "Reviewed"
+                  : "Done"
+                : "Past"}
             </span>
           )}
         </div>

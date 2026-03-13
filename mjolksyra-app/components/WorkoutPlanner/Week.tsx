@@ -22,13 +22,18 @@ type Props = {
   searchExercisesFn?: SearchExercises;
 };
 
-export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: Props) {
+export function Week({
+  weekNumber,
+  days,
+  plannedWorkouts,
+  searchExercisesFn,
+}: Props) {
   const id = useId();
   const actions = usePlannedWorkoutActions();
   const workouts = useWorkouts();
   const isFutureWeek = useMemo(
     () => days[0]?.startOf("week").isAfter(dayjs().startOf("week")) ?? false,
-    [days]
+    [days],
   );
   const data = useMemo(
     () => ({
@@ -39,7 +44,7 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
       label: `w${weekNumber}`,
       canPlan: isFutureWeek,
     }),
-    [days, plannedWorkouts, weekNumber, isFutureWeek]
+    [days, plannedWorkouts, weekNumber, isFutureWeek],
   );
 
   const {
@@ -60,7 +65,7 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
       active?.data.current?.type === "block");
   const groupByName = useMemo(
     () => groupBy(days, (x) => x.format("ddd")),
-    [days]
+    [days],
   );
   const appliedBlockSummary = useMemo(() => {
     const applied = plannedWorkouts
@@ -74,7 +79,7 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
       (x) =>
         x.blockId === first.blockId &&
         x.weekNumber === first.weekNumber &&
-        x.totalWeeks === first.totalWeeks
+        x.totalWeeks === first.totalWeeks,
     );
 
     if (!sameBlock) {
@@ -99,14 +104,15 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
           date={date}
           plannedWorkout={
             plannedWorkouts.find(
-              (x) => x.plannedAt == groupByName[dayName]?.[0].format(PLANNED_AT)
+              (x) =>
+                x.plannedAt == groupByName[dayName]?.[0].format(PLANNED_AT),
             ) ?? null
           }
           searchExercisesFn={searchExercisesFn}
         />
       );
     },
-    [plannedWorkouts, groupByName, searchExercisesFn]
+    [plannedWorkouts, groupByName, searchExercisesFn],
   );
 
   return useMemo(
@@ -120,11 +126,13 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
             "flex select-none items-center justify-between border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2",
             {
               ...draggingStyle({ canDrop, isOver }),
-            }
+            },
           )}
         >
           <div className="flex min-w-0 items-center gap-2">
-            <div className="text-sm font-semibold text-[var(--shell-ink)]">Week {weekNumber}</div>
+            <div className="text-sm font-semibold text-[var(--shell-ink)]">
+              Week {weekNumber}
+            </div>
             {!isFutureWeek ? (
               <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-[11px] font-medium text-[var(--shell-muted)]">
                 Locked
@@ -139,6 +147,8 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
           <div ref={setDraggableNodeRef}>
             {plannedWorkouts.length && isFutureWeek ? (
               <DraggingToolTip
+                header="Week"
+                label={`Week ${weekNumber}`}
                 icon={<RectangleEllipsisIcon className="h-4" />}
                 listeners={listeners}
                 onDelete={() => {
@@ -148,7 +158,7 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
 
                   for (const plannedAt of plannedAts) {
                     const plannedWorkout = plannedWorkouts.find(
-                      (x) => x.plannedAt === plannedAt
+                      (x) => x.plannedAt === plannedAt,
                     );
 
                     if (!plannedWorkout) {
@@ -195,6 +205,6 @@ export function Week({ weekNumber, days, plannedWorkouts, searchExercisesFn }: P
       workouts,
       appliedBlockSummary,
       isFutureWeek,
-    ]
+    ],
   );
 }

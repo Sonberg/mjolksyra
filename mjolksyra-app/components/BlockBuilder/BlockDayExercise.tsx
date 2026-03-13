@@ -20,16 +20,22 @@ export function BlockDayExercise({
   onRemove,
   isActive,
 }: Props) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({
-      id: exercise.id,
-      data: {
-        type: "blockExercise",
-        exercise,
-        blockWorkoutId,
-        label: exercise.name,
-      },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: exercise.id,
+    data: {
+      type: "blockExercise",
+      exercise,
+      blockWorkoutId,
+      label: exercise.name,
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,6 +52,7 @@ export function BlockDayExercise({
         rightSlot={
           <div className="mt-0.5 flex shrink-0 items-start">
             <DraggingToolTip
+              header="Exercise"
               listeners={listeners}
               label={exercise.name}
               icon={

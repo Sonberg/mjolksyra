@@ -6,17 +6,25 @@ import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { createPortal } from "react-dom";
 
 type Props = {
+  header: "Exercise" | "Day" | "Week";
   icon: ReactNode;
   listeners: SyntheticListenerMap | undefined;
   onDelete: () => void;
   label?: string;
 };
 
-export function DraggingToolTip({ icon, listeners, onDelete, label }: Props) {
+export function DraggingToolTip({
+  header,
+  icon,
+  listeners,
+  onDelete,
+  label,
+}: Props) {
   const [isHovering, setHover] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(
-    null,
-  );
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
 
@@ -99,7 +107,7 @@ export function DraggingToolTip({ icon, listeners, onDelete, label }: Props) {
               {label ? (
                 <div className="mb-2 border-b border-[var(--shell-border)] px-1 pb-2">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                    Exercise
+                    {header}
                   </div>
                   <div className="break-words pt-1 text-sm font-semibold leading-tight text-[var(--shell-ink)]">
                     {label}
