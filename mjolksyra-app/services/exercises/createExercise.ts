@@ -4,10 +4,9 @@ import { Exercise } from "./type";
 
 type Args = {
   name: string;
-  force: string | null;
+  sport: string | null;
   level: string | null;
-  mechanic: string | null;
-  category: string | null;
+  type: string | null;
 };
 
 export type CreateExercise = typeof createExercise;

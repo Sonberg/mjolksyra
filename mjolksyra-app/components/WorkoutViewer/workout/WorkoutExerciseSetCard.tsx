@@ -1,5 +1,5 @@
 import { CheckCircle2Icon, CircleIcon } from "lucide-react";
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription";
+import { ExerciseType } from "@/lib/exercisePrescription";
 import {
   GetSetTargetLabel,
   ToggleSetDoneInput,
@@ -11,7 +11,7 @@ type Props = {
   exerciseId: string;
   set: WorkoutSet;
   setIndex: number;
-  targetType: ExercisePrescriptionTargetType | undefined;
+  targetType: ExerciseType | undefined;
   isEditable: boolean;
   isPending: boolean;
   getSetTargetLabel: GetSetTargetLabel;
@@ -60,13 +60,13 @@ export function WorkoutExerciseSetCard({
             Target
           </span>
           <span>
-            {targetType === ExercisePrescriptionTargetType.SetsReps
+            {targetType === ExerciseType.SetsReps
               ? `${set.target?.reps ?? "-"} reps`
-              : targetType === ExercisePrescriptionTargetType.DurationSeconds
+              : targetType === ExerciseType.DurationSeconds
                 ? `${set.target?.durationSeconds ?? "-"} s`
                 : `${set.target?.distanceMeters ?? "-"} m`}
           </span>
-          {targetType === ExercisePrescriptionTargetType.SetsReps &&
+          {targetType === ExerciseType.SetsReps &&
           typeof set.target?.weightKg === "number" ? (
             <>
               <span className="text-[var(--shell-muted)]">•</span>
@@ -80,7 +80,7 @@ export function WorkoutExerciseSetCard({
           </span>
           {isEditable ? (
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              {targetType === ExercisePrescriptionTargetType.SetsReps ? (
+              {targetType === ExerciseType.SetsReps ? (
                 <div className="relative">
                   <input
                     key={`${exerciseId}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
@@ -116,7 +116,7 @@ export function WorkoutExerciseSetCard({
                   </span>
                 </div>
               ) : null}
-              {targetType === ExercisePrescriptionTargetType.DurationSeconds ? (
+              {targetType === ExerciseType.DurationSeconds ? (
                 <div className="relative">
                   <input
                     key={`${exerciseId}-${setIndex}-duration-${set.actual?.durationSeconds ?? set.target?.durationSeconds ?? "none"}`}
@@ -154,7 +154,7 @@ export function WorkoutExerciseSetCard({
                   </span>
                 </div>
               ) : null}
-              {targetType === ExercisePrescriptionTargetType.DistanceMeters ? (
+              {targetType === ExerciseType.DistanceMeters ? (
                 <div className="relative">
                   <input
                     key={`${exerciseId}-${setIndex}-distance-${set.actual?.distanceMeters ?? set.target?.distanceMeters ?? "none"}`}
@@ -192,7 +192,7 @@ export function WorkoutExerciseSetCard({
                   </span>
                 </div>
               ) : null}
-              {targetType === ExercisePrescriptionTargetType.SetsReps ? (
+              {targetType === ExerciseType.SetsReps ? (
                 <div className="relative">
                   <input
                     key={`${exerciseId}-${setIndex}-${set.actual?.weightKg ?? "none"}-${set.target?.weightKg ?? "none"}`}
@@ -260,13 +260,13 @@ export function WorkoutExerciseSetCard({
           ) : (
             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--shell-ink)]">
               <span>
-                {targetType === ExercisePrescriptionTargetType.SetsReps
+                {targetType === ExerciseType.SetsReps
                   ? `${set.actual?.reps ?? "-"} reps`
-                  : targetType === ExercisePrescriptionTargetType.DurationSeconds
+                  : targetType === ExerciseType.DurationSeconds
                     ? `${set.actual?.durationSeconds ?? "-"} s`
                     : `${set.actual?.distanceMeters ?? "-"} m`}
               </span>
-              {targetType === ExercisePrescriptionTargetType.SetsReps ? (
+              {targetType === ExerciseType.SetsReps ? (
                 <>
                   <span className="text-[var(--shell-muted)]">•</span>
                   <span>{set.actual?.weightKg ?? "-"} kg</span>

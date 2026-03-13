@@ -21,7 +21,7 @@ import { ExerciseQuickSearchOverlay } from "@/components/ExerciseLibrary/Exercis
 import { DraggingExercise } from "@/components/DraggingExercise";
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
 import {
-  ExercisePrescriptionTargetType,
+  ExerciseType,
 } from "@/lib/exercisePrescription";
 import type { Exercise } from "@/services/exercises/type";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -140,7 +140,7 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
       name: exercise.name,
       note: null,
       prescription: {
-        targetType: ExercisePrescriptionTargetType.SetsReps,
+        type: ExerciseType.SetsReps,
         sets: [
           {
             target: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2Icon } from "lucide-react";
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription";
+import { ExerciseType } from "@/lib/exercisePrescription";
 import {
   ToggleSetDoneInput,
   UpdateSetActualInput,
@@ -12,7 +12,7 @@ type Props = {
   exerciseId: string;
   set: WorkoutSet;
   setIndex: number;
-  targetType: ExercisePrescriptionTargetType | undefined;
+  targetType: ExerciseType | undefined;
   isPending: boolean;
   onToggleSetDone: (input: ToggleSetDoneInput) => void;
   onUpdateSetActual: (input: UpdateSetActualInput) => void;
@@ -35,8 +35,8 @@ export function AthleteSetRow({
   onUpdateSetActual,
 }: Props) {
   const isDone = set.actual?.isDone ?? false;
-  const isSetsReps = targetType === ExercisePrescriptionTargetType.SetsReps;
-  const isDuration = targetType === ExercisePrescriptionTargetType.DurationSeconds;
+  const isSetsReps = targetType === ExerciseType.SetsReps;
+  const isDuration = targetType === ExerciseType.DurationSeconds;
 
   const targetParts: string[] = [];
   if (isSetsReps) {

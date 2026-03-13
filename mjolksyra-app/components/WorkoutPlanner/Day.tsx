@@ -22,7 +22,7 @@ import { useWorkouts } from "./contexts/Workouts";
 import { monthId } from "@/lib/monthId";
 import { ExerciseQuickSearchOverlay } from "../ExerciseLibrary/ExerciseQuickSearchOverlay";
 import type { Exercise as LibraryExercise } from "@/services/exercises/type";
-import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
+import { inferPrescriptionFromType, ExerciseType } from "@/lib/exercisePrescription";
 import { v4 } from "uuid";
 import { DayHeader } from "./DayHeader";
 import type { SearchExercises } from "@/services/exercises/searchExercises";
@@ -129,8 +129,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
         note: "",
         isPublished: false,
         isDone: false,
-        prescription: inferPrescriptionFromMechanic(exercise.mechanic),
-        images: [],
+        prescription: inferPrescriptionFromType(exercise.type as ExerciseType | null | undefined),
       };
 
       if (plannedWorkout) {

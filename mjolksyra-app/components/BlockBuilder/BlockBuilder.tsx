@@ -7,7 +7,7 @@ import { BlockWorkout, BlockExercise } from "@/services/blocks/type";
 import { BlockWeek } from "./BlockWeek";
 import {
   ExercisePrescription,
-  ExercisePrescriptionTargetType,
+  ExerciseType,
 } from "@/lib/exercisePrescription";
 
 type Props = {
@@ -38,7 +38,7 @@ export function BlockBuilder({
 
   function defaultBlockPrescription(): ExercisePrescription {
     return {
-      targetType: ExercisePrescriptionTargetType.SetsReps,
+      type: ExerciseType.SetsReps,
       sets: [
         {
           target: {

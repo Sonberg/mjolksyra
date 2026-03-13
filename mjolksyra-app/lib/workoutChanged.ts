@@ -37,7 +37,7 @@ export function workoutChanged(
       exercise.name === oldExercise.name,
       exercise.note === oldExercise.note,
       exercise.isDone === oldExercise.isDone,
-      exercise.prescription?.targetType === oldExercise.prescription?.targetType,
+      exercise.prescription?.type === oldExercise.prescription?.type,
       JSON.stringify(exercise.prescription?.sets ?? null) ===
         JSON.stringify(oldExercise.prescription?.sets ?? null),
     ];

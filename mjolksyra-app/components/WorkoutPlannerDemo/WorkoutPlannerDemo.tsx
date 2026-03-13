@@ -47,10 +47,9 @@ function createInitialExercises(): Exercise[] {
   return names.map((name) => ({
     id: v4(),
     name,
-    force: null,
+    sport: null,
     level: null,
-    mechanic: null,
-    category: null,
+    type: null,
     starred: false,
     canDelete: false,
   }));
@@ -65,7 +64,6 @@ function buildPlannedExercise(exercise: Exercise): PlannedExercise {
     isPublished: true,
     isDone: false,
     prescription: null,
-    images: [],
   };
 }
 
@@ -152,10 +150,8 @@ export function WorkoutPlannerDemo() {
                 return demoExerciseSearch({
                   freeText,
                   filters: {
-                    force: null,
+                    sport: null,
                     level: null,
-                    mechanic: null,
-                    category: null,
                     createdByMe: false,
                   },
                   signal: new AbortController().signal,

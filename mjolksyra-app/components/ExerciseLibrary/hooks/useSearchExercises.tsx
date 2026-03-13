@@ -5,10 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 type Args = {
   freeText: string;
   filters: {
-    force: string | null;
+    sport: string | null;
     level: string | null;
-    mechanic: string | null;
-    category: string | null;
     createdByMe: boolean;
   };
   exercises: {

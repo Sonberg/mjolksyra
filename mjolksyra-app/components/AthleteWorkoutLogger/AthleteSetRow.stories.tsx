@@ -2,7 +2,7 @@
 
 import type { Meta, StoryObj } from "@storybook/react"
 import { AthleteSetRow } from "./AthleteSetRow"
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription"
+import { ExerciseType } from "@/lib/exercisePrescription"
 import { WorkoutSet } from "@/components/WorkoutViewer/workout/types"
 
 const meta = {
@@ -35,7 +35,7 @@ function Fixture({
   isPending = false,
 }: {
   set: WorkoutSet
-  targetType: ExercisePrescriptionTargetType
+  targetType: ExerciseType
   isPending?: boolean
 }) {
   return (
@@ -55,7 +55,7 @@ function Fixture({
 
 export const SetsRepsNotDone: Story = {
   render: () => (
-    <Fixture set={setsRepsSet} targetType={ExercisePrescriptionTargetType.SetsReps} />
+    <Fixture set={setsRepsSet} targetType={ExerciseType.SetsReps} />
   ),
 }
 
@@ -66,20 +66,20 @@ export const SetsRepsDone: Story = {
         ...setsRepsSet,
         actual: { reps: 8, weightKg: 80, durationSeconds: null, distanceMeters: null, note: null, isDone: true },
       }}
-      targetType={ExercisePrescriptionTargetType.SetsReps}
+      targetType={ExerciseType.SetsReps}
     />
   ),
 }
 
 export const DurationNotDone: Story = {
   render: () => (
-    <Fixture set={durationSet} targetType={ExercisePrescriptionTargetType.DurationSeconds} />
+    <Fixture set={durationSet} targetType={ExerciseType.DurationSeconds} />
   ),
 }
 
 export const DistanceNotDone: Story = {
   render: () => (
-    <Fixture set={distanceSet} targetType={ExercisePrescriptionTargetType.DistanceMeters} />
+    <Fixture set={distanceSet} targetType={ExerciseType.DistanceMeters} />
   ),
 }
 
@@ -87,7 +87,7 @@ export const Pending: Story = {
   render: () => (
     <Fixture
       set={setsRepsSet}
-      targetType={ExercisePrescriptionTargetType.SetsReps}
+      targetType={ExerciseType.SetsReps}
       isPending={true}
     />
   ),

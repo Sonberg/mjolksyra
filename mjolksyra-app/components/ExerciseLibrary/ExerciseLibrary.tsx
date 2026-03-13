@@ -38,10 +38,8 @@ type Props = {
 export function ExerciseLibrary({ exercies }: Props) {
   const [searchMode, setSearchMode] = useState(false);
   const [freeText, setFreeText] = useState("");
-  const [force, setForce] = useState<string | null>(null);
+  const [sport, setSport] = useState<string | null>(null);
   const [level, setLevel] = useState<string | null>(null);
-  const [mechanic, setMechanic] = useState<string | null>(null);
-  const [category, setCategory] = useState<string | null>(null);
   const [createdByMe, setCreatedByMe] = useState(false);
 
   const { isSignedIn } = useUser();
@@ -60,25 +58,21 @@ export function ExerciseLibrary({ exercies }: Props) {
 
   const filters = useMemo(
     () => ({
-      force,
+      sport,
       level,
-      mechanic,
-      category,
       createdByMe,
     }),
-    [force, level, mechanic, category, createdByMe]
+    [sport, level, createdByMe]
   );
 
   const hasActiveFilters =
-    force !== null
+    sport !== null
     || level !== null
-    || mechanic !== null
-    || category !== null
     || createdByMe;
 
   const isSearching = searchMode && (freeText.trim().length > 0 || hasActiveFilters);
 
-  const getSelectOptions = (key: "force" | "level" | "mechanic" | "category") =>
+  const getSelectOptions = (key: "sport" | "level") =>
     (options.data?.[key] ?? []).map((value) => ({
       label: capitalizeFirstLetter(value),
       value,
@@ -104,10 +98,8 @@ export function ExerciseLibrary({ exercies }: Props) {
                 onClick={() => {
                   setSearchMode(false);
                   setFreeText("");
-                  setForce(null);
+                  setSport(null);
                   setLevel(null);
-                  setMechanic(null);
-                  setCategory(null);
                   setCreatedByMe(false);
                 }}
               >
@@ -130,28 +122,16 @@ export function ExerciseLibrary({ exercies }: Props) {
           {searchMode ? (
             <div className="mt-3 grid grid-cols-2 gap-2">
               <SingleSelect
-                placeholder="Force"
-                options={getSelectOptions("force")}
-                value={force}
-                setSelectedOption={setForce}
+                placeholder="Sport"
+                options={getSelectOptions("sport")}
+                value={sport}
+                setSelectedOption={setSport}
               />
               <SingleSelect
                 placeholder="Level"
                 options={getSelectOptions("level")}
                 value={level}
                 setSelectedOption={setLevel}
-              />
-              <SingleSelect
-                placeholder="Mechanic"
-                options={getSelectOptions("mechanic")}
-                value={mechanic}
-                setSelectedOption={setMechanic}
-              />
-              <SingleSelect
-                placeholder="Category"
-                options={getSelectOptions("category")}
-                value={category}
-                setSelectedOption={setCategory}
               />
               <div className="col-span-2 flex items-center justify-between rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
                 <Label htmlFor="created-by-me" className="text-xs font-medium text-[var(--shell-ink)]">

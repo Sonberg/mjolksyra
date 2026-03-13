@@ -1,11 +1,14 @@
-export enum ExercisePrescriptionTargetType {
-  SetsReps = "sets_reps",
-  DurationSeconds = "duration_seconds",
-  DistanceMeters = "distance_meters",
+export enum ExerciseType {
+  SetsReps = "SetsReps",
+  DurationSeconds = "DurationSeconds",
+  DistanceMeters = "DistanceMeters",
 }
 
+// Backwards-compat alias used by some components
+export { ExerciseType as ExercisePrescriptionTargetType };
+
 export type ExercisePrescription = {
-  targetType: ExercisePrescriptionTargetType;
+  type: ExerciseType;
   sets: Array<{
     target: {
       reps: number | null;
@@ -26,7 +29,7 @@ export type ExercisePrescription = {
 };
 
 export function targetForType(
-  targetType: ExercisePrescription["targetType"],
+  type: ExercisePrescription["type"],
   source?: {
     reps: number | null;
     durationSeconds: number | null;
@@ -35,7 +38,7 @@ export function targetForType(
     note: string | null;
   } | null,
 ) {
-  if (targetType === ExercisePrescriptionTargetType.SetsReps) {
+  if (type === ExerciseType.SetsReps) {
     return {
       target: {
         reps: source?.reps ?? null,
@@ -48,7 +51,7 @@ export function targetForType(
     };
   }
 
-  if (targetType === ExercisePrescriptionTargetType.DurationSeconds) {
+  if (type === ExerciseType.DurationSeconds) {
     return {
       target: {
         reps: null,
@@ -78,42 +81,32 @@ export function normalizedSets(prescription: ExercisePrescription) {
     return prescription.sets;
   }
 
-  if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
-    return [targetForType(ExercisePrescriptionTargetType.SetsReps)];
+  if (prescription.type === ExerciseType.SetsReps) {
+    return [targetForType(ExerciseType.SetsReps)];
   }
 
-  if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
-    return [targetForType(ExercisePrescriptionTargetType.DurationSeconds)];
+  if (prescription.type === ExerciseType.DurationSeconds) {
+    return [targetForType(ExerciseType.DurationSeconds)];
   }
 
-  return [targetForType(ExercisePrescriptionTargetType.DistanceMeters)];
+  return [targetForType(ExerciseType.DistanceMeters)];
 }
 
-export function inferPrescriptionFromMechanic(
-  mechanic: string | null | undefined,
+export function inferPrescriptionFromType(
+  type: ExerciseType | null | undefined,
 ): ExercisePrescription {
-  const normalized = (mechanic ?? "").toLowerCase();
-
-  if (
-    normalized.includes("static") ||
-    normalized.includes("isometric") ||
-    normalized.includes("hold")
-  ) {
+  if (type === ExerciseType.DurationSeconds) {
     return {
-      targetType: ExercisePrescriptionTargetType.DurationSeconds,
+      type: ExerciseType.DurationSeconds,
       sets: [
         { target: { reps: null, durationSeconds: 30, distanceMeters: null, weightKg: null, note: null }, actual: null },
       ],
     };
   }
 
-  if (
-    normalized.includes("running") ||
-    normalized.includes("carry") ||
-    normalized.includes("distance")
-  ) {
+  if (type === ExerciseType.DistanceMeters) {
     return {
-      targetType: ExercisePrescriptionTargetType.DistanceMeters,
+      type: ExerciseType.DistanceMeters,
       sets: [
         { target: { reps: null, durationSeconds: null, distanceMeters: 1000, weightKg: null, note: null }, actual: null },
       ],
@@ -121,7 +114,7 @@ export function inferPrescriptionFromMechanic(
   }
 
   return {
-    targetType: ExercisePrescriptionTargetType.SetsReps,
+    type: ExerciseType.SetsReps,
     sets: [
       { target: { reps: null, durationSeconds: null, distanceMeters: null, weightKg: null, note: null }, actual: null },
     ],
@@ -133,7 +126,7 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
     return null;
   }
 
-  if (prescription.targetType === ExercisePrescriptionTargetType.SetsReps) {
+  if (prescription.type === ExerciseType.SetsReps) {
     if (prescription.sets?.length) {
       const reps = prescription.sets
         .map((x) => x.target?.reps)
@@ -153,7 +146,7 @@ export function formatPrescription(prescription: ExercisePrescription | null | u
     return null;
   }
 
-  if (prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds) {
+  if (prescription.type === ExerciseType.DurationSeconds) {
     if (prescription.sets?.length) {
       const values = prescription.sets
         .map((x) => x.target?.durationSeconds)

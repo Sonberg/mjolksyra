@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { ExerciseCard } from "./ExerciseCard"
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription"
+import { ExerciseType } from "@/lib/exercisePrescription"
 
 const meta = {
   title: "ExerciseCard",
@@ -18,7 +18,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const setsRepsPrescription = {
-  targetType: ExercisePrescriptionTargetType.SetsReps,
+  type: ExerciseType.SetsReps,
   sets: [
     { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 80, note: null }, actual: null },
     { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 80, note: null }, actual: null },

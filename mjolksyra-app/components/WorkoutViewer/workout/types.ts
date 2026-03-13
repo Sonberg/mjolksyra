@@ -1,4 +1,4 @@
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription";
+import { ExerciseType } from "@/lib/exercisePrescription";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 
 export type WorkoutExercise = PlannedWorkout["exercises"][number];
@@ -27,7 +27,7 @@ export type UpdateSetActualInput = {
 };
 
 export type GetSetTargetLabel = (
-  targetType: ExercisePrescriptionTargetType | undefined,
+  targetType: ExerciseType | undefined,
   target: {
     reps: number | null;
     durationSeconds: number | null;

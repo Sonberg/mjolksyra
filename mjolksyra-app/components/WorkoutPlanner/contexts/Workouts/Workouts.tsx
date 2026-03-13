@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   createContext,
   useCallback,
@@ -49,18 +50,22 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
 
       console.log("reloading ", month.monthId);
 
-      const { data } = await get({
-        traineeId,
-        fromDate: month.startOfMonth,
-        toDate: month.endOfMonth,
-        limit: 32,
-        signal,
-      });
+      try {
+        const { data } = await get({
+          traineeId,
+          fromDate: month.startOfMonth,
+          toDate: month.endOfMonth,
+          limit: 32,
+          signal,
+        });
 
-      dispatch({
-        type: "SET_MONTH",
-        payload: { monthId: month.monthId, workouts: data },
-      });
+        dispatch({
+          type: "SET_MONTH",
+          payload: { monthId: month.monthId, workouts: data },
+        });
+      } catch (err) {
+        if (!axios.isCancel(err)) throw err;
+      }
     },
     [months, get, traineeId]
   );

@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { CheckCircle2Icon, RotateCcwIcon } from "lucide-react";
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription";
+import { ExerciseType } from "@/lib/exercisePrescription";
 import Link from "next/link";
 import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
 import {
@@ -286,11 +286,11 @@ export function Workout({
       | null
       | undefined,
   ) {
-    if (targetType === ExercisePrescriptionTargetType.DurationSeconds) {
+    if (targetType === ExerciseType.DurationSeconds) {
       return `${target?.durationSeconds ?? "-"} s`;
     }
 
-    if (targetType === ExercisePrescriptionTargetType.DistanceMeters) {
+    if (targetType === ExerciseType.DistanceMeters) {
       return `${target?.distanceMeters ?? "-"} m`;
     }
 

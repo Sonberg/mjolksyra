@@ -3,7 +3,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { AthleteWorkoutLogger } from "./AthleteWorkoutLogger"
 import { PlannedWorkout } from "@/services/plannedWorkouts/type"
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription"
+import { ExerciseType } from "@/lib/exercisePrescription"
 
 const meta = {
   title: "AthleteWorkoutLogger/AthleteWorkoutLogger",
@@ -32,9 +32,8 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isPublished: true,
       isDone: false,
-      images: [],
       prescription: {
-        targetType: ExercisePrescriptionTargetType.SetsReps,
+        type: ExerciseType.SetsReps,
         sets: [
           { target: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 80, note: null }, actual: null },
           { target: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 80, note: null }, actual: null },
@@ -49,9 +48,8 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isPublished: true,
       isDone: false,
-      images: [],
       prescription: {
-        targetType: ExercisePrescriptionTargetType.SetsReps,
+        type: ExerciseType.SetsReps,
         sets: [
           { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 50, note: null }, actual: null },
           { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 50, note: null }, actual: null },
@@ -65,7 +63,6 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isPublished: true,
       isDone: false,
-      images: [],
       prescription: null,
     },
   ],

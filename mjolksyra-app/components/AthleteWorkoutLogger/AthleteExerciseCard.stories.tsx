@@ -2,7 +2,7 @@
 
 import type { Meta, StoryObj } from "@storybook/react"
 import { AthleteExerciseCard } from "./AthleteExerciseCard"
-import { ExercisePrescriptionTargetType } from "@/lib/exercisePrescription"
+import { ExerciseType } from "@/lib/exercisePrescription"
 import { WorkoutExercise } from "@/components/WorkoutViewer/workout/types"
 
 const meta = {
@@ -19,9 +19,8 @@ const baseExercise: WorkoutExercise = {
   note: null,
   isPublished: true,
   isDone: false,
-  images: [],
   prescription: {
-    targetType: ExercisePrescriptionTargetType.SetsReps,
+    type: ExerciseType.SetsReps,
     sets: [
       { target: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 100, note: null }, actual: null },
       { target: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 100, note: null }, actual: null },
@@ -110,7 +109,7 @@ export const DurationType: Story = {
         ...baseExercise,
         name: "Plank Hold",
         prescription: {
-          targetType: ExercisePrescriptionTargetType.DurationSeconds,
+          type: ExerciseType.DurationSeconds,
           sets: [
             { target: { reps: null, durationSeconds: 60, distanceMeters: null, weightKg: null, note: null }, actual: null },
             { target: { reps: null, durationSeconds: 60, distanceMeters: null, weightKg: null, note: null }, actual: null },
@@ -128,7 +127,7 @@ export const DistanceType: Story = {
         ...baseExercise,
         name: "5K Run",
         prescription: {
-          targetType: ExercisePrescriptionTargetType.DistanceMeters,
+          type: ExerciseType.DistanceMeters,
           sets: [
             { target: { reps: null, durationSeconds: null, distanceMeters: 5000, weightKg: null, note: null }, actual: null },
           ],

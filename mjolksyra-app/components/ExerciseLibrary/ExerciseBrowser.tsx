@@ -51,6 +51,8 @@ export function ExerciseBrowser({ exercies }: Props) {
     browser.fetchNextPage();
   }, [browser, isEndIntersecting]);
 
+  console.log(browser);
+
   if (!browser.isFetched) {
     return null;
   }
@@ -61,7 +63,9 @@ export function ExerciseBrowser({ exercies }: Props) {
         <h3 className="font-[var(--font-display)] text-sm tracking-[0.08em] text-[var(--shell-ink)]">
           Browser
         </h3>
-        <span className="text-xs text-[var(--shell-muted)]">{browser.data.length}</span>
+        <span className="text-xs text-[var(--shell-muted)]">
+          {browser.data.length}
+        </span>
       </div>
 
       <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">

@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 import { AddExerciseAction } from "../parse";
 import { TransformResult } from "./";
 import { PLANNED_AT } from "@/constants/dateFormats";
-import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
+import { inferPrescriptionFromType, ExerciseType } from "@/lib/exercisePrescription";
 
 export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
   const workoutExists = (): TransformResult => {
@@ -21,8 +21,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
               note: "",
               isPublished: false,
               isDone: false,
-              prescription: inferPrescriptionFromMechanic(action.exercise.mechanic),
-              images: [],
+              prescription: inferPrescriptionFromType(action.exercise.type as ExerciseType | null | undefined),
             },
           ],
         },
@@ -51,8 +50,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
               note: "",
               isPublished: false,
               isDone: false,
-              prescription: inferPrescriptionFromMechanic(action.exercise.mechanic),
-              images: [],
+              prescription: inferPrescriptionFromType(action.exercise.type as ExerciseType | null | undefined),
             },
           ],
         },

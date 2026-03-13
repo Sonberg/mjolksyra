@@ -37,7 +37,8 @@ export function ExerciseRow({ exercise, exercises }: Props) {
     },
   });
 
-  const hoverCard = useCallback((title: string, value: string | null) => {
+  const hoverCard = useCallback((title: string, value: string | string[] | null) => {
+    if (Array.isArray(value)) value = value.length ? value.join(", ") : null;
     if (!value) {
       return null;
     }
@@ -83,10 +84,9 @@ export function ExerciseRow({ exercise, exercises }: Props) {
             <HoverCardContent className="z-30 w-72 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
               <div className="mb-4 font-semibold text-[var(--shell-ink)]">{exercise.name}</div>
               <div className="grid grid-cols-2 gap-2">
-                {hoverCard("Category", exercise.category)}
-                {hoverCard("Force", exercise.force)}
+                {hoverCard("Sports", exercise.sports)}
                 {hoverCard("Level", exercise.level)}
-                {hoverCard("Mechanic", exercise.mechanic)}
+                {hoverCard("Type", exercise.type)}
               </div>
             </HoverCardContent>
           </HoverCard>

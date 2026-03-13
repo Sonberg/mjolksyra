@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ExercisePrescription,
-  ExercisePrescriptionTargetType,
+  ExerciseType,
   targetForType,
   normalizedSets,
 } from "@/lib/exercisePrescription";
@@ -19,8 +19,8 @@ type Props = {
 
 function defaultPrescription(): ExercisePrescription {
   return {
-    targetType: ExercisePrescriptionTargetType.SetsReps,
-    sets: [targetForType(ExercisePrescriptionTargetType.SetsReps)],
+    type: ExerciseType.SetsReps,
+    sets: [targetForType(ExerciseType.SetsReps)],
   };
 }
 
@@ -62,11 +62,11 @@ export function ExercisePrescriptionEditor({
     onChange({ ...prescription, sets: nextSets });
   }
 
-  function updateTargetType(targetType: ExercisePrescription["targetType"]) {
+  function updateType(type: ExercisePrescription["type"]) {
     const sourceSet = sets[0];
     onChange({
-      targetType,
-      sets: [targetForType(targetType, sourceSet?.target)],
+      type,
+      sets: [targetForType(type, sourceSet?.target)],
     });
   }
 
@@ -74,7 +74,7 @@ export function ExercisePrescriptionEditor({
     const sourceSet = sets[sets.length - 1] ?? sets[0];
     onChange({
       ...prescription,
-      sets: [...sets, targetForType(prescription.targetType, sourceSet?.target)],
+      sets: [...sets, targetForType(prescription.type, sourceSet?.target)],
     });
   }
 
@@ -87,16 +87,16 @@ export function ExercisePrescriptionEditor({
   return (
     <div className="space-y-2">
       <select
-        value={prescription.targetType}
-        onChange={(ev) => updateTargetType(ev.target.value as ExercisePrescription["targetType"])}
+        value={prescription.type}
+        onChange={(ev) => updateType(ev.target.value as ExercisePrescription["type"])}
         className={cn(
           "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 text-[var(--shell-ink)]",
           isSm ? "h-8 text-xs" : "mb-2 py-2 text-sm",
         )}
       >
-        <option value={ExercisePrescriptionTargetType.SetsReps}>Sets + reps</option>
-        <option value={ExercisePrescriptionTargetType.DurationSeconds}>Static hold time</option>
-        <option value={ExercisePrescriptionTargetType.DistanceMeters}>Distance</option>
+        <option value={ExerciseType.SetsReps}>Sets + reps</option>
+        <option value={ExerciseType.DurationSeconds}>Static hold time</option>
+        <option value={ExerciseType.DistanceMeters}>Distance</option>
       </select>
 
       <div className="space-y-2">
@@ -129,7 +129,7 @@ export function ExercisePrescriptionEditor({
             </div>
 
             <div className="space-y-2">
-              {prescription.targetType === ExercisePrescriptionTargetType.SetsReps ? (
+              {prescription.type === ExerciseType.SetsReps ? (
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <input
@@ -187,7 +187,7 @@ export function ExercisePrescriptionEditor({
                 </div>
               ) : null}
 
-              {prescription.targetType === ExercisePrescriptionTargetType.DurationSeconds ? (
+              {prescription.type === ExerciseType.DurationSeconds ? (
                 <div className="relative w-40">
                   <input
                     type="number"
@@ -216,7 +216,7 @@ export function ExercisePrescriptionEditor({
                 </div>
               ) : null}
 
-              {prescription.targetType === ExercisePrescriptionTargetType.DistanceMeters ? (
+              {prescription.type === ExerciseType.DistanceMeters ? (
                 <div className="relative w-40">
                   <input
                     type="number"

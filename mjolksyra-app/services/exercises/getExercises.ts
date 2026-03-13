@@ -15,6 +15,7 @@ export async function getExercises({ cursor, signal }: Args) {
     signal,
   });
   const parsed = await paginated(schema).safeParseAsync(response.data);
+  console.log(response.data, parsed);
 
   if (!parsed.success) {
     throw new Error("Failed to parse data");

@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 import { Payload } from "./parse";
 import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { PlannedExercise } from "@/services/plannedWorkouts/type";
-import { inferPrescriptionFromMechanic } from "@/lib/exercisePrescription";
+import { inferPrescriptionFromType, ExerciseType } from "@/lib/exercisePrescription";
 
 type Event = DragStartEvent | DragOverEvent | DragEndEvent;
 
@@ -36,7 +36,7 @@ export function getExercise(event: Event, clone: boolean) {
       exerciseId: activeData.exercise.id,
       isPublished: false,
       isDone: false,
-      prescription: inferPrescriptionFromMechanic(activeData.exercise.mechanic),
+      prescription: inferPrescriptionFromType(activeData.exercise.type as ExerciseType | null | undefined),
     } as PlannedExercise;
   }
 

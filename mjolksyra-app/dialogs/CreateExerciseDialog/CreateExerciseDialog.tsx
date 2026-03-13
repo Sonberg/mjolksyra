@@ -23,11 +23,9 @@ import { useUser } from "@clerk/nextjs";
 
 const schema = z.object({
   name: z.string(),
-  force: z.string().nullable(),
+  sport: z.string().nullable(),
   level: z.string().nullable(),
-  mechanic: z.string().nullable(),
-  category: z.string().nullable(),
-  images: z.array(z.string()),
+  type: z.string().nullable(),
 });
 
 type Values = z.infer<typeof schema>;
@@ -62,11 +60,9 @@ export function CreateExerciseDialog({ trigger, exercises }: Props) {
     schema,
     values: {
       name: "",
-      force: null,
+      sport: null,
       level: null,
-      mechanic: null,
-      category: null,
-      images: [],
+      type: null,
       ...values,
     },
   });

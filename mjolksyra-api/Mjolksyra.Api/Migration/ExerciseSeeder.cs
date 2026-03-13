@@ -31,7 +31,8 @@ public class ExerciseSeeder : BackgroundService
 
             var exercises = JsonSerializer.Deserialize<List<Exercise>>(content, new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
             });
 
             await context.Exercises.InsertManyAsync(exercises, new InsertManyOptions(), stoppingToken);

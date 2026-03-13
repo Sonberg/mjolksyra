@@ -1,6 +1,6 @@
 import { CheckCircle2Icon, CircleIcon } from "lucide-react";
 import {
-  ExercisePrescriptionTargetType,
+  ExerciseType,
   formatPrescription,
 } from "@/lib/exercisePrescription";
 import { WorkoutExerciseSetCard } from "./WorkoutExerciseSetCard";
@@ -108,8 +108,8 @@ export function WorkoutExerciseCard({
               set={set}
               setIndex={setIndex}
               targetType={
-                exercise.prescription?.targetType as
-                  | ExercisePrescriptionTargetType
+                exercise.prescription?.type as
+                  | ExerciseType
                   | undefined
               }
               isEditable={viewerMode === "athlete"}
