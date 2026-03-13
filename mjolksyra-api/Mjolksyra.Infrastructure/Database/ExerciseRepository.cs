@@ -43,8 +43,8 @@ public class ExerciseRepository : IExerciseRepository
 
     public async Task<ICollection<Exercise>> Search(
         string? freeText,
-        ExerciseSport? sport,
-        ExerciseLevel? level,
+        ICollection<ExerciseSport> sports,
+        ICollection<ExerciseLevel> levels,
         Guid? createdBy,
         CancellationToken cancellationToken = default)
     {
@@ -53,14 +53,14 @@ public class ExerciseRepository : IExerciseRepository
             Builders<Exercise>.Filter.Eq(x => x.DeletedAt, null)
         };
 
-        if (sport.HasValue)
+        if (sports.Count > 0)
         {
-            baseFilters.Add(Builders<Exercise>.Filter.AnyIn(x => x.Sports, [sport.Value]));
+            baseFilters.Add(Builders<Exercise>.Filter.AnyIn(x => x.Sports, sports));
         }
 
-        if (level.HasValue)
+        if (levels.Count > 0)
         {
-            baseFilters.Add(Builders<Exercise>.Filter.Eq(x => x.Level, level.Value));
+            baseFilters.Add(Builders<Exercise>.Filter.Or(levels.Select(l => Builders<Exercise>.Filter.Eq(x => x.Level, l))));
         }
 
         if (createdBy.HasValue)

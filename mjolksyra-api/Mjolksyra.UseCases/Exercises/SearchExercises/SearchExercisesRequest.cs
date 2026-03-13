@@ -8,9 +8,9 @@ public class SearchExercisesRequest : IRequest<PaginatedResponse<ExerciseRespons
 {
     public string FreeText { get; set; } = string.Empty;
 
-    public ExerciseSport? Sport { get; set; }
+    public ICollection<ExerciseSport> Sports { get; set; } = [];
 
-    public ExerciseLevel? Level { get; set; }
+    public ICollection<ExerciseLevel> Levels { get; set; } = [];
 
     public bool CreatedByMe { get; set; }
 }

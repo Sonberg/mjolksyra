@@ -36,8 +36,8 @@ export function ExerciseQuickSearchOverlay({
       (searchExercisesFn ?? searchExercisesService)({
         freeText: trimmedSearch,
         filters: {
-          sport: null,
-          level: null,
+          sports: [],
+          levels: [],
           createdByMe: false,
         },
         signal,

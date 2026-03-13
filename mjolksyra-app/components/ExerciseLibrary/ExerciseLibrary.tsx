@@ -9,7 +9,7 @@ import { ExerciseSearch } from "./ExerciseSearch";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
-import { SingleSelect } from "../Select/SingleSelect";
+import { MultiSelect } from "../Select/MultiSelect";
 
 import { CreateExerciseDialog } from "@/dialogs/CreateExerciseDialog";
 import { CreateExercise } from "@/services/exercises/createExercise";
@@ -41,8 +41,8 @@ export function ExerciseLibrary({ exercies }: Props) {
   const [searchMode, setSearchMode] = useState(false);
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [freeText, setFreeText] = useState("");
-  const [sport, setSport] = useState<string | null>(null);
-  const [level, setLevel] = useState<string | null>(null);
+  const [sports, setSports] = useState<string[]>([]);
+  const [levels, setLevels] = useState<string[]>([]);
   const [createdByMe, setCreatedByMe] = useState(false);
 
   const { isSignedIn } = useUser();
@@ -61,14 +61,14 @@ export function ExerciseLibrary({ exercies }: Props) {
 
   const filters = useMemo(
     () => ({
-      sport,
-      level,
+      sports,
+      levels,
       createdByMe,
     }),
-    [sport, level, createdByMe],
+    [sports, levels, createdByMe],
   );
 
-  const hasActiveFilters = sport !== null || level !== null || createdByMe;
+  const hasActiveFilters = sports.length > 0 || levels.length > 0 || createdByMe;
 
   const isSearching =
     (searchMode || filterPanelOpen) &&
@@ -106,8 +106,8 @@ export function ExerciseLibrary({ exercies }: Props) {
                   setSearchMode(false);
                   setFilterPanelOpen(false);
                   setFreeText("");
-                  setSport(null);
-                  setLevel(null);
+                  setSports([]);
+                  setLevels([]);
                   setCreatedByMe(false);
                 }}
               >
@@ -147,17 +147,17 @@ export function ExerciseLibrary({ exercies }: Props) {
 
           {filterPanelOpen ? (
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <SingleSelect
+              <MultiSelect
                 placeholder="Sport"
                 options={getSelectOptions("sport", exerciseSport)}
-                value={sport}
-                setSelectedOption={setSport}
+                selectedOptions={sports}
+                setSelectedOptions={setSports}
               />
-              <SingleSelect
+              <MultiSelect
                 placeholder="Level"
                 options={getSelectOptions("level")}
-                value={level}
-                setSelectedOption={setLevel}
+                selectedOptions={levels}
+                setSelectedOptions={setLevels}
               />
               <div className="col-span-2 flex items-center justify-between rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
                 <Label

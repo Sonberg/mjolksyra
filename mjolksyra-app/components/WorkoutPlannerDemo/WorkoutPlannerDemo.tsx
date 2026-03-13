@@ -150,8 +150,8 @@ export function WorkoutPlannerDemo() {
                 return demoExerciseSearch({
                   freeText,
                   filters: {
-                    sport: null,
-                    level: null,
+                    sports: [],
+                    levels: [],
                     createdByMe: false,
                   },
                   signal: new AbortController().signal,

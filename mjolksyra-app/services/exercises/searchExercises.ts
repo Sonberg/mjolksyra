@@ -7,8 +7,8 @@ import { paginated } from "../schema";
 type Args = {
   freeText: string;
   filters: {
-    sport: string | null;
-    level: string | null;
+    sports: string[];
+    levels: string[];
     createdByMe: boolean;
   };
   signal: AbortSignal;
@@ -21,8 +21,8 @@ export async function searchExercises({ freeText, filters, signal }: Args) {
     "/api/exercises/search",
     {
       freeText,
-      sport: filters.sport,
-      level: filters.level,
+      sports: filters.sports,
+      levels: filters.levels,
       createdByMe: filters.createdByMe,
     },
     {

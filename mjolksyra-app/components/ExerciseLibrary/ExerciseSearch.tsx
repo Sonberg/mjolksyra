@@ -9,8 +9,8 @@ import { SearchExercises } from "@/services/exercises/searchExercises";
 type Props = {
   freeText: string;
   filters: {
-    sport: string | null;
-    level: string | null;
+    sports: string[];
+    levels: string[];
     createdByMe: boolean;
   };
   exercises: {
@@ -24,8 +24,8 @@ type Props = {
 export function ExerciseSearch({ freeText, filters, exercises }: Props) {
   const { data, isFetching } = useSearchExercises({ freeText, filters, exercises });
   const hasQuery = freeText.trim().length > 0
-    || filters.sport !== null
-    || filters.level !== null
+    || filters.sports.length > 0
+    || filters.levels.length > 0
     || filters.createdByMe;
 
   return (
