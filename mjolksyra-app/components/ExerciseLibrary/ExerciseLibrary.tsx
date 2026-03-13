@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "../ui/input";
 import { useMemo, useState } from "react";
 import { ExerciseStarred } from "./ExerciseStarred";
@@ -23,6 +23,8 @@ import { ApiClient } from "@/services/client";
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@clerk/nextjs";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
+import { cn } from "@/lib/utils";
+import { exerciseSport } from "@/lib/exerciseSport";
 
 type Props = {
   exercies: {
@@ -37,6 +39,7 @@ type Props = {
 
 export function ExerciseLibrary({ exercies }: Props) {
   const [searchMode, setSearchMode] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [freeText, setFreeText] = useState("");
   const [sport, setSport] = useState<string | null>(null);
   const [level, setLevel] = useState<string | null>(null);
@@ -47,7 +50,7 @@ export function ExerciseLibrary({ exercies }: Props) {
     queryKey: ["exercises/options"],
     queryFn: async () => {
       const response = await ApiClient.get<Record<string, string[]>>(
-        "/api/exercises/options"
+        "/api/exercises/options",
       );
 
       return response.data!;
@@ -62,19 +65,23 @@ export function ExerciseLibrary({ exercies }: Props) {
       level,
       createdByMe,
     }),
-    [sport, level, createdByMe]
+    [sport, level, createdByMe],
   );
 
-  const hasActiveFilters =
-    sport !== null
-    || level !== null
-    || createdByMe;
+  const hasActiveFilters = sport !== null || level !== null || createdByMe;
 
-  const isSearching = searchMode && (freeText.trim().length > 0 || hasActiveFilters);
+  const isSearching =
+    (searchMode || filterPanelOpen) &&
+    (freeText.trim().length > 0 || hasActiveFilters);
 
-  const getSelectOptions = (key: "sport" | "level") =>
+  const getSelectOptions = (
+    key: "sport" | "level",
+    mapper?: (value: string) => string,
+  ) =>
     (options.data?.[key] ?? []).map((value) => ({
-      label: capitalizeFirstLetter(value),
+      label: mapper
+        ? capitalizeFirstLetter(mapper(value))
+        : capitalizeFirstLetter(value),
       value,
     }));
 
@@ -91,12 +98,13 @@ export function ExerciseLibrary({ exercies }: Props) {
                 Drag exercises directly into your planner.
               </p>
             </div>
-            {searchMode ? (
+            {searchMode || filterPanelOpen ? (
               <button
                 style={{ fontSize: "0.7rem" }}
                 className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1 font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
                 onClick={() => {
                   setSearchMode(false);
+                  setFilterPanelOpen(false);
                   setFreeText("");
                   setSport(null);
                   setLevel(null);
@@ -108,22 +116,40 @@ export function ExerciseLibrary({ exercies }: Props) {
             ) : null}
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--shell-muted)]" />
-            <Input
-              placeholder={searchMode ? "Find by name or keyword" : "Search exercises"}
-              className="h-9 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] pl-8 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
-              value={freeText}
-              onFocus={() => setSearchMode(true)}
-              onChange={(event) => setFreeText(event.target.value)}
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--shell-muted)]" />
+              <Input
+                placeholder={
+                  searchMode ? "Find by name or keyword" : "Search exercises"
+                }
+                className="h-9 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] pl-8 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
+                value={freeText}
+                onFocus={() => setSearchMode(true)}
+                onChange={(event) => setFreeText(event.target.value)}
+              />
+            </div>
+            <button
+              onClick={() => {
+                setFilterPanelOpen((prev) => !prev);
+                setSearchMode(true);
+              }}
+              className={cn(
+                "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border-2 border-[var(--shell-border)] transition",
+                filterPanelOpen || hasActiveFilters
+                  ? "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]"
+                  : "bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] hover:text-[var(--shell-ink)]",
+              )}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </button>
           </div>
 
-          {searchMode ? (
+          {filterPanelOpen ? (
             <div className="mt-3 grid grid-cols-2 gap-2">
               <SingleSelect
                 placeholder="Sport"
-                options={getSelectOptions("sport")}
+                options={getSelectOptions("sport", exerciseSport)}
                 value={sport}
                 setSelectedOption={setSport}
               />
@@ -134,13 +160,18 @@ export function ExerciseLibrary({ exercies }: Props) {
                 setSelectedOption={setLevel}
               />
               <div className="col-span-2 flex items-center justify-between rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
-                <Label htmlFor="created-by-me" className="text-xs font-medium text-[var(--shell-ink)]">
+                <Label
+                  htmlFor="created-by-me"
+                  className="text-xs font-medium text-[var(--shell-ink)]"
+                >
                   Created by me
                 </Label>
                 <Switch
                   id="created-by-me"
                   checked={createdByMe}
-                  onCheckedChange={(checked) => setCreatedByMe(checked === true)}
+                  onCheckedChange={(checked) =>
+                    setCreatedByMe(checked === true)
+                  }
                 />
               </div>
             </div>
@@ -148,7 +179,11 @@ export function ExerciseLibrary({ exercies }: Props) {
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-24">
           {isSearching ? (
-            <ExerciseSearch freeText={freeText} filters={filters} exercises={exercies} />
+            <ExerciseSearch
+              freeText={freeText}
+              filters={filters}
+              exercises={exercies}
+            />
           ) : (
             <>
               <ExerciseStarred exercises={exercies} />

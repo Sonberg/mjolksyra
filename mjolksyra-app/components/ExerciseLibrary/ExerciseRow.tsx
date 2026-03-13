@@ -16,6 +16,7 @@ import { DeleteExercise } from "@/services/exercises/deleteExercise";
 import { StarExercise } from "@/services/exercises/starExercise";
 import { StarredExercises } from "@/services/exercises/starredExercises";
 import { exerciseType } from "@/lib/exerciseType";
+import { exerciseSport } from "@/lib/exerciseSport";
 
 type Props = {
   exercise: Exercise;
@@ -38,19 +39,26 @@ export function ExerciseRow({ exercise, exercises }: Props) {
     },
   });
 
-  const hoverCard = useCallback((title: string, value: string | string[] | null) => {
-    if (Array.isArray(value)) value = value.length ? value.join(", ") : null;
-    if (!value) {
-      return null;
-    }
+  const hoverCard = useCallback(
+    (title: string, value: string | string[] | null) => {
+      if (Array.isArray(value)) value = value.length ? value.join(", ") : null;
+      if (!value) {
+        return null;
+      }
 
-    return (
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
-        <div className="mb-1 text-xs font-semibold text-[var(--shell-ink)]">{title}</div>
-        <div className="text-xs text-[var(--shell-muted)]">{capitalizeFirstLetter(value)}</div>
-      </div>
-    );
-  }, []);
+      return (
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
+          <div className="mb-1 text-xs font-semibold text-[var(--shell-ink)]">
+            {title}
+          </div>
+          <div className="text-xs text-[var(--shell-muted)]">
+            {capitalizeFirstLetter(value)}
+          </div>
+        </div>
+      );
+    },
+    [],
+  );
 
   return useMemo(
     () => (
@@ -83,9 +91,11 @@ export function ExerciseRow({ exercise, exercises }: Props) {
               </div>
             </div>
             <HoverCardContent className="z-30 w-72 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
-              <div className="mb-4 font-semibold text-[var(--shell-ink)]">{exercise.name}</div>
+              <div className="mb-4 font-semibold text-[var(--shell-ink)]">
+                {exercise.name}
+              </div>
               <div className="grid grid-cols-1 gap-2">
-                {hoverCard("Sports", exercise.sports)}
+                {hoverCard("Sports", exercise.sports.map(exerciseSport))}
                 {hoverCard("Level", exercise.level)}
                 {hoverCard("Type", exerciseType(exercise.type))}
               </div>
@@ -94,6 +104,6 @@ export function ExerciseRow({ exercise, exercises }: Props) {
         </div>
       </>
     ),
-    [setNodeRef, listeners, attributes, exercise, exercises, hoverCard]
+    [setNodeRef, listeners, attributes, exercise, exercises, hoverCard],
   );
 }
