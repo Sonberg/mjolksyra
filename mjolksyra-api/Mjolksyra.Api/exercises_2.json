@@ -1831,5 +1831,909 @@
     "sports": [
       "Calisthenics"
     ]
+  },
+  {
+    "name": "Clean",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Clean Deadlift",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Clean Shrug",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Snatch Shrug",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Clean from Blocks",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Power Clean from Blocks",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Snatch from Blocks",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Power Snatch from Blocks",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Hang Clean - Below the Knees",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Hang Snatch - Below Knees",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Frankenstein Squat",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting"
+    ]
+  },
+  {
+    "name": "Heaving Snatch Balance",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting"
+    ]
+  },
+  {
+    "name": "Jerk Balance",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting"
+    ]
+  },
+  {
+    "name": "Jerk Dip Squat",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting"
+    ]
+  },
+  {
+    "name": "Power Jerk",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Split Clean",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting"
+    ]
+  },
+  {
+    "name": "Split Snatch",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting"
+    ]
+  },
+  {
+    "name": "Romanian Deadlift from Deficit",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "OlympicWeightlifting",
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Floor Press",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Dumbbell Floor Press",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Glute Ham Raise",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Bench Press with Chains",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Deadlift with Bands",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Deadlift with Chains",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Squat with Bands",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Squat with Chains",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Box Squat with Bands",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Reverse Band Bench Press",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Reverse Band Deadlift",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Reverse Band Sumo Deadlift",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Sumo Deadlift with Bands",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Sumo Deadlift with Chains",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Barbell Hip Thrust",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Barbell Glute Bridge",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Pin Presses",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Speed Box Squat",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Kneeling Squat",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Goblet Squat",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Bent Over Barbell Row",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Powerlifting"
+    ]
+  },
+  {
+    "name": "Barbell Lunge",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Dumbbell Lunges",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Trap Bar Deadlift",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Zercher Squats",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Rope Climb",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Hyperextensions (Back Extensions)",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Inverted Row",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional",
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Weighted Pull Ups",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Barbell Hack Squat",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Decline Push-Up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Incline Push-Up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Plyo Push-up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Single-Arm Push-Up",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Alternating Renegade Row",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Single Leg Glute Bridge",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Reverse Crunch",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Oblique Crunches",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Kettlebell Windmill",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Kettlebell Thruster",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Kettlebell Sumo High Pull",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Kettlebell Pistol Squat",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "One-Arm Kettlebell Snatch",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "One-Arm Kettlebell Clean",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "One-Arm Kettlebell Clean and Jerk",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Mountain Climbers",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Split Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Scissors Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Knee Tuck Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Box Jump (Multiple Response)",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Front Box Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Lateral Box Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Lateral Bound",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Hurdle Hops",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Standing Long Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Sledgehammer Swings",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Rocket Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Star Jump",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "Atlas Stones",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Backward Drag",
+    "level": "Beginner",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Bear Crawl Sled Drags",
+    "level": "Beginner",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Forward Drag with Press",
+    "level": "Intermediate",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Sled Drag - Harness",
+    "level": "Beginner",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Circus Bell",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Rickshaw Carry",
+    "level": "Intermediate",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Rickshaw Deadlift",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Power Stairs",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Keg Load",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Sandbag Load",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Crucifix",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Strongman"
+    ]
+  },
+  {
+    "name": "Prowler Sprint",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Crossfit"
+    ]
+  },
+  {
+    "name": "Child's Pose",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Hamstring Stretch",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Kneeling Hip Flexor",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Superman",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Groiners",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Frog Hops",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Windmills",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "90/90 Hamstring",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Crossover Reverse Lunge",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
   }
 ]
