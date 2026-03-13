@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { shellRoleLinkClass, shellSegmentedContainerClass } from "./shellStyles";
+import { shellSectionTabClass, shellSegmentedContainerClass } from "./shellStyles";
 
 type SelectionTabSize = "sm" | "md" | "lg";
 
@@ -41,14 +41,14 @@ export function SelectionTabs({
     <div
       role="tablist"
       aria-orientation="horizontal"
-      className={cn(shellSegmentedContainerClass, className)}
+      className={cn(shellSegmentedContainerClass, "border-0 divide-x-0", className)}
       tabIndex={0}
       data-orientation="horizontal"
     >
       {items.map((item) => {
         const isActive = item.key === activeKey;
         const baseClass = cn(
-          shellRoleLinkClass(isActive),
+          shellSectionTabClass(isActive),
           sizeClassBySize[size],
           fullWidth && "flex-1 text-center",
           itemClassName,
