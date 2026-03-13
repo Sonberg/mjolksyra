@@ -105,7 +105,7 @@ export const CalculatorSection = ({
         </div>
 
         <div className="mb-6 border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b-2 border-[var(--home-border)] pb-2">
             <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
               Plan
             </span>
