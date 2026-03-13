@@ -15,6 +15,7 @@ import { ExerciseRowDelete } from "./ExerciseRowDelete";
 import { DeleteExercise } from "@/services/exercises/deleteExercise";
 import { StarExercise } from "@/services/exercises/starExercise";
 import { StarredExercises } from "@/services/exercises/starredExercises";
+import { exerciseType } from "@/lib/exerciseType";
 
 type Props = {
   exercise: Exercise;
@@ -83,10 +84,10 @@ export function ExerciseRow({ exercise, exercises }: Props) {
             </div>
             <HoverCardContent className="z-30 w-72 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
               <div className="mb-4 font-semibold text-[var(--shell-ink)]">{exercise.name}</div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {hoverCard("Sports", exercise.sports)}
                 {hoverCard("Level", exercise.level)}
-                {hoverCard("Type", exercise.type)}
+                {hoverCard("Type", exerciseType(exercise.type))}
               </div>
             </HoverCardContent>
           </HoverCard>

@@ -9,6 +9,7 @@ import {
   targetForType,
   normalizedSets,
 } from "@/lib/exercisePrescription";
+import { exerciseType } from "@/lib/exerciseType";
 
 type Props = {
   prescription: ExercisePrescription | null;
@@ -88,15 +89,23 @@ export function ExercisePrescriptionEditor({
     <div className="space-y-2">
       <select
         value={prescription.type}
-        onChange={(ev) => updateType(ev.target.value as ExercisePrescription["type"])}
+        onChange={(ev) =>
+          updateType(ev.target.value as ExercisePrescription["type"])
+        }
         className={cn(
           "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 text-[var(--shell-ink)]",
           isSm ? "h-8 text-xs" : "mb-2 py-2 text-sm",
         )}
       >
-        <option value={ExerciseType.SetsReps}>Sets + reps</option>
-        <option value={ExerciseType.DurationSeconds}>Static hold time</option>
-        <option value={ExerciseType.DistanceMeters}>Distance</option>
+        <option value={ExerciseType.SetsReps}>
+          {exerciseType(ExerciseType.SetsReps)}
+        </option>
+        <option value={ExerciseType.DurationSeconds}>
+          {exerciseType(ExerciseType.DurationSeconds)}
+        </option>
+        <option value={ExerciseType.DistanceMeters}>
+          {exerciseType(ExerciseType.DistanceMeters)}
+        </option>
       </select>
 
       <div className="space-y-2">
@@ -108,7 +117,12 @@ export function ExercisePrescriptionEditor({
               isSm ? "p-2" : "p-3",
             )}
           >
-            <div className={cn("flex items-center justify-between", isSm ? "mb-1.5" : "mb-2")}>
+            <div
+              className={cn(
+                "flex items-center justify-between",
+                isSm ? "mb-1.5" : "mb-2",
+              )}
+            >
               <p
                 className={cn(
                   "font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]",
@@ -138,7 +152,9 @@ export function ExercisePrescriptionEditor({
                       value={set.target?.reps ?? ""}
                       onChange={(ev) =>
                         patchSetTarget(setIndex, {
-                          reps: ev.target.value ? Number(ev.target.value) : null,
+                          reps: ev.target.value
+                            ? Number(ev.target.value)
+                            : null,
                         })
                       }
                       className={cn(
@@ -165,7 +181,9 @@ export function ExercisePrescriptionEditor({
                       value={set.target?.weightKg ?? ""}
                       onChange={(ev) =>
                         patchSetTarget(setIndex, {
-                          weightKg: ev.target.value ? Number(ev.target.value) : null,
+                          weightKg: ev.target.value
+                            ? Number(ev.target.value)
+                            : null,
                         })
                       }
                       className={cn(
@@ -195,7 +213,9 @@ export function ExercisePrescriptionEditor({
                     value={set.target?.durationSeconds ?? ""}
                     onChange={(ev) =>
                       patchSetTarget(setIndex, {
-                        durationSeconds: ev.target.value ? Number(ev.target.value) : null,
+                        durationSeconds: ev.target.value
+                          ? Number(ev.target.value)
+                          : null,
                       })
                     }
                     className={cn(
@@ -224,7 +244,9 @@ export function ExercisePrescriptionEditor({
                     value={set.target?.distanceMeters ?? ""}
                     onChange={(ev) =>
                       patchSetTarget(setIndex, {
-                        distanceMeters: ev.target.value ? Number(ev.target.value) : null,
+                        distanceMeters: ev.target.value
+                          ? Number(ev.target.value)
+                          : null,
                       })
                     }
                     className={cn(
