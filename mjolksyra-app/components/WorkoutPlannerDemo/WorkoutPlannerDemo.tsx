@@ -47,7 +47,7 @@ function createInitialExercises(): Exercise[] {
   return names.map((name) => ({
     id: v4(),
     name,
-    sport: null,
+    sports: [],
     level: null,
     type: null,
     starred: false,
@@ -169,9 +169,12 @@ export function WorkoutPlannerDemo() {
                 );
               },
               create: async (val) => {
-                const newExercise = {
+                const newExercise: Exercise = {
                   id: v4(),
-                  ...val,
+                  name: val.name,
+                  sports: val.sport ? [val.sport as Exercise["sports"][number]] : [],
+                  level: val.level as Exercise["level"],
+                  type: val.type as Exercise["type"],
                   canDelete: true,
                   starred: false,
                 };

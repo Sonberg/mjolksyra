@@ -20,22 +20,27 @@ public class ExerciseSeeder : BackgroundService
         using var scope = _serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<IMongoDbContext>();
-        var first = await context.Exercises
+        var count = await context.Exercises
             .Find(Builders<Exercise>.Filter.Empty)
-            .FirstOrDefaultAsync(cancellationToken: stoppingToken);
+            .CountDocumentsAsync(cancellationToken: stoppingToken);
 
-        if (first is null)
+        if (count > 0)
         {
-            var reader = new StreamReader("./exercises_2.json");
-            var content = await reader.ReadToEndAsync(stoppingToken);
-
-            var exercises = JsonSerializer.Deserialize<List<Exercise>>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
-            });
-
-            await context.Exercises.InsertManyAsync(exercises, new InsertManyOptions(), stoppingToken);
+            return;
         }
+
+        var reader = new StreamReader("./exercises_2.json");
+        var content = await reader.ReadToEndAsync(stoppingToken);
+
+        var exercises = JsonSerializer.Deserialize<List<Exercise>>(content, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters =
+            {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true)
+            }
+        });
+
+        await context.Exercises.InsertManyAsync(exercises, new InsertManyOptions(), stoppingToken);
     }
 }

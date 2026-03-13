@@ -1560,5 +1560,276 @@
     "type": "SetsReps",
     "createdAt": "2026-01-01T00:00:00Z",
     "sports": []
+  },
+  {
+    "name": "Pull-Up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Chest-Supported Row",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Barbell Overhead Press",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Powerlifting",
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Single-Arm Dumbbell Row",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Bulgarian Split Squat",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Walking Lunges",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding",
+      "Functional"
+    ]
+  },
+  {
+    "name": "Seated Hamstring Curl",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Cable Triceps Extension",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Bodybuilding"
+    ]
+  },
+  {
+    "name": "Hanging Leg Raise",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "30s Bike Sprint",
+    "level": "Intermediate",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional"
+    ]
+  },
+  {
+    "name": "1000m Row",
+    "level": "Intermediate",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Functional",
+      "Hyrox"
+    ]
+  },
+  {
+    "name": "Easy Run",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Tempo Run",
+    "level": "Intermediate",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Interval Run",
+    "level": "Intermediate",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Dynamic Warmup Flow",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Hip Mobility Warmup",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Ankle Activation Warmup",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Band Shoulder Warmup",
+    "level": "Beginner",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": []
+  },
+  {
+    "name": "Chin-Up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Dip",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Push-Up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Pike Push-Up",
+    "level": "Beginner",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Handstand Push-Up",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Muscle-Up (Bar)",
+    "level": "Expert",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "L-Sit Hold",
+    "level": "Intermediate",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Front Lever Hold",
+    "level": "Expert",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Human Flag Hold",
+    "level": "Expert",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Ring Pull-Up",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Archer Push-Up",
+    "level": "Intermediate",
+    "type": "SetsReps",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Wall Handstand Hold",
+    "level": "Intermediate",
+    "type": "DurationSeconds",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
+  },
+  {
+    "name": "Handstand Walk",
+    "level": "Expert",
+    "type": "DistanceMeters",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "sports": [
+      "Calisthenics"
+    ]
   }
 ]
