@@ -79,7 +79,7 @@ export const CalculatorSection = ({
   const platformCost = computePlanCost(selectedPlan, athleteCount);
   const netRevenue = monthlyRevenue - platformCost;
   const overageAthletes = Math.max(0, athleteCount - selectedPlan.includedAthletes);
-  const athleteSliderPct = ((athleteCount - 1) / 19) * 100;
+  const athleteSliderPct = ((athleteCount - 1) / 29) * 100;
   const feeSliderPct = (monthlyFee / 5000) * 100;
 
   const planItems = plans.map((plan) => ({
