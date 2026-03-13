@@ -10,6 +10,7 @@ using Mjolksyra.UseCases.Admin.GetDiscountCodes;
 using Mjolksyra.UseCases.Admin.GetFeedbackReports;
 using Mjolksyra.UseCases.Admin.UpdateFeedbackReportStatus;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
+using Mjolksyra.UseCases.Trainees.TriggerMissingSubscriptionsForUser;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -85,6 +86,14 @@ public class AdminController(IMediator mediator, IUserContext userContext, IUser
             Failed = failed,
             Errors = errors
         });
+    }
+
+    [HttpPost("athletes/{athleteUserId:guid}/trigger-missing-subscriptions")]
+    public async Task<ActionResult> TriggerMissingAthleteSubscriptions(Guid athleteUserId, CancellationToken ct)
+    {
+        if (!await userContext.IsAdminAsync(ct)) return Forbid();
+        await mediator.Send(new TriggerMissingSubscriptionsForUserCommand(athleteUserId), ct);
+        return Ok();
     }
 
     [HttpGet("discount-codes")]

@@ -10,7 +10,7 @@ type Props = {
 export function UsersTab({ initialCoaches }: Props) {
   const [coaches, setCoaches] = useState(initialCoaches);
   const [syncingCoachId, setSyncingCoachId] = useState<string | null>(null);
-  const [isSyncingAll, setIsSyncingAll] = useState(false);
+  const [syncingAthleteId, setSyncingAthleteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [syncSummary, setSyncSummary] = useState<string | null>(null);
   const [selectedCoachId, setSelectedCoachId] = useState<string>(
@@ -57,55 +57,44 @@ export function UsersTab({ initialCoaches }: Props) {
     }
   }
 
-  async function syncAll() {
+  async function syncAthlete(athleteUserId: string) {
     try {
       setError(null);
       setSyncSummary(null);
-      setIsSyncingAll(true);
-      const res = await fetch("/api/admin/coaches/ensure-platform-subscriptions", {
+      setSyncingAthleteId(athleteUserId);
+      const res = await fetch(`/api/admin/athletes/${athleteUserId}/trigger-missing-subscriptions`, {
         method: "POST",
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        throw new Error(body?.title ?? "Failed to sync all coach subscriptions.");
+        throw new Error(body?.title ?? "Failed to sync athlete subscription.");
       }
-      const body = (await res.json()) as { total: number; success: number; failed: number };
       await refreshRevenue();
-      setSyncSummary(`Synced ${body.success}/${body.total} coaches. Failed: ${body.failed}.`);
+      setSyncSummary("Athlete subscription sync triggered.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to sync all coach subscriptions.");
+      setError(e instanceof Error ? e.message : "Failed to sync athlete subscription.");
     } finally {
-      setIsSyncingAll(false);
+      setSyncingAthleteId(null);
     }
   }
 
   return (
     <div className="space-y-4">
       <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h2 className="text-lg text-[var(--shell-ink)]">Coachs & Athletes</h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              Monthly athlete revenue, coach billing setup, athlete statuses, and subscription sync actions.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void syncAll()}
-            disabled={isSyncingAll}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)] disabled:opacity-50"
-          >
-            {isSyncingAll ? "Syncing..." : "Sync all subscriptions"}
-          </button>
+        <div>
+          <h2 className="text-lg text-[var(--shell-ink)]">Coachs & Athletes</h2>
+          <p className="mt-1 text-sm text-[var(--shell-muted)]">
+            Monthly athlete revenue, coach billing setup, athlete statuses, and subscription sync actions.
+          </p>
         </div>
 
         {syncSummary ? (
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
             {syncSummary}
           </p>
         ) : null}
         {error ? (
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-accent)]">
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-accent)]">
             {error}
           </p>
         ) : null}
@@ -147,17 +136,15 @@ export function UsersTab({ initialCoaches }: Props) {
             <div className="space-y-4">
               <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[var(--shell-border)]/30 pb-3">
                 <div>
-                  <h3 className="text-lg font-semibold text-[var(--shell-ink)]">{selectedCoach.coachName}</h3>
+                  <h3 className="text-lg text-[var(--shell-ink)]">{selectedCoach.coachName}</h3>
                   <p className="text-sm text-[var(--shell-muted)]">{selectedCoach.coachEmail}</p>
                 </div>
-                <button
-                  type="button"
-                  disabled={syncingCoachId === selectedCoach.coachUserId || isSyncingAll}
+                <SyncButton
                   onClick={() => void syncCoach(selectedCoach.coachUserId)}
-                  className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)] disabled:opacity-50"
-                >
-                  {syncingCoachId === selectedCoach.coachUserId ? "Syncing..." : "Ensure setup"}
-                </button>
+                  loading={syncingCoachId === selectedCoach.coachUserId}
+                  label="Sync"
+                  size="md"
+                />
               </div>
 
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -183,13 +170,21 @@ export function UsersTab({ initialCoaches }: Props) {
                           <p className="text-sm font-semibold text-[var(--shell-ink)]">{athlete.athleteName}</p>
                           <p className="text-xs text-[var(--shell-muted)]">{athlete.athleteEmail}</p>
                         </div>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <span className="inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
                             {athlete.relationshipStatus}
                           </span>
                           <span className="inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                             {athlete.billingStatus}
                           </span>
+                          {athlete.billingStatus === "Subscription missing" && (
+                            <SyncButton
+                              onClick={() => void syncAthlete(athlete.athleteUserId)}
+                              loading={syncingAthleteId === athlete.athleteUserId}
+                              label="Sync"
+                              size="sm"
+                            />
+                          )}
                         </div>
                       </li>
                     ))}
@@ -203,6 +198,30 @@ export function UsersTab({ initialCoaches }: Props) {
         </section>
       </div>
     </div>
+  );
+}
+
+function SyncButton({
+  onClick,
+  loading,
+  label,
+  size,
+}: {
+  onClick: () => void;
+  loading: boolean;
+  label: string;
+  size: "sm" | "md";
+}) {
+  const base =
+    "rounded-none border-2 border-[var(--shell-ink)] bg-[var(--shell-ink)] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)] hover:bg-transparent hover:text-[var(--shell-ink)] transition-colors disabled:opacity-40";
+  const sizes = {
+    sm: "px-2 py-0.5 text-[11px] tracking-[0.08em]",
+    md: "px-3 py-2 text-xs",
+  };
+  return (
+    <button type="button" onClick={onClick} disabled={loading} className={`${base} ${sizes[size]}`}>
+      {loading ? "Syncing..." : label}
+    </button>
   );
 }
 

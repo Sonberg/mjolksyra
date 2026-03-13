@@ -74,7 +74,7 @@ export function workoutsReducer(
     case "MOVE_EXERCISE":
       return {
         ...state,
-        [action.payload.monthId]: state[action.payload.monthId].map((x) =>
+        [action.payload.monthId]: (state[action.payload.monthId] ?? []).map((x) =>
           x.id === action.payload.plannedWorkoutId
             ? {
                 ...x,
@@ -144,7 +144,7 @@ export function workoutsReducer(
     case "SET_WORKOUT":
       return {
         ...state,
-        [action.payload.monthId]: state[action.payload.monthId].map((x) =>
+        [action.payload.monthId]: (state[action.payload.monthId] ?? []).map((x) =>
           x.id === action.payload.plannedWorkout.id
             ? action.payload.plannedWorkout
             : x,
@@ -154,7 +154,7 @@ export function workoutsReducer(
     case "DELETE_WORKOUT":
       return {
         ...state,
-        [action.payload.monthId]: state[action.payload.monthId].filter(
+        [action.payload.monthId]: (state[action.payload.monthId] ?? []).filter(
           (x) => x.id !== action.payload.plannedWorkoutId,
         ),
       };

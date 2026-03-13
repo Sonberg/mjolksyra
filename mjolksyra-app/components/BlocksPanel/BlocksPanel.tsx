@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDraggable } from "@dnd-kit/core";
 import { useId } from "react";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Layers } from "lucide-react";
 import Link from "next/link";
 
 import { GetBlocks } from "@/services/blocks/getBlocks";
@@ -137,12 +137,18 @@ export function BlocksPanel({ getBlocks }: Props) {
 
   if (blocks.length === 0) {
     return (
-      <div className="p-4 text-center text-sm text-[var(--shell-muted)]">
-        No blocks yet. Create one at{" "}
-        <Link href="/app/coach/blocks" className="underline">
-          /app/coach/blocks
+      <div className="m-4 rounded-none border-2 border-dashed border-[var(--shell-border)] p-6 text-center">
+        <Layers className="mx-auto mb-3 h-6 w-6 text-[var(--shell-muted)]" />
+        <p className="text-sm font-medium text-[var(--shell-ink)]">No blocks yet</p>
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">
+          Create a block to start building workout plans.
+        </p>
+        <Link
+          href="/app/coach/blocks"
+          className="mt-3 inline-block text-xs underline text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
+        >
+          Go to Blocks
         </Link>
-        .
       </div>
     );
   }
