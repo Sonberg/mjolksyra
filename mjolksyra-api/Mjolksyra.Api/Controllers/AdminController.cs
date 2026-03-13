@@ -46,7 +46,7 @@ public class AdminController(IMediator mediator, IUserContext userContext, IUser
         return Ok(result);
     }
 
-    [HttpPost("coaches/{coachUserId:guid}/ensure-platform-subscription")]
+    [HttpPost("coaches/{coachUserId:guid}/sync-subscriptions")]
     public async Task<ActionResult> EnsureCoachPlatformSubscription(Guid coachUserId, CancellationToken ct)
     {
         if (!await userContext.IsAdminAsync(ct)) return Forbid();
@@ -88,7 +88,7 @@ public class AdminController(IMediator mediator, IUserContext userContext, IUser
         });
     }
 
-    [HttpPost("athletes/{athleteUserId:guid}/trigger-missing-subscriptions")]
+    [HttpPost("athletes/{athleteUserId:guid}/sync-subscriptions")]
     public async Task<ActionResult> TriggerMissingAthleteSubscriptions(Guid athleteUserId, CancellationToken ct)
     {
         if (!await userContext.IsAdminAsync(ct)) return Forbid();

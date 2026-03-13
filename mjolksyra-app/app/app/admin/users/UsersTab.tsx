@@ -41,7 +41,7 @@ export function UsersTab({ initialCoaches }: Props) {
       setError(null);
       setSyncSummary(null);
       setSyncingCoachId(coachUserId);
-      const res = await fetch(`/api/admin/coaches/${coachUserId}/ensure-platform-subscription`, {
+      const res = await fetch(`/api/admin/coaches/${coachUserId}/sync-subscriptions`, {
         method: "POST",
       });
       if (!res.ok) {
@@ -62,7 +62,7 @@ export function UsersTab({ initialCoaches }: Props) {
       setError(null);
       setSyncSummary(null);
       setSyncingAthleteId(athleteUserId);
-      const res = await fetch(`/api/admin/athletes/${athleteUserId}/trigger-missing-subscriptions`, {
+      const res = await fetch(`/api/admin/athletes/${athleteUserId}/sync-subscriptions`, {
         method: "POST",
       });
       if (!res.ok) {
