@@ -145,7 +145,7 @@ export const CalculatorSection = ({
                 <input
                   type="range"
                   min="1"
-                  max="20"
+                  max="30"
                   value={athleteCount}
                   onChange={(e) => setAthleteCount(Number(e.target.value))}
                   style={{
@@ -155,7 +155,7 @@ export const CalculatorSection = ({
                 />
                 <div className="mt-2 flex justify-between text-[10px] text-[var(--home-muted)]">
                   <span>1</span>
-                  <span>20</span>
+                  <span>30</span>
                 </div>
               </div>
             </div>
