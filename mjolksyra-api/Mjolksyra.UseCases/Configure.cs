@@ -1,6 +1,9 @@
 using FluentValidation;
+using Ganss.Xss;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.UseCases.Baseload;
+using Mjolksyra.UseCases.Behaviors;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Mjolksyra.UseCases.Coaches.GetAppliedDiscountCode;
 using Mjolksyra.UseCases.Trainees;
@@ -12,6 +15,10 @@ public static class Configure
 {
     public static void AddUseCases(this IServiceCollection services)
     {
+        var sanitizer = new HtmlSanitizer();
+        sanitizer.AllowedTags.Clear();
+        services.AddSingleton(sanitizer);
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SanitizationBehavior<,>));
         services.AddMediatR(opt => opt.RegisterServicesFromAssemblyContaining<UseCasesAssemblyMarker>());
         services.AddValidatorsFromAssemblyContaining<UseCasesAssemblyMarker>();
         services.AddScoped<ITraineeResponseBuilder, TraineeResponseBuilder>();

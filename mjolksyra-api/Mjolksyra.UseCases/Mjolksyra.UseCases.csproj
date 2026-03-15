@@ -16,6 +16,7 @@
       <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="5.1.0" />
       <PackageReference Include="OneOf" Version="3.0.271" />
       <PackageReference Include="Stripe.net" Version="47.2.0" />
+      <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
     </ItemGroup>
 
 </Project>
