@@ -404,7 +404,7 @@ export function TraineeCard({
 
       <div className="flex flex-wrap gap-3 bg-[var(--shell-surface)] px-5 py-4 md:px-6">
         <button
-          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
+          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
           onClick={() =>
             router.push(`/app/coach/athletes/${trainee.id}/planner`)
           }
@@ -413,7 +413,7 @@ export function TraineeCard({
           Plan workouts
         </button>
         <button
-          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:brightness-95"
           onClick={() =>
             router.push(`/app/coach/athletes/${trainee.id}/workouts`)
           }
