@@ -71,10 +71,17 @@ export function WorkoutMediaGallery({ mediaUrls }: Props) {
         {videos.length > 0 ? (
           <div className="grid gap-2">
             {videos.map((url) => (
+              // preload="metadata" fetches only duration + dimensions upfront so
+              // the seek bar renders immediately without downloading the full clip.
+              // The browser then fires HTTP range requests when the user scrubs to
+              // unbuffered positions — UploadThing's CDN supports Accept-Ranges.
+              // playsInline prevents iOS Safari from forcing fullscreen on play.
               <video
                 key={url}
                 src={url}
                 controls
+                playsInline
+                preload="metadata"
                 className="w-full max-w-md border-2 border-[var(--shell-border)]"
               />
             ))}
