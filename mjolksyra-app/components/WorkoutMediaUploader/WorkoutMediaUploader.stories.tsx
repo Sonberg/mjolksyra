@@ -15,6 +15,8 @@ function Controlled({ initial }: { initial: string[] }) {
   const [mediaUrls, setMediaUrls] = useState<string[]>(initial);
   return (
     <WorkoutMediaUploader
+      traineeId="trainee-1"
+      plannedWorkoutId="workout-1"
       mediaUrls={mediaUrls}
       onUploadComplete={setMediaUrls}
     />
@@ -40,6 +42,8 @@ export const WithExistingUploads: Story = {
 export const Disabled: Story = {
   render: () => (
     <WorkoutMediaUploader
+      traineeId="trainee-1"
+      plannedWorkoutId="workout-1"
       mediaUrls={["https://placehold.co/200x200?text=Photo"]}
       onUploadComplete={() => {}}
       isPending

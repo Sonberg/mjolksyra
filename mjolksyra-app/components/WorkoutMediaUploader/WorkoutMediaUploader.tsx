@@ -5,6 +5,8 @@ import { useCallback, useRef } from "react";
 import { ImageIcon, VideoIcon, XIcon, UploadIcon } from "lucide-react";
 
 type Props = {
+  traineeId: string;
+  plannedWorkoutId: string;
   mediaUrls: string[];
   onUploadComplete: (urls: string[]) => void;
   isPending?: boolean;
@@ -23,7 +25,13 @@ function getFilename(url: string) {
   }
 }
 
-export function WorkoutMediaUploader({ mediaUrls, onUploadComplete, isPending }: Props) {
+export function WorkoutMediaUploader({
+  traineeId,
+  plannedWorkoutId,
+  mediaUrls,
+  onUploadComplete,
+  isPending,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { startUpload, isUploading } = useUploadThing("workoutImage", {
@@ -51,12 +59,15 @@ export function WorkoutMediaUploader({ mediaUrls, onUploadComplete, isPending }:
       const images = files.filter((f) => f.type.startsWith("image/"));
       const videos = files.filter((f) => f.type.startsWith("video/"));
 
-      if (images.length) await startUpload(images);
-      if (videos.length) await startVideoUpload(videos);
+      // Pass traineeId + plannedWorkoutId as validated input — stored as metadata
+      // on every file, enabling targeted cleanup via the UploadThing API.
+      const input = { traineeId, plannedWorkoutId };
+      if (images.length) await startUpload(images, input);
+      if (videos.length) await startVideoUpload(videos, input);
 
       if (inputRef.current) inputRef.current.value = "";
     },
-    [startUpload, startVideoUpload, mediaUrls],
+    [startUpload, startVideoUpload, traineeId, plannedWorkoutId, mediaUrls],
   );
 
   const removeUrl = (urlToRemove: string) => {

@@ -2,17 +2,30 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { createRouteHandler } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import { auth } from "@clerk/nextjs/server";
+import { z } from "zod";
 
 const f = createUploadthing();
+
+const uploadInput = z.object({
+  traineeId: z.string(),
+  plannedWorkoutId: z.string(),
+});
 
 export const ourFileRouter = {
   workoutImage: f({
     image: { maxFileSize: "4MB", maxFileCount: 10 },
   })
-    .middleware(async () => {
+    .input(uploadInput)
+    .middleware(async ({ input }) => {
       const { userId } = await auth();
       if (!userId) throw new UploadThingError("Unauthorized");
-      return { userId };
+      // Return folder context as metadata — stored with every file.
+      // Enables listing/deleting all media for a workout via the UploadThing API.
+      return {
+        userId,
+        traineeId: input.traineeId,
+        plannedWorkoutId: input.plannedWorkoutId,
+      };
     })
     .onUploadComplete(async ({ file }) => {
       return { url: file.ufsUrl };
@@ -21,10 +34,15 @@ export const ourFileRouter = {
   workoutVideo: f({
     video: { maxFileSize: "256MB", maxFileCount: 3 },
   })
-    .middleware(async () => {
+    .input(uploadInput)
+    .middleware(async ({ input }) => {
       const { userId } = await auth();
       if (!userId) throw new UploadThingError("Unauthorized");
-      return { userId };
+      return {
+        userId,
+        traineeId: input.traineeId,
+        plannedWorkoutId: input.plannedWorkoutId,
+      };
     })
     .onUploadComplete(async ({ file }) => {
       return { url: file.ufsUrl };

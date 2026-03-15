@@ -353,6 +353,8 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
             />
             <div className="mt-3">
               <WorkoutMediaUploader
+                traineeId={traineeId}
+                plannedWorkoutId={workout.id}
                 mediaUrls={mediaUrls}
                 onUploadComplete={setMediaUrls}
                 isPending={saveCompletion.isPending}
