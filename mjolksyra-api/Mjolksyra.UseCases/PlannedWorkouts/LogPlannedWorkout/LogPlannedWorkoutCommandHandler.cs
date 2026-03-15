@@ -40,6 +40,7 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
 
         plannedWorkout.CompletedAt = request.Log.CompletedAt;
         plannedWorkout.CompletionNote = request.Log.CompletionNote;
+        plannedWorkout.MediaUrls = request.Log.MediaUrls;
 
         if (request.Log.CompletedAt is null || previousCompletedAt != request.Log.CompletedAt)
         {

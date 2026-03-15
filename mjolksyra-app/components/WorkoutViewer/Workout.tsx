@@ -16,6 +16,7 @@ import {
   ToggleSetDoneInput,
   UpdateSetActualInput,
 } from "./workout/types";
+import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
 
 type Props = {
   workout: PlannedWorkout;
@@ -66,6 +67,7 @@ export function Workout({
         overrides.completionNote !== undefined
           ? overrides.completionNote
           : (workout.completionNote ?? null),
+      mediaUrls: workout.mediaUrls ?? [],
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -505,6 +507,12 @@ export function Workout({
             <p className="mt-1 text-sm text-[var(--shell-ink)]">
               {workout.completionNote}
             </p>
+          </div>
+        ) : null}
+        {(isDetailView || viewerMode === "coach") &&
+        (workout.mediaUrls?.length ?? 0) > 0 ? (
+          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+            <WorkoutMediaGallery mediaUrls={workout.mediaUrls ?? []} />
           </div>
         ) : null}
         {viewerMode === "coach" &&

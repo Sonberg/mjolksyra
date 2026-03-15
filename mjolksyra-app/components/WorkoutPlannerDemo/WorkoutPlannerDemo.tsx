@@ -92,6 +92,7 @@ function createInitialPlannedWorkouts(exercises: Exercise[]): PlannedWorkout[] {
       name: index % 2 === 0 ? "Strength day" : "Mixed day",
       note: index % 2 === 0 ? "Focus on controlled tempo." : null,
       completionNote: null,
+      mediaUrls: [],
       plannedAt: plannedAt.format("YYYY-MM-DD"),
       completedAt: null,
       reviewedAt: null,

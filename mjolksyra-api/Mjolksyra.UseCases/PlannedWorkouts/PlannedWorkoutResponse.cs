@@ -23,6 +23,8 @@ public class PlannedWorkoutResponse
 
     public string? CompletionNote { get; set; }
 
+    public ICollection<string> MediaUrls { get; set; } = [];
+
     public DateTimeOffset? ReviewedAt { get; set; }
 
     public string? ReviewNote { get; set; }
@@ -42,6 +44,7 @@ public class PlannedWorkoutResponse
             PlannedAt = workout.PlannedAt,
             CompletedAt = workout.CompletedAt,
             CompletionNote = workout.CompletionNote,
+            MediaUrls = workout.MediaUrls,
             ReviewedAt = workout.ReviewedAt,
             ReviewNote = workout.ReviewNote,
             AppliedBlock = workout.AppliedBlock is null

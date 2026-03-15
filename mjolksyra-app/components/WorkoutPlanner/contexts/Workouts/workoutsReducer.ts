@@ -113,6 +113,7 @@ export function workoutsReducer(
             traineeId: action.payload.traineeId,
             plannedAt: targetDate,
             exercises: [action.payload.exercise],
+            mediaUrls: [],
             createdAt: null,
             appliedBlock: null,
           };

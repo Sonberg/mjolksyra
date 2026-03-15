@@ -22,6 +22,8 @@ public class PlannedWorkout : IDocument
 
     public string? CompletionNote { get; set; }
 
+    public ICollection<string> MediaUrls { get; set; } = [];
+
     public DateTimeOffset? ReviewedAt { get; set; }
 
     public string? ReviewNote { get; set; }

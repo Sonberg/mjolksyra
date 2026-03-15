@@ -13,6 +13,8 @@ import {
   ToggleSetDoneInput,
   UpdateSetActualInput,
 } from "@/components/WorkoutViewer/workout/types";
+import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
+import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
 
 type Props = {
   workout: PlannedWorkout;
@@ -26,6 +28,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
   const [completionNote, setCompletionNote] = useState(
     workout.completionNote ?? "",
   );
+  const [mediaUrls, setMediaUrls] = useState<string[]>(workout.mediaUrls ?? []);
 
   function buildLogPayload(overrides: {
     completedAt?: Date | null;
@@ -51,6 +54,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
         overrides.completionNote !== undefined
           ? overrides.completionNote
           : (workout.completionNote ?? null),
+      mediaUrls,
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -293,6 +297,13 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
           </div>
         ) : null}
 
+        {/* Media gallery (shown after completion) */}
+        {isCompleted && (workout.mediaUrls?.length ?? 0) > 0 ? (
+          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+            <WorkoutMediaGallery mediaUrls={workout.mediaUrls ?? []} />
+          </div>
+        ) : null}
+
         {/* Coach feedback */}
         {workout.reviewNote?.trim() ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
@@ -340,6 +351,13 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               placeholder="How did it feel? Any notes for your coach?"
               className="mt-2 w-full resize-y border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
             />
+            <div className="mt-3">
+              <WorkoutMediaUploader
+                mediaUrls={mediaUrls}
+                onUploadComplete={setMediaUrls}
+                isPending={saveCompletion.isPending}
+              />
+            </div>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"

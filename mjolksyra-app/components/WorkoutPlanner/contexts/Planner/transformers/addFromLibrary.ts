@@ -42,6 +42,7 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
           createdAt: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
           appliedBlock: null,
+          mediaUrls: [],
           exercises: [
             {
               id: v4(),

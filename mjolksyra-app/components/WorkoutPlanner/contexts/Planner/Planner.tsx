@@ -85,6 +85,7 @@ export function PlannerProvider({
               name: null,
               note: null,
               completionNote: null,
+              mediaUrls: [],
               exercises: [cloning.exercise],
               plannedAt: cloning.targetDate,
               createdAt: null,

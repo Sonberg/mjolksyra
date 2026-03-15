@@ -22,6 +22,7 @@ const baseWorkout: PlannedWorkout = {
   completedAt: null,
   reviewedAt: null,
   reviewNote: null,
+  mediaUrls: [],
   createdAt: new Date("2026-03-01"),
   appliedBlock: null,
   exercises: [

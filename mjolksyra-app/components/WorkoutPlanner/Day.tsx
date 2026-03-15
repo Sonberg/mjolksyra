@@ -155,6 +155,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
         name: null,
         note: null,
         completionNote: null,
+        mediaUrls: [],
         plannedAt: date.format(PLANNED_AT),
         completedAt: null,
         reviewedAt: null,
