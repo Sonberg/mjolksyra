@@ -1,8 +1,8 @@
 "use client";
 
 import { useUploadThing } from "@/lib/uploadthing";
-import { useCallback, useRef } from "react";
-import { ImageIcon, VideoIcon, XIcon, UploadIcon } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import { ImageIcon, VideoIcon, XIcon, UploadIcon, Loader2Icon } from "lucide-react";
 
 type Props = {
   traineeId: string;
@@ -12,8 +12,21 @@ type Props = {
   isPending?: boolean;
 };
 
-function isVideoUrl(url: string) {
-  return /\.(mp4|mov|webm|avi)(\?.*)?$/i.test(url);
+type PendingPreview = {
+  localUrl: string; // blob: URL for instant preview
+  isVideo: boolean;
+  name: string;
+};
+
+// UploadThing CDN URLs have no file extension (e.g. https://utfs.io/f/abc123).
+// We tag video URLs with ?ct=video at upload time so detection is reliable.
+// Fall back to extension matching for story fixtures and any pre-tagged URLs.
+export function isVideoUrl(url: string) {
+  try {
+    const ct = new URL(url).searchParams.get("ct");
+    if (ct !== null) return ct === "video";
+  } catch {}
+  return /\.(mp4|mov|webm|avi)(\?|$)/i.test(url);
 }
 
 function getFilename(url: string) {
@@ -33,11 +46,23 @@ export function WorkoutMediaUploader({
   isPending,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pendingPreviews, setPendingPreviews] = useState<PendingPreview[]>([]);
 
   const { startUpload, isUploading } = useUploadThing("workoutImage", {
     onClientUploadComplete: (res) => {
       const newUrls = res.map((f) => f.ufsUrl);
       onUploadComplete([...mediaUrls, ...newUrls]);
+      // Revoke blob URLs for uploaded images and remove from pending
+      setPendingPreviews((prev) => {
+        prev.filter((p) => !p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
+        return prev.filter((p) => p.isVideo);
+      });
+    },
+    onUploadError: () => {
+      setPendingPreviews((prev) => {
+        prev.filter((p) => !p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
+        return prev.filter((p) => p.isVideo);
+      });
     },
   });
 
@@ -45,8 +70,19 @@ export function WorkoutMediaUploader({
     "workoutVideo",
     {
       onClientUploadComplete: (res) => {
-        const newUrls = res.map((f) => f.ufsUrl);
+        // Tag video URLs so isVideoUrl() can identify them without a file extension.
+        const newUrls = res.map((f) => `${f.ufsUrl}?ct=video`);
         onUploadComplete([...mediaUrls, ...newUrls]);
+        setPendingPreviews((prev) => {
+          prev.filter((p) => p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
+          return prev.filter((p) => !p.isVideo);
+        });
+      },
+      onUploadError: () => {
+        setPendingPreviews((prev) => {
+          prev.filter((p) => p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
+          return prev.filter((p) => !p.isVideo);
+        });
       },
     },
   );
@@ -56,11 +92,17 @@ export function WorkoutMediaUploader({
       const files = Array.from(e.target.files ?? []);
       if (!files.length) return;
 
+      // Show local previews immediately — before any network request
+      const previews: PendingPreview[] = files.map((f) => ({
+        localUrl: URL.createObjectURL(f),
+        isVideo: f.type.startsWith("video/"),
+        name: f.name,
+      }));
+      setPendingPreviews((prev) => [...prev, ...previews]);
+
       const images = files.filter((f) => f.type.startsWith("image/"));
       const videos = files.filter((f) => f.type.startsWith("video/"));
 
-      // Pass traineeId + plannedWorkoutId as validated input — stored as metadata
-      // on every file, enabling targeted cleanup via the UploadThing API.
       const input = { traineeId, plannedWorkoutId };
       if (images.length) await startUpload(images, input);
       if (videos.length) await startVideoUpload(videos, input);
@@ -76,6 +118,7 @@ export function WorkoutMediaUploader({
 
   const uploading = isUploading || isVideoUploading;
   const disabled = isPending || uploading;
+  const hasItems = mediaUrls.length > 0 || pendingPreviews.length > 0;
 
   return (
     <div>
@@ -83,8 +126,9 @@ export function WorkoutMediaUploader({
         Media (optional)
       </p>
 
-      {mediaUrls.length > 0 ? (
+      {hasItems ? (
         <div className="mt-2 flex flex-wrap gap-2">
+          {/* Confirmed uploads */}
           {mediaUrls.map((url) =>
             isVideoUrl(url) ? (
               <div
@@ -122,6 +166,33 @@ export function WorkoutMediaUploader({
                 >
                   <XIcon className="h-3 w-3" />
                 </button>
+              </div>
+            ),
+          )}
+
+          {/* Pending previews — shown immediately on file selection, before upload finishes */}
+          {pendingPreviews.map((preview) =>
+            preview.isVideo ? (
+              <div
+                key={preview.localUrl}
+                className="relative flex items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2"
+              >
+                <Loader2Icon className="h-4 w-4 shrink-0 animate-spin text-[var(--shell-muted)]" />
+                <span className="max-w-[140px] truncate text-xs text-[var(--shell-muted)]">
+                  {preview.name}
+                </span>
+              </div>
+            ) : (
+              <div key={preview.localUrl} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview.localUrl}
+                  alt="Uploading..."
+                  className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover opacity-50"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
+                </div>
               </div>
             ),
           )}

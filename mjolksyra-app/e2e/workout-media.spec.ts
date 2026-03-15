@@ -77,23 +77,22 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediagallery-workoutmediagallery--images-only",
     );
 
-    await page.waitForSelector("img[alt='Workout media']", { timeout: 10_000 });
-    const images = page.locator("img[alt='Workout media']");
+    // Gallery uses alt="Workout media N" (e.g. "Workout media 1")
+    await page.waitForSelector("img[alt^='Workout media']", { timeout: 10_000 });
+    const images = page.locator("img[alt^='Workout media']");
     await expect(images).toHaveCount(3);
   });
 
-  test("WorkoutMediaGallery renders videos with controls", async ({ page }) => {
+  test("WorkoutMediaGallery renders video thumbnails", async ({ page }) => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutmediagallery-workoutmediagallery--videos-only",
     );
 
+    // Gallery shows videos as thumbnails (no controls) with a play icon overlay.
+    // Controls only appear when the video is opened in the lightbox.
     await page.waitForSelector("video", { timeout: 10_000 });
     const videos = page.locator("video");
     await expect(videos).toHaveCount(2);
-    // Each video has native controls.
-    for (const video of await videos.all()) {
-      await expect(video).toHaveAttribute("controls", "");
-    }
   });
 
   test("WorkoutMediaGallery renders nothing when empty", async ({ page }) => {
@@ -104,7 +103,7 @@ test.describe("Workout media upload", () => {
     // Give Storybook time to render.
     await page.waitForTimeout(2_000);
 
-    const images = page.locator("img[alt='Workout media']");
+    const images = page.locator("img[alt^='Workout media']");
     await expect(images).toHaveCount(0);
     const videos = page.locator("video");
     await expect(videos).toHaveCount(0);

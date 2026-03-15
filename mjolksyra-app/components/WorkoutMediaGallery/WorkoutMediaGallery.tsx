@@ -1,31 +1,35 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, XIcon, PlayIcon } from "lucide-react";
+import { isVideoUrl } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
 
 type Props = {
   mediaUrls: string[];
 };
 
-function isVideoUrl(url: string) {
-  return /\.(mp4|mov|webm|avi)(\?.*)?$/i.test(url);
-}
+type MediaItem = {
+  url: string;
+  isVideo: boolean;
+};
 
 export function WorkoutMediaGallery({ mediaUrls }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const images = mediaUrls.filter((u) => !isVideoUrl(u));
-  const videos = mediaUrls.filter((u) => isVideoUrl(u));
+  const allMedia: MediaItem[] = mediaUrls.map((url) => ({
+    url,
+    isVideo: isVideoUrl(url),
+  }));
 
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
 
   const prev = useCallback(() => {
-    setLightboxIndex((i) => (i === null ? null : (i - 1 + images.length) % images.length));
-  }, [images.length]);
+    setLightboxIndex((i) => (i === null ? null : (i - 1 + allMedia.length) % allMedia.length));
+  }, [allMedia.length]);
 
   const next = useCallback(() => {
-    setLightboxIndex((i) => (i === null ? null : (i + 1) % images.length));
-  }, [images.length]);
+    setLightboxIndex((i) => (i === null ? null : (i + 1) % allMedia.length));
+  }, [allMedia.length]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -40,6 +44,8 @@ export function WorkoutMediaGallery({ mediaUrls }: Props) {
 
   if (!mediaUrls.length) return null;
 
+  const activeItem = lightboxIndex !== null ? allMedia[lightboxIndex] : null;
+
   return (
     <>
       <div className="grid gap-3">
@@ -47,58 +53,53 @@ export function WorkoutMediaGallery({ mediaUrls }: Props) {
           Media
         </p>
 
-        {images.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {images.map((url, idx) => (
-              <button
-                key={url}
-                type="button"
-                onClick={() => setLightboxIndex(idx)}
-                className="group relative overflow-hidden border-2 border-[var(--shell-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
-                aria-label={`View image ${idx + 1}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="flex flex-wrap gap-2">
+          {allMedia.map((item, idx) => (
+            <button
+              key={item.url}
+              type="button"
+              onClick={() => setLightboxIndex(idx)}
+              className="group relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)] sm:h-32 sm:w-32"
+              aria-label={`${item.isVideo ? "Play video" : "View image"} ${idx + 1}`}
+            >
+              {item.isVideo ? (
+                <>
+                  {/* Loads first frame via preload="metadata" as the thumbnail */}
+                  <video
+                    src={item.url}
+                    preload="metadata"
+                    muted
+                    playsInline
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/85">
+                      <PlayIcon className="h-3 w-3 translate-x-px text-[var(--shell-ink)]" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={url}
+                  src={item.url}
                   alt={`Workout media ${idx + 1}`}
-                  className="h-24 w-24 object-cover transition group-hover:opacity-90 sm:h-32 sm:w-32"
+                  className="h-full w-full object-cover transition group-hover:opacity-90"
                 />
-              </button>
-            ))}
-          </div>
-        ) : null}
-
-        {videos.length > 0 ? (
-          <div className="grid gap-2">
-            {videos.map((url) => (
-              // preload="metadata" fetches only duration + dimensions upfront so
-              // the seek bar renders immediately without downloading the full clip.
-              // The browser then fires HTTP range requests when the user scrubs to
-              // unbuffered positions — UploadThing's CDN supports Accept-Ranges.
-              // playsInline prevents iOS Safari from forcing fullscreen on play.
-              <video
-                key={url}
-                src={url}
-                controls
-                playsInline
-                preload="metadata"
-                className="w-full max-w-md border-2 border-[var(--shell-border)]"
-              />
-            ))}
-          </div>
-        ) : null}
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Lightbox */}
-      {lightboxIndex !== null ? (
+      {/* Unified lightbox — images and videos share the same modal slider */}
+      {activeItem !== null ? (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Image preview"
+          aria-label="Media preview"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
           onClick={closeLightbox}
         >
-          {/* Stop propagation so clicks on the image/controls don't close */}
           <div
             className="relative flex max-h-screen max-w-screen-lg flex-col items-center"
             onClick={(e) => e.stopPropagation()}
@@ -113,33 +114,45 @@ export function WorkoutMediaGallery({ mediaUrls }: Props) {
               <XIcon className="h-4 w-4" />
             </button>
 
-            {/* Image */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={images[lightboxIndex]}
-              alt={`Workout media ${lightboxIndex + 1}`}
-              className="max-h-[85vh] max-w-[90vw] object-contain"
-            />
+            {/* Active item — key forces video to remount when navigating between clips */}
+            {activeItem.isVideo ? (
+              <video
+                key={activeItem.url}
+                src={activeItem.url}
+                controls
+                autoPlay
+                playsInline
+                preload="metadata"
+                className="max-h-[85vh] max-w-[90vw]"
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={activeItem.url}
+                alt={`Workout media ${lightboxIndex! + 1}`}
+                className="max-h-[85vh] max-w-[90vw] object-contain"
+              />
+            )}
 
             {/* Counter + navigation */}
-            {images.length > 1 ? (
+            {allMedia.length > 1 ? (
               <div className="mt-3 flex items-center gap-4">
                 <button
                   type="button"
                   onClick={prev}
                   className="flex h-8 w-8 items-center justify-center bg-white/10 text-white transition hover:bg-white/20"
-                  aria-label="Previous image"
+                  aria-label="Previous"
                 >
                   <ChevronLeftIcon className="h-4 w-4" />
                 </button>
                 <span className="text-xs font-semibold tabular-nums text-white/70">
-                  {lightboxIndex + 1} / {images.length}
+                  {lightboxIndex! + 1} / {allMedia.length}
                 </span>
                 <button
                   type="button"
                   onClick={next}
                   className="flex h-8 w-8 items-center justify-center bg-white/10 text-white transition hover:bg-white/20"
-                  aria-label="Next image"
+                  aria-label="Next"
                 >
                   <ChevronRightIcon className="h-4 w-4" />
                 </button>

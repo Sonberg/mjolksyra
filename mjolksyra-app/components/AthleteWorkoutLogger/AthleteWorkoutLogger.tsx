@@ -338,6 +338,21 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
           />
         ))}
 
+        {/* Media uploader — always visible while workout is in progress so
+            athletes can add photos as they train, before marking complete.
+            mediaUrls is included in every buildLogPayload call, so uploads
+            are persisted to the DB on the next set/exercise interaction. */}
+        {!isCompleted ? (
+          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+            <WorkoutMediaUploader
+              traineeId={traineeId}
+              plannedWorkoutId={workout.id}
+              mediaUrls={mediaUrls}
+              onUploadComplete={setMediaUrls}
+            />
+          </div>
+        ) : null}
+
         {/* Completion form */}
         {isLogging ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
@@ -351,15 +366,19 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               placeholder="How did it feel? Any notes for your coach?"
               className="mt-2 w-full resize-y border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
             />
-            <div className="mt-3">
-              <WorkoutMediaUploader
-                traineeId={traineeId}
-                plannedWorkoutId={workout.id}
-                mediaUrls={mediaUrls}
-                onUploadComplete={setMediaUrls}
-                isPending={saveCompletion.isPending}
-              />
-            </div>
+            {/* When editing a completed workout, show the uploader in the form
+                so media can be added or removed as part of the edit. */}
+            {isCompleted ? (
+              <div className="mt-3">
+                <WorkoutMediaUploader
+                  traineeId={traineeId}
+                  plannedWorkoutId={workout.id}
+                  mediaUrls={mediaUrls}
+                  onUploadComplete={setMediaUrls}
+                  isPending={saveCompletion.isPending}
+                />
+              </div>
+            ) : null}
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
