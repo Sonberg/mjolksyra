@@ -77,7 +77,7 @@ public class TraineeSubscriptionSyncConsumer(
 
         var price = await priceService.CreateAsync(BuildPriceOptions(trainee.Cost), cancellationToken);
 
-        var subscription = await subscriptionService.CreateAsync(new SubscriptionCreateOptions
+        var createOptions = new SubscriptionCreateOptions
         {
             Customer = athlete.Athlete!.Stripe!.CustomerId,
             DefaultPaymentMethod = athlete.Athlete.Stripe.PaymentMethodId,
@@ -93,7 +93,14 @@ public class TraineeSubscriptionSyncConsumer(
             {
                 Destination = coach.Coach.Stripe.AccountId,
             }
-        }, cancellationToken);
+        };
+
+        if (message.BillingMode == TraineeSubscriptionSyncBillingMode.NextCycle)
+        {
+            createOptions.TrialEnd = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(1);
+        }
+
+        var subscription = await subscriptionService.CreateAsync(createOptions, cancellationToken);
 
         trainee.StripeSubscriptionId = subscription.Id;
         await traineeRepository.Update(trainee, cancellationToken);

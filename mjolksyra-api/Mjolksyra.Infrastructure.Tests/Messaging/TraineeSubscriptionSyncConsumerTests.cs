@@ -218,6 +218,40 @@ public class TraineeSubscriptionSyncConsumerTests
     }
 
     [Fact]
+    public async Task Consume_WhenNextCycleAndNoExistingSubscription_CreatesNewSubscriptionWithTrialEnd()
+    {
+        var trainee = BuildTrainee(subscriptionId: null);
+        var athlete = BuildAthlete(trainee.AthleteUserId);
+        var coach = BuildCoach(trainee.CoachUserId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository.Setup(x => x.GetById(trainee.Id, It.IsAny<CancellationToken>())).ReturnsAsync(trainee);
+        traineeRepository.Setup(x => x.Update(It.IsAny<Trainee>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Trainee t, CancellationToken _) => t);
+
+        var userRepository = new Mock<IUserRepository>();
+        userRepository.Setup(x => x.GetById(trainee.AthleteUserId, It.IsAny<CancellationToken>())).ReturnsAsync(athlete);
+        userRepository.Setup(x => x.GetById(trainee.CoachUserId, It.IsAny<CancellationToken>())).ReturnsAsync(coach);
+
+        var priceService = new Mock<IStripePriceService>();
+        priceService.Setup(x => x.CreateAsync(It.IsAny<PriceCreateOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Price { Id = "price_123" });
+
+        var subscriptionService = new Mock<IStripeSubscriptionService>();
+        subscriptionService.Setup(x => x.CreateAsync(It.IsAny<SubscriptionCreateOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Subscription { Id = "sub_new" });
+
+        var consumer = Create(traineeRepository.Object, userRepository.Object, priceService.Object, subscriptionService.Object);
+
+        await consumer.Consume(BuildContext(trainee.Id, TraineeSubscriptionSyncBillingMode.NextCycle).Object);
+
+        subscriptionService.Verify(x => x.CreateAsync(
+            It.Is<SubscriptionCreateOptions>(o => o.TrialEnd != null),
+            It.IsAny<CancellationToken>()), Times.Once);
+        traineeRepository.Verify(x => x.Update(It.Is<Trainee>(t => t.StripeSubscriptionId == "sub_new"), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Consume_WhenNoExistingSubscription_CreatesNewSubscription()
     {
         var trainee = BuildTrainee(subscriptionId: null);

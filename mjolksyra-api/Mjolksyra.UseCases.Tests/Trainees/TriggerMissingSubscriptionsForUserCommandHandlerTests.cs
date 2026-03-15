@@ -37,7 +37,7 @@ public class TriggerMissingSubscriptionsForUserCommandHandlerTests
         syncPublisher.Verify(x => x.Publish(
             It.Is<TraineeSubscriptionSyncMessage>(m =>
                 m.TraineeId == trainee.Id &&
-                m.BillingMode == TraineeSubscriptionSyncBillingMode.ChargeNow),
+                m.BillingMode == TraineeSubscriptionSyncBillingMode.NextCycle),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

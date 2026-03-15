@@ -26,7 +26,7 @@ public class TriggerMissingSubscriptionsForUserCommandHandler
             await _syncPublisher.Publish(new TraineeSubscriptionSyncMessage
             {
                 TraineeId = trainee.Id,
-                BillingMode = TraineeSubscriptionSyncBillingMode.ChargeNow
+                BillingMode = TraineeSubscriptionSyncBillingMode.NextCycle
             }, cancellationToken);
         }
     }
