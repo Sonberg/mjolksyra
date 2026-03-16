@@ -17,6 +17,7 @@ body {
   --shell-surface: #fff7ec;
   --shell-surface-strong: #ecdcc5;
   --shell-ink: #141414;
+  --shell-ink-soft: #2e2e2e;
   --shell-border: #2a241d;
   --shell-muted: #5e5448;
   --shell-accent: #f03a17;
@@ -41,6 +42,7 @@ body {
   --shell-surface: #191615;
   --shell-surface-strong: #24211e;
   --shell-ink: #ede7e4;
+  --shell-ink-soft: #c9c2be;
   --shell-border: #342f2d;
   --shell-muted: #948d89;
   --shell-accent: #ff4520;

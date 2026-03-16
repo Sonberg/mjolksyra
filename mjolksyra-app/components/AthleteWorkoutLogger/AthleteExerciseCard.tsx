@@ -75,7 +75,7 @@ export function AthleteExerciseCard({
           }
           className={`inline-flex shrink-0 items-center gap-1.5 border-2 border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition disabled:opacity-60 ${
             exercise.isDone
-              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+              ? "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]"
               : "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:brightness-95"
           }`}
         >

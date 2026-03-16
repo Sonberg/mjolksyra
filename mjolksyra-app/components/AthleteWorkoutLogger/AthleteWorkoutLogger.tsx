@@ -250,12 +250,14 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
             <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
               {displayName} · {workout.name ?? "Workout"}
             </p>
-            <p className="text-sm text-[var(--shell-muted)]">
-              {date.format("ddd D MMM YYYY")}
-            </p>
+            {["Yesterday", "Today", "Tomorrow"].includes(displayName) ? (
+              <p className="text-sm text-[var(--shell-muted)]">
+                {date.format("ddd D MMM YYYY")}
+              </p>
+            ) : null}
           </div>
           {isCompleted ? (
-            <span className="inline-flex shrink-0 items-center gap-1 border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
+            <span className="inline-flex shrink-0 items-center gap-1 border-2 border-[var(--shell-border)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
               <CheckCircle2Icon className="h-3 w-3" />
               Done
             </span>

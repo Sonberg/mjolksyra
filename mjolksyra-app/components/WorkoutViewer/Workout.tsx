@@ -348,7 +348,7 @@ export function Workout({
             ) : null}
             <div className="flex items-center gap-2">
               {isCompleted ? (
-                <span className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
+                <span className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                   <CheckCircle2Icon className="h-3 w-3" />
                   Completed
                 </span>
@@ -432,7 +432,7 @@ export function Workout({
                 }}
                 className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
               >
-                {isReviewing ? "Hide review details" : "Review details"}
+                {isReviewing ? "Hide feedback" : "Leave feedback"}
               </button>
             </>
           ) : null}
