@@ -3,14 +3,14 @@ import { FlameIcon, DumbbellIcon } from "lucide-react";
 const audiences = [
   {
     title: "Functional",
-    subtitle: "CrossFit, HYROX",
+    subtitle: "CrossFit, HYROX, Calisthenics",
     description:
       "Plan mixed-modal sessions, track conditioning blocks, and keep athletes consistent across strength and engine work.",
     icon: FlameIcon,
   },
   {
     title: "Strength",
-    subtitle: "Bodybuilding, Powerlifting",
+    subtitle: "Bodybuilding, Powerlifting, Strongman, Olympic Weightlifting",
     description:
       "Program progressive overload, structure accessories, and deliver clear week-by-week lifting plans.",
     icon: DumbbellIcon,
