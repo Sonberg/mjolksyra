@@ -68,8 +68,9 @@ export function DayHeader({
                   "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
                   "bg-[var(--shell-ink)] text-[var(--shell-surface)]":
                     isActiveEditor,
-                  "hover:bg-[var(--shell-surface)]": !isActiveEditor,
-                  "hover:bg-[var(--shell-ink-soft)]": isActiveEditor,
+                  "hover:bg-[var(--shell-border)] hover:text-[var(--shell-ink)]":
+                    !isActiveEditor,
+                  "hover:text-[var(--shell-surface)]": isActiveEditor,
                 })}
                 onClick={onToggleEditor}
               >
