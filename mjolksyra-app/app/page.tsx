@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { HeroSection } from "./components/HeroSection";
 import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
@@ -56,6 +57,12 @@ export default async function Home() {
         <StripeSection />
         <FAQSection />
         <CTASection />
+
+        <footer className="pb-10 text-center text-sm" style={{ color: "var(--home-muted)" }}>
+          <Link href="/privacy-policy" className="underline underline-offset-2 hover:opacity-70 transition-opacity">
+            Privacy Policy
+          </Link>
+        </footer>
       </div>
 
       <style>{`
