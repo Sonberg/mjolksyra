@@ -27,6 +27,7 @@ export function DraggingToolTip({
   } | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
+  const showTimerRef = useRef<number | null>(null);
 
   const clearHideTimer = () => {
     if (hideTimerRef.current !== null) {
@@ -35,13 +36,31 @@ export function DraggingToolTip({
     }
   };
 
+  const clearShowTimer = () => {
+    if (showTimerRef.current !== null) {
+      window.clearTimeout(showTimerRef.current);
+      showTimerRef.current = null;
+    }
+  };
+
   const openTooltip = () => {
     clearHideTimer();
+    clearShowTimer();
     setHover(true);
+  };
+
+  const openTooltipSoon = () => {
+    clearHideTimer();
+    clearShowTimer();
+    showTimerRef.current = window.setTimeout(() => {
+      setHover(true);
+      showTimerRef.current = null;
+    }, 400);
   };
 
   const closeTooltipSoon = () => {
     clearHideTimer();
+    clearShowTimer();
     hideTimerRef.current = window.setTimeout(() => {
       setHover(false);
       hideTimerRef.current = null;
@@ -52,6 +71,9 @@ export function DraggingToolTip({
     return () => {
       if (hideTimerRef.current !== null) {
         window.clearTimeout(hideTimerRef.current);
+      }
+      if (showTimerRef.current !== null) {
+        window.clearTimeout(showTimerRef.current);
       }
     };
   }, []);
@@ -88,10 +110,11 @@ export function DraggingToolTip({
     <div
       ref={triggerRef}
       className="relative"
-      onMouseEnter={openTooltip}
+      onMouseEnter={openTooltipSoon}
       onMouseLeave={closeTooltipSoon}
+      onClick={openTooltip}
     >
-      {icon}
+      {icon ? <span className="cursor-pointer">{icon}</span> : null}
       {isHovering && typeof window !== "undefined" && position
         ? createPortal(
             <div

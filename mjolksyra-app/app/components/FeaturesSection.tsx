@@ -14,7 +14,7 @@ const features: Point[] = [
   },
   {
     title: "Extensive exercise library",
-    text: "Access over 800 exercises with detailed instructions.",
+    text: "Access over 250 exercises with detailed instructions.",
     icon: CheckCircle2Icon,
   },
   {

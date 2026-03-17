@@ -6,54 +6,10 @@ import { v4 } from "uuid";
 import { Exercise } from "@/services/exercises/type";
 import type { SearchExercises } from "@/services/exercises/searchExercises";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { search } from "fast-fuzzy";
 import dayjs from "dayjs";
-
-function createInitialExercises(): Exercise[] {
-  const names = [
-    "Bench press",
-    "Incline dumbbell press",
-    "Paused back squat",
-    "Front squat",
-    "Romanian deadlift",
-    "Conventional deadlift",
-    "Pull ups",
-    "Chest-supported row",
-    "Barbell overhead press",
-    "Single-arm dumbbell row",
-    "Bulgarian split squat",
-    "Walking lunges",
-    "Leg press",
-    "Seated hamstring curl",
-    "Cable triceps extension",
-    "Biceps curl",
-    "Hanging leg raise",
-    "Plank hold",
-    "30s bike sprint",
-    "1000m row",
-    "Easy run 20 min",
-    "Tempo run 5 km",
-    "Interval run 8 x 400m",
-    "Assault bike 12 min",
-    "SkiErg 1500m",
-    "Jump rope 5 min",
-    "Dynamic warmup flow",
-    "Hip mobility warmup",
-    "Ankle activation warmup",
-    "Band shoulder warmup",
-  ];
-
-  return names.map((name) => ({
-    id: v4(),
-    name,
-    sports: [],
-    level: null,
-    type: null,
-    starred: false,
-    canDelete: false,
-  }));
-}
+import { getDemoExercises } from "@/services/exercises/getDemoExercises";
 
 function buildPlannedExercise(exercise: Exercise): PlannedExercise {
   return {
@@ -109,14 +65,18 @@ function createInitialPlannedWorkouts(exercises: Exercise[]): PlannedWorkout[] {
 }
 
 export function WorkoutPlannerDemo() {
-  const initialExercises = useMemo(() => createInitialExercises(), []);
-  const initialPlannedWorkouts = useMemo(
-    () => createInitialPlannedWorkouts(initialExercises),
-    [initialExercises],
-  );
+  const [ready, setReady] = useState(false);
+  const exercises = useRef<Exercise[]>([]);
+  const plannedWorkouts = useRef<PlannedWorkout[]>([]);
 
-  const exercises = useRef<Exercise[]>(initialExercises);
-  const plannedWorkouts = useRef<PlannedWorkout[]>(initialPlannedWorkouts);
+  useEffect(() => {
+    getDemoExercises().then(({ data }) => {
+      exercises.current = data;
+      plannedWorkouts.current = createInitialPlannedWorkouts(data);
+      setReady(true);
+    });
+  }, []);
+
   const demoExerciseSearch = useCallback<SearchExercises>(
     async ({ freeText }) => {
       return {
@@ -128,6 +88,14 @@ export function WorkoutPlannerDemo() {
     },
     [],
   );
+
+  if (!ready) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent opacity-40" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full">
