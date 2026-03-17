@@ -154,6 +154,35 @@ test.describe("Workout media upload", () => {
     await expect(page.getByText("Compressing 42%")).toBeVisible();
   });
 
+  test("removing a URL calls DELETE /api/uploadthing/files with correct file key", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--with-existing-uploads",
+    );
+    await page.waitForSelector("button[aria-label='Remove image']", { timeout: 10_000 });
+
+    const deleteRequests: { fileKeys: string[] }[] = [];
+    await page.route("**/api/uploadthing/files", async (route) => {
+      if (route.request().method() === "DELETE") {
+        const body = route.request().postDataJSON();
+        deleteRequests.push(body);
+      }
+      await route.fulfill({ status: 204, body: "" });
+    });
+
+    await page.locator("button[aria-label='Remove image']").first().click();
+
+    // Give the fire-and-forget fetch time to execute
+    await page.waitForTimeout(500);
+
+    expect(deleteRequests.length).toBe(1);
+    expect(deleteRequests[0].fileKeys).toHaveLength(1);
+    // File key should be extracted from the URL (no query params, path segment after /f/)
+    expect(deleteRequests[0].fileKeys[0]).not.toContain("https://");
+    expect(deleteRequests[0].fileKeys[0]).not.toContain("?");
+  });
+
   test("file input shows Compressing label immediately after file selection, then thumbnail", async ({
     page,
   }) => {

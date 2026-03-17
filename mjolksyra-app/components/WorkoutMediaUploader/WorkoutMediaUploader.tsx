@@ -1,6 +1,6 @@
 "use client";
 
-import { useUploadThing } from "@/lib/uploadthing";
+import { useUploadThing, extractFileKey } from "@/lib/uploadthing";
 import { compressImage, compressVideo } from "@/lib/media-compression";
 import { useCallback, useRef, useState } from "react";
 import { ImageIcon, VideoIcon, XIcon, UploadIcon, Loader2Icon } from "lucide-react";
@@ -166,6 +166,12 @@ export function WorkoutMediaUploader({
   );
 
   const removeUrl = (urlToRemove: string) => {
+    // Fire-and-forget: delete the file from UploadThing storage
+    fetch("/api/uploadthing/files", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileKeys: [extractFileKey(urlToRemove)] }),
+    }).catch(() => {});
     onUploadComplete(mediaUrls.filter((u) => u !== urlToRemove));
   };
 
