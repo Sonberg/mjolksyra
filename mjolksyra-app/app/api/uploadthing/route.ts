@@ -32,7 +32,7 @@ export const ourFileRouter = {
     }),
 
   workoutVideo: f({
-    video: { maxFileSize: "256MB", maxFileCount: 3 },
+    video: { maxFileSize: "256MB", maxFileCount: 10 },
   })
     .input(uploadInput)
     .middleware(async ({ input }) => {

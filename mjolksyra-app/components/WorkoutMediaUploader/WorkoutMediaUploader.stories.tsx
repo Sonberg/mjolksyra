@@ -2,6 +2,7 @@
 
 import type { Meta, StoryObj } from "@storybook/react";
 import { WorkoutMediaUploader } from "./WorkoutMediaUploader";
+import type { PendingPreview } from "./WorkoutMediaUploader";
 import { useState } from "react";
 
 const meta = {
@@ -49,4 +50,37 @@ export const Disabled: Story = {
       isPending
     />
   ),
+};
+
+/** Shows the compression UI state — one image and one video mid-compression. */
+export const Compressing: Story = {
+  render: () => {
+    const testPreviews: PendingPreview[] = [
+      {
+        id: "preview-img-1",
+        localUrl: "https://placehold.co/80x80?text=Photo",
+        isVideo: false,
+        name: "workout-photo.jpg",
+        isCompressing: true,
+      },
+      {
+        id: "preview-vid-1",
+        localUrl: "",
+        isVideo: true,
+        name: "workout-video.mp4",
+        isCompressing: true,
+        compressionProgress: 42,
+      },
+    ];
+
+    return (
+      <WorkoutMediaUploader
+        traineeId="trainee-1"
+        plannedWorkoutId="workout-1"
+        mediaUrls={[]}
+        onUploadComplete={() => {}}
+        _testPendingPreviews={testPreviews}
+      />
+    );
+  },
 };

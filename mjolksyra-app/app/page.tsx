@@ -8,6 +8,7 @@ import { FeatureDemosSection } from "./components/FeatureDemosSection";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { CalculatorSection } from "./components/CalculatorSection";
 import { BlockBuilderPreviewSection } from "./components/BlockBuilderPreviewSection";
+import { MediaUploadSection } from "./components/MediaUploadSection";
 import { StripeSection } from "./components/StripeSection";
 import { CTASection } from "./components/CTASection";
 import { getPlans } from "@/services/plans/getPlans";
@@ -50,6 +51,7 @@ export default async function Home() {
         <AudienceSection />
         <FeaturesSection />
         <FeatureDemosSection />
+        <MediaUploadSection />
         <BenefitsSection plans={plans} />
         <CalculatorSection plansOverride={plans} />
         <DemoSection />
