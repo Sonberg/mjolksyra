@@ -112,7 +112,21 @@ export const Completed: Story = {
   ),
 }
 
-/** Shows the header "Complete workout" button disabled while media uploads are pending (Fix 2). */
+/** Incomplete workout with a completion note already typed in. */
+export const NotCompletedWithNote: Story = {
+  render: () => (
+    <AthleteWorkoutLogger
+      workout={{
+        ...baseWorkout,
+        completionNote: "Felt solid today. Bench was smooth.",
+      }}
+      traineeId="trainee-1"
+      backHref="/app/athlete/workouts"
+    />
+  ),
+}
+
+/** Shows "Complete workout" button disabled while media uploads are pending. */
 export const LoggingWithPendingUpload: Story = {
   render: () => (
     <AthleteWorkoutLogger

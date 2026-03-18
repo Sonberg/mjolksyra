@@ -268,15 +268,26 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           ) : null}
           <button
             type="button"
-            disabled={isMediaPending && !isCompleted}
+            disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
             onClick={() => {
-              setCompletionNote(workout.completionNote ?? "");
-              setIsLogging((x) => !x);
+              if (isCompleted) {
+                setCompletionNote(workout.completionNote ?? "");
+                setIsLogging((x) => !x);
+              } else {
+                saveCompletion.mutate({
+                  completedAt: new Date(),
+                  completionNote: completionNote.trim() || null,
+                });
+              }
             }}
             className="hidden shrink-0 items-center gap-1.5 border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60 sm:inline-flex"
           >
             <CheckCircle2Icon className="h-3.5 w-3.5" />
-            {isCompleted ? "Edit completion" : "Complete workout"}
+            {saveCompletion.isPending && !isCompleted
+              ? "Saving..."
+              : isCompleted
+                ? "Edit completion"
+                : "Complete workout"}
           </button>
         </div>
       </div>
@@ -361,8 +372,24 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           </div>
         ) : null}
 
-        {/* Completion form */}
-        {isLogging ? (
+        {/* Completion note — always visible for incomplete workouts */}
+        {!isCompleted ? (
+          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+              Completion note (optional)
+            </p>
+            <textarea
+              value={completionNote}
+              onChange={(e) => setCompletionNote(e.target.value)}
+              rows={3}
+              placeholder="How did it feel? Any notes for your coach?"
+              className="mt-2 w-full resize-y border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+            />
+          </div>
+        ) : null}
+
+        {/* Edit-completion form — only shown for already-completed workouts */}
+        {isLogging && isCompleted ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Completion note (optional)
@@ -376,18 +403,16 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
             />
             {/* When editing a completed workout, show the uploader in the form
                 so media can be added or removed as part of the edit. */}
-            {isCompleted ? (
-              <div className="mt-3">
-                <WorkoutMediaUploader
-                  traineeId={traineeId}
-                  plannedWorkoutId={workout.id}
-                  mediaUrls={mediaUrls}
-                  onUploadComplete={setMediaUrls}
-                  isPending={saveCompletion.isPending}
-                  onPendingChange={setIsMediaPending}
-                />
-              </div>
-            ) : null}
+            <div className="mt-3">
+              <WorkoutMediaUploader
+                traineeId={traineeId}
+                plannedWorkoutId={workout.id}
+                mediaUrls={mediaUrls}
+                onUploadComplete={setMediaUrls}
+                isPending={saveCompletion.isPending}
+                onPendingChange={setIsMediaPending}
+              />
+            </div>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
@@ -423,15 +448,26 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
         <div className="mx-auto max-w-6xl">
           <button
             type="button"
-            disabled={isMediaPending && !isCompleted}
+            disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
             onClick={() => {
-              setCompletionNote(workout.completionNote ?? "");
-              setIsLogging((x) => !x);
+              if (isCompleted) {
+                setCompletionNote(workout.completionNote ?? "");
+                setIsLogging((x) => !x);
+              } else {
+                saveCompletion.mutate({
+                  completedAt: new Date(),
+                  completionNote: completionNote.trim() || null,
+                });
+              }
             }}
             className="flex w-full items-center justify-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] py-4 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
           >
             <CheckCircle2Icon className="h-5 w-5" />
-            {isCompleted ? "Edit completion" : "Complete workout"}
+            {saveCompletion.isPending && !isCompleted
+              ? "Saving..."
+              : isCompleted
+                ? "Edit completion"
+                : "Complete workout"}
           </button>
         </div>
       </div>
