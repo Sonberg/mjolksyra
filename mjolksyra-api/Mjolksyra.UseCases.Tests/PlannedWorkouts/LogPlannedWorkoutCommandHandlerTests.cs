@@ -1,6 +1,7 @@
 using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
 
@@ -115,13 +116,15 @@ public class LogPlannedWorkoutCommandHandlerTests
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
-        Mock<INotificationService>? notificationService = null)
+        Mock<INotificationService>? notificationService = null,
+        Mock<IMediaCompressionPublisher>? mediaCompressionPublisher = null)
     {
         return new LogPlannedWorkoutCommandHandler(
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
-            (notificationService ?? new Mock<INotificationService>()).Object);
+            (notificationService ?? new Mock<INotificationService>()).Object,
+            (mediaCompressionPublisher ?? new Mock<IMediaCompressionPublisher>()).Object);
     }
 
     private static LogPlannedWorkoutCommand CreateCommand(

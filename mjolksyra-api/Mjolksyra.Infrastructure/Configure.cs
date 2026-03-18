@@ -9,6 +9,7 @@ using Mjolksyra.Infrastructure.Clerk;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.Infrastructure.Notifications;
 using Mjolksyra.Infrastructure.Stripe;
 using Mjolksyra.Infrastructure.UploadThing;
@@ -69,6 +70,8 @@ public static class Configure
         services.AddScoped<ITraineeCancellationPublisher, MassTransitTraineeCancellationPublisher>();
         services.AddScoped<IPlannedWorkoutDeletedPublisher, MassTransitPlannedWorkoutDeletedPublisher>();
         services.AddHttpClient<IUploadThingFileDeleter, UploadThingFileDeleter>();
+        services.AddScoped<IUploadThingFileUploader, UploadThingFileUploader>();
+        services.AddScoped<IMediaCompressionPublisher, MassTransitMediaCompressionPublisher>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>

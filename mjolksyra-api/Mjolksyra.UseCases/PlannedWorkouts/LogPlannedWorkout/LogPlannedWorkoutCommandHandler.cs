@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
@@ -15,16 +16,20 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
 
     private readonly INotificationService _notificationService;
 
+    private readonly IMediaCompressionPublisher _mediaCompressionPublisher;
+
     public LogPlannedWorkoutCommandHandler(
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IExerciseRepository exerciseRepository,
         ITraineeRepository traineeRepository,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IMediaCompressionPublisher mediaCompressionPublisher)
     {
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _exerciseRepository = exerciseRepository;
         _traineeRepository = traineeRepository;
         _notificationService = notificationService;
+        _mediaCompressionPublisher = mediaCompressionPublisher;
     }
 
     public async Task<PlannedWorkoutResponse?> Handle(LogPlannedWorkoutCommand request, CancellationToken cancellationToken)
@@ -105,6 +110,17 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
                 body: body,
                 href: $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={plannedWorkout.Id}",
                 cancellationToken: cancellationToken);
+        }
+
+        // Emit compression requests for any raw (uncompressed) URLs
+        foreach (var url in plannedWorkout.MediaUrls.Where(u => u.Contains("raw=1")))
+        {
+            await _mediaCompressionPublisher.Publish(new MediaCompressionRequestedMessage
+            {
+                FileUrl = url,
+                TraineeId = request.TraineeId,
+                PlannedWorkoutId = request.PlannedWorkoutId,
+            }, cancellationToken);
         }
 
         return PlannedWorkoutResponse.From(plannedWorkout, exercises);

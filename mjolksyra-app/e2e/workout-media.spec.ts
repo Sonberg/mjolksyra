@@ -133,25 +133,41 @@ test.describe("Workout media upload", () => {
     await expect(input).toBeDisabled();
   });
 
-  test("Compressing story shows Compressing label and progress for pending previews", async ({
+  // Fix 1: file input is NOT disabled while upload is in progress (no compression phase)
+  test("file input is enabled while upload is in progress (no compression blocking)", async ({
     page,
   }) => {
     await page.goto(
-      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--compressing",
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--uploading",
     );
 
-    // The Compressing story pre-populates pending previews with isCompressing: true
+    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+
+    // The Uploading story pre-populates pending previews but isPending is not set,
+    // so the file input should not be disabled (uploads can be added freely)
+    const input = page.locator("input[type='file']");
+    await expect(input).not.toBeDisabled();
+  });
+
+  // Fix 1: pending previews show "Uploading..." only — no "Compressing..." state
+  test("Uploading story shows Uploading label for pending previews", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--uploading",
+    );
+
     await page.waitForSelector("label[for='workout-media-input']", { timeout: 10_000 });
 
-    // Button label should show "Compressing..."
+    // The button label shows "Add photos / videos" (not "Compressing...")
     const label = page.locator("label[for='workout-media-input']");
-    await expect(label).toContainText("Compressing...");
+    await expect(label).not.toContainText("Compressing");
 
-    // Image preview should show "Compressing" overlay text
-    await expect(page.getByText("Compressing", { exact: true })).toBeVisible();
+    // Video pending preview shows "Uploading..."
+    await expect(page.getByText("Uploading...", { exact: true })).toBeVisible();
 
-    // Video preview should show progress percentage
-    await expect(page.getByText("Compressing 42%")).toBeVisible();
+    // No "Compressing" overlay text anywhere
+    await expect(page.getByText("Compressing", { exact: true })).not.toBeVisible();
   });
 
   test("removing a URL calls DELETE /api/uploadthing/files with correct file key", async ({
@@ -183,7 +199,8 @@ test.describe("Workout media upload", () => {
     expect(deleteRequests[0].fileKeys[0]).not.toContain("?");
   });
 
-  test("file input shows Compressing label immediately after file selection, then thumbnail", async ({
+  // Fix 1: after file selection, shows "Uploading..." immediately (no compression delay)
+  test("file input shows Uploading label immediately after file selection, then returns to idle", async ({
     page,
   }) => {
     await page.goto(
@@ -191,10 +208,10 @@ test.describe("Workout media upload", () => {
     );
     await page.waitForSelector("input[type='file']", { timeout: 10_000 });
 
-    // Mock UploadThing so compression pipeline can complete without real credentials
+    // Mock UploadThing so upload pipeline can complete without real credentials
     await mockUploadThing(page);
 
-    // Attach a tiny 1×1 pixel PNG — small enough that compression starts and finishes fast
+    // Attach a tiny 1×1 pixel PNG
     const pngBuffer = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
       "base64",
@@ -205,13 +222,29 @@ test.describe("Workout media upload", () => {
       buffer: pngBuffer,
     });
 
-    // The compressing overlay appears immediately after file selection
-    await expect(page.getByText("Compressing", { exact: true })).toBeVisible({ timeout: 3_000 });
+    // "Compressing" must NEVER appear (client-side compression removed)
+    await expect(page.getByText("Compressing", { exact: true })).not.toBeVisible();
 
-    // After compression + upload completes the button reverts to idle state
+    // After upload completes the button reverts to idle state
     await expect(page.locator("label[for='workout-media-input']")).toContainText(
       "Add photos / videos",
       { timeout: 30_000 },
     );
+  });
+
+  // Fix 2: "Complete workout" header button disabled while media uploads are pending
+  test("AthleteWorkoutLogger Complete workout button is disabled while media is uploading", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--logging-with-pending-upload",
+    );
+
+    // Wait for the header button to appear (visible on sm+ screens)
+    await page.waitForSelector("button", { timeout: 10_000 });
+
+    // The "Complete workout" button should be disabled when uploads are pending
+    const completeButton = page.getByRole("button", { name: /complete workout/i }).first();
+    await expect(completeButton).toBeDisabled();
   });
 });

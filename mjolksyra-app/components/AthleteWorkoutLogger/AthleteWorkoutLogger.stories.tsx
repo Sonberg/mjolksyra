@@ -112,6 +112,18 @@ export const Completed: Story = {
   ),
 }
 
+/** Shows the header "Complete workout" button disabled while media uploads are pending (Fix 2). */
+export const LoggingWithPendingUpload: Story = {
+  render: () => (
+    <AthleteWorkoutLogger
+      workout={baseWorkout}
+      traineeId="trainee-1"
+      backHref="/app/athlete/workouts"
+      _testIsMediaPending
+    />
+  ),
+};
+
 export const WithNotes: Story = {
   render: () => (
     <AthleteWorkoutLogger

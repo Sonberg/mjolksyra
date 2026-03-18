@@ -22,7 +22,7 @@ public class UploadThingFileDeleter(
         {
             Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
-        request.Headers.Add("x-uploadthing-api-key", options.Value.SecretKey);
+        request.Headers.Add("x-uploadthing-api-key", options.Value.GetApiKey());
 
         var response = await httpClient.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)

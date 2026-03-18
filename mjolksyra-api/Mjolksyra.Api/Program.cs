@@ -153,6 +153,7 @@ builder.Services
         opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
         opt.AddConsumer<TraineeCancellationConsumer>();
         opt.AddConsumer<PlannedWorkoutDeletedConsumer>();
+        opt.AddConsumer<MediaCompressConsumer>();
         opt.AddConsumer<PingPongConsumer>();
 
         var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")

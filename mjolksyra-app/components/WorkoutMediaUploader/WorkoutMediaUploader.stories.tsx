@@ -52,8 +52,8 @@ export const Disabled: Story = {
   ),
 };
 
-/** Shows the compression UI state — one image and one video mid-compression. */
-export const Compressing: Story = {
+/** Shows the upload-in-progress UI state — one image and one video being uploaded. */
+export const Uploading: Story = {
   render: () => {
     const testPreviews: PendingPreview[] = [
       {
@@ -61,15 +61,12 @@ export const Compressing: Story = {
         localUrl: "https://placehold.co/80x80?text=Photo",
         isVideo: false,
         name: "workout-photo.jpg",
-        isCompressing: true,
       },
       {
         id: "preview-vid-1",
         localUrl: "",
         isVideo: true,
         name: "workout-video.mp4",
-        isCompressing: true,
-        compressionProgress: 42,
       },
     ];
 

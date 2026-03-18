@@ -1,9 +1,8 @@
 "use client";
 
 import { useUploadThing, extractFileKey } from "@/lib/uploadthing";
-import { compressImage, compressVideo } from "@/lib/media-compression";
-import { useCallback, useRef, useState } from "react";
-import { ImageIcon, VideoIcon, XIcon, UploadIcon, Loader2Icon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ImageIcon, VideoIcon, XIcon, Loader2Icon } from "lucide-react";
 
 type Props = {
   traineeId: string;
@@ -11,6 +10,7 @@ type Props = {
   mediaUrls: string[];
   onUploadComplete: (urls: string[]) => void;
   isPending?: boolean;
+  onPendingChange?: (hasPending: boolean) => void;
   /** @internal For Storybook and testing only. Pre-populates pending previews. */
   _testPendingPreviews?: PendingPreview[];
 };
@@ -20,8 +20,6 @@ export type PendingPreview = {
   localUrl: string; // blob: URL for instant preview
   isVideo: boolean;
   name: string;
-  isCompressing: boolean;
-  compressionProgress?: number; // 0–100, videos only
 };
 
 // UploadThing CDN URLs have no file extension (e.g. https://utfs.io/f/abc123).
@@ -50,6 +48,7 @@ export function WorkoutMediaUploader({
   mediaUrls,
   onUploadComplete,
   isPending,
+  onPendingChange,
   _testPendingPreviews,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +58,7 @@ export function WorkoutMediaUploader({
 
   const { startUpload, isUploading } = useUploadThing("workoutImage", {
     onClientUploadComplete: (res) => {
-      const newUrls = res.map((f) => f.ufsUrl);
+      const newUrls = res.map((f) => `${f.ufsUrl}?raw=1`);
       onUploadComplete([...mediaUrls, ...newUrls]);
       // Revoke blob URLs for uploaded images and remove from pending
       setPendingPreviews((prev) => {
@@ -80,7 +79,7 @@ export function WorkoutMediaUploader({
     {
       onClientUploadComplete: (res) => {
         // Tag video URLs so isVideoUrl() can identify them without a file extension.
-        const newUrls = res.map((f) => `${f.ufsUrl}?ct=video`);
+        const newUrls = res.map((f) => `${f.ufsUrl}?ct=video&raw=1`);
         onUploadComplete([...mediaUrls, ...newUrls]);
         setPendingPreviews((prev) => {
           prev.filter((p) => p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
@@ -96,69 +95,32 @@ export function WorkoutMediaUploader({
     },
   );
 
+  const uploading = isUploading || isVideoUploading;
+
+  useEffect(() => {
+    onPendingChange?.(uploading);
+  }, [uploading, onPendingChange]);
+
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
       if (!files.length) return;
 
-      // Show local previews immediately — before compression or network requests
+      // Show local previews immediately
       const previews: PendingPreview[] = files.map((f) => ({
         id: crypto.randomUUID(),
         localUrl: URL.createObjectURL(f),
         isVideo: f.type.startsWith("video/"),
         name: f.name,
-        isCompressing: true,
       }));
       setPendingPreviews((prev) => [...prev, ...previews]);
 
-      // Pair each file with its preview for progress tracking
-      const imagePairs = previews
-        .map((p, i) => ({ preview: p, file: files[i] }))
-        .filter(({ preview }) => !preview.isVideo);
-      const videoPairs = previews
-        .map((p, i) => ({ preview: p, file: files[i] }))
-        .filter(({ preview }) => preview.isVideo);
-
-      // Compress images in parallel, falling back to original on error
-      const compressedImages = await Promise.all(
-        imagePairs.map(async ({ preview, file }) => {
-          let compressed = file;
-          try {
-            compressed = await compressImage(file);
-          } catch {
-            // fall back to original file
-          }
-          setPendingPreviews((prev) =>
-            prev.map((p) => (p.id === preview.id ? { ...p, isCompressing: false } : p)),
-          );
-          return compressed;
-        }),
-      );
-
-      // Compress videos sequentially to avoid memory pressure
-      const compressedVideos: File[] = [];
-      for (const { preview, file } of videoPairs) {
-        let compressed = file;
-        try {
-          compressed = await compressVideo(file, (pct) => {
-            setPendingPreviews((prev) =>
-              prev.map((p) =>
-                p.id === preview.id ? { ...p, compressionProgress: pct } : p,
-              ),
-            );
-          });
-        } catch {
-          // fall back to original file
-        }
-        setPendingPreviews((prev) =>
-          prev.map((p) => (p.id === preview.id ? { ...p, isCompressing: false } : p)),
-        );
-        compressedVideos.push(compressed);
-      }
+      const imageFiles = files.filter((f) => !f.type.startsWith("video/"));
+      const videoFiles = files.filter((f) => f.type.startsWith("video/"));
 
       const input = { traineeId, plannedWorkoutId };
-      if (compressedImages.length) await startUpload(compressedImages, input);
-      if (compressedVideos.length) await startVideoUpload(compressedVideos, input);
+      if (imageFiles.length) await startUpload(imageFiles, input);
+      if (videoFiles.length) await startVideoUpload(videoFiles, input);
 
       if (inputRef.current) inputRef.current.value = "";
     },
@@ -175,9 +137,7 @@ export function WorkoutMediaUploader({
     onUploadComplete(mediaUrls.filter((u) => u !== urlToRemove));
   };
 
-  const isCompressing = pendingPreviews.some((p) => p.isCompressing);
-  const uploading = isUploading || isVideoUploading;
-  const disabled = isPending || uploading || isCompressing;
+  const disabled = isPending;
   const hasItems = mediaUrls.length > 0 || pendingPreviews.length > 0;
 
   return (
@@ -239,11 +199,7 @@ export function WorkoutMediaUploader({
               >
                 <Loader2Icon className="h-4 w-4 shrink-0 animate-spin text-[var(--shell-muted)]" />
                 <span className="max-w-[140px] truncate text-xs text-[var(--shell-muted)]">
-                  {preview.isCompressing
-                    ? preview.compressionProgress != null
-                      ? `Compressing ${preview.compressionProgress}%`
-                      : "Compressing..."
-                    : preview.name}
+                  Uploading...
                 </span>
               </div>
             ) : (
@@ -251,16 +207,11 @@ export function WorkoutMediaUploader({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={preview.localUrl}
-                  alt={preview.isCompressing ? "Compressing..." : "Uploading..."}
+                  alt="Uploading..."
                   className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover opacity-50"
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center">
                   <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
-                  {preview.isCompressing && (
-                    <span className="mt-1 text-[9px] font-semibold uppercase tracking-wide text-[var(--shell-ink)]">
-                      Compressing
-                    </span>
-                  )}
                 </div>
               </div>
             ),
@@ -286,22 +237,8 @@ export function WorkoutMediaUploader({
             disabled ? "cursor-not-allowed opacity-60" : "",
           ].join(" ")}
         >
-          {isCompressing ? (
-            <>
-              <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
-              Compressing...
-            </>
-          ) : uploading ? (
-            <>
-              <UploadIcon className="h-3.5 w-3.5 animate-pulse" />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <ImageIcon className="h-3.5 w-3.5" />
-              Add photos / videos
-            </>
-          )}
+          <ImageIcon className="h-3.5 w-3.5" />
+          Add photos / videos
         </label>
       </div>
     </div>
