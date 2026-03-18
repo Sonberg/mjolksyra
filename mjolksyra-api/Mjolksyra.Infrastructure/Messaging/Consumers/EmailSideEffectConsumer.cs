@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Messaging;
 
-namespace Mjolksyra.Infrastructure.Messaging;
+namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 
 public class EmailSideEffectConsumer([FromKeyedServices("direct")] IEmailSender emailSender) : IConsumer<EmailSideEffectMessage>
 {

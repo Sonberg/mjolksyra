@@ -1,4 +1,4 @@
-namespace Mjolksyra.Domain.Database.Models;
+namespace Mjolksyra.Domain.Database.Enum;
 
 public enum TraineeStatus
 {

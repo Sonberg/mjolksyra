@@ -11,6 +11,7 @@ using Mjolksyra.Infrastructure.Email;
 using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.Infrastructure.Notifications;
 using Mjolksyra.Infrastructure.Stripe;
+using Mjolksyra.Infrastructure.UploadThing;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -31,6 +32,11 @@ public static class Configure
         services
             .AddOptions<BrevoOptions>()
             .Bind(configuration.GetSection(BrevoOptions.SectionName))
+            .ValidateOnStart();
+
+        services
+            .AddOptions<UploadThingOptions>()
+            .Bind(configuration.GetSection(UploadThingOptions.SectionName))
             .ValidateOnStart();
 
 #pragma warning disable EXTEXP0018
@@ -61,6 +67,8 @@ public static class Configure
         services.AddScoped<INotificationService, MassTransitNotificationService>();
         services.AddScoped<ITraineeSubscriptionSyncPublisher, MassTransitTraineeSubscriptionSyncPublisher>();
         services.AddScoped<ITraineeCancellationPublisher, MassTransitTraineeCancellationPublisher>();
+        services.AddScoped<IPlannedWorkoutDeletedPublisher, MassTransitPlannedWorkoutDeletedPublisher>();
+        services.AddHttpClient<IUploadThingFileDeleter, UploadThingFileDeleter>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>

@@ -1,3 +1,4 @@
+using Mjolksyra.Domain.Database.Enum;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mjolksyra.Domain.Database.Models;

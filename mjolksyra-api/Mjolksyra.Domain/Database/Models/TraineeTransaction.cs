@@ -1,3 +1,5 @@
+using Mjolksyra.Domain.Database.Enum;
+
 namespace Mjolksyra.Domain.Database.Models;
 
 public class TraineeTransaction

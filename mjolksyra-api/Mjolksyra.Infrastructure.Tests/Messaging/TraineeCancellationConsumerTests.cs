@@ -2,6 +2,7 @@ using MassTransit;
 using Moq;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.Infrastructure.Stripe;
 using Stripe;
 

@@ -2,7 +2,7 @@ using MassTransit;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Notifications;
 
-namespace Mjolksyra.Infrastructure.Messaging;
+namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 
 public class NotificationSideEffectConsumer(NotificationService notificationService)
     : IConsumer<NotificationSideEffectMessage>

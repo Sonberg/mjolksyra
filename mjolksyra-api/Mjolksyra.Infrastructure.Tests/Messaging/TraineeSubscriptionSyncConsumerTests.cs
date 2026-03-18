@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.Infrastructure.Stripe;
 using Stripe;
 using DomainEmail = Mjolksyra.Domain.Database.Models.Email;

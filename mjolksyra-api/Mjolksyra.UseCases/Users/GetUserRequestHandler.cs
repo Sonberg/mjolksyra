@@ -16,7 +16,7 @@ public class GetUserRequestHandler(
         var user = await userRepository.GetById(request.UserId, cancellationToken);
         var invitations = await traineeInvitationsRepository.GetAsync(user.Email, cancellationToken);
         var trainees = await traineeRepository.Get(request.UserId, cancellationToken);
-        var activeTrainees = trainees.Where(x => x.Status == Domain.Database.Models.TraineeStatus.Active).ToList();
+        var activeTrainees = trainees.Where(x => x.Status == TraineeStatus.Active).ToList();
         var userIds = trainees
             .SelectMany(x => (Guid[]) [x.CoachUserId, x.AthleteUserId])
             .Concat(invitations.Select(x => x.CoachUserId))

@@ -2,7 +2,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Mjolksyra.Domain.Messaging;
 
-namespace Mjolksyra.Infrastructure.Messaging;
+namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 
 public class PingPongConsumer(ILogger<PingPongConsumer> logger) : IConsumer<PingMessage>
 {

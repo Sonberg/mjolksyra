@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Messaging.Consumers;
 
 namespace Mjolksyra.Infrastructure.Tests.Messaging;
 

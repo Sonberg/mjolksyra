@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Hybrid;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
 

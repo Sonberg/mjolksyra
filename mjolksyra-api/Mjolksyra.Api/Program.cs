@@ -21,6 +21,7 @@ using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.UseCases;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -151,6 +152,7 @@ builder.Services
         opt.AddConsumer<NotificationSideEffectManyConsumer>();
         opt.AddConsumer<TraineeSubscriptionSyncConsumer>();
         opt.AddConsumer<TraineeCancellationConsumer>();
+        opt.AddConsumer<PlannedWorkoutDeletedConsumer>();
         opt.AddConsumer<PingPongConsumer>();
 
         var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")

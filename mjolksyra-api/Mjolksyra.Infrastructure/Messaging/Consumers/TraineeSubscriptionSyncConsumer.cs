@@ -4,7 +4,7 @@ using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Stripe;
 using Stripe;
 
-namespace Mjolksyra.Infrastructure.Messaging;
+namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 
 public class TraineeSubscriptionSyncConsumer(
     ITraineeRepository traineeRepository,

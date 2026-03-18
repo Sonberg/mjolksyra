@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Messaging.Consumers;
 
 namespace Mjolksyra.Infrastructure.Tests.Messaging;
 

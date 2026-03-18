@@ -1,19 +1,25 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Messaging;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 
-public class DeletePlannedWorkoutCommandHandler : IRequestHandler<DeletePlannedWorkoutCommand>
+public class DeletePlannedWorkoutCommandHandler(
+    IPlannedWorkoutRepository plannedWorkoutRepository,
+    IPlannedWorkoutDeletedPublisher deletedPublisher) : IRequestHandler<DeletePlannedWorkoutCommand>
 {
-    private readonly IPlannedWorkoutRepository _plannedWorkoutRepository;
-
-    public DeletePlannedWorkoutCommandHandler(IPlannedWorkoutRepository plannedWorkoutRepository)
-    {
-        _plannedWorkoutRepository = plannedWorkoutRepository;
-    }
-
     public async Task Handle(DeletePlannedWorkoutCommand request, CancellationToken cancellationToken)
     {
-        await _plannedWorkoutRepository.Delete(request.PlannedWorkoutId, cancellationToken);
+        var workout = await plannedWorkoutRepository.Get(request.PlannedWorkoutId, cancellationToken);
+
+        await plannedWorkoutRepository.Delete(request.PlannedWorkoutId, cancellationToken);
+
+        if (workout is not null)
+        {
+            await deletedPublisher.Publish(new PlannedWorkoutDeletedMessage
+            {
+                Workout = workout
+            }, cancellationToken);
+        }
     }
 }
