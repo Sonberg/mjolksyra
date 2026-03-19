@@ -13,6 +13,7 @@ public class OpenAiWorkoutTextAnalysisGateway(
     public async Task<WorkoutTextAnalysisResult> AnalyzeAsync(
         PlannedWorkout workout,
         string workoutText,
+        ICollection<string>? mediaUrls,
         CancellationToken cancellationToken)
     {
         var settings = options.Value;
@@ -22,9 +23,17 @@ public class OpenAiWorkoutTextAnalysisGateway(
         httpClient.BaseAddress = new Uri(settings.BaseUrl);
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
 
+        var hasMedia = mediaUrls is { Count: > 0 };
+        var model = hasMedia ? settings.MediaModel : settings.Model;
+        var userPrompt = $"Analyze this workout note context and suggest coaching actions. WorkoutId: {workout.Id}\n\n{workoutText}";
+
+        object userMessageContent = hasMedia
+            ? BuildMultiModalContent(userPrompt, mediaUrls!)
+            : userPrompt;
+
         var requestPayload = new
         {
-            model = settings.Model,
+            model,
             temperature = 0.2,
             response_format = new { type = "json_object" },
             messages = new object[]
@@ -38,8 +47,7 @@ public class OpenAiWorkoutTextAnalysisGateway(
                 new
                 {
                     role = "user",
-                    content =
-                        $"Analyze this workout note context and suggest coaching actions. WorkoutId: {workout.Id}\n\n{workoutText}"
+                    content = userMessageContent
                 }
             }
         };
@@ -78,6 +86,19 @@ public class OpenAiWorkoutTextAnalysisGateway(
             parsed.Summary,
             parsed.KeyPoints?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList() ?? [],
             parsed.Recommendations?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList() ?? []);
+    }
+
+    private static object[] BuildMultiModalContent(string prompt, ICollection<string> mediaUrls)
+    {
+        var items = new List<object>
+        {
+            new { type = "text", text = prompt }
+        };
+
+        foreach (var url in mediaUrls)
+            items.Add(new { type = "image_url", image_url = new { url } });
+
+        return [.. items];
     }
 
     private class WorkoutTextAnalysisResponse

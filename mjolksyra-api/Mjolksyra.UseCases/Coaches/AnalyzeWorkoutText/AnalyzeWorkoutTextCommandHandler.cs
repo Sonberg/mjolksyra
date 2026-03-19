@@ -20,13 +20,17 @@ public class AnalyzeWorkoutTextCommandHandler(
             return new AnalyzeWorkoutTextError("Planned workout is required.");
 
         var workoutText = BuildWorkoutText(request.PlannedWorkout);
-        if (string.IsNullOrWhiteSpace(workoutText))
-            return new AnalyzeWorkoutTextError("Planned workout does not contain analyzable text.");
+        var hasText = !string.IsNullOrWhiteSpace(workoutText);
+        var hasMedia = request.PlannedWorkout.MediaUrls is { Count: > 0 };
 
+        if (!hasText && !hasMedia)
+            return new AnalyzeWorkoutTextError("Workout does not contain analyzable text or media.");
+
+        var action = hasMedia ? CreditAction.AnalyzeWorkoutMedia : CreditAction.AnalyzeWorkoutText;
         var consumeResult = await mediator.Send(
             new ConsumeCreditsCommand(
                 request.CoachUserId,
-                CreditAction.AnalyzeWorkoutText,
+                action,
                 request.ReferenceId ?? request.PlannedWorkout.Id.ToString()),
             cancellationToken);
 
@@ -36,7 +40,7 @@ public class AnalyzeWorkoutTextCommandHandler(
         WorkoutTextAnalysisResult analysis;
         try
         {
-            analysis = await gateway.AnalyzeAsync(request.PlannedWorkout, workoutText, cancellationToken);
+            analysis = await gateway.AnalyzeAsync(request.PlannedWorkout, workoutText, request.PlannedWorkout.MediaUrls, cancellationToken);
         }
         catch (Exception ex)
         {

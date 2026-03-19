@@ -8,6 +8,8 @@ public class WorkoutTextAnalysisAiOptions
 
     public string Model { get; set; } = "gpt-4.1-mini";
 
+    public string MediaModel { get; set; } = "gpt-4o";
+
     public string? ApiKey { get; set; }
 }
 

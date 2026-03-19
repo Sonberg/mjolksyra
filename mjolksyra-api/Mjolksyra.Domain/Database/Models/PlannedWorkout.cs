@@ -28,6 +28,8 @@ public class PlannedWorkout : IDocument
 
     public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }
 
+    public ICollection<string> MediaUrls { get; set; } = [];
+
     public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;
 }
 
