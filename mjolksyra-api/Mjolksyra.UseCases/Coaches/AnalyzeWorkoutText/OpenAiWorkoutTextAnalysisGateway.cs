@@ -13,29 +13,46 @@ public class OpenAiWorkoutTextAnalysisGateway(
     public async Task<WorkoutTextAnalysisResult> AnalyzeAsync(
         PlannedWorkout workout,
         string workoutText,
-        ICollection<string>? mediaUrls,
+        ICollection<string>? imageUrls,
         CancellationToken cancellationToken)
     {
         var settings = options.Value;
         if (string.IsNullOrWhiteSpace(settings.ApiKey))
             throw new InvalidOperationException("Workout text AI API key is not configured.");
 
-        httpClient.BaseAddress = new Uri(settings.BaseUrl);
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
-
-        var hasMedia = mediaUrls is { Count: > 0 };
-        var model = hasMedia ? settings.MediaModel : settings.Model;
+        var hasImages = imageUrls is { Count: > 0 };
+        var model = hasImages ? settings.MediaModel : settings.Model;
         var userPrompt = $"Analyze this workout note context and suggest coaching actions. WorkoutId: {workout.Id}\n\n{workoutText}";
 
-        object userMessageContent = hasMedia
-            ? BuildMultiModalContent(userPrompt, mediaUrls!)
+        object userMessageContent = hasImages
+            ? BuildMultiModalContent(userPrompt, imageUrls!)
             : userPrompt;
 
         var requestPayload = new
         {
             model,
             temperature = 0.2,
-            response_format = new { type = "json_object" },
+            response_format = new
+            {
+                type = "json_schema",
+                json_schema = new
+                {
+                    name = "workout_analysis",
+                    strict = true,
+                    schema = new
+                    {
+                        type = "object",
+                        properties = new
+                        {
+                            summary = new { type = "string" },
+                            keyPoints = new { type = "array", items = new { type = "string" } },
+                            recommendations = new { type = "array", items = new { type = "string" } }
+                        },
+                        required = new[] { "summary", "keyPoints", "recommendations" },
+                        additionalProperties = false
+                    }
+                }
+            },
             messages = new object[]
             {
                 new
@@ -52,13 +69,13 @@ public class OpenAiWorkoutTextAnalysisGateway(
             }
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "chat/completions")
-        {
-            Content = new StringContent(
-                JsonSerializer.Serialize(requestPayload),
-                Encoding.UTF8,
-                "application/json")
-        };
+        var endpoint = new Uri(new Uri(settings.BaseUrl), "chat/completions");
+        using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(requestPayload),
+            Encoding.UTF8,
+            "application/json");
 
         using var response = await httpClient.SendAsync(request, cancellationToken);
         var json = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -66,16 +83,17 @@ public class OpenAiWorkoutTextAnalysisGateway(
             throw new InvalidOperationException($"AI request failed ({response.StatusCode}): {json}");
 
         using var doc = JsonDocument.Parse(json);
-        var content = doc.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString();
+        if (!doc.RootElement.TryGetProperty("choices", out var choices) ||
+            choices.GetArrayLength() == 0 ||
+            !choices[0].TryGetProperty("message", out var message) ||
+            !message.TryGetProperty("content", out var contentElement))
+            throw new InvalidOperationException($"AI response did not match expected shape: {json}");
 
+        var content = contentElement.GetString();
         if (string.IsNullOrWhiteSpace(content))
             throw new InvalidOperationException("AI returned empty content.");
 
-        var parsed = JsonSerializer.Deserialize<WorkoutTextAnalysisResponse>(
+        var parsed = JsonSerializer.Deserialize<WorkoutAnalysisJsonResponse>(
             content,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -84,28 +102,25 @@ public class OpenAiWorkoutTextAnalysisGateway(
 
         return new WorkoutTextAnalysisResult(
             parsed.Summary,
-            parsed.KeyPoints?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList() ?? [],
-            parsed.Recommendations?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList() ?? []);
+            parsed.KeyPoints?.Where(x => !string.IsNullOrWhiteSpace(x)).Take(5).ToList() ?? [],
+            parsed.Recommendations?.Where(x => !string.IsNullOrWhiteSpace(x)).Take(5).ToList() ?? []);
     }
 
-    private static object[] BuildMultiModalContent(string prompt, ICollection<string> mediaUrls)
+    private static object[] BuildMultiModalContent(string prompt, ICollection<string> imageUrls)
     {
         var items = new List<object>
         {
             new { type = "text", text = prompt }
         };
 
-        foreach (var url in mediaUrls)
+        foreach (var url in imageUrls)
             items.Add(new { type = "image_url", image_url = new { url } });
 
         return [.. items];
     }
-
-    private class WorkoutTextAnalysisResponse
-    {
-        public string Summary { get; set; } = string.Empty;
-        public ICollection<string>? KeyPoints { get; set; }
-        public ICollection<string>? Recommendations { get; set; }
-    }
 }
 
+internal record WorkoutAnalysisJsonResponse(
+    string Summary,
+    ICollection<string>? KeyPoints,
+    ICollection<string>? Recommendations);

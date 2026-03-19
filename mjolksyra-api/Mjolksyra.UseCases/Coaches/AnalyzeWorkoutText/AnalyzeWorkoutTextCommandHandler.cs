@@ -71,10 +71,37 @@ public class AnalyzeWorkoutTextCommandHandler(
             if (!string.IsNullOrWhiteSpace(exercise.Name))
                 sb.AppendLine($"Exercise: {exercise.Name}");
             if (!string.IsNullOrWhiteSpace(exercise.Note))
-                sb.AppendLine($"Exercise note: {exercise.Note}");
+                sb.AppendLine($"  Note: {exercise.Note}");
+
+            var sets = exercise.Prescription?.Sets;
+            if (sets is { Count: > 0 })
+            {
+                var index = 1;
+                foreach (var set in sets)
+                {
+                    var target = FormatSetSide("Target", set.Target?.Reps, set.Target?.WeightKg, set.Target?.DurationSeconds, set.Target?.DistanceMeters);
+                    var actual = FormatSetSide("Actual", set.Actual?.Reps, set.Actual?.WeightKg, set.Actual?.DurationSeconds, set.Actual?.DistanceMeters);
+                    if (target is not null || actual is not null)
+                    {
+                        var parts = new[] { target, actual }.Where(x => x is not null);
+                        sb.AppendLine($"  Set {index} — {string.Join(" | ", parts)}");
+                    }
+                    index++;
+                }
+            }
         }
 
         return sb.ToString().Trim();
+    }
+
+    private static string? FormatSetSide(string label, int? reps, double? weightKg, int? durationSeconds, double? distanceMeters)
+    {
+        var parts = new List<string>();
+        if (reps.HasValue) parts.Add($"{reps} reps");
+        if (weightKg.HasValue) parts.Add($"{weightKg}kg");
+        if (durationSeconds.HasValue) parts.Add($"{durationSeconds}s");
+        if (distanceMeters.HasValue) parts.Add($"{distanceMeters}m");
+        return parts.Count > 0 ? $"{label}: {string.Join(" @ ", parts)}" : null;
     }
 }
 

@@ -7,7 +7,7 @@ public interface IWorkoutTextAnalysisGateway
     Task<WorkoutTextAnalysisResult> AnalyzeAsync(
         PlannedWorkout workout,
         string workoutText,
-        ICollection<string>? mediaUrls,
+        ICollection<string>? imageUrls,
         CancellationToken cancellationToken);
 }
 

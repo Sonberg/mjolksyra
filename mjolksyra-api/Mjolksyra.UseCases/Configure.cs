@@ -29,6 +29,9 @@ public static class Configure
         services.AddScoped<IStripeRefundGateway, StripeRefundGateway>();
         services.AddScoped<IStripeInvoiceListGateway, StripeInvoiceListGateway>();
         services.AddScoped<IStripeCreditPackGateway, StripeCreditPackGateway>();
-        services.AddHttpClient<IWorkoutTextAnalysisGateway, OpenAiWorkoutTextAnalysisGateway>();
+        services.AddHttpClient<IWorkoutTextAnalysisGateway, OpenAiWorkoutTextAnalysisGateway>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(60);
+        });
     }
 }
