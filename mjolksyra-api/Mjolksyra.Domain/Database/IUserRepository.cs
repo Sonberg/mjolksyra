@@ -23,4 +23,6 @@ public interface IUserRepository
     Task<long> CountCoachesAsync(CancellationToken ct);
 
     Task<long> CountAthletesAsync(CancellationToken ct);
+
+    Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct);
 }

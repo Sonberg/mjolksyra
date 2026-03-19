@@ -30,6 +30,16 @@ public interface IMongoDbContext
     IMongoCollection<DiscountCode> DiscountCodes { get; }
 
     IMongoCollection<Plan> Plans { get; }
+
+    IMongoCollection<CoachAiCredits> CoachAiCredits { get; }
+
+    IMongoCollection<AiCreditActionPricing> AiCreditActionPricings { get; }
+
+    IMongoCollection<AiCreditPack> AiCreditPacks { get; }
+
+    IMongoCollection<AiCreditLedger> AiCreditLedger { get; }
+
+    IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -61,6 +71,16 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<DiscountCode> DiscountCodes => Database.GetCollection<DiscountCode>("discount-codes");
 
     public IMongoCollection<Plan> Plans => Database.GetCollection<Plan>("plans");
+
+    public IMongoCollection<CoachAiCredits> CoachAiCredits => Database.GetCollection<CoachAiCredits>("coach-ai-credits");
+
+    public IMongoCollection<AiCreditActionPricing> AiCreditActionPricings => Database.GetCollection<AiCreditActionPricing>("ai-credit-action-pricings");
+
+    public IMongoCollection<AiCreditPack> AiCreditPacks => Database.GetCollection<AiCreditPack>("ai-credit-packs");
+
+    public IMongoCollection<AiCreditLedger> AiCreditLedger => Database.GetCollection<AiCreditLedger>("ai-credit-ledger");
+
+    public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

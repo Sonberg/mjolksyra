@@ -99,4 +99,13 @@ public class UserRepository : IUserRepository
             x => x.Athlete != null && x.Athlete.Stripe != null && x.Athlete.Stripe.Status == StripeStatus.Succeeded,
             cancellationToken: ct);
     }
+
+    public async Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct)
+    {
+        return await _context.Users
+            .Find(x => x.Coach != null && x.Coach.Stripe != null && x.Coach.Stripe.PlatformSubscriptionId == subscriptionId)
+            .Limit(1)
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
+    }
 }

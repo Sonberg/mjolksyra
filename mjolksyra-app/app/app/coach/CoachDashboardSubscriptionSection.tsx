@@ -4,12 +4,14 @@ import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getAppliedDiscountCode } from "@/services/coaches/getAppliedDiscountCode";
+import { getAiCredits } from "@/services/coaches/getAiCredits";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { Plan } from "@/services/plans/type";
 import { CoachPlanSelector } from "./CoachPlanSelector";
 import { CoachPlanNudge } from "./CoachPlanNudge";
 import { AppliedDiscountCard } from "./AppliedDiscountCard";
+import { CoachAiCreditPurchase } from "./CoachAiCreditPurchase";
 
 type CoachPaymentStatus = {
   label: string;
@@ -63,6 +65,11 @@ export function CoachDashboardSubscriptionSection({
   const { data: liveDiscount } = useQuery({
     queryKey: ["coach-applied-discount"],
     queryFn: getAppliedDiscountCode,
+  });
+
+  const { data: aiCredits } = useQuery({
+    queryKey: ["coach-ai-credits"],
+    queryFn: getAiCredits,
   });
 
   const effectiveDiscountCode = activeDiscountCode
@@ -190,6 +197,33 @@ export function CoachDashboardSubscriptionSection({
             currentPlanId={currentPlan.id}
             athleteCount={athleteCount}
           />
+        </div>
+
+        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+          <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">AI credits</p>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">Included</p>
+              <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">
+                {aiCredits?.includedRemaining ?? "—"}
+              </p>
+            </div>
+            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">Purchased</p>
+              <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">
+                {aiCredits?.purchasedRemaining ?? "—"}
+              </p>
+            </div>
+            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">Total</p>
+              <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">
+                {aiCredits?.totalRemaining ?? "—"}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <CoachAiCreditPurchase />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">

@@ -1,9 +1,13 @@
+using MediatR;
 using Mjolksyra.Api.Controllers.Stripe;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using Mjolksyra.UseCases.Coaches.AddPurchasedAiCredits;
+using Mjolksyra.UseCases.Coaches.ResetCoachAiCredits;
+using Moq;
 using Stripe;
 
 namespace Mjolksyra.Api.IntegrationTests.Controllers.Stripe;
@@ -49,7 +53,7 @@ public class InvoiceWebhookHandlerTests
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
         };
 
-        await sut.HandleSucceeded(invoice);
+        await sut.HandleSucceeded(invoice, "evt_001");
 
         Assert.NotNull(transactionRepo.UpsertedTransaction);
         Assert.Equal("pi_test456", transactionRepo.UpsertedTransaction!.PaymentIntentId);
@@ -97,7 +101,7 @@ public class InvoiceWebhookHandlerTests
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
         };
 
-        await sut.HandleFailed(invoice);
+        await sut.HandleFailed(invoice, "evt_002");
 
         Assert.NotNull(transactionRepo.UpsertedTransaction);
         Assert.Equal("pi_test999", transactionRepo.UpsertedTransaction!.PaymentIntentId);
@@ -112,7 +116,7 @@ public class InvoiceWebhookHandlerTests
         var transactionRepo = new FakeTransactionRepository();
         var sut = CreateHandler(new FakeTraineeRepository(), new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = null });
+        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = null }, "evt_003");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -123,7 +127,7 @@ public class InvoiceWebhookHandlerTests
         var transactionRepo = new FakeTransactionRepository();
         var sut = CreateHandler(new FakeTraineeRepository(), new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = null });
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = null }, "evt_004");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -135,7 +139,7 @@ public class InvoiceWebhookHandlerTests
         var traineeRepo = new FakeTraineeRepository { TraineeBySubscriptionId = null };
         var sut = CreateHandler(traineeRepo, new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" });
+        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" }, "evt_005");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -147,7 +151,7 @@ public class InvoiceWebhookHandlerTests
         var traineeRepo = new FakeTraineeRepository { TraineeBySubscriptionId = null };
         var sut = CreateHandler(traineeRepo, new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" });
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" }, "evt_006");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -182,7 +186,7 @@ public class InvoiceWebhookHandlerTests
 
         var sut = CreateHandler(traineeRepo, userRepo, new FakeTransactionRepository());
 
-        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_test123", PaymentIntentId = "pi_test" });
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_test123", PaymentIntentId = "pi_test" }, "evt_007");
 
         Assert.NotNull(traineeRepo.UpdatedTrainee);
         Assert.NotNull(traineeRepo.UpdatedTrainee!.PaymentFailedAt);
@@ -225,7 +229,7 @@ public class InvoiceWebhookHandlerTests
             SubscriptionId = "sub_test123",
             PaymentIntentId = "pi_test",
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
-        });
+        }, "evt_008");
 
         Assert.NotNull(traineeRepo.UpdatedTrainee);
         Assert.Null(traineeRepo.UpdatedTrainee!.PaymentFailedAt);
@@ -268,22 +272,138 @@ public class InvoiceWebhookHandlerTests
             SubscriptionId = "sub_test123",
             PaymentIntentId = "pi_test",
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
-        });
+        }, "evt_009");
 
         Assert.Null(traineeRepo.UpdatedTrainee);
+    }
+
+    // ── New tests for platform subscriptions and idempotency ──────────────────
+
+    [Fact]
+    public async Task HandleSucceeded_WithPlatformSubscription_ResetsIncludedCredits()
+    {
+        var coachId = Guid.NewGuid();
+        var coachUser = CreateUser(coachId, "coach@example.com", "Carl", "Coach");
+        coachUser.Coach = new UserCoach
+        {
+            Stripe = new UserCoachStripe { PlatformSubscriptionId = "sub_platform_001" }
+        };
+
+        var userRepo = new FakeUserRepository
+        {
+            UserByPlatformSubscriptionId = coachUser,
+        };
+
+        var mediator = new Mock<IMediator>();
+        var sut = CreateHandler(new FakeTraineeRepository(), userRepo, new FakeTransactionRepository(), mediator: mediator);
+
+        await sut.HandleSucceeded(new Invoice
+        {
+            Id = "in_platform_001",
+            SubscriptionId = "sub_platform_001",
+            PaymentIntentId = "pi_platform",
+            Metadata = new Dictionary<string, string>()
+        }, "evt_platform_001");
+
+        mediator.Verify(m => m.Send(It.Is<ResetCoachAiCreditsCommand>(cmd => cmd.CoachUserId == coachId), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleSucceeded_WithCreditPackInvoice_AddsPurchasedCredits()
+    {
+        var coachId = Guid.NewGuid();
+        var packId = Guid.NewGuid();
+        var coachUser = CreateUser(coachId, "coach@example.com", "Carl", "Coach");
+        coachUser.Coach = new UserCoach
+        {
+            Stripe = new UserCoachStripe { PlatformSubscriptionId = "sub_platform_002" }
+        };
+
+        var userRepo = new FakeUserRepository
+        {
+            UserByPlatformSubscriptionId = coachUser,
+        };
+
+        var mediator = new Mock<IMediator>();
+        var sut = CreateHandler(new FakeTraineeRepository(), userRepo, new FakeTransactionRepository(), mediator: mediator);
+
+        await sut.HandleSucceeded(new Invoice
+        {
+            Id = "in_pack_001",
+            SubscriptionId = "sub_platform_002",
+            PaymentIntentId = "pi_pack",
+            Metadata = new Dictionary<string, string>
+            {
+                ["type"] = "ai-credit-pack",
+                ["packId"] = packId.ToString(),
+            }
+        }, "evt_pack_001");
+
+        mediator.Verify(m => m.Send(It.Is<AddPurchasedAiCreditsCommand>(cmd =>
+            cmd.CoachUserId == coachId && cmd.PackId == packId && cmd.StripeEventId == "evt_pack_001"
+        ), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleSucceeded_WhenEventAlreadyProcessed_DoesNothing()
+    {
+        var traineeId = Guid.NewGuid();
+        var athleteId = Guid.NewGuid();
+        var coachId = Guid.NewGuid();
+        var transactionRepo = new FakeTransactionRepository();
+
+        var traineeRepo = new FakeTraineeRepository
+        {
+            TraineeBySubscriptionId = new Trainee
+            {
+                Id = traineeId,
+                AthleteUserId = athleteId,
+                CoachUserId = coachId,
+                Status = TraineeStatus.Active,
+                Cost = new TraineeCost { Amount = 1000 },
+                StripeSubscriptionId = "sub_test123"
+            }
+        };
+        var userRepo = new FakeUserRepository
+        {
+            UsersById = new Dictionary<Guid, User>
+            {
+                [athleteId] = CreateUser(athleteId, "athlete@example.com", "Ada", "Athlete"),
+                [coachId] = CreateUser(coachId, "coach@example.com", "Carl", "Coach")
+            }
+        };
+
+        // Simulate event already processed (TryMarkAsProcessed always returns false)
+        var alwaysDuplicate = new FakeProcessedStripeEventRepository(alwaysNew: false);
+        var sut = CreateHandler(traineeRepo, userRepo, transactionRepo, processedStripeEventRepo: alwaysDuplicate);
+
+        await sut.HandleSucceeded(new Invoice
+        {
+            Id = "in_dup",
+            SubscriptionId = "sub_test123",
+            PaymentIntentId = "pi_dup",
+            HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
+        }, "evt_dup_001");
+
+        // No transaction should be upserted because event was duplicate
+        Assert.Null(transactionRepo.UpsertedTransaction);
     }
 
     private static InvoiceWebhookHandler CreateHandler(
         ITraineeRepository traineeRepo,
         IUserRepository userRepo,
-        ITraineeTransactionRepository transactionRepo)
+        ITraineeTransactionRepository transactionRepo,
+        IProcessedStripeEventRepository? processedStripeEventRepo = null,
+        Mock<IMediator>? mediator = null)
     {
         return new InvoiceWebhookHandler(
             traineeRepo,
             userRepo,
             transactionRepo,
             new FakeEmailSender(),
-            new FakeNotificationService());
+            new FakeNotificationService(),
+            processedStripeEventRepo ?? new FakeProcessedStripeEventRepository(alwaysNew: true),
+            mediator?.Object ?? new Mock<IMediator>().Object);
     }
 
     private static User CreateUser(Guid id, string email, string givenName, string familyName) => new()
@@ -321,6 +441,7 @@ public class InvoiceWebhookHandlerTests
     private sealed class FakeUserRepository : IUserRepository
     {
         public Dictionary<Guid, User> UsersById { get; set; } = [];
+        public User? UserByPlatformSubscriptionId { get; set; }
 
         public Task<User?> GetByEmail(string email, CancellationToken ct) => Task.FromResult<User?>(null);
         public Task<User?> GetByClerkId(string clerkUserId, CancellationToken ct) => Task.FromResult<User?>(null);
@@ -332,6 +453,7 @@ public class InvoiceWebhookHandlerTests
         public Task<long> CountAsync(CancellationToken ct) => Task.FromResult(0L);
         public Task<long> CountCoachesAsync(CancellationToken ct) => Task.FromResult(0L);
         public Task<long> CountAthletesAsync(CancellationToken ct) => Task.FromResult(0L);
+        public Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct) => Task.FromResult(UserByPlatformSubscriptionId);
     }
 
     private sealed class FakeTransactionRepository : ITraineeTransactionRepository
@@ -351,6 +473,13 @@ public class InvoiceWebhookHandlerTests
             return Task.CompletedTask;
         }
         public Task<decimal> TotalRevenueAsync(CancellationToken ct) => Task.FromResult(0m);
+    }
+
+    private sealed class FakeProcessedStripeEventRepository : IProcessedStripeEventRepository
+    {
+        private readonly bool _alwaysNew;
+        public FakeProcessedStripeEventRepository(bool alwaysNew) => _alwaysNew = alwaysNew;
+        public Task<bool> TryMarkAsProcessed(string eventId, string eventType, CancellationToken ct) => Task.FromResult(_alwaysNew);
     }
 
     private sealed class FakeEmailSender : IEmailSender

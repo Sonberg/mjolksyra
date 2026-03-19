@@ -53,7 +53,14 @@ public static class Configure
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<IDiscountCodeRepository, DiscountCodeRepository>();
         services.AddScoped<IPlanRepository, PlanRepository>();
+        services.AddScoped<ICoachAiCreditsRepository, CoachAiCreditsRepository>();
+        services.AddScoped<IAiCreditActionPricingRepository, AiCreditActionPricingRepository>();
+        services.AddScoped<IAiCreditPackRepository, AiCreditPackRepository>();
+        services.AddScoped<IAiCreditLedgerRepository, AiCreditLedgerRepository>();
+        services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
         services.AddHostedService<PlanSeeder>();
+        services.AddHostedService<AiCreditActionPricingSeeder>();
+        services.AddHostedService<AiCreditPackSeeder>();
         services.AddScoped<BrevoEmailSender>();
         services.AddKeyedScoped<IEmailSender, BrevoEmailSender>("direct");
         services.AddScoped<NotificationService>();

@@ -163,5 +163,7 @@ public class UserContextIntegrationTests
         public Task<long> CountCoachesAsync(CancellationToken ct) => Task.FromResult(0L);
 
         public Task<long> CountAthletesAsync(CancellationToken ct) => Task.FromResult(0L);
+
+        public Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct) => Task.FromResult<User?>(null);
     }
 }

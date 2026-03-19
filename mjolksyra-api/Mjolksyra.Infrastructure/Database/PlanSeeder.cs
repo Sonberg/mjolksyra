@@ -20,6 +20,7 @@ public class PlanSeeder(IServiceProvider serviceProvider) : IHostedService
             IncludedAthletes = 5,
             ExtraAthletePriceSek = 49,
             SortOrder = 1,
+            IncludedAiCreditsPerCycle = 25,
         }, cancellationToken);
 
         await planRepository.Upsert(new Plan
@@ -30,6 +31,7 @@ public class PlanSeeder(IServiceProvider serviceProvider) : IHostedService
             IncludedAthletes = 12,
             ExtraAthletePriceSek = 39,
             SortOrder = 2,
+            IncludedAiCreditsPerCycle = 100,
         }, cancellationToken);
 
         await planRepository.Upsert(new Plan
@@ -40,6 +42,7 @@ public class PlanSeeder(IServiceProvider serviceProvider) : IHostedService
             IncludedAthletes = 25,
             ExtraAthletePriceSek = 29,
             SortOrder = 3,
+            IncludedAiCreditsPerCycle = 300,
         }, cancellationToken);
     }
 

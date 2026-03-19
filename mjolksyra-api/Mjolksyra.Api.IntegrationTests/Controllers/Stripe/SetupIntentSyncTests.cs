@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Mjolksyra.Api.Common.UserEvents;
@@ -24,7 +25,8 @@ public class SetupIntentSyncTests
             userContext,
             userRepository,
             traineeRepository,
-            userEvents ?? Mock.Of<IUserEventPublisher>());
+            userEvents ?? Mock.Of<IUserEventPublisher>(),
+            Mock.Of<IMediator>());
     }
 
     private static User BuildAthleteUser(Guid id, string customerId = "cus_test") => new()
