@@ -72,13 +72,13 @@ public class MongoDbContext : IMongoDbContext
 
     public IMongoCollection<Plan> Plans => Database.GetCollection<Plan>("plans");
 
-    public IMongoCollection<UserCredits> UserCredits => Database.GetCollection<UserCredits>("coach-ai-credits");
+    public IMongoCollection<UserCredits> UserCredits => Database.GetCollection<UserCredits>("user-credits");
 
-    public IMongoCollection<CreditActionPricing> CreditActionPricings => Database.GetCollection<CreditActionPricing>("ai-credit-action-pricings");
+    public IMongoCollection<CreditActionPricing> CreditActionPricings => Database.GetCollection<CreditActionPricing>("credit-action-pricings");
 
-    public IMongoCollection<CreditPack> CreditPacks => Database.GetCollection<CreditPack>("ai-credit-packs");
+    public IMongoCollection<CreditPack> CreditPacks => Database.GetCollection<CreditPack>("credit-packs");
 
-    public IMongoCollection<CreditLedger> CreditLedger => Database.GetCollection<CreditLedger>("ai-credit-ledger");
+    public IMongoCollection<CreditLedger> CreditLedger => Database.GetCollection<CreditLedger>("credit-ledger");
 
     public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
 
