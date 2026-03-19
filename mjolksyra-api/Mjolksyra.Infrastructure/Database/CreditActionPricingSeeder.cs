@@ -1,0 +1,46 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Database.Models;
+
+namespace Mjolksyra.Infrastructure.Database;
+
+public class CreditActionPricingSeeder(IServiceProvider serviceProvider) : IHostedService
+{
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<ICreditActionPricingRepository>();
+
+        await repo.Upsert(new CreditActionPricing
+        {
+            Id = new Guid("10000000-0000-0000-0000-000000000001"),
+            Action = CreditAction.PlanWorkout,
+            CreditCost = 1,
+        }, cancellationToken);
+
+        await repo.Upsert(new CreditActionPricing
+        {
+            Id = new Guid("10000000-0000-0000-0000-000000000002"),
+            Action = CreditAction.GenerateBlock,
+            CreditCost = 5,
+        }, cancellationToken);
+
+        await repo.Upsert(new CreditActionPricing
+        {
+            Id = new Guid("10000000-0000-0000-0000-000000000003"),
+            Action = CreditAction.AnalyzeWorkoutText,
+            CreditCost = 1,
+        }, cancellationToken);
+
+        await repo.Upsert(new CreditActionPricing
+        {
+            Id = new Guid("10000000-0000-0000-0000-000000000004"),
+            Action = CreditAction.AnalyzeWorkoutMedia,
+            CreditCost = 5,
+        }, cancellationToken);
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}

@@ -4,14 +4,14 @@ import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getAppliedDiscountCode } from "@/services/coaches/getAppliedDiscountCode";
-import { getAiCredits } from "@/services/coaches/getAiCredits";
+import { getCredits } from "@/services/coaches/getCredits";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { Plan } from "@/services/plans/type";
 import { CoachPlanSelector } from "./CoachPlanSelector";
 import { CoachPlanNudge } from "./CoachPlanNudge";
 import { AppliedDiscountCard } from "./AppliedDiscountCard";
-import { CoachAiCreditPurchase } from "./CoachAiCreditPurchase";
+import { UserCreditPurchase } from "./UserCreditPurchase";
 
 type CoachPaymentStatus = {
   label: string;
@@ -69,7 +69,7 @@ export function CoachDashboardSubscriptionSection({
 
   const { data: aiCredits } = useQuery({
     queryKey: ["coach-ai-credits"],
-    queryFn: getAiCredits,
+    queryFn: getCredits,
   });
 
   const effectiveDiscountCode = activeDiscountCode
@@ -222,7 +222,7 @@ export function CoachDashboardSubscriptionSection({
             </div>
           </div>
           <div className="mt-4">
-            <CoachAiCreditPurchase />
+            <UserCreditPurchase />
           </div>
         </div>
 

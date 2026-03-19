@@ -13,7 +13,7 @@ const plans: Plan[] = [
     includedAthletes: 10,
     extraAthletePriceSek: 39,
     sortOrder: 2,
-    includedAiCreditsPerCycle: 100,
+    includedCreditsPerCycle: 100,
   },
   {
     id: "starter",
@@ -22,7 +22,7 @@ const plans: Plan[] = [
     includedAthletes: 5,
     extraAthletePriceSek: 49,
     sortOrder: 1,
-    includedAiCreditsPerCycle: 25,
+    includedCreditsPerCycle: 25,
   },
   {
     id: "scale",
@@ -31,7 +31,7 @@ const plans: Plan[] = [
     includedAthletes: 20,
     extraAthletePriceSek: 29,
     sortOrder: 3,
-    includedAiCreditsPerCycle: 300,
+    includedCreditsPerCycle: 300,
   },
 ];
 
@@ -64,7 +64,7 @@ describe("calculatorUtils", () => {
           includedAthletes: 10,
           extraAthletePriceSek: 39,
           sortOrder: 2,
-          includedAiCreditsPerCycle: 100,
+          includedCreditsPerCycle: 100,
         },
         {
           id: "b",
@@ -73,7 +73,7 @@ describe("calculatorUtils", () => {
           includedAthletes: 10,
           extraAthletePriceSek: 39,
           sortOrder: 1,
-          includedAiCreditsPerCycle: 100,
+          includedCreditsPerCycle: 100,
         },
       ];
 
@@ -95,7 +95,7 @@ describe("calculatorUtils", () => {
           includedAthletes: 5,
           extraAthletePriceSek: 39,
           sortOrder: 2,
-          includedAiCreditsPerCycle: 100,
+          includedCreditsPerCycle: 100,
         },
         {
           id: "y",
@@ -104,7 +104,7 @@ describe("calculatorUtils", () => {
           includedAthletes: 5,
           extraAthletePriceSek: 39,
           sortOrder: 2,
-          includedAiCreditsPerCycle: 100,
+          includedCreditsPerCycle: 100,
         },
         {
           id: "z",
@@ -113,7 +113,7 @@ describe("calculatorUtils", () => {
           includedAthletes: 5,
           extraAthletePriceSek: 39,
           sortOrder: 1,
-          includedAiCreditsPerCycle: 100,
+          includedCreditsPerCycle: 100,
         },
       ]);
 

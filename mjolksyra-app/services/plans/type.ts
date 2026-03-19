@@ -5,5 +5,5 @@ export type Plan = {
   includedAthletes: number;
   extraAthletePriceSek: number;
   sortOrder: number;
-  includedAiCreditsPerCycle: number;
+  includedCreditsPerCycle: number;
 };

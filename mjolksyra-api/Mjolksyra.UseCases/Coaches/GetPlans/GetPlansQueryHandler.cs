@@ -18,7 +18,7 @@ public class GetPlansQueryHandler(IPlanRepository planRepository) : IRequestHand
                 IncludedAthletes = x.IncludedAthletes,
                 ExtraAthletePriceSek = x.ExtraAthletePriceSek,
                 SortOrder = x.SortOrder,
-                IncludedAiCreditsPerCycle = x.IncludedAiCreditsPerCycle,
+                IncludedCreditsPerCycle = x.IncludedCreditsPerCycle,
             })
             .ToList();
     }

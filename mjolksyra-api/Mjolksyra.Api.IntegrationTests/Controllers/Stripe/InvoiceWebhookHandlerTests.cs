@@ -5,8 +5,8 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
-using Mjolksyra.UseCases.Coaches.AddPurchasedAiCredits;
-using Mjolksyra.UseCases.Coaches.ResetCoachAiCredits;
+using Mjolksyra.UseCases.Coaches.AddPurchasedCredits;
+using Mjolksyra.UseCases.Coaches.ResetUserCredits;
 using Moq;
 using Stripe;
 
@@ -305,7 +305,7 @@ public class InvoiceWebhookHandlerTests
             Metadata = new Dictionary<string, string>()
         }, "evt_platform_001");
 
-        mediator.Verify(m => m.Send(It.Is<ResetCoachAiCreditsCommand>(cmd => cmd.CoachUserId == coachId), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Verify(m => m.Send(It.Is<ResetUserCreditsCommand>(cmd => cmd.CoachUserId == coachId), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -339,7 +339,7 @@ public class InvoiceWebhookHandlerTests
             }
         }, "evt_pack_001");
 
-        mediator.Verify(m => m.Send(It.Is<AddPurchasedAiCreditsCommand>(cmd =>
+        mediator.Verify(m => m.Send(It.Is<AddPurchasedCreditsCommand>(cmd =>
             cmd.CoachUserId == coachId && cmd.PackId == packId && cmd.StripeEventId == "evt_pack_001"
         ), It.IsAny<CancellationToken>()), Times.Once);
     }

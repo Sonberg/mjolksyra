@@ -10,7 +10,7 @@ const plans: Plan[] = [
     includedAthletes: 5,
     extraAthletePriceSek: 49,
     sortOrder: 1,
-    includedAiCreditsPerCycle: 25,
+    includedCreditsPerCycle: 25,
   },
   {
     id: "pro",
@@ -19,7 +19,7 @@ const plans: Plan[] = [
     includedAthletes: 10,
     extraAthletePriceSek: 39,
     sortOrder: 2,
-    includedAiCreditsPerCycle: 100,
+    includedCreditsPerCycle: 100,
   },
   {
     id: "scale",
@@ -28,7 +28,7 @@ const plans: Plan[] = [
     includedAthletes: 20,
     extraAthletePriceSek: 29,
     sortOrder: 3,
-    includedAiCreditsPerCycle: 300,
+    includedCreditsPerCycle: 300,
   },
 ]
 

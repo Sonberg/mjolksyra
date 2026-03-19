@@ -8,5 +8,5 @@ public class PlanResponse
     public required int IncludedAthletes { get; set; }
     public required int ExtraAthletePriceSek { get; set; }
     public required int SortOrder { get; set; }
-    public required int IncludedAiCreditsPerCycle { get; set; }
+    public required int IncludedCreditsPerCycle { get; set; }
 }

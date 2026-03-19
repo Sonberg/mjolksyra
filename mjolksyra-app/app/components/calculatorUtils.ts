@@ -7,7 +7,7 @@ export const FALLBACK_CALCULATOR_PLAN: Plan = {
   includedAthletes: 10,
   extraAthletePriceSek: 39,
   sortOrder: 999,
-  includedAiCreditsPerCycle: 25,
+  includedCreditsPerCycle: 25,
 };
 
 export function sortPlans(plans: Plan[]): Plan[] {

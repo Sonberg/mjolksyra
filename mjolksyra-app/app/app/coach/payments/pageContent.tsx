@@ -16,7 +16,7 @@ const STARTER_FALLBACK: Plan = {
   includedAthletes: 5,
   extraAthletePriceSek: 49,
   sortOrder: 1,
-  includedAiCreditsPerCycle: 25,
+  includedCreditsPerCycle: 25,
 };
 
 type Props = {

@@ -31,7 +31,7 @@ test("GET /api/ai-credit-packs returns JSON array", async ({ request }) => {
 // });
 
 // TODO: authenticated coach — dashboard shows AI credit balance
-// Requires: seeded test coach with CoachAiCredits document in MongoDB
+// Requires: seeded test coach with UserCredits document in MongoDB
 // test("dashboard shows AI credit balance with included, purchased, and total", async ({ page }) => {
 //   // sign in as test coach
 //   // navigate to /app/coach/payments
@@ -53,7 +53,7 @@ test("GET /api/ai-credit-packs returns JSON array", async ({ request }) => {
 // });
 
 // TODO: authenticated coach with 0 credits — AI action shows insufficient credits error
-// Requires: seeded test coach with CoachAiCredits { includedRemaining: 0, purchasedRemaining: 0 }
+// Requires: seeded test coach with UserCredits { includedRemaining: 0, purchasedRemaining: 0 }
 // test("0-credit state returns 422 on consume attempt", async ({ request, page }) => {
 //   // sign in as test coach with 0 credits
 //   // POST /api/coaches/ai-credits/consume with a valid action

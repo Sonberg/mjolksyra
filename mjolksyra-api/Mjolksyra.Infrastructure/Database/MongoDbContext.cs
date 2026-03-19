@@ -31,13 +31,13 @@ public interface IMongoDbContext
 
     IMongoCollection<Plan> Plans { get; }
 
-    IMongoCollection<CoachAiCredits> CoachAiCredits { get; }
+    IMongoCollection<UserCredits> UserCredits { get; }
 
-    IMongoCollection<AiCreditActionPricing> AiCreditActionPricings { get; }
+    IMongoCollection<CreditActionPricing> CreditActionPricings { get; }
 
-    IMongoCollection<AiCreditPack> AiCreditPacks { get; }
+    IMongoCollection<CreditPack> CreditPacks { get; }
 
-    IMongoCollection<AiCreditLedger> AiCreditLedger { get; }
+    IMongoCollection<CreditLedger> CreditLedger { get; }
 
     IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents { get; }
 }
@@ -72,13 +72,13 @@ public class MongoDbContext : IMongoDbContext
 
     public IMongoCollection<Plan> Plans => Database.GetCollection<Plan>("plans");
 
-    public IMongoCollection<CoachAiCredits> CoachAiCredits => Database.GetCollection<CoachAiCredits>("coach-ai-credits");
+    public IMongoCollection<UserCredits> UserCredits => Database.GetCollection<UserCredits>("coach-ai-credits");
 
-    public IMongoCollection<AiCreditActionPricing> AiCreditActionPricings => Database.GetCollection<AiCreditActionPricing>("ai-credit-action-pricings");
+    public IMongoCollection<CreditActionPricing> CreditActionPricings => Database.GetCollection<CreditActionPricing>("ai-credit-action-pricings");
 
-    public IMongoCollection<AiCreditPack> AiCreditPacks => Database.GetCollection<AiCreditPack>("ai-credit-packs");
+    public IMongoCollection<CreditPack> CreditPacks => Database.GetCollection<CreditPack>("ai-credit-packs");
 
-    public IMongoCollection<AiCreditLedger> AiCreditLedger => Database.GetCollection<AiCreditLedger>("ai-credit-ledger");
+    public IMongoCollection<CreditLedger> CreditLedger => Database.GetCollection<CreditLedger>("ai-credit-ledger");
 
     public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
 

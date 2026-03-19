@@ -4,8 +4,8 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
-using Mjolksyra.UseCases.Coaches.AddPurchasedAiCredits;
-using Mjolksyra.UseCases.Coaches.ResetCoachAiCredits;
+using Mjolksyra.UseCases.Coaches.AddPurchasedCredits;
+using Mjolksyra.UseCases.Coaches.ResetUserCredits;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -62,11 +62,11 @@ public class InvoiceWebhookHandler
             && metadata.TryGetValue("packId", out var packIdRaw)
             && Guid.TryParse(packIdRaw, out var packId))
         {
-            await _mediator.Send(new AddPurchasedAiCreditsCommand(coachUserId, packId, eventId));
+            await _mediator.Send(new AddPurchasedCreditsCommand(coachUserId, packId, eventId));
         }
         else
         {
-            await _mediator.Send(new ResetCoachAiCreditsCommand(coachUserId));
+            await _mediator.Send(new ResetUserCreditsCommand(coachUserId));
         }
     }
 

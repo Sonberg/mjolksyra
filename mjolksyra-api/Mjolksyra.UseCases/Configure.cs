@@ -6,7 +6,7 @@ using Mjolksyra.UseCases.Baseload;
 using Mjolksyra.UseCases.Behaviors;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Mjolksyra.UseCases.Coaches.GetAppliedDiscountCode;
-using Mjolksyra.UseCases.Coaches.PurchaseAiCreditPack;
+using Mjolksyra.UseCases.Coaches.PurchaseCreditPack;
 using Mjolksyra.UseCases.Trainees;
 using Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
 
@@ -27,6 +27,6 @@ public static class Configure
         services.AddScoped<ICoachDiscountConfigurationStripeGateway, CoachDiscountConfigurationStripeGateway>();
         services.AddScoped<IStripeRefundGateway, StripeRefundGateway>();
         services.AddScoped<IStripeInvoiceListGateway, StripeInvoiceListGateway>();
-        services.AddScoped<IStripeAiCreditPackGateway, StripeAiCreditPackGateway>();
+        services.AddScoped<IStripeCreditPackGateway, StripeCreditPackGateway>();
     }
 }

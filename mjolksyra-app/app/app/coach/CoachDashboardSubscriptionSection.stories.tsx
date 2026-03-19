@@ -8,7 +8,7 @@ const starterPlan = {
   includedAthletes: 10,
   extraAthletePriceSek: 39,
   sortOrder: 1,
-  includedAiCreditsPerCycle: 25,
+  includedCreditsPerCycle: 25,
 }
 
 const proPlan = {
@@ -18,7 +18,7 @@ const proPlan = {
   includedAthletes: 25,
   extraAthletePriceSek: 29,
   sortOrder: 2,
-  includedAiCreditsPerCycle: 100,
+  includedCreditsPerCycle: 100,
 }
 
 const disconnectedStatus = {

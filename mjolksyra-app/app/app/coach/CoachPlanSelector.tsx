@@ -73,7 +73,7 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
               <ul className="text-xs text-[var(--shell-muted)] space-y-0.5">
                 <li>{plan.includedAthletes} athletes included</li>
                 <li>+{plan.extraAthletePriceSek} kr/extra athlete</li>
-                <li>{plan.includedAiCreditsPerCycle} AI credits/mo</li>
+                <li>{plan.includedCreditsPerCycle} AI credits/mo</li>
                 <li className="font-medium text-[var(--shell-ink)]">
                   Total now: {cost} kr/mo
                 </li>
