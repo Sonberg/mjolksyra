@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.AnalyzeWorkoutText;
 using Mjolksyra.UseCases.Coaches.ApplyDiscountCode;
 using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.Coaches.GetCredits;
@@ -99,6 +101,30 @@ public class CoachesController(IMediator mediator, IUserContext userContext) : C
             _ => Ok(new { success = true }),
             error => UnprocessableEntity(new { error = error.Reason }));
     }
+
+    [HttpPost("ai/analyze-workout-text")]
+    public async Task<IActionResult> AnalyzeWorkoutText(
+        [FromBody] AnalyzeWorkoutTextBody body,
+        CancellationToken ct)
+    {
+        var userId = await userContext.GetUserId(ct);
+        if (userId is null) return Unauthorized();
+
+        var result = await mediator.Send(
+            new AnalyzeWorkoutTextCommand(userId.Value, body.PlannedWorkout, body.ReferenceId),
+            ct);
+
+        return result.Match<IActionResult>(
+            success => Ok(new
+            {
+                summary = success.Summary,
+                keyPoints = success.KeyPoints,
+                recommendations = success.Recommendations,
+                remainingIncluded = success.RemainingIncluded,
+                remainingPurchased = success.RemainingPurchased,
+            }),
+            error => UnprocessableEntity(new { error = error.Reason }));
+    }
 }
 
 public class UpdateCoachPlanBody
@@ -120,4 +146,10 @@ public class ConsumeCreditsBody
 public class PurchaseCreditPackBody
 {
     public required Guid PackId { get; set; }
+}
+
+public class AnalyzeWorkoutTextBody
+{
+    public required PlannedWorkout PlannedWorkout { get; set; }
+    public string? ReferenceId { get; set; }
 }

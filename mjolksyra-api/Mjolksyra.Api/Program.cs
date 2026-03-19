@@ -22,6 +22,7 @@ using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Infrastructure;
 using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.UseCases;
+using Mjolksyra.UseCases.Coaches.AnalyzeWorkoutText;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -75,6 +76,10 @@ builder.Services
     .AddOptions<PingPongOptions>()
     .Bind(builder.Configuration.GetSection(PingPongOptions.SectionName))
     .ValidateOnStart();
+
+builder.Services
+    .AddOptions<WorkoutTextAnalysisAiOptions>()
+    .Bind(builder.Configuration.GetSection(WorkoutTextAnalysisAiOptions.SectionName));
 
 builder.Services.AddSingleton(Options.Create(stripe!));
 builder.Services.ConfigureHttpJsonOptions(opt => { opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });

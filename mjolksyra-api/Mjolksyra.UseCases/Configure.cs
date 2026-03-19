@@ -2,6 +2,7 @@ using FluentValidation;
 using Ganss.Xss;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Mjolksyra.UseCases.Coaches.AnalyzeWorkoutText;
 using Mjolksyra.UseCases.Baseload;
 using Mjolksyra.UseCases.Behaviors;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
@@ -28,5 +29,6 @@ public static class Configure
         services.AddScoped<IStripeRefundGateway, StripeRefundGateway>();
         services.AddScoped<IStripeInvoiceListGateway, StripeInvoiceListGateway>();
         services.AddScoped<IStripeCreditPackGateway, StripeCreditPackGateway>();
+        services.AddHttpClient<IWorkoutTextAnalysisGateway, OpenAiWorkoutTextAnalysisGateway>();
     }
 }
