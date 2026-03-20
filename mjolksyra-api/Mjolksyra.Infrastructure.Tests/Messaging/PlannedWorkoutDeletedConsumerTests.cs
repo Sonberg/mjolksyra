@@ -1,15 +1,27 @@
 using MassTransit;
+using Microsoft.Extensions.Options;
 using Moq;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
-using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.Infrastructure.Messaging.Consumers;
-using Mjolksyra.Infrastructure.UploadThing;
+using Mjolksyra.Infrastructure.R2;
 
 namespace Mjolksyra.Infrastructure.Tests.Messaging;
 
 public class PlannedWorkoutDeletedConsumerTests
 {
+    private const string PublicBaseUrl = "https://media.example.com";
+
+    private static IOptions<R2Options> BuildR2Options() =>
+        Options.Create(new R2Options
+        {
+            AccountId = "test-account",
+            BucketName = "test-bucket",
+            AccessKeyId = "test-key",
+            SecretAccessKey = "test-secret",
+            PublicBaseUrl = PublicBaseUrl,
+        });
+
     private static Mock<ConsumeContext<PlannedWorkoutDeletedMessage>> BuildContext(
         ICollection<string> mediaUrls)
     {
@@ -31,27 +43,44 @@ public class PlannedWorkoutDeletedConsumerTests
     }
 
     [Fact]
-    public async Task Consume_WithMediaUrls_DeletesExtractedFileKeys()
+    public async Task Consume_WithR2MediaUrls_DeletesExtractedKeys()
     {
-        var fileDeleter = new Mock<IUploadThingFileDeleter>();
-        var consumer = new PlannedWorkoutDeletedConsumer(fileDeleter.Object);
+        var fileDeleter = new Mock<IR2FileDeleter>();
+        var consumer = new PlannedWorkoutDeletedConsumer(fileDeleter.Object, BuildR2Options());
 
         await consumer.Consume(BuildContext([
-            "https://utfs.io/f/abc123",
-            "https://utfs.io/f/xyz789?ct=video"
+            $"{PublicBaseUrl}/workouts/abc.webp",
+            $"{PublicBaseUrl}/workouts/xyz.mp4",
         ]).Object);
 
         fileDeleter.Verify(x => x.DeleteAsync(
             It.Is<IEnumerable<string>>(keys =>
-                keys.SequenceEqual(new[] { "abc123", "xyz789" })),
+                keys.SequenceEqual(new[] { "workouts/abc.webp", "workouts/xyz.mp4" })),
             CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
+    public async Task Consume_WithLegacyUtfsIoUrls_SkipsNonR2Urls()
+    {
+        var fileDeleter = new Mock<IR2FileDeleter>();
+        var consumer = new PlannedWorkoutDeletedConsumer(fileDeleter.Object, BuildR2Options());
+
+        // Legacy utfs.io URLs do not match the R2 base URL — they are skipped
+        await consumer.Consume(BuildContext([
+            "https://utfs.io/f/abc123",
+            "https://utfs.io/f/xyz789?ct=video",
+        ]).Object);
+
+        fileDeleter.Verify(
+            x => x.DeleteAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
     public async Task Consume_WithEmptyMediaUrls_DoesNotCallDeleter()
     {
-        var fileDeleter = new Mock<IUploadThingFileDeleter>();
-        var consumer = new PlannedWorkoutDeletedConsumer(fileDeleter.Object);
+        var fileDeleter = new Mock<IR2FileDeleter>();
+        var consumer = new PlannedWorkoutDeletedConsumer(fileDeleter.Object, BuildR2Options());
 
         await consumer.Consume(BuildContext([]).Object);
 
@@ -60,13 +89,19 @@ public class PlannedWorkoutDeletedConsumerTests
             Times.Never);
     }
 
-    [Theory]
-    [InlineData("https://utfs.io/f/abc123", "abc123")]
-    [InlineData("https://utfs.io/f/abc123?ct=video", "abc123")]
-    [InlineData("https://utfs.io/f/some-key-with-dashes", "some-key-with-dashes")]
-    public void ExtractFileKey_ReturnsKeyPart(string url, string expectedKey)
+    [Fact]
+    public async Task Consume_MixedUrls_OnlyDeletesR2Keys()
     {
-        var result = PlannedWorkoutDeletedConsumer.ExtractFileKey(url);
-        Assert.Equal(expectedKey, result);
+        var fileDeleter = new Mock<IR2FileDeleter>();
+        var consumer = new PlannedWorkoutDeletedConsumer(fileDeleter.Object, BuildR2Options());
+
+        await consumer.Consume(BuildContext([
+            $"{PublicBaseUrl}/workouts/newfile.webp",
+            "https://utfs.io/f/legacykey",
+        ]).Object);
+
+        fileDeleter.Verify(x => x.DeleteAsync(
+            It.Is<IEnumerable<string>>(keys => keys.SequenceEqual(new[] { "workouts/newfile.webp" })),
+            CancellationToken.None), Times.Once);
     }
 }

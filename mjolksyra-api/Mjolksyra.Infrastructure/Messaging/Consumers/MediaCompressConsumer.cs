@@ -1,8 +1,9 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Messaging;
-using Mjolksyra.Infrastructure.UploadThing;
+using Mjolksyra.Infrastructure.R2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
@@ -12,8 +13,9 @@ namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 
 public class MediaCompressConsumer(
     IHttpClientFactory httpClientFactory,
-    IUploadThingFileUploader fileUploader,
-    IUploadThingFileDeleter fileDeleter,
+    IR2FileUploader fileUploader,
+    IR2FileDeleter fileDeleter,
+    IOptions<R2Options> r2Options,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     ILogger<MediaCompressConsumer> logger) : IConsumer<MediaCompressionRequestedMessage>
 {
@@ -48,8 +50,8 @@ public class MediaCompressConsumer(
             // Replace URL directly in the repository (no UseCases dependency)
             await ReplaceMediaUrlAsync(msg.PlannedWorkoutId, rawUrl, compressedUrl, ct);
 
-            // Delete the original raw file from UploadThing storage
-            var rawKey = PlannedWorkoutDeletedConsumer.ExtractFileKey(rawUrl);
+            // Delete the original raw file from R2 storage
+            var rawKey = R2UrlHelper.ExtractKey(rawUrl, r2Options.Value.PublicBaseUrl);
             if (!string.IsNullOrEmpty(rawKey))
             {
                 await fileDeleter.DeleteAsync([rawKey], ct);
@@ -101,11 +103,8 @@ public class MediaCompressConsumer(
         await image.SaveAsync(outputStream, new WebpEncoder { Quality = ImageQuality }, ct);
         outputStream.Position = 0;
 
-        return await fileUploader.UploadAsync(
-            outputStream,
-            $"compressed-{Guid.NewGuid():N}.webp",
-            "image/webp",
-            ct);
+        var key = $"workouts/{Guid.NewGuid():N}.webp";
+        return await fileUploader.UploadAsync(outputStream, key, "image/webp", ct);
     }
 
     private async Task<string> CompressVideoAsync(Stream rawStream, CancellationToken ct)
@@ -132,11 +131,8 @@ public class MediaCompressConsumer(
             await conversion.Start(ct);
 
             await using var compressedFs = File.OpenRead(outputPath);
-            return await fileUploader.UploadAsync(
-                compressedFs,
-                $"compressed-{Guid.NewGuid():N}.mp4",
-                "video/mp4",
-                ct);
+            var key = $"workouts/{Guid.NewGuid():N}.mp4";
+            return await fileUploader.UploadAsync(compressedFs, key, "video/mp4", ct);
         }
         finally
         {
@@ -149,12 +145,18 @@ public class MediaCompressConsumer(
     {
         try
         {
-            var query = new Uri(url).Query;
-            if (query.Contains("ct=video")) return true;
+            var uri = new Uri(url);
+            // Legacy UploadThing URLs tagged with ?ct=video
+            if (uri.Query.Contains("ct=video")) return true;
+            // R2 URLs: check extension on path
+            var path = uri.AbsolutePath;
+            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
         }
-        catch { /* ignore */ }
-
-        return url.Contains(".mp4") || url.Contains(".mov") || url.Contains(".webm");
+        catch
+        {
+            var path = url.Contains('?') ? url[..url.IndexOf('?')] : url;
+            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
+        }
     }
 
     private static void TryDelete(string path)

@@ -8,12 +8,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Mjolksyra.Domain\Mjolksyra.Domain.csproj" />
+      <ProjectReference Include="..\Mjolksyra.UseCases\Mjolksyra.UseCases.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="brevo_csharp" Version="1.0.0" />
       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-      <PackageReference Include="Sqids" Version="3.2.1" />
+      <PackageReference Include="AWSSDK.S3" Version="3.7.*" />
       <PackageReference Include="Xabe.FFmpeg" Version="5.2.6" />
       <PackageReference Include="MassTransit" Version="8.3.4" />
       <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.9.24556.5" />

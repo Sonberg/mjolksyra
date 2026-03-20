@@ -1,11 +1,12 @@
 using MassTransit;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.Messaging.Consumers;
-using Mjolksyra.Infrastructure.UploadThing;
+using Mjolksyra.Infrastructure.R2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -13,6 +14,18 @@ namespace Mjolksyra.Infrastructure.Tests.Messaging.Consumers;
 
 public class MediaCompressConsumerTests
 {
+    private const string PublicBaseUrl = "https://media.example.com";
+
+    private static IOptions<R2Options> BuildR2Options() =>
+        Options.Create(new R2Options
+        {
+            AccountId = "test-account",
+            BucketName = "test-bucket",
+            AccessKeyId = "test-key",
+            SecretAccessKey = "test-secret",
+            PublicBaseUrl = PublicBaseUrl,
+        });
+
     private static Mock<ConsumeContext<MediaCompressionRequestedMessage>> BuildContext(
         string fileUrl,
         Guid? traineeId = null,
@@ -36,19 +49,20 @@ public class MediaCompressConsumerTests
         httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient(new FailingHandler()));
 
-        var fileUploader = new Mock<IUploadThingFileUploader>();
-        var fileDeleter = new Mock<IUploadThingFileDeleter>();
+        var fileUploader = new Mock<IR2FileUploader>();
+        var fileDeleter = new Mock<IR2FileDeleter>();
         var repository = new Mock<IPlannedWorkoutRepository>();
 
         var consumer = new MediaCompressConsumer(
             httpClientFactory.Object,
             fileUploader.Object,
             fileDeleter.Object,
+            BuildR2Options(),
             repository.Object,
             NullLogger<MediaCompressConsumer>.Instance);
 
         // Should not throw — graceful degradation
-        await consumer.Consume(BuildContext("https://utfs.io/f/abc123?raw=1").Object);
+        await consumer.Consume(BuildContext($"{PublicBaseUrl}/workouts/abc.webp?raw=1").Object);
 
         // Repository and uploader should not have been touched
         repository.Verify(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -62,23 +76,24 @@ public class MediaCompressConsumerTests
         httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient(new FakeImageHandler()));
 
-        var fileUploader = new Mock<IUploadThingFileUploader>();
+        var fileUploader = new Mock<IR2FileUploader>();
         fileUploader
             .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("upload failed"));
 
-        var fileDeleter = new Mock<IUploadThingFileDeleter>();
+        var fileDeleter = new Mock<IR2FileDeleter>();
         var repository = new Mock<IPlannedWorkoutRepository>();
 
         var consumer = new MediaCompressConsumer(
             httpClientFactory.Object,
             fileUploader.Object,
             fileDeleter.Object,
+            BuildR2Options(),
             repository.Object,
             NullLogger<MediaCompressConsumer>.Instance);
 
         // Should not throw
-        await consumer.Consume(BuildContext("https://utfs.io/f/abc123?raw=1").Object);
+        await consumer.Consume(BuildContext($"{PublicBaseUrl}/workouts/abc.webp?raw=1").Object);
 
         repository.Verify(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -87,19 +102,19 @@ public class MediaCompressConsumerTests
     public async Task Consume_OnSuccess_ReplacesUrlAndDeletesRawFile()
     {
         var workoutId = Guid.NewGuid();
-        var rawUrl = "https://utfs.io/f/rawkey123?raw=1";
-        var compressedUrl = "https://utfs.io/f/compressedkey456";
+        var rawUrl = $"{PublicBaseUrl}/workouts/rawkey123.webp?raw=1";
+        var compressedUrl = $"{PublicBaseUrl}/workouts/compressedkey456.webp";
 
         var httpClientFactory = new Mock<IHttpClientFactory>();
         httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
             .Returns(new HttpClient(new FakeImageHandler()));
 
-        var fileUploader = new Mock<IUploadThingFileUploader>();
+        var fileUploader = new Mock<IR2FileUploader>();
         fileUploader
             .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(compressedUrl);
 
-        var fileDeleter = new Mock<IUploadThingFileDeleter>();
+        var fileDeleter = new Mock<IR2FileDeleter>();
 
         var workout = new PlannedWorkout
         {
@@ -112,19 +127,19 @@ public class MediaCompressConsumerTests
         };
 
         var repository = new Mock<IPlannedWorkoutRepository>();
-        // Use It.IsAny<Guid>() to avoid Guid equality issues in Moq
         repository.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(workout);
 
         PlannedWorkout? savedWorkout = null;
         repository
             .Setup(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
             .Callback<PlannedWorkout, CancellationToken>((w, _) => savedWorkout = w)
-            .Returns(Task.CompletedTask); // explicit return prevents awaiting null
+            .Returns(Task.CompletedTask);
 
         var consumer = new MediaCompressConsumer(
             httpClientFactory.Object,
             fileUploader.Object,
             fileDeleter.Object,
+            BuildR2Options(),
             repository.Object,
             NullLogger<MediaCompressConsumer>.Instance);
 
@@ -135,9 +150,9 @@ public class MediaCompressConsumerTests
         Assert.Contains(compressedUrl, savedWorkout!.MediaUrls);
         Assert.DoesNotContain(rawUrl, savedWorkout.MediaUrls);
 
-        // Raw file key should be deleted from UploadThing
+        // Raw file key should be deleted from R2
         fileDeleter.Verify(x => x.DeleteAsync(
-            It.Is<IEnumerable<string>>(keys => keys.Contains("rawkey123")),
+            It.Is<IEnumerable<string>>(keys => keys.Contains("workouts/rawkey123.webp")),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -171,5 +186,4 @@ public class MediaCompressConsumerTests
             return Task.FromResult(response);
         }
     }
-
 }

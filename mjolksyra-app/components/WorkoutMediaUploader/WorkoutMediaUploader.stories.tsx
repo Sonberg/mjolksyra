@@ -40,6 +40,19 @@ export const WithExistingUploads: Story = {
   ),
 };
 
+/** R2-format URLs with object keys that include file extensions. */
+export const WithR2Urls: Story = {
+  render: () => (
+    <Controlled
+      initial={[
+        "https://media.example.com/workouts/abc123def456.webp",
+        "https://media.example.com/workouts/ghi789jkl012.webp",
+        "https://media.example.com/workouts/mno345pqr678.mp4",
+      ]}
+    />
+  ),
+};
+
 export const Disabled: Story = {
   render: () => (
     <WorkoutMediaUploader

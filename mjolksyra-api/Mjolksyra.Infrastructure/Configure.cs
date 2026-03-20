@@ -12,7 +12,8 @@ using Mjolksyra.Infrastructure.Messaging;
 using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.Infrastructure.Notifications;
 using Mjolksyra.Infrastructure.Stripe;
-using Mjolksyra.Infrastructure.UploadThing;
+using Mjolksyra.Infrastructure.R2;
+using Mjolksyra.UseCases.MediaStorage;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -36,9 +37,13 @@ public static class Configure
             .ValidateOnStart();
 
         services
-            .AddOptions<UploadThingOptions>()
-            .Bind(configuration.GetSection(UploadThingOptions.SectionName))
+            .AddOptions<R2Options>()
+            .Bind(configuration.GetSection(R2Options.SectionName))
             .ValidateOnStart();
+
+        services
+            .AddOptions<MediaStorageOptions>()
+            .Configure(opts => opts.PublicBaseUrl = configuration[$"{R2Options.SectionName}:PublicBaseUrl"] ?? string.Empty);
 
 #pragma warning disable EXTEXP0018
         services.AddHybridCache();
@@ -69,8 +74,8 @@ public static class Configure
         services.AddScoped<ITraineeSubscriptionSyncPublisher, MassTransitTraineeSubscriptionSyncPublisher>();
         services.AddScoped<ITraineeCancellationPublisher, MassTransitTraineeCancellationPublisher>();
         services.AddScoped<IPlannedWorkoutDeletedPublisher, MassTransitPlannedWorkoutDeletedPublisher>();
-        services.AddHttpClient<IUploadThingFileDeleter, UploadThingFileDeleter>();
-        services.AddScoped<IUploadThingFileUploader, UploadThingFileUploader>();
+        services.AddScoped<IR2FileUploader, R2FileUploader>();
+        services.AddScoped<IR2FileDeleter, R2FileDeleter>();
         services.AddScoped<IMediaCompressionPublisher, MassTransitMediaCompressionPublisher>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));

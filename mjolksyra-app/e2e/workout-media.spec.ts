@@ -1,37 +1,30 @@
 import { test, expect, Page } from "@playwright/test";
-import path from "path";
 
-// Mock the UploadThing endpoint so tests don't require real credentials.
-// The mock returns a fake URL that we can assert against later.
-async function mockUploadThing(page: Page) {
-  await page.route("**/api/uploadthing**", async (route) => {
-    const method = route.request().method();
+const R2_PUBLIC_URL = "https://media.example.com";
 
-    // UploadThing first sends a POST to get presigned URLs, then uploads directly.
-    // We intercept and return a fake response that the client accepts.
-    if (method === "POST") {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify([
-          {
-            url: "https://utfs.io/f/mock-image.jpg",
-            name: "mock-image.jpg",
-            key: "mock-image.jpg",
-            ufsUrl: "https://utfs.io/f/mock-image.jpg",
-          },
-        ]),
-      });
-    } else {
-      await route.continue();
-    }
+// Mock the R2 presigned-URL and direct-upload endpoints.
+async function mockR2Upload(page: Page) {
+  // Step 1: frontend POST to get presigned URL
+  await page.route("**/api/uploads/presigned", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        presignedUrl: `https://fake-r2-endpoint.example.com/workouts/mock-key`,
+        publicUrl: `${R2_PUBLIC_URL}/workouts/mock-key`,
+        key: "workouts/mock-key",
+      }),
+    });
+  });
+
+  // Step 2: browser PUT directly to the R2 presigned URL
+  await page.route("https://fake-r2-endpoint.example.com/**", async (route) => {
+    await route.fulfill({ status: 200, body: "" });
   });
 }
 
 test.describe("Workout media upload", () => {
   test("athlete sees media uploader in completion form", async ({ page }) => {
-    // Navigate to a workout page — adjust the URL to match your app routing.
-    // We use a mock auth cookie / setup if needed; for now we just verify the UI.
     await page.goto("/app/athlete/workouts");
 
     // If auth redirects, verify we land on sign-in (showing auth is required).
@@ -42,10 +35,8 @@ test.describe("Workout media upload", () => {
   test("WorkoutMediaUploader renders Add photos / videos button", async ({
     page,
   }) => {
-    // This test uses Storybook to render the isolated component without full auth.
     await page.goto("http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default");
 
-    // Wait for Storybook to render the component.
     await page.waitForSelector("label[for='workout-media-input']", {
       timeout: 10_000,
     });
@@ -77,7 +68,6 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediagallery-workoutmediagallery--images-only",
     );
 
-    // Gallery uses alt="Workout media N" (e.g. "Workout media 1")
     await page.waitForSelector("img[alt^='Workout media']", { timeout: 10_000 });
     const images = page.locator("img[alt^='Workout media']");
     await expect(images).toHaveCount(3);
@@ -88,8 +78,6 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediagallery-workoutmediagallery--videos-only",
     );
 
-    // Gallery shows videos as thumbnails (no controls) with a play icon overlay.
-    // Controls only appear when the video is opened in the lightbox.
     await page.waitForSelector("video", { timeout: 10_000 });
     const videos = page.locator("video");
     await expect(videos).toHaveCount(2);
@@ -100,7 +88,6 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediagallery-workoutmediagallery--empty",
     );
 
-    // Give Storybook time to render.
     await page.waitForTimeout(2_000);
 
     const images = page.locator("img[alt^='Workout media']");
@@ -133,7 +120,7 @@ test.describe("Workout media upload", () => {
     await expect(input).toBeDisabled();
   });
 
-  // Fix 1: file input is NOT disabled while upload is in progress (no compression phase)
+  // file input is NOT disabled while upload is in progress (no compression phase)
   test("file input is enabled while upload is in progress (no compression blocking)", async ({
     page,
   }) => {
@@ -143,13 +130,11 @@ test.describe("Workout media upload", () => {
 
     await page.waitForSelector("input[type='file']", { timeout: 10_000 });
 
-    // The Uploading story pre-populates pending previews but isPending is not set,
-    // so the file input should not be disabled (uploads can be added freely)
     const input = page.locator("input[type='file']");
     await expect(input).not.toBeDisabled();
   });
 
-  // Fix 1: pending previews show "Uploading..." only — no "Compressing..." state
+  // pending previews show "Uploading..." only — no "Compressing..." state
   test("Uploading story shows Uploading label for pending previews", async ({
     page,
   }) => {
@@ -159,27 +144,23 @@ test.describe("Workout media upload", () => {
 
     await page.waitForSelector("label[for='workout-media-input']", { timeout: 10_000 });
 
-    // The button label shows "Add photos / videos" (not "Compressing...")
     const label = page.locator("label[for='workout-media-input']");
     await expect(label).not.toContainText("Compressing");
 
-    // Video pending preview shows "Uploading..."
     await expect(page.getByText("Uploading...", { exact: true })).toBeVisible();
-
-    // No "Compressing" overlay text anywhere
     await expect(page.getByText("Compressing", { exact: true })).not.toBeVisible();
   });
 
-  test("removing a URL calls DELETE /api/uploadthing/files with correct file key", async ({
+  test("removing a URL calls DELETE /api/uploads/files with correct R2 key", async ({
     page,
   }) => {
     await page.goto(
-      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--with-existing-uploads",
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--with-r2-urls",
     );
     await page.waitForSelector("button[aria-label='Remove image']", { timeout: 10_000 });
 
-    const deleteRequests: { fileKeys: string[] }[] = [];
-    await page.route("**/api/uploadthing/files", async (route) => {
+    const deleteRequests: { keys: string[] }[] = [];
+    await page.route("**/api/uploads/files", async (route) => {
       if (route.request().method() === "DELETE") {
         const body = route.request().postDataJSON();
         deleteRequests.push(body);
@@ -189,17 +170,60 @@ test.describe("Workout media upload", () => {
 
     await page.locator("button[aria-label='Remove image']").first().click();
 
-    // Give the fire-and-forget fetch time to execute
     await page.waitForTimeout(500);
 
     expect(deleteRequests.length).toBe(1);
-    expect(deleteRequests[0].fileKeys).toHaveLength(1);
-    // File key should be extracted from the URL (no query params, path segment after /f/)
-    expect(deleteRequests[0].fileKeys[0]).not.toContain("https://");
-    expect(deleteRequests[0].fileKeys[0]).not.toContain("?");
+    expect(deleteRequests[0].keys).toHaveLength(1);
+    // Key should be the R2 object key (no base URL, no query string)
+    expect(deleteRequests[0].keys[0]).not.toContain("https://");
+    expect(deleteRequests[0].keys[0]).not.toContain("?");
   });
 
-  // Fix 1: after file selection, shows "Uploading..." immediately (no compression delay)
+  test("presigned URL endpoint called with correct file metadata", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
+    );
+    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+
+    await mockR2Upload(page);
+
+    const presignedRequests: unknown[] = [];
+    await page.route("**/api/uploads/presigned", async (route) => {
+      presignedRequests.push(route.request().postDataJSON());
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          presignedUrl: `https://fake-r2-endpoint.example.com/workouts/mock-key`,
+          publicUrl: `${R2_PUBLIC_URL}/workouts/mock-key`,
+          key: "workouts/mock-key",
+        }),
+      });
+    });
+
+    const pngBuffer = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+      "base64",
+    );
+    await page.locator("input[type='file']").setInputFiles({
+      name: "test-image.png",
+      mimeType: "image/png",
+      buffer: pngBuffer,
+    });
+
+    await page.waitForTimeout(1_000);
+
+    expect(presignedRequests.length).toBeGreaterThan(0);
+    const req = presignedRequests[0] as Record<string, unknown>;
+    expect(req.fileName).toBe("test-image.png");
+    expect(req.contentType).toBe("image/png");
+    expect(typeof req.fileSize).toBe("number");
+    expect(req.type).toBe("image");
+  });
+
+  // after file selection, shows "Uploading..." immediately (no compression delay)
   test("file input shows Uploading label immediately after file selection, then returns to idle", async ({
     page,
   }) => {
@@ -208,10 +232,8 @@ test.describe("Workout media upload", () => {
     );
     await page.waitForSelector("input[type='file']", { timeout: 10_000 });
 
-    // Mock UploadThing so upload pipeline can complete without real credentials
-    await mockUploadThing(page);
+    await mockR2Upload(page);
 
-    // Attach a tiny 1×1 pixel PNG
     const pngBuffer = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
       "base64",
@@ -232,7 +254,7 @@ test.describe("Workout media upload", () => {
     );
   });
 
-  // Fix 2: "Complete workout" header button disabled while media uploads are pending
+  // "Complete workout" header button disabled while media uploads are pending
   test("AthleteWorkoutLogger Complete workout button is disabled while media is uploading", async ({
     page,
   }) => {
@@ -240,10 +262,8 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--logging-with-pending-upload",
     );
 
-    // Wait for the header button to appear (visible on sm+ screens)
     await page.waitForSelector("button", { timeout: 10_000 });
 
-    // The "Complete workout" button should be disabled when uploads are pending
     const completeButton = page.getByRole("button", { name: /complete workout/i }).first();
     await expect(completeButton).toBeDisabled();
   });

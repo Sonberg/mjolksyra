@@ -1,6 +1,6 @@
 "use client";
 
-import { useUploadThing, extractFileKey } from "@/lib/uploadthing";
+import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageIcon, VideoIcon, XIcon, Loader2Icon } from "lucide-react";
 
@@ -22,9 +22,8 @@ export type PendingPreview = {
   name: string;
 };
 
-// UploadThing CDN URLs have no file extension (e.g. https://utfs.io/f/abc123).
-// We tag video URLs with ?ct=video at upload time so detection is reliable.
-// Fall back to extension matching for story fixtures and any pre-tagged URLs.
+// R2 URLs have file extensions in the key (e.g. https://media.example.com/workouts/abc.mp4).
+// Keep ?ct=video branch for legacy UploadThing URLs.
 export function isVideoUrl(url: string) {
   try {
     const ct = new URL(url).searchParams.get("ct");
@@ -55,51 +54,11 @@ export function WorkoutMediaUploader({
   const [pendingPreviews, setPendingPreviews] = useState<PendingPreview[]>(
     _testPendingPreviews ?? [],
   );
-
-  const { startUpload, isUploading } = useUploadThing("workoutImage", {
-    onClientUploadComplete: (res) => {
-      const newUrls = res.map((f) => `${f.ufsUrl}?raw=1`);
-      onUploadComplete([...mediaUrls, ...newUrls]);
-      // Revoke blob URLs for uploaded images and remove from pending
-      setPendingPreviews((prev) => {
-        prev.filter((p) => !p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
-        return prev.filter((p) => p.isVideo);
-      });
-    },
-    onUploadError: () => {
-      setPendingPreviews((prev) => {
-        prev.filter((p) => !p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
-        return prev.filter((p) => p.isVideo);
-      });
-    },
-  });
-
-  const { startUpload: startVideoUpload, isUploading: isVideoUploading } = useUploadThing(
-    "workoutVideo",
-    {
-      onClientUploadComplete: (res) => {
-        // Tag video URLs so isVideoUrl() can identify them without a file extension.
-        const newUrls = res.map((f) => `${f.ufsUrl}?ct=video&raw=1`);
-        onUploadComplete([...mediaUrls, ...newUrls]);
-        setPendingPreviews((prev) => {
-          prev.filter((p) => p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
-          return prev.filter((p) => !p.isVideo);
-        });
-      },
-      onUploadError: () => {
-        setPendingPreviews((prev) => {
-          prev.filter((p) => p.isVideo).forEach((p) => URL.revokeObjectURL(p.localUrl));
-          return prev.filter((p) => !p.isVideo);
-        });
-      },
-    },
-  );
-
-  const uploading = isUploading || isVideoUploading;
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    onPendingChange?.(uploading);
-  }, [uploading, onPendingChange]);
+    onPendingChange?.(isUploading);
+  }, [isUploading, onPendingChange]);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,25 +73,33 @@ export function WorkoutMediaUploader({
         name: f.name,
       }));
       setPendingPreviews((prev) => [...prev, ...previews]);
-
-      const imageFiles = files.filter((f) => !f.type.startsWith("video/"));
-      const videoFiles = files.filter((f) => f.type.startsWith("video/"));
-
-      const input = { traineeId, plannedWorkoutId };
-      if (imageFiles.length) await startUpload(imageFiles, input);
-      if (videoFiles.length) await startVideoUpload(videoFiles, input);
+      setIsUploading(true);
 
       if (inputRef.current) inputRef.current.value = "";
+
+      try {
+        const uploadedUrls = await uploadFiles(files);
+        onUploadComplete([...mediaUrls, ...uploadedUrls]);
+      } finally {
+        // Revoke blob URLs and clear pending previews
+        setPendingPreviews((prev) => {
+          const newPreviewIds = new Set(previews.map((p) => p.id));
+          const toRevoke = prev.filter((p) => newPreviewIds.has(p.id));
+          toRevoke.forEach((p) => { if (p.localUrl.startsWith("blob:")) URL.revokeObjectURL(p.localUrl); });
+          return prev.filter((p) => !newPreviewIds.has(p.id));
+        });
+        setIsUploading(false);
+      }
     },
-    [startUpload, startVideoUpload, traineeId, plannedWorkoutId],
+    [mediaUrls, onUploadComplete],
   );
 
   const removeUrl = (urlToRemove: string) => {
-    // Fire-and-forget: delete the file from UploadThing storage
-    fetch("/api/uploadthing/files", {
+    // Fire-and-forget: delete the file from R2 storage
+    fetch("/api/uploads/files", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileKeys: [extractFileKey(urlToRemove)] }),
+      body: JSON.stringify({ keys: [extractR2Key(urlToRemove)] }),
     }).catch(() => {});
     onUploadComplete(mediaUrls.filter((u) => u !== urlToRemove));
   };
@@ -243,4 +210,22 @@ export function WorkoutMediaUploader({
       </div>
     </div>
   );
+}
+
+async function uploadFiles(files: File[]): Promise<string[]> {
+  const results = await Promise.all(
+    files.map(async (file) => {
+      const type = file.type.startsWith("video/") ? "video" : "image";
+      const { presignedUrl, publicUrl } = await requestPresignedUrl({
+        fileName: file.name,
+        contentType: file.type,
+        fileSize: file.size,
+        type,
+      });
+      await uploadToR2(presignedUrl, file);
+      // Append ?raw=1 so the backend compression consumer knows to process it
+      return `${publicUrl}?raw=1`;
+    }),
+  );
+  return results;
 }
