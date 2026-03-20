@@ -63,7 +63,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
           <div className="mr-1 flex items-center rounded-none">
             <Image
               className="h-8 w-8 md:h-10 md:w-10 dark:invert"
-              alt="Logo"
+              alt="Mjolksyra"
               width={32}
               height={32}
               src={"/images/logo.svg"}
@@ -94,6 +94,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
           ) : null}
           {isAuthenticated ? (
             <>
+              <ThemeToggle />
               <NavigationNotifications forceVisible={isAuthenticated} />
               <NavigationUser
                 user={user}
@@ -105,7 +106,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
               <ThemeToggle />
               <RegisterDialog
                 trigger={
-                  <Button className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-accent-ink)] transition-colors hover:bg-[#ce2f10]">
+                  <Button className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-accent-ink)] transition-colors hover:bg-[var(--shell-accent-hover)]">
                     Start free trial
                   </Button>
                 }
