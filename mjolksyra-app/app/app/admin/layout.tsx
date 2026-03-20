@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getAuth } from "@/context/Auth";
 import { getUserMe } from "@/services/users/getUserMe";
@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   return (
-    <PageLayout navigation={{ tabs: <AdminSectionTabs /> }}>
+    <PageLayout navigation={{ tabs: <Suspense><AdminSectionTabs /></Suspense> }}>
       {children}
     </PageLayout>
   );

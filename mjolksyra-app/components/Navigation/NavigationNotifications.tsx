@@ -49,6 +49,16 @@ export function NavigationNotifications({
 
   const unread = useMemo(() => items.filter((x) => !x.readAt), [items]);
   const read = useMemo(() => items.filter((x) => !!x.readAt), [items]);
+  const formattedDates = useMemo(
+    () =>
+      new Map(
+        items.map((x) => [
+          x.id,
+          formatDistanceToNow(new Date(x.createdAt), { addSuffix: true }),
+        ]),
+      ),
+    [items],
+  );
 
   const refresh = useCallback(async () => {
     if (!auth.isAuthenticated) return;
@@ -150,7 +160,7 @@ export function NavigationNotifications({
         </div>
         {item.body ? <p className="mt-1 text-xs text-[var(--shell-muted)]">{item.body}</p> : null}
         <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-          {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+          {formattedDates.get(item.id)}
         </p>
       </div>
     );
