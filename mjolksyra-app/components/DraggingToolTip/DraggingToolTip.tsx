@@ -115,7 +115,7 @@ export function DraggingToolTip({
       onClick={openTooltip}
     >
       {icon ? <span className="cursor-pointer">{icon}</span> : null}
-      {isHovering && typeof window !== "undefined" && position
+      {isHovering && position
         ? createPortal(
             <div
               className="fixed z-[80] min-w-44 max-w-80 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-2 shadow-[0_12px_30px_rgba(42,36,29,0.25)]"

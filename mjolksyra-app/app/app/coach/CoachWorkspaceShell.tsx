@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, Suspense } from "react";
 import { CoachSectionTabs } from "./CoachSectionTabs";
 import { cn } from "@/lib/utils";
 import { PageLayout } from "@/app/components/PageLayout";
@@ -20,7 +20,7 @@ export function CoachWorkspaceShell({
   return (
     <PageLayout
       fullBleed={fullBleed}
-      navigation={showTabs ? { tabs: <CoachSectionTabs /> } : undefined}
+      navigation={showTabs ? { tabs: <Suspense><CoachSectionTabs /></Suspense> } : undefined}
     >
       {children}
     </PageLayout>

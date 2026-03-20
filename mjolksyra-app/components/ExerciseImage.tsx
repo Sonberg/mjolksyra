@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 type ExerciseImageProps = {
   images: string[];
@@ -28,10 +29,11 @@ export function ExerciseImage({ images }: ExerciseImageProps) {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <img
+      <Image
         src={`/exercises/${images[currentIndex]}`}
         alt="Slideshow"
-        className="w-full h-full object-cover transition-opacity duration-500"
+        fill
+        className="object-cover transition-opacity duration-500"
       />
     </div>
   );

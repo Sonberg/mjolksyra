@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  font-family: var(--font-body), "Times New Roman", serif;
+  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
 }
 
 .theme-shell-two {
@@ -22,6 +22,7 @@ body {
   --shell-muted: #5e5448;
   --shell-accent: #f03a17;
   --shell-accent-ink: #141414;
+  --shell-accent-hover: #ce2f10;
 }
 
 .shell-dropdown {
@@ -47,6 +48,7 @@ body {
   --shell-muted: #948d89;
   --shell-accent: #ff4520;
   --shell-accent-ink: #141414;
+  --shell-accent-hover: #e03015;
 }
 
 .shell-two-canvas {
@@ -71,6 +73,7 @@ body {
     --shell-muted: #5e5448;
     --shell-accent: #f03a17;
     --shell-accent-ink: #141414;
+    --shell-accent-hover: #ce2f10;
 
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -107,6 +110,7 @@ body {
     --shell-muted: #948d89;
     --shell-accent: #ff4520;
     --shell-accent-ink: #141414;
+    --shell-accent-hover: #e03015;
 
     --background: 15 10% 4%;
     --foreground: 0 0% 98%;
@@ -143,6 +147,7 @@ body {
     --shell-muted: #948d89;
     --shell-accent: #ff4520;
     --shell-accent-ink: #141414;
+    --shell-accent-hover: #e03015;
   }
 }
 
@@ -170,19 +175,19 @@ width ::-webkit-scrollbar {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--shell-muted);
   border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--shell-ink);
 }
 
 .bg-dotted {
   background-image: radial-gradient(
     circle at 1px 1px,
-    var(--accent-foreground) 1px,
+    var(--shell-border) 1px,
     transparent 0
   );
   background-size: 50px 50px;
@@ -243,4 +248,57 @@ width ::-webkit-scrollbar {
 
 .animate-bell-ring {
   animation: bell-ring 0.8s cubic-bezier(0.25, 0.7, 0.25, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blocks-rise,
+  .blocks-pulse,
+  .animate-bell-ring,
+  .home-content {
+    animation: none;
+  }
+}
+
+.home-shell {
+  --home-bg: var(--shell-bg);
+  --home-surface: var(--shell-surface);
+  --home-surface-strong: var(--shell-surface-strong);
+  --home-border: var(--shell-border);
+  --home-text: var(--shell-ink);
+  --home-muted: var(--shell-muted);
+  --home-accent: var(--shell-accent);
+  --home-accent-ink: var(--shell-accent-ink);
+  --home-accent-hover: var(--shell-accent-hover);
+  --home-accent-2: #151515;
+  --font-display: "Alfa Slab One", "Alfa Slab One Fallback";
+  background: var(--home-bg);
+  color: var(--home-text);
+  padding-bottom: 6rem;
+}
+
+.dark .home-shell,
+[data-theme="dark"] .home-shell {
+  --home-accent-2: #ede7e4;
+}
+
+.home-glow {
+  background:
+    radial-gradient(700px 420px at 8% 0%, #f03a1720 0%, transparent 62%),
+    radial-gradient(560px 320px at 92% 12%, #00000012 0%, transparent 68%);
+}
+
+.dark .home-glow,
+[data-theme="dark"] .home-glow {
+  background:
+    radial-gradient(700px 420px at 8% 0%, #f03a1738 0%, transparent 62%),
+    radial-gradient(560px 320px at 92% 12%, #00000020 0%, transparent 68%);
+}
+
+@keyframes homeEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.home-content {
+  animation: homeEnter 520ms cubic-bezier(.2,.7,.1,1) both;
 }

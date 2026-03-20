@@ -2,7 +2,7 @@
 
 import { User, UserTrainee } from "@/services/users/type";
 import { AthleteOnboardingFlow } from "@/components/AthleteOnboardingFlow/AthleteOnboardingFlow";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { AthleteDashboard } from "./AthleteDashboard";
 import { AthleteTransactions } from "./AthleteTransactions";
 import { AthleteSettings } from "./AthleteSettings";
@@ -121,18 +121,22 @@ export function PageContent({
                 </section>
               ) : (
                 <div className="lg:col-span-7">
-                  <AthleteOnboardingFlow
-                    hasCoachContext
-                    isPaymentSetupComplete={isPaymentSetupComplete}
-                  />
+                  <Suspense>
+                    <AthleteOnboardingFlow
+                      hasCoachContext
+                      isPaymentSetupComplete={isPaymentSetupComplete}
+                    />
+                  </Suspense>
                 </div>
               )}
             </div>
           ) : (
+            <Suspense>
             <AthleteOnboardingFlow
               hasCoachContext={false}
               isPaymentSetupComplete={isPaymentSetupComplete}
             />
+          </Suspense>
           )}
         </div>
       </PageLayout>

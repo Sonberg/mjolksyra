@@ -1,7 +1,9 @@
 using Mjolksyra.Domain.Database.Common;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mjolksyra.Domain.Database.Models;
 
+[BsonIgnoreExtraElements]
 public class PlannedWorkout : IDocument
 {
     public Guid Id { get; set; }
@@ -33,6 +35,7 @@ public class PlannedWorkout : IDocument
     public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;
 }
 
+[BsonIgnoreExtraElements]
 public class PlannedWorkoutAppliedBlock
 {
     public Guid BlockId { get; set; }
