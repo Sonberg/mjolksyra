@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, XIcon, PlayIcon } from "lucide-react";
-import { isVideoUrl } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+
+type PlannedWorkoutMedia = PlannedWorkout["media"][number];
 
 type Props = {
-  mediaUrls: string[];
+  media: PlannedWorkoutMedia[];
 };
 
 type MediaItem = {
@@ -13,12 +15,12 @@ type MediaItem = {
   isVideo: boolean;
 };
 
-export function WorkoutMediaGallery({ mediaUrls }: Props) {
+export function WorkoutMediaGallery({ media }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const allMedia: MediaItem[] = mediaUrls.map((url) => ({
-    url,
-    isVideo: isVideoUrl(url),
+  const allMedia: MediaItem[] = media.map((item) => ({
+    url: item.compressedUrl ?? item.rawUrl,
+    isVideo: item.type === "Video",
   }));
 
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -42,7 +44,7 @@ export function WorkoutMediaGallery({ mediaUrls }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightboxIndex, closeLightbox, prev, next]);
 
-  if (!mediaUrls.length) return null;
+  if (!media.length) return null;
 
   const activeItem = lightboxIndex !== null ? allMedia[lightboxIndex] : null;
 

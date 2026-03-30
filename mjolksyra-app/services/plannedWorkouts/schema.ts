@@ -58,7 +58,16 @@ export const workoutSchema = z.object({
   completedAt: z.coerce.date().nullable().optional(),
   reviewedAt: z.coerce.date().nullable().optional(),
   reviewNote: z.string().nullable().optional(),
-  mediaUrls: z.array(z.string()).optional().default([]),
+  media: z
+    .array(
+      z.object({
+        rawUrl: z.string(),
+        compressedUrl: z.string().nullable().optional(),
+        type: z.enum(["Image", "Video"]),
+      }),
+    )
+    .optional()
+    .default([]),
   exercises: z.array(exerciseSchema),
   createdAt: z.coerce.date().nullable(),
   appliedBlock: z

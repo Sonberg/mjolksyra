@@ -61,7 +61,7 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
           plannedAt: action.targetDate.format(PLANNED_AT),
           exercises: [exercise],
           appliedBlock: null,
-          mediaUrls: [],
+          media: [],
           createdAt: null,
         },
       ],

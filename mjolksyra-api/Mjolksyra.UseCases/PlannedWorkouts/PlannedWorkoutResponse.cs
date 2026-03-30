@@ -3,6 +3,13 @@ using Mjolksyra.UseCases.Common.Contracts;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts;
 
+public class PlannedWorkoutMediaResponse
+{
+    public required string RawUrl { get; set; }
+    public string? CompressedUrl { get; set; }
+    public PlannedWorkoutMediaType Type { get; set; }
+}
+
 public class PlannedWorkoutResponse
 {
     public required Guid Id { get; set; }
@@ -23,7 +30,7 @@ public class PlannedWorkoutResponse
 
     public string? CompletionNote { get; set; }
 
-    public ICollection<string> MediaUrls { get; set; } = [];
+    public ICollection<PlannedWorkoutMediaResponse> Media { get; set; } = [];
 
     public DateTimeOffset? ReviewedAt { get; set; }
 
@@ -44,7 +51,7 @@ public class PlannedWorkoutResponse
             PlannedAt = workout.PlannedAt,
             CompletedAt = workout.CompletedAt,
             CompletionNote = workout.CompletionNote,
-            MediaUrls = workout.MediaUrls,
+            Media = workout.Media.Select(m => new PlannedWorkoutMediaResponse { RawUrl = m.RawUrl, CompressedUrl = m.CompressedUrl, Type = m.Type }).ToList(),
             ReviewedAt = workout.ReviewedAt,
             ReviewNote = workout.ReviewNote,
             AppliedBlock = workout.AppliedBlock is null

@@ -67,7 +67,7 @@ export function Workout({
         overrides.completionNote !== undefined
           ? overrides.completionNote
           : (workout.completionNote ?? null),
-      mediaUrls: workout.mediaUrls ?? [],
+      mediaUrls: workout.media?.map((m) => m.rawUrl) ?? [],
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -510,9 +510,9 @@ export function Workout({
           </div>
         ) : null}
         {(isDetailView || viewerMode === "coach") &&
-        (workout.mediaUrls?.length ?? 0) > 0 ? (
+        (workout.media?.length ?? 0) > 0 ? (
           <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
-            <WorkoutMediaGallery mediaUrls={workout.mediaUrls ?? []} />
+            <WorkoutMediaGallery media={workout.media ?? []} />
           </div>
         ) : null}
         {viewerMode === "coach" &&

@@ -1,7 +1,19 @@
 using Mjolksyra.Domain.Database.Common;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mjolksyra.Domain.Database.Models;
+
+public enum PlannedWorkoutMediaType { Image, Video }
+
+[BsonIgnoreExtraElements]
+public class PlannedWorkoutMedia
+{
+    public required string RawUrl { get; set; }
+    public string? CompressedUrl { get; set; }
+    [BsonRepresentation(BsonType.String)]
+    public PlannedWorkoutMediaType Type { get; set; }
+}
 
 [BsonIgnoreExtraElements]
 public class PlannedWorkout : IDocument
@@ -24,7 +36,8 @@ public class PlannedWorkout : IDocument
 
     public string? CompletionNote { get; set; }
 
-    public ICollection<string> MediaUrls { get; set; } = [];
+    [BsonElement("media")]
+    public ICollection<PlannedWorkoutMedia> Media { get; set; } = [];
 
     public DateTimeOffset? ReviewedAt { get; set; }
 

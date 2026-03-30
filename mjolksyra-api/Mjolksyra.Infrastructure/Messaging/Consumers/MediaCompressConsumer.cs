@@ -1,6 +1,5 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.R2;
@@ -14,8 +13,6 @@ namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 public class MediaCompressConsumer(
     IHttpClientFactory httpClientFactory,
     IR2FileUploader fileUploader,
-    IR2FileDeleter fileDeleter,
-    IOptions<R2Options> r2Options,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     ILogger<MediaCompressConsumer> logger) : IConsumer<MediaCompressionRequestedMessage>
 {
@@ -47,15 +44,8 @@ public class MediaCompressConsumer(
                 compressedUrl = await CompressImageAsync(rawStream, ct);
             }
 
-            // Replace URL directly in the repository (no UseCases dependency)
-            await ReplaceMediaUrlAsync(msg.PlannedWorkoutId, rawUrl, compressedUrl, ct);
-
-            // Delete the original raw file from R2 storage
-            var rawKey = R2UrlHelper.ExtractKey(rawUrl, r2Options.Value.PublicBaseUrl);
-            if (!string.IsNullOrEmpty(rawKey))
-            {
-                await fileDeleter.DeleteAsync([rawKey], ct);
-            }
+            // Set compressed URL on the media item (raw file is preserved)
+            await SetCompressedUrlAsync(msg.PlannedWorkoutId, rawUrl, compressedUrl, ct);
         }
         catch (Exception ex)
         {
@@ -67,21 +57,19 @@ public class MediaCompressConsumer(
         }
     }
 
-    private async Task ReplaceMediaUrlAsync(
+    private async Task SetCompressedUrlAsync(
         Guid plannedWorkoutId,
-        string oldUrl,
-        string newUrl,
+        string rawUrl,
+        string compressedUrl,
         CancellationToken ct)
     {
         var workout = await plannedWorkoutRepository.Get(plannedWorkoutId, ct);
         if (workout is null) return;
 
-        var urls = workout.MediaUrls.ToList();
-        var index = urls.IndexOf(oldUrl);
-        if (index < 0) return; // already replaced or not found
+        var item = workout.Media.FirstOrDefault(m => m.RawUrl == rawUrl);
+        if (item is null) return; // already processed or not found
 
-        urls[index] = newUrl;
-        workout.MediaUrls = urls;
+        item.CompressedUrl = compressedUrl;
         await plannedWorkoutRepository.Update(workout, ct);
     }
 

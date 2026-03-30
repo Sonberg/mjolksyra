@@ -23,8 +23,15 @@ public class PlannedWorkoutDeletedConsumerTests
         });
 
     private static Mock<ConsumeContext<PlannedWorkoutDeletedMessage>> BuildContext(
-        ICollection<string> mediaUrls)
+        ICollection<string> rawUrls,
+        ICollection<string>? compressedUrls = null)
     {
+        var mediaList = rawUrls.Select((raw, i) => new PlannedWorkoutMedia
+        {
+            RawUrl = raw,
+            CompressedUrl = compressedUrls?.ElementAtOrDefault(i),
+        }).ToList();
+
         var context = new Mock<ConsumeContext<PlannedWorkoutDeletedMessage>>();
         context.SetupGet(x => x.Message).Returns(new PlannedWorkoutDeletedMessage
         {
@@ -35,7 +42,7 @@ public class PlannedWorkoutDeletedConsumerTests
                 PlannedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                 CreatedAt = DateTimeOffset.UtcNow,
                 Exercises = [],
-                MediaUrls = mediaUrls
+                Media = mediaList
             }
         });
         context.SetupGet(x => x.CancellationToken).Returns(CancellationToken.None);

@@ -12,9 +12,14 @@ public class PlannedWorkoutDeletedConsumer(IR2FileDeleter fileDeleter, IOptions<
     {
         var publicBaseUrl = r2Options.Value.PublicBaseUrl;
 
-        var keys = context.Message.Workout.MediaUrls
+        var allUrls = context.Message.Workout.Media
+            .SelectMany(m => new[] { m.RawUrl, m.CompressedUrl })
+            .OfType<string>();
+
+        var keys = allUrls
             .Select(url => R2UrlHelper.ExtractKey(url, publicBaseUrl))
             .Where(k => !string.IsNullOrEmpty(k))
+            .Distinct()
             .ToList();
 
         if (keys.Count == 0) return Task.CompletedTask;

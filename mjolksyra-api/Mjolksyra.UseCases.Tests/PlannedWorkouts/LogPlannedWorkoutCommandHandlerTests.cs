@@ -25,7 +25,7 @@ public class LogPlannedWorkoutCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_MediaUrls_ArePersisted()
+    public async Task Handle_Media_IsConvertedFromRawUrls()
     {
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
@@ -66,8 +66,10 @@ public class LogPlannedWorkoutCommandHandlerTests
 
         Assert.NotNull(result);
         Assert.NotNull(savedWorkout);
-        Assert.Equal(mediaUrls, savedWorkout!.MediaUrls);
-        Assert.Equal(mediaUrls, result.MediaUrls);
+        Assert.Equal(mediaUrls, savedWorkout!.Media.Select(m => m.RawUrl).ToList());
+        Assert.Equal(mediaUrls, result.Media.Select(m => m.RawUrl).ToList());
+        Assert.Equal(PlannedWorkoutMediaType.Image, savedWorkout.Media.First().Type);
+        Assert.Equal(PlannedWorkoutMediaType.Video, savedWorkout.Media.Last().Type);
     }
 
     [Fact]
@@ -83,7 +85,7 @@ public class LogPlannedWorkoutCommandHandlerTests
             PlannedAt = new DateOnly(2026, 3, 15),
             Exercises = [],
             CreatedAt = DateTimeOffset.UtcNow,
-            MediaUrls = ["https://utfs.io/f/old-image.jpg"]
+            Media = [new PlannedWorkoutMedia { RawUrl = "https://utfs.io/f/old-image.jpg" }]
         };
 
         PlannedWorkout? savedWorkout = null;
@@ -108,8 +110,8 @@ public class LogPlannedWorkoutCommandHandlerTests
 
         Assert.NotNull(result);
         Assert.NotNull(savedWorkout);
-        Assert.Empty(savedWorkout!.MediaUrls);
-        Assert.Empty(result.MediaUrls);
+        Assert.Empty(savedWorkout!.Media);
+        Assert.Empty(result.Media);
     }
 
     private static LogPlannedWorkoutCommandHandler CreateSut(

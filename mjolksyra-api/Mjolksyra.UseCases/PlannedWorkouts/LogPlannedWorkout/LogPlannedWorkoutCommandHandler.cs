@@ -45,7 +45,13 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
 
         plannedWorkout.CompletedAt = request.Log.CompletedAt;
         plannedWorkout.CompletionNote = request.Log.CompletionNote;
-        plannedWorkout.MediaUrls = request.Log.MediaUrls;
+        plannedWorkout.Media = request.Log.MediaUrls
+            .Select(url => new PlannedWorkoutMedia
+            {
+                RawUrl = url,
+                Type = IsVideoUrl(url) ? PlannedWorkoutMediaType.Video : PlannedWorkoutMediaType.Image,
+            })
+            .ToList();
 
         if (request.Log.CompletedAt is null || previousCompletedAt != request.Log.CompletedAt)
         {
@@ -112,8 +118,8 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
                 cancellationToken: cancellationToken);
         }
 
-        // Emit compression requests for any raw (uncompressed) URLs
-        foreach (var url in plannedWorkout.MediaUrls.Where(u => u.Contains("raw=1")))
+        // Emit compression requests for any raw (uncompressed) media
+        foreach (var url in plannedWorkout.Media.Where(m => m.RawUrl.Contains("raw=1")).Select(m => m.RawUrl))
         {
             await _mediaCompressionPublisher.Publish(new MediaCompressionRequestedMessage
             {
@@ -124,5 +130,21 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
         }
 
         return PlannedWorkoutResponse.From(plannedWorkout, exercises);
+    }
+
+    private static bool IsVideoUrl(string url)
+    {
+        try
+        {
+            var uri = new Uri(url);
+            if (uri.Query.Contains("ct=video")) return true;
+            var path = uri.AbsolutePath;
+            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
+        }
+        catch
+        {
+            var path = url.Contains('?') ? url[..url.IndexOf('?')] : url;
+            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
+        }
     }
 }

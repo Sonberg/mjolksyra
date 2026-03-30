@@ -11,12 +11,10 @@ public class ReplaceMediaUrlCommandHandler(IPlannedWorkoutRepository plannedWork
         var workout = await plannedWorkoutRepository.Get(request.PlannedWorkoutId, cancellationToken);
         if (workout is null) return;
 
-        var index = workout.MediaUrls.ToList().IndexOf(request.OldUrl);
-        if (index < 0) return; // idempotent: URL already replaced or not found
+        var item = workout.Media.FirstOrDefault(m => m.RawUrl == request.OldUrl);
+        if (item is null) return; // idempotent: URL not found or already compressed
 
-        var urls = workout.MediaUrls.ToList();
-        urls[index] = request.NewUrl;
-        workout.MediaUrls = urls;
+        item.CompressedUrl = request.CompressedUrl;
 
         await plannedWorkoutRepository.Update(workout, cancellationToken);
     }

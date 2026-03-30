@@ -30,7 +30,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
   const [completionNote, setCompletionNote] = useState(
     workout.completionNote ?? "",
   );
-  const [mediaUrls, setMediaUrls] = useState<string[]>(workout.mediaUrls ?? []);
+  const [media, setMedia] = useState<PlannedWorkout["media"]>(workout.media ?? []);
   const [isMediaPendingInternal, setIsMediaPending] = useState(false);
   const isMediaPending = _testIsMediaPending ?? isMediaPendingInternal;
 
@@ -58,7 +58,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
         overrides.completionNote !== undefined
           ? overrides.completionNote
           : (workout.completionNote ?? null),
-      mediaUrls,
+      mediaUrls: media.map((m) => m.rawUrl),
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -316,9 +316,9 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
         ) : null}
 
         {/* Media gallery (shown after completion) */}
-        {isCompleted && (workout.mediaUrls?.length ?? 0) > 0 ? (
+        {isCompleted && (workout.media?.length ?? 0) > 0 ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <WorkoutMediaGallery mediaUrls={workout.mediaUrls ?? []} />
+            <WorkoutMediaGallery media={workout.media ?? []} />
           </div>
         ) : null}
 
@@ -358,15 +358,15 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
 
         {/* Media uploader — always visible while workout is in progress so
             athletes can add photos as they train, before marking complete.
-            mediaUrls is included in every buildLogPayload call, so uploads
+            media is included in every buildLogPayload call (as raw URLs), so uploads
             are persisted to the DB on the next set/exercise interaction. */}
         {!isCompleted ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
             <WorkoutMediaUploader
               traineeId={traineeId}
               plannedWorkoutId={workout.id}
-              mediaUrls={mediaUrls}
-              onUploadComplete={setMediaUrls}
+              media={media}
+              onUploadComplete={setMedia}
               onPendingChange={setIsMediaPending}
             />
           </div>
@@ -407,8 +407,8 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
               <WorkoutMediaUploader
                 traineeId={traineeId}
                 plannedWorkoutId={workout.id}
-                mediaUrls={mediaUrls}
-                onUploadComplete={setMediaUrls}
+                media={media}
+                onUploadComplete={setMedia}
                 isPending={saveCompletion.isPending}
                 onPendingChange={setIsMediaPending}
               />

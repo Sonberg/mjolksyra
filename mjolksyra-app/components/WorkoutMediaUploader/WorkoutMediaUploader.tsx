@@ -3,12 +3,15 @@
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageIcon, VideoIcon, XIcon, Loader2Icon } from "lucide-react";
+import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+
+type PlannedWorkoutMedia = PlannedWorkout["media"][number];
 
 type Props = {
   traineeId: string;
   plannedWorkoutId: string;
-  mediaUrls: string[];
-  onUploadComplete: (urls: string[]) => void;
+  media: PlannedWorkoutMedia[];
+  onUploadComplete: (media: PlannedWorkoutMedia[]) => void;
   isPending?: boolean;
   onPendingChange?: (hasPending: boolean) => void;
   /** @internal For Storybook and testing only. Pre-populates pending previews. */
@@ -44,7 +47,7 @@ function getFilename(url: string) {
 export function WorkoutMediaUploader({
   traineeId,
   plannedWorkoutId,
-  mediaUrls,
+  media,
   onUploadComplete,
   isPending,
   onPendingChange,
@@ -78,8 +81,8 @@ export function WorkoutMediaUploader({
       if (inputRef.current) inputRef.current.value = "";
 
       try {
-        const uploadedUrls = await uploadFiles(files);
-        onUploadComplete([...mediaUrls, ...uploadedUrls]);
+        const uploaded = await uploadFiles(files);
+        onUploadComplete([...media, ...uploaded]);
       } finally {
         // Revoke blob URLs and clear pending previews
         setPendingPreviews((prev) => {
@@ -91,21 +94,21 @@ export function WorkoutMediaUploader({
         setIsUploading(false);
       }
     },
-    [mediaUrls, onUploadComplete],
+    [media, onUploadComplete],
   );
 
-  const removeUrl = (urlToRemove: string) => {
-    // Fire-and-forget: delete the file from R2 storage
+  const removeMedia = (item: PlannedWorkoutMedia) => {
+    // Fire-and-forget: delete the raw file from R2 storage
     fetch("/api/uploads/files", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keys: [extractR2Key(urlToRemove)] }),
+      body: JSON.stringify({ keys: [extractR2Key(item.rawUrl)] }),
     }).catch(() => {});
-    onUploadComplete(mediaUrls.filter((u) => u !== urlToRemove));
+    onUploadComplete(media.filter((m) => m.rawUrl !== item.rawUrl));
   };
 
   const disabled = isPending;
-  const hasItems = mediaUrls.length > 0 || pendingPreviews.length > 0;
+  const hasItems = media.length > 0 || pendingPreviews.length > 0;
 
   return (
     <div>
@@ -116,20 +119,20 @@ export function WorkoutMediaUploader({
       {hasItems ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {/* Confirmed uploads */}
-          {mediaUrls.map((url) =>
-            isVideoUrl(url) ? (
+          {media.map((item) =>
+            item.type === "Video" ? (
               <div
-                key={url}
+                key={item.rawUrl}
                 className="relative flex items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2"
               >
                 <VideoIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
                 <span className="max-w-[140px] truncate text-xs text-[var(--shell-ink)]">
-                  {getFilename(url)}
+                  {getFilename(item.rawUrl)}
                 </span>
                 <button
                   type="button"
                   disabled={disabled}
-                  onClick={() => removeUrl(url)}
+                  onClick={() => removeMedia(item)}
                   className="ml-1 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-40"
                   aria-label="Remove video"
                 >
@@ -137,17 +140,17 @@ export function WorkoutMediaUploader({
                 </button>
               </div>
             ) : (
-              <div key={url} className="relative">
+              <div key={item.rawUrl} className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={url}
+                  src={item.compressedUrl ?? item.rawUrl}
                   alt="Workout media"
                   className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover"
                 />
                 <button
                   type="button"
                   disabled={disabled}
-                  onClick={() => removeUrl(url)}
+                  onClick={() => removeMedia(item)}
                   className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center bg-[var(--shell-ink)] text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)] disabled:opacity-40"
                   aria-label="Remove image"
                 >
@@ -212,10 +215,11 @@ export function WorkoutMediaUploader({
   );
 }
 
-async function uploadFiles(files: File[]): Promise<string[]> {
-  const results = await Promise.all(
+async function uploadFiles(files: File[]): Promise<PlannedWorkoutMedia[]> {
+  return Promise.all(
     files.map(async (file) => {
-      const type = file.type.startsWith("video/") ? "video" : "image";
+      const isVideo = file.type.startsWith("video/");
+      const type = isVideo ? "video" : "image";
       const { presignedUrl, publicUrl } = await requestPresignedUrl({
         fileName: file.name,
         contentType: file.type,
@@ -223,9 +227,11 @@ async function uploadFiles(files: File[]): Promise<string[]> {
         type,
       });
       await uploadToR2(presignedUrl, file);
-      // Append ?raw=1 so the backend compression consumer knows to process it
-      return `${publicUrl}?raw=1`;
+      return {
+        rawUrl: `${publicUrl}?raw=1`,
+        compressedUrl: null,
+        type: isVideo ? ("Video" as const) : ("Image" as const),
+      };
     }),
   );
-  return results;
 }

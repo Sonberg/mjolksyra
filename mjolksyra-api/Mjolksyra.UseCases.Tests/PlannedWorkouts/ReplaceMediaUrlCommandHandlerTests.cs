@@ -8,13 +8,14 @@ namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 public class ReplaceMediaUrlCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_ReplacesOldUrlWithNewUrl()
+    public async Task Handle_SetsCompressedUrlOnMatchingItem()
     {
         var workoutId = Guid.NewGuid();
-        var oldUrl = "https://utfs.io/f/abc123?raw=1";
-        var newUrl = "https://utfs.io/f/def456";
+        var rawUrl = "https://utfs.io/f/abc123?raw=1";
+        var compressedUrl = "https://r2.example.com/workouts/compressed.webp";
+        var otherRaw = "https://utfs.io/f/other?raw=1";
 
-        var workout = CreateWorkout(workoutId, [oldUrl, "https://utfs.io/f/other"]);
+        var workout = CreateWorkout(workoutId, [rawUrl, otherRaw]);
 
         PlannedWorkout? saved = null;
         var repository = new Mock<IPlannedWorkoutRepository>();
@@ -27,14 +28,16 @@ public class ReplaceMediaUrlCommandHandlerTests
         {
             TraineeId = Guid.NewGuid(),
             PlannedWorkoutId = workoutId,
-            OldUrl = oldUrl,
-            NewUrl = newUrl,
+            OldUrl = rawUrl,
+            CompressedUrl = compressedUrl,
         }, CancellationToken.None);
 
         Assert.NotNull(saved);
-        Assert.Contains(newUrl, saved!.MediaUrls);
-        Assert.DoesNotContain(oldUrl, saved.MediaUrls);
-        Assert.Contains("https://utfs.io/f/other", saved.MediaUrls);
+        var item = saved!.Media.Single(m => m.RawUrl == rawUrl);
+        Assert.Equal(compressedUrl, item.CompressedUrl);
+        // Other item unaffected
+        var other = saved.Media.Single(m => m.RawUrl == otherRaw);
+        Assert.Null(other.CompressedUrl);
     }
 
     [Fact]
@@ -52,7 +55,7 @@ public class ReplaceMediaUrlCommandHandlerTests
             TraineeId = Guid.NewGuid(),
             PlannedWorkoutId = workoutId,
             OldUrl = "https://utfs.io/f/does-not-exist?raw=1",
-            NewUrl = "https://utfs.io/f/new",
+            CompressedUrl = "https://r2.example.com/workouts/new.webp",
         }, CancellationToken.None);
 
         // Update should never be called when the old URL is not found
@@ -72,13 +75,13 @@ public class ReplaceMediaUrlCommandHandlerTests
             TraineeId = Guid.NewGuid(),
             PlannedWorkoutId = Guid.NewGuid(),
             OldUrl = "https://utfs.io/f/abc?raw=1",
-            NewUrl = "https://utfs.io/f/def",
+            CompressedUrl = "https://r2.example.com/workouts/def.webp",
         }, CancellationToken.None);
 
         repository.Verify(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private static PlannedWorkout CreateWorkout(Guid id, ICollection<string> mediaUrls) =>
+    private static PlannedWorkout CreateWorkout(Guid id, ICollection<string> rawUrls) =>
         new()
         {
             Id = id,
@@ -86,6 +89,6 @@ public class ReplaceMediaUrlCommandHandlerTests
             PlannedAt = new DateOnly(2026, 3, 15),
             Exercises = [],
             CreatedAt = DateTimeOffset.UtcNow,
-            MediaUrls = mediaUrls,
+            Media = rawUrls.Select(u => new PlannedWorkoutMedia { RawUrl = u }).ToList(),
         };
 }
