@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Media;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 
@@ -49,7 +50,7 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
             .Select(url => new PlannedWorkoutMedia
             {
                 RawUrl = url,
-                Type = IsVideoUrl(url) ? PlannedWorkoutMediaType.Video : PlannedWorkoutMediaType.Image,
+                Type = MediaUrlHelper.IsVideoUrl(url) ? PlannedWorkoutMediaType.Video : PlannedWorkoutMediaType.Image,
             })
             .ToList();
 
@@ -124,27 +125,10 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
             await _mediaCompressionPublisher.Publish(new MediaCompressionRequestedMessage
             {
                 FileUrl = url,
-                TraineeId = request.TraineeId,
                 PlannedWorkoutId = request.PlannedWorkoutId,
             }, cancellationToken);
         }
 
         return PlannedWorkoutResponse.From(plannedWorkout, exercises);
-    }
-
-    private static bool IsVideoUrl(string url)
-    {
-        try
-        {
-            var uri = new Uri(url);
-            if (uri.Query.Contains("ct=video")) return true;
-            var path = uri.AbsolutePath;
-            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
-        }
-        catch
-        {
-            var path = url.Contains('?') ? url[..url.IndexOf('?')] : url;
-            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
-        }
     }
 }

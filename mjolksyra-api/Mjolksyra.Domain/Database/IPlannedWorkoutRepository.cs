@@ -14,4 +14,6 @@ public interface IPlannedWorkoutRepository
     Task<PlannedWorkout> Create(PlannedWorkout workout, CancellationToken cancellationToken);
 
     Task Update(PlannedWorkout workout, CancellationToken cancellationToken);
+
+    Task SetMediaCompressedUrl(Guid workoutId, string rawUrl, string compressedUrl, CancellationToken cancellationToken);
 }

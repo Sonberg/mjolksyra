@@ -87,4 +87,16 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
             IsUpsert = false
         }, cancellationToken);
     }
+
+    public async Task SetMediaCompressedUrl(Guid workoutId, string rawUrl, string compressedUrl, CancellationToken cancellationToken)
+    {
+        var filter = Builders<PlannedWorkout>.Filter.And(
+            Builders<PlannedWorkout>.Filter.Eq(x => x.Id, workoutId),
+            Builders<PlannedWorkout>.Filter.ElemMatch(x => x.Media, m => m.RawUrl == rawUrl));
+
+        var update = Builders<PlannedWorkout>.Update
+            .Set("Media.$.CompressedUrl", compressedUrl);
+
+        await _context.PlannedWorkout.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+    }
 }

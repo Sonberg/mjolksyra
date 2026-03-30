@@ -1,6 +1,7 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Media;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Infrastructure.R2;
 using SixLabors.ImageSharp;
@@ -28,7 +29,7 @@ public class MediaCompressConsumer(
         try
         {
             var rawUrl = msg.FileUrl;
-            var isVideo = IsVideoUrl(rawUrl);
+            var isVideo = MediaUrlHelper.IsVideoUrl(rawUrl);
 
             // Download raw file
             var http = httpClientFactory.CreateClient();
@@ -37,15 +38,14 @@ public class MediaCompressConsumer(
             string compressedUrl;
             if (isVideo)
             {
-                compressedUrl = await CompressVideoAsync(rawStream, ct);
+                compressedUrl = await CompressVideoAsync(rawStream, rawUrl, msg.PlannedWorkoutId, ct);
             }
             else
             {
-                compressedUrl = await CompressImageAsync(rawStream, ct);
+                compressedUrl = await CompressImageAsync(rawStream, rawUrl, msg.PlannedWorkoutId, ct);
             }
 
-            // Set compressed URL on the media item (raw file is preserved)
-            await SetCompressedUrlAsync(msg.PlannedWorkoutId, rawUrl, compressedUrl, ct);
+            await plannedWorkoutRepository.SetMediaCompressedUrl(msg.PlannedWorkoutId, rawUrl, compressedUrl, ct);
         }
         catch (Exception ex)
         {
@@ -57,23 +57,7 @@ public class MediaCompressConsumer(
         }
     }
 
-    private async Task SetCompressedUrlAsync(
-        Guid plannedWorkoutId,
-        string rawUrl,
-        string compressedUrl,
-        CancellationToken ct)
-    {
-        var workout = await plannedWorkoutRepository.Get(plannedWorkoutId, ct);
-        if (workout is null) return;
-
-        var item = workout.Media.FirstOrDefault(m => m.RawUrl == rawUrl);
-        if (item is null) return; // already processed or not found
-
-        item.CompressedUrl = compressedUrl;
-        await plannedWorkoutRepository.Update(workout, ct);
-    }
-
-    private async Task<string> CompressImageAsync(Stream rawStream, CancellationToken ct)
+    private async Task<string> CompressImageAsync(Stream rawStream, string rawUrl, Guid plannedWorkoutId, CancellationToken ct)
     {
         using var image = await Image.LoadAsync(rawStream, ct);
 
@@ -91,15 +75,15 @@ public class MediaCompressConsumer(
         await image.SaveAsync(outputStream, new WebpEncoder { Quality = ImageQuality }, ct);
         outputStream.Position = 0;
 
-        var key = $"workouts/{Guid.NewGuid():N}.webp";
+        var key = $"workouts/{plannedWorkoutId}/{BaseName(rawUrl)}-compressed.webp";
         return await fileUploader.UploadAsync(outputStream, key, "image/webp", ct);
     }
 
-    private async Task<string> CompressVideoAsync(Stream rawStream, CancellationToken ct)
+    private async Task<string> CompressVideoAsync(Stream rawStream, string rawUrl, Guid plannedWorkoutId, CancellationToken ct)
     {
-        // Write raw stream to a temp file so FFmpeg can read it
-        var inputPath = Path.GetTempFileName() + ".mp4";
-        var outputPath = Path.GetTempFileName() + "_compressed.mp4";
+        // Use Guid-based paths — Path.GetTempFileName() creates a file on disk that would leak
+        var inputPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.mp4");
+        var outputPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}_compressed.mp4");
 
         try
         {
@@ -119,7 +103,7 @@ public class MediaCompressConsumer(
             await conversion.Start(ct);
 
             await using var compressedFs = File.OpenRead(outputPath);
-            var key = $"workouts/{Guid.NewGuid():N}.mp4";
+            var key = $"workouts/{plannedWorkoutId}/{BaseName(rawUrl)}-compressed.mp4";
             return await fileUploader.UploadAsync(compressedFs, key, "video/mp4", ct);
         }
         finally
@@ -129,21 +113,18 @@ public class MediaCompressConsumer(
         }
     }
 
-    private static bool IsVideoUrl(string url)
+    /// <summary>Returns the filename without extension from a URL, stripping any query string.</summary>
+    private static string BaseName(string url)
     {
         try
         {
-            var uri = new Uri(url);
-            // Legacy UploadThing URLs tagged with ?ct=video
-            if (uri.Query.Contains("ct=video")) return true;
-            // R2 URLs: check extension on path
-            var path = uri.AbsolutePath;
-            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
+            var path = new Uri(url).AbsolutePath;
+            return Path.GetFileNameWithoutExtension(path);
         }
         catch
         {
             var path = url.Contains('?') ? url[..url.IndexOf('?')] : url;
-            return path.EndsWith(".mp4") || path.EndsWith(".mov") || path.EndsWith(".webm");
+            return Path.GetFileNameWithoutExtension(path);
         }
     }
 

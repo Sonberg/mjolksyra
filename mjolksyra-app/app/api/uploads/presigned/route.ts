@@ -15,6 +15,10 @@ function createS3Client() {
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
     },
     forcePathStyle: true,
+    // Disable automatic CRC32 checksums — the browser cannot compute or send
+    // x-amz-checksum-* headers, which would cause the upload to fail.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
   });
 }
 
@@ -28,9 +32,9 @@ export async function POST(req: NextRequest) {
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
-  const { fileName, contentType, fileSize, type } = body ?? {};
+  const { fileName, contentType, fileSize, type, plannedWorkoutId } = body ?? {};
 
-  if (!fileName || !contentType || typeof fileSize !== "number" || (type !== "image" && type !== "video")) {
+  if (!fileName || !contentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !plannedWorkoutId) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest) {
   }
 
   const ext = getExtension(fileName);
-  const key = `workouts/${crypto.randomUUID()}.${ext}`;
+  const key = `workouts/${plannedWorkoutId}/${crypto.randomUUID()}.${ext}`;
   const bucket = process.env.R2_BUCKET_NAME!;
   const publicBaseUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
 
@@ -52,7 +56,8 @@ export async function POST(req: NextRequest) {
     Bucket: bucket,
     Key: key,
     ContentType: contentType,
-    ContentLength: fileSize,
+    // Omit ContentLength — including it adds `content-length` to X-Amz-SignedHeaders,
+    // which triggers a CORS preflight header check that R2 fails without AllowedHeaders configured.
   });
 
   const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });

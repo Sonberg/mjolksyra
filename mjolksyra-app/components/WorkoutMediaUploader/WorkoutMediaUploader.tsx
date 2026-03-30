@@ -81,7 +81,7 @@ export function WorkoutMediaUploader({
       if (inputRef.current) inputRef.current.value = "";
 
       try {
-        const uploaded = await uploadFiles(files);
+        const uploaded = await uploadFiles(files, plannedWorkoutId);
         onUploadComplete([...media, ...uploaded]);
       } finally {
         // Revoke blob URLs and clear pending previews
@@ -215,7 +215,7 @@ export function WorkoutMediaUploader({
   );
 }
 
-async function uploadFiles(files: File[]): Promise<PlannedWorkoutMedia[]> {
+async function uploadFiles(files: File[], plannedWorkoutId: string): Promise<PlannedWorkoutMedia[]> {
   return Promise.all(
     files.map(async (file) => {
       const isVideo = file.type.startsWith("video/");
@@ -225,6 +225,7 @@ async function uploadFiles(files: File[]): Promise<PlannedWorkoutMedia[]> {
         contentType: file.type,
         fileSize: file.size,
         type,
+        plannedWorkoutId,
       });
       await uploadToR2(presignedUrl, file);
       return {

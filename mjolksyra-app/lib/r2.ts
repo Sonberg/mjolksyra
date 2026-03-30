@@ -29,6 +29,7 @@ export async function requestPresignedUrl(opts: {
   contentType: string;
   fileSize: number;
   type: "image" | "video";
+  plannedWorkoutId: string;
 }): Promise<PresignedUrlResponse> {
   const res = await fetch("/api/uploads/presigned", {
     method: "POST",
@@ -52,7 +53,6 @@ export async function uploadToR2(presignedUrl: string, file: File): Promise<void
     method: "PUT",
     headers: {
       "Content-Type": file.type,
-      "Content-Length": String(file.size),
     },
     body: file,
   });
