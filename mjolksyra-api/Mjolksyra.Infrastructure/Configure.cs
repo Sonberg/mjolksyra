@@ -9,6 +9,7 @@ using Mjolksyra.Infrastructure.Clerk;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
 using Mjolksyra.Infrastructure.Messaging;
+using Mjolksyra.Infrastructure.Media;
 using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.Infrastructure.Notifications;
 using Mjolksyra.Infrastructure.Stripe;
@@ -66,6 +67,7 @@ public static class Configure
         services.AddScoped<IDiscountCodeRepository, DiscountCodeRepository>();
         services.AddScoped<IPlanRepository, PlanRepository>();
         services.AddHostedService<PlanSeeder>();
+        services.AddHostedService<FfmpegInitializer>();
         services.AddScoped<BrevoEmailSender>();
         services.AddKeyedScoped<IEmailSender, BrevoEmailSender>("direct");
         services.AddScoped<NotificationService>();

@@ -57,7 +57,7 @@ export default async function Home() {
         <DemoSection />
         <BlockBuilderPreviewSection />
         <StripeSection />
-        <FAQSection />
+        <FAQSection plans={plans} />
         <CTASection />
 
         <footer className="pb-10 text-center text-sm" style={{ color: "var(--home-muted)" }}>

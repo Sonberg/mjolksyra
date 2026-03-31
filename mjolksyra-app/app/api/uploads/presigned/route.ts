@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const IMAGE_MAX_BYTES = 4 * 1024 * 1024; // 4 MB
+const IMAGE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 const VIDEO_MAX_BYTES = 256 * 1024 * 1024; // 256 MB
 
 function createS3Client() {

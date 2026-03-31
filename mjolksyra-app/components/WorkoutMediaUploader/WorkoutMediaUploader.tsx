@@ -58,6 +58,10 @@ export function WorkoutMediaUploader({
     _testPendingPreviews ?? [],
   );
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const IMAGE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB
+  const VIDEO_MAX_BYTES = 256 * 1024 * 1024; // 256 MB
 
   useEffect(() => {
     onPendingChange?.(isUploading);
@@ -67,6 +71,21 @@ export function WorkoutMediaUploader({
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
       if (!files.length) return;
+
+      // Client-side size validation
+      for (const file of files) {
+        const isVideo = file.type.startsWith("video/");
+        const maxBytes = isVideo ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
+        if (file.size > maxBytes) {
+          setUploadError(
+            `"${file.name}" is too large. Max size for ${isVideo ? "video" : "image"}: ${maxBytes / 1024 / 1024} MB`,
+          );
+          if (inputRef.current) inputRef.current.value = "";
+          return;
+        }
+      }
+
+      setUploadError(null);
 
       // Show local previews immediately
       const previews: PendingPreview[] = files.map((f) => ({
@@ -83,6 +102,8 @@ export function WorkoutMediaUploader({
       try {
         const uploaded = await uploadFiles(files, plannedWorkoutId);
         onUploadComplete([...media, ...uploaded]);
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : "Upload failed");
       } finally {
         // Revoke blob URLs and clear pending previews
         setPendingPreviews((prev) => {
@@ -210,6 +231,9 @@ export function WorkoutMediaUploader({
           <ImageIcon className="h-3.5 w-3.5" />
           Add photos / videos
         </label>
+        {uploadError && (
+          <p className="mt-1 text-xs text-red-500">{uploadError}</p>
+        )}
       </div>
     </div>
   );

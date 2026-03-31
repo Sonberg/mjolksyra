@@ -49,13 +49,13 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
                   ) : null}
                 </div>
                 <p className="mt-3 text-2xl font-black">
-                  {plan.monthlyPriceSek.toLocaleString("sv-SE")} kr
+                  {plan.monthlyPriceSek.toLocaleString("en-US")} kr
                 </p>
                 <p className="mt-1 text-[11px] uppercase tracking-[0.1em] opacity-80">
                   {plan.includedAthletes} athletes included
                 </p>
                 <p className="mt-1 text-sm font-semibold">
-                  +{plan.extraAthletePriceSek.toLocaleString("sv-SE")} kr / extra
+                  +{plan.extraAthletePriceSek.toLocaleString("en-US")} kr / extra
                 </p>
               </article>
             );
@@ -88,11 +88,11 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
                   ) : null}
                   <span className="font-[var(--font-display)] text-3xl">{plan.name}</span>
                   <span className="text-2xl font-black">
-                    {plan.monthlyPriceSek.toLocaleString("sv-SE")} kr
+                    {plan.monthlyPriceSek.toLocaleString("en-US")} kr
                   </span>
                   <span className="text-2xl font-black">{plan.includedAthletes}</span>
                   <span className="text-2xl font-black">
-                    {plan.extraAthletePriceSek.toLocaleString("sv-SE")} kr
+                    {plan.extraAthletePriceSek.toLocaleString("en-US")} kr
                   </span>
                 </div>
               );
@@ -104,9 +104,15 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
           )}
         </div>
 
-        <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-white/80">
-          <span className="h-2.5 w-2.5 border-2 border-white bg-black" />
-          Stripe fees and taxes are excluded
+        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-[0.1em] text-white/80">
+          <span className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 border-2 border-white bg-black" />
+            Stripe fees and taxes are excluded
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 border-2 border-white bg-black" />
+            Prices in SEK · international cards accepted
+          </span>
         </div>
       </div>
     </section>

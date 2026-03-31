@@ -166,7 +166,7 @@ export const CalculatorSection = ({
                   Monthly fee per athlete
                 </span>
                 <span className="font-[var(--font-display)] text-2xl text-[var(--home-text)]">
-                  {monthlyFee.toLocaleString("sv-SE")} kr
+                  {monthlyFee.toLocaleString("en-US")} kr
                 </span>
               </div>
               <div className="px-5 py-4">
@@ -184,7 +184,7 @@ export const CalculatorSection = ({
                 />
                 <div className="mt-2 flex justify-between text-[10px] text-[var(--home-muted)]">
                   <span>0 kr</span>
-                  <span>5 000 kr</span>
+                  <span>5,000 kr</span>
                 </div>
               </div>
             </div>
@@ -208,14 +208,14 @@ export const CalculatorSection = ({
                 <div>
                   <div className="text-sm text-[var(--home-text)]">Revenue</div>
                   <div className="text-xs text-[var(--home-muted)]">
-                    {athleteCount} × {monthlyFee.toLocaleString("sv-SE")} kr
+                    {athleteCount} × {monthlyFee.toLocaleString("en-US")} kr
                   </div>
                 </div>
                 <span
                   className="font-[var(--font-display)] text-2xl text-[var(--home-text)]"
                   data-testid="calculator-revenue"
                 >
-                  {monthlyRevenue.toLocaleString("sv-SE")} kr
+                  {monthlyRevenue.toLocaleString("en-US")} kr
                 </span>
               </div>
 
@@ -232,7 +232,7 @@ export const CalculatorSection = ({
                   className="font-[var(--font-display)] text-2xl text-[var(--home-muted)]"
                   data-testid="calculator-platform-cost"
                 >
-                  −{platformCost.toLocaleString("sv-SE")} kr
+                  −{platformCost.toLocaleString("en-US")} kr
                 </span>
               </div>
             </div>
@@ -245,7 +245,7 @@ export const CalculatorSection = ({
                 className="font-[var(--font-display)] text-5xl text-[var(--home-accent-ink)]"
                 data-testid="calculator-net-revenue"
               >
-                {netRevenue.toLocaleString("sv-SE")} kr
+                {netRevenue.toLocaleString("en-US")} kr
               </div>
               <div className="mt-2 text-xs text-[var(--home-accent-ink)] opacity-70">
                 per month — excl. taxes &amp; payment fees

@@ -11,9 +11,13 @@ export default function WaitlistPage() {
           <h1 className="mt-3 font-[var(--font-display)] text-3xl text-zinc-100 md:text-5xl">
             Join the Mjolksyra Waitlist
           </h1>
+          <p className="mt-1 text-xs text-zinc-600">
+            Mjolksyra — Swedish for lactic acid. The burn you earn.
+          </p>
           <p className="mt-3 text-sm text-zinc-400 md:text-base">
-            We are rolling out access in batches. Join the waitlist and we will
-            invite you when a spot opens.
+            We&apos;re rolling out access globally in batches — coaches from anywhere
+            in the world are welcome. Join the waitlist and we&apos;ll invite you when
+            your spot opens.
           </p>
         </div>
 
