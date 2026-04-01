@@ -2,7 +2,7 @@
 
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ImageIcon, VideoIcon, XIcon, Loader2Icon } from "lucide-react";
+import { ImageIcon, PlayIcon, XIcon, Loader2Icon } from "lucide-react";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 
 type PlannedWorkoutMedia = PlannedWorkout["media"][number];
@@ -142,22 +142,25 @@ export function WorkoutMediaUploader({
           {/* Confirmed uploads */}
           {media.map((item) =>
             item.type === "Video" ? (
-              <div
-                key={item.rawUrl}
-                className="relative flex items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2"
-              >
-                <VideoIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
-                <span className="max-w-[140px] truncate text-xs text-[var(--shell-ink)]">
-                  {getFilename(item.rawUrl)}
-                </span>
+              <div key={item.rawUrl} className="relative">
+                <video
+                  src={item.rawUrl}
+                  preload="metadata"
+                  muted
+                  playsInline
+                  className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover"
+                />
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <PlayIcon className="h-6 w-6 text-white drop-shadow" />
+                </div>
                 <button
                   type="button"
                   disabled={disabled}
                   onClick={() => removeMedia(item)}
-                  className="ml-1 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-40"
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center bg-[var(--shell-ink)] text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)] disabled:opacity-40"
                   aria-label="Remove video"
                 >
-                  <XIcon className="h-3.5 w-3.5" />
+                  <XIcon className="h-3 w-3" />
                 </button>
               </div>
             ) : (
@@ -184,14 +187,11 @@ export function WorkoutMediaUploader({
           {/* Pending previews — shown immediately on file selection */}
           {pendingPreviews.map((preview) =>
             preview.isVideo ? (
-              <div
-                key={preview.id}
-                className="relative flex items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2"
-              >
-                <Loader2Icon className="h-4 w-4 shrink-0 animate-spin text-[var(--shell-muted)]" />
-                <span className="max-w-[140px] truncate text-xs text-[var(--shell-muted)]">
-                  Uploading...
-                </span>
+              <div key={preview.id} className="relative">
+                <div className="h-20 w-20 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] opacity-50" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
+                </div>
               </div>
             ) : (
               <div key={preview.id} className="relative">
