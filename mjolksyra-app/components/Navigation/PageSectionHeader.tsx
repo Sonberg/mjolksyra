@@ -27,7 +27,7 @@ export function PageSectionHeader({
         className,
       )}
     >
-      <div className="flex min-w-0 items-start gap-3">
+      <div className="flex min-w-0 items-center gap-5">
         {leading ? <div className="shrink-0">{leading}</div> : null}
         <div className="min-w-0">
           {eyebrow ? (
@@ -44,9 +44,9 @@ export function PageSectionHeader({
             {title}
           </h1>
           {description ? (
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
+            <div className="mt-1 text-sm text-[var(--shell-muted)]">
               {description}
-            </p>
+            </div>
           ) : null}
         </div>
       </div>

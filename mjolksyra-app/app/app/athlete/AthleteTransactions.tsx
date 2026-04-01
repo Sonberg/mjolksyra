@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import { PageHeader } from "@/components/Navigation/PageHeader";
 import { ChangePaymentMethodDialog } from "@/components/ChangePaymentMethod/ChangePaymentMethodDialog";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { UserTrainee } from "@/services/users/type";
@@ -61,12 +61,12 @@ export function AthleteTransactions({ coach }: Props) {
         open={changeCardOpen}
         onClose={() => setChangeCardOpen(false)}
       />
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
-        <PageSectionHeader
-          title="Transactions"
-          titleClassName="text-xl md:text-2xl"
-          description="Your billing and payment history."
-        />
+      <PageHeader
+        title="Transactions"
+        titleClassName="text-xl md:text-2xl"
+        description="Your billing and payment history."
+        sectionClassName="p-4 md:p-5"
+      >
         <div className="mt-4 border-t-2 border-[var(--shell-border)]/30 pt-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
             Billing status
@@ -111,7 +111,7 @@ export function AthleteTransactions({ coach }: Props) {
             </div>
           </div>
         </div>
-      </div>
+      </PageHeader>
       <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
         {data.transactions.length === 0 ? (
           <div className="p-8 text-center">

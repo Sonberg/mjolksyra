@@ -262,6 +262,7 @@ export function WorkoutViewer({
     <>
       <PageSectionHeader
         className="mb-4"
+        titleClassName="text-xl md:text-2xl"
         title={
           viewerMode === "coach"
             ? mode === "future"
@@ -303,6 +304,7 @@ export function WorkoutViewer({
           />
         }
       />
+
       <div className="grid gap-4 sm:gap-8">
         {data.length === 0 ? (
           <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">

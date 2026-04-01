@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import { PageHeader } from "@/components/Navigation/PageHeader";
 import { ChangePaymentMethodDialog } from "@/components/ChangePaymentMethod/ChangePaymentMethodDialog";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { getTrainee } from "@/services/trainees/getTrainee";
@@ -31,13 +31,12 @@ export function AthleteSettings({ coach }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
-        <PageSectionHeader
-          title="Settings"
-          titleClassName="text-xl md:text-2xl"
-          description="Manage your relationship and billing information."
-        />
-      </div>
+      <PageHeader
+        title="Settings"
+        titleClassName="text-xl md:text-2xl"
+        description="Manage your relationship and billing information."
+        sectionClassName="p-4 md:p-5"
+      />
       <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
         <div className="divide-y divide-[var(--shell-border)]/30">
           <div className="flex items-center justify-between py-4">
