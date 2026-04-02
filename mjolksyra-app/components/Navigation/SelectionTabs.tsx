@@ -26,6 +26,7 @@ type SelectionTabsProps<TKey extends string = string> = {
   size?: SelectionTabSize;
   className?: string;
   itemClassName?: string;
+  activeItemClassName?: string;
   fullWidth?: boolean;
 };
 
@@ -35,6 +36,7 @@ export function SelectionTabs({
   size = "md",
   className,
   itemClassName,
+  activeItemClassName,
   fullWidth = false,
 }: SelectionTabsProps) {
   return (
@@ -52,6 +54,7 @@ export function SelectionTabs({
           sizeClassBySize[size],
           fullWidth && "flex-1 text-center",
           itemClassName,
+          isActive && activeItemClassName,
         );
 
         if (item.href) {

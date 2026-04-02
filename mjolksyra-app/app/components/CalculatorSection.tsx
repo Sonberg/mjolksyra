@@ -118,7 +118,8 @@ export const CalculatorSection = ({
             activeKey={selectedPlan.id}
             size="sm"
             className="w-full"
-            itemClassName="px-3"
+            itemClassName="px-3 text-[var(--home-muted)]"
+            activeItemClassName="!bg-[var(--home-accent)] !text-[var(--home-accent-ink)] font-bold"
             fullWidth
           />
           {isUsingFallbackPricing ? (
