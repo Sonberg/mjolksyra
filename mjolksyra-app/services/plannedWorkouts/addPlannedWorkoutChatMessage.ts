@@ -7,6 +7,7 @@ type Args = {
   message: {
     message: string;
     mediaUrls: string[];
+    role?: "Athlete" | "Coach";
   };
 };
 

@@ -154,6 +154,70 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
         chatRepository.Verify(x => x.Create(It.IsAny<PlannedWorkoutChatMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Fact]
+    public async Task Handle_WhenUserIsBothAthleteAndCoach_UsesRequestedRole()
+    {
+        var traineeId = Guid.NewGuid();
+        var workoutId = Guid.NewGuid();
+        var dualRoleUserId = Guid.NewGuid();
+        var trainee = new Trainee
+        {
+            Id = traineeId,
+            AthleteUserId = dualRoleUserId,
+            CoachUserId = dualRoleUserId,
+            Status = Domain.Database.Enum.TraineeStatus.Active,
+        };
+
+        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        workoutRepository
+            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannedWorkout
+            {
+                Id = workoutId,
+                TraineeId = traineeId,
+                PlannedAt = new DateOnly(2026, 4, 1),
+                CreatedAt = DateTimeOffset.UtcNow,
+                Exercises = []
+            });
+
+        PlannedWorkoutChatMessage? saved = null;
+        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        chatRepository
+            .Setup(x => x.Create(It.IsAny<PlannedWorkoutChatMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<PlannedWorkoutChatMessage, CancellationToken>((m, _) => saved = m)
+            .ReturnsAsync((PlannedWorkoutChatMessage m, CancellationToken _) => m);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.HasAccess(traineeId, dualRoleUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trainee);
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(dualRoleUserId);
+
+        var sut = CreateSut(workoutRepository, chatRepository, traineeRepository, userContext);
+
+        var result = await sut.Handle(new AddPlannedWorkoutChatMessageCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = workoutId,
+            Message = new PlannedWorkoutChatMessageRequest
+            {
+                Message = "Coach-context message",
+                Role = PlannedWorkoutChatRole.Coach,
+            }
+        }, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(saved);
+        Assert.Equal(PlannedWorkoutChatRole.Coach, saved!.Role);
+    }
+
     private static AddPlannedWorkoutChatMessageCommandHandler CreateSut(
         Mock<IPlannedWorkoutRepository>? workoutRepository = null,
         Mock<IPlannedWorkoutChatMessageRepository>? chatRepository = null,

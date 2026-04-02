@@ -13,6 +13,10 @@ public class AddPlannedWorkoutChatMessageCommandValidator : AbstractValidator<Ad
         RuleFor(x => x.Message.Message)
             .MaximumLength(4000);
 
+        RuleFor(x => x.Message.Role)
+            .IsInEnum()
+            .When(x => x.Message.Role.HasValue);
+
         RuleForEach(x => x.Message.MediaUrls)
             .Must(url => IsR2Url(url, r2Host) || IsLegacyUtfsUrl(url))
             .WithMessage("'{PropertyValue}' is not a valid media URL.");

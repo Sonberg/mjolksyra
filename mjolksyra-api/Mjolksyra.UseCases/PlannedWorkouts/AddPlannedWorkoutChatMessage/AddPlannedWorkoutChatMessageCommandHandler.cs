@@ -38,13 +38,38 @@ public class AddPlannedWorkoutChatMessageCommandHandler(
             return null;
         }
 
-        var role = trainee.AthleteUserId == userId
-            ? PlannedWorkoutChatRole.Athlete
-            : trainee.CoachUserId == userId
-                ? PlannedWorkoutChatRole.Coach
-                : (PlannedWorkoutChatRole?)null;
+        var isAthlete = trainee.AthleteUserId == userId;
+        var isCoach = trainee.CoachUserId == userId;
+
+        PlannedWorkoutChatRole? role;
+        if (isAthlete && isCoach)
+        {
+            role = request.Message.Role;
+        }
+        else if (isAthlete)
+        {
+            role = PlannedWorkoutChatRole.Athlete;
+        }
+        else if (isCoach)
+        {
+            role = PlannedWorkoutChatRole.Coach;
+        }
+        else
+        {
+            role = null;
+        }
 
         if (role is null)
+        {
+            return null;
+        }
+
+        if (!isCoach && role == PlannedWorkoutChatRole.Coach)
+        {
+            return null;
+        }
+
+        if (!isAthlete && role == PlannedWorkoutChatRole.Athlete)
         {
             return null;
         }

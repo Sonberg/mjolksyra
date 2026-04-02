@@ -42,6 +42,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         message: {
           message,
           mediaUrls: media.map((x) => x.rawUrl),
+          role: viewerMode === "coach" ? "Coach" : "Athlete",
         },
       }),
     onSuccess: async () => {
@@ -89,7 +90,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         </p>
       </div>
 
-      <div className="max-h-80 space-y-3 overflow-y-auto bg-[var(--shell-surface-strong)]/40 p-3">
+      <div className="max-h-80 space-y-3 overflow-y-auto bg-[var(--shell-surface-strong)] p-3">
         {chatMessages.isLoading ? (
           <p className="text-sm text-[var(--shell-muted)]">Loading messages...</p>
         ) : null}
@@ -112,8 +113,8 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                 <div
                   className={
                     isSelf
-                      ? "rounded-2xl rounded-br-md border border-[var(--shell-accent)]/20 bg-[var(--shell-accent)] px-3 py-2 text-[var(--shell-accent-ink)]"
-                      : "rounded-2xl rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-[var(--shell-ink)]"
+                      ? "rounded-2xl rounded-br-md border border-[var(--shell-accent)] bg-[var(--shell-accent)] px-3.5 py-2.5 text-white shadow-sm"
+                      : "rounded-2xl rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3.5 py-2.5 text-[var(--shell-ink)] shadow-sm"
                   }
                 >
                   {editingMessageId === chatMessage.id ? (
@@ -122,7 +123,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                         value={editingMessageBody}
                         onChange={(e) => setEditingMessageBody(e.target.value)}
                         rows={3}
-                        className="w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-sm text-[var(--shell-ink)] outline-none"
+                        className="w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-sm leading-6 text-[var(--shell-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -146,19 +147,21 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                       </div>
                     </div>
                   ) : chatMessage.message.trim().length > 0 ? (
-                    <p className="whitespace-pre-wrap text-sm">{chatMessage.message}</p>
+                    <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                      {chatMessage.message}
+                    </p>
                   ) : null}
                   {chatMessage.media.length > 0 ? (
                     <div className={chatMessage.message.trim().length > 0 ? "mt-2" : ""}>
-                      <WorkoutMediaGallery media={chatMessage.media} />
+                      <WorkoutMediaGallery media={chatMessage.media} thumbnailSize="small" />
                     </div>
                   ) : null}
                 </div>
                 <p
                   className={
                     isSelf
-                      ? "mt-1 text-right text-[10px] text-[var(--shell-muted)]"
-                      : "mt-1 text-[10px] text-[var(--shell-muted)]"
+                      ? "mt-1.5 text-right text-[11px] text-[var(--shell-muted)]"
+                      : "mt-1.5 text-[11px] text-[var(--shell-muted)]"
                   }
                 >
                   {chatMessage.role === "Athlete" ? "Athlete" : "Coach"} · {dayjs(chatMessage.createdAt).format("HH:mm")}
