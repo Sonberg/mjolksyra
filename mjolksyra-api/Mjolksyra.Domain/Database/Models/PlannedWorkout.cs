@@ -35,11 +35,6 @@ public class PlannedWorkout : IDocument
 
     public DateTimeOffset? CompletedAt { get; set; }
 
-    [BsonElement("media")]
-    public ICollection<PlannedWorkoutMedia> Media { get; set; } = [];
-
-    public DateTimeOffset? ReviewedAt { get; set; }
-
     public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }
 
     public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;

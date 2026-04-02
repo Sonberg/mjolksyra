@@ -51,4 +51,20 @@ public class PlannedWorkoutChatMessageRepository(IMongoDbContext context) : IPla
             },
             cancellationToken);
     }
+
+    public async Task SetMediaCompressedUrl(
+        Guid chatMessageId,
+        string rawUrl,
+        string compressedUrl,
+        CancellationToken cancellationToken)
+    {
+        var filter = Builders<PlannedWorkoutChatMessage>.Filter.And(
+            Builders<PlannedWorkoutChatMessage>.Filter.Eq(x => x.Id, chatMessageId),
+            Builders<PlannedWorkoutChatMessage>.Filter.ElemMatch(x => x.Media, m => m.RawUrl == rawUrl));
+
+        var update = Builders<PlannedWorkoutChatMessage>.Update
+            .Set("Media.$.CompressedUrl", compressedUrl);
+
+        await context.PlannedWorkoutChatMessages.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+    }
 }

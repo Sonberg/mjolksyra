@@ -26,12 +26,6 @@ public class PlannedWorkoutResponse
 
     public required DateTimeOffset CreatedAt { get; set; }
 
-    public DateTimeOffset? CompletedAt { get; set; }
-
-    public ICollection<PlannedWorkoutMediaResponse> Media { get; set; } = [];
-
-    public DateTimeOffset? ReviewedAt { get; set; }
-
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
     public static PlannedWorkoutResponse From(PlannedWorkout workout, ICollection<Exercise> exercises)
@@ -45,9 +39,6 @@ public class PlannedWorkoutResponse
             Exercises = workout.Exercises.Select(x => PlannedExerciseResponse.From(x, exercises)).ToList(),
             CreatedAt = workout.CreatedAt,
             PlannedAt = workout.PlannedAt,
-            CompletedAt = workout.CompletedAt,
-            Media = workout.Media.Select(m => new PlannedWorkoutMediaResponse { RawUrl = m.RawUrl, CompressedUrl = m.CompressedUrl, Type = m.Type }).ToList(),
-            ReviewedAt = workout.ReviewedAt,
             AppliedBlock = workout.AppliedBlock is null
                 ? null
                 : new PlannedWorkoutAppliedBlockResponse

@@ -1,7 +1,6 @@
 using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
-using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
 
@@ -25,16 +24,10 @@ public class LogPlannedWorkoutCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Media_IsConvertedFromRawUrls()
+    public async Task Handle_SetsCompletedAt_WhenCompletedAtProvided()
     {
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
-        var mediaUrls = new List<string>
-        {
-            "https://utfs.io/f/image1.jpg",
-            "https://utfs.io/f/video1.mp4"
-        };
-
         var plannedWorkout = new PlannedWorkout
         {
             Id = workoutId,
@@ -61,19 +54,16 @@ public class LogPlannedWorkoutCommandHandlerTests
         var sut = CreateSut(plannedWorkoutRepository, exerciseRepository);
 
         var result = await sut.Handle(
-            CreateCommand(workoutId, traineeId, mediaUrls: mediaUrls),
+            CreateCommand(workoutId, traineeId),
             CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(savedWorkout);
-        Assert.Equal(mediaUrls, savedWorkout!.Media.Select(m => m.RawUrl).ToList());
-        Assert.Equal(mediaUrls, result.Media.Select(m => m.RawUrl).ToList());
-        Assert.Equal(PlannedWorkoutMediaType.Image, savedWorkout.Media.First().Type);
-        Assert.Equal(PlannedWorkoutMediaType.Video, savedWorkout.Media.Last().Type);
+        Assert.NotNull(savedWorkout!.CompletedAt);
     }
 
     [Fact]
-    public async Task Handle_WhenMediaUrlsEmpty_PersistsEmptyCollection()
+    public async Task Handle_WhenWorkoutAlreadyCompleted_StillReturnsWorkout()
     {
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
@@ -85,7 +75,7 @@ public class LogPlannedWorkoutCommandHandlerTests
             PlannedAt = new DateOnly(2026, 3, 15),
             Exercises = [],
             CreatedAt = DateTimeOffset.UtcNow,
-            Media = [new PlannedWorkoutMedia { RawUrl = "https://utfs.io/f/old-image.jpg" }]
+            CompletedAt = DateTimeOffset.UtcNow.AddDays(-1),
         };
 
         PlannedWorkout? savedWorkout = null;
@@ -105,28 +95,25 @@ public class LogPlannedWorkoutCommandHandlerTests
         var sut = CreateSut(plannedWorkoutRepository, exerciseRepository);
 
         var result = await sut.Handle(
-            CreateCommand(workoutId, traineeId, mediaUrls: []),
+            CreateCommand(workoutId, traineeId),
             CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(savedWorkout);
-        Assert.Empty(savedWorkout!.Media);
-        Assert.Empty(result.Media);
+        Assert.NotNull(savedWorkout!.CompletedAt);
     }
 
     private static LogPlannedWorkoutCommandHandler CreateSut(
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
-        Mock<INotificationService>? notificationService = null,
-        Mock<IMediaCompressionPublisher>? mediaCompressionPublisher = null)
+        Mock<INotificationService>? notificationService = null)
     {
         return new LogPlannedWorkoutCommandHandler(
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
-            (notificationService ?? new Mock<INotificationService>()).Object,
-            (mediaCompressionPublisher ?? new Mock<IMediaCompressionPublisher>()).Object);
+            (notificationService ?? new Mock<INotificationService>()).Object);
     }
 
     private static LogPlannedWorkoutCommand CreateCommand(

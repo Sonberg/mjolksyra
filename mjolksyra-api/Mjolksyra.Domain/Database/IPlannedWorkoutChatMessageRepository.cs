@@ -15,4 +15,10 @@ public interface IPlannedWorkoutChatMessageRepository
         string message,
         DateTimeOffset modifiedAt,
         CancellationToken cancellationToken);
+
+    Task SetMediaCompressedUrl(
+        Guid chatMessageId,
+        string rawUrl,
+        string compressedUrl,
+        CancellationToken cancellationToken);
 }

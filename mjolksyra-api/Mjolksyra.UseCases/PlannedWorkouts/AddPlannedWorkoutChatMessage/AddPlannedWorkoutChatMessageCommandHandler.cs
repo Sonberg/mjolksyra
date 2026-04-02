@@ -102,12 +102,13 @@ public class AddPlannedWorkoutChatMessageCommandHandler(
             ModifiedAt = now,
         }, cancellationToken);
 
-        foreach (var url in saved.Media.Where(x => x.RawUrl.Contains("raw=1")).Select(x => x.RawUrl))
+        foreach (var url in saved.Media.Select(x => x.RawUrl))
         {
             await mediaCompressionPublisher.Publish(new MediaCompressionRequestedMessage
             {
                 FileUrl = url,
                 PlannedWorkoutId = request.PlannedWorkoutId,
+                PlannedWorkoutChatMessageId = saved.Id,
             }, cancellationToken);
         }
 

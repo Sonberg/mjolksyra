@@ -94,7 +94,7 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
         Assert.Equal(PlannedWorkoutMediaType.Video, saved.Media.Last().Type);
         compressionPublisher.Verify(
             x => x.Publish(It.IsAny<MediaCompressionRequestedMessage>(), It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Exactly(2));
     }
 
     [Fact]

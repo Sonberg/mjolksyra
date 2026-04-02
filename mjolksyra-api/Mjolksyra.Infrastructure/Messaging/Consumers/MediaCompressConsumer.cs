@@ -14,7 +14,7 @@ namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 public class MediaCompressConsumer(
     IHttpClientFactory httpClientFactory,
     IR2FileUploader fileUploader,
-    IPlannedWorkoutRepository plannedWorkoutRepository,
+    IPlannedWorkoutChatMessageRepository plannedWorkoutChatMessageRepository,
     ILogger<MediaCompressConsumer> logger) : IConsumer<MediaCompressionRequestedMessage>
 {
     private const int MaxImageDimension = 1920;
@@ -45,7 +45,8 @@ public class MediaCompressConsumer(
                 compressedUrl = await CompressImageAsync(rawStream, rawUrl, msg.PlannedWorkoutId, ct);
             }
 
-            await plannedWorkoutRepository.SetMediaCompressedUrl(msg.PlannedWorkoutId, rawUrl, compressedUrl, ct);
+
+            await plannedWorkoutChatMessageRepository.SetMediaCompressedUrl(msg.PlannedWorkoutChatMessageId, rawUrl, compressedUrl, ct);
         }
         catch (Exception ex)
         {
@@ -72,7 +73,10 @@ public class MediaCompressConsumer(
         }
 
         using var outputStream = new MemoryStream();
-        await image.SaveAsync(outputStream, new WebpEncoder { Quality = ImageQuality }, ct);
+        await image.SaveAsync(outputStream, new WebpEncoder
+        {
+            Quality = ImageQuality
+        }, ct);
         outputStream.Position = 0;
 
         var key = $"workouts/{plannedWorkoutId}/{BaseName(rawUrl)}-compressed.webp";
@@ -130,7 +134,13 @@ public class MediaCompressConsumer(
 
     private static void TryDelete(string path)
     {
-        try { File.Delete(path); }
-        catch { /* ignore */ }
+        try
+        {
+            File.Delete(path);
+        }
+        catch
+        {
+            /* ignore */
+        }
     }
 }

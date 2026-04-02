@@ -107,9 +107,6 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
             Note = workout.Note,
             PlannedAt = workout.PlannedAt,
             CreatedAt = workout.CreatedAt,
-            CompletedAt = workout.CompletedAt,
-            ReviewedAt = workout.ReviewedAt,
-            Media = workout.Media,
             AppliedBlock = workout.AppliedBlock,
             Exercises = workout.Exercises
                 .Where(e => e.IsPublished)

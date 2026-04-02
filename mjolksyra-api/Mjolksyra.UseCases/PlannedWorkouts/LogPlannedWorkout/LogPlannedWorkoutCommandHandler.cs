@@ -1,8 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
-using Mjolksyra.Domain.Media;
-using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
@@ -17,20 +15,16 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
 
     private readonly INotificationService _notificationService;
 
-    private readonly IMediaCompressionPublisher _mediaCompressionPublisher;
-
     public LogPlannedWorkoutCommandHandler(
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IExerciseRepository exerciseRepository,
         ITraineeRepository traineeRepository,
-        INotificationService notificationService,
-        IMediaCompressionPublisher mediaCompressionPublisher)
+        INotificationService notificationService)
     {
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _exerciseRepository = exerciseRepository;
         _traineeRepository = traineeRepository;
         _notificationService = notificationService;
-        _mediaCompressionPublisher = mediaCompressionPublisher;
     }
 
     public async Task<PlannedWorkoutResponse?> Handle(LogPlannedWorkoutCommand request, CancellationToken cancellationToken)
@@ -41,22 +35,10 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
             return null;
         }
 
-        var previousCompletedAt = plannedWorkout.CompletedAt;
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
+        var previousCompletedAt = plannedWorkout.CompletedAt;
 
-        plannedWorkout.CompletedAt = request.Log.CompletedAt;
-        plannedWorkout.Media = request.Log.MediaUrls
-            .Select(url => new PlannedWorkoutMedia
-            {
-                RawUrl = url,
-                Type = MediaUrlHelper.IsVideoUrl(url) ? PlannedWorkoutMediaType.Video : PlannedWorkoutMediaType.Image,
-            })
-            .ToList();
-
-        if (request.Log.CompletedAt is null || previousCompletedAt != request.Log.CompletedAt)
-        {
-            plannedWorkout.ReviewedAt = null;
-        }
+        plannedWorkout.CompletedAt = DateTimeOffset.UtcNow;
 
         foreach (var exerciseLog in request.Log.Exercises)
         {
@@ -113,16 +95,6 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
                 body: body,
                 href: $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={plannedWorkout.Id}",
                 cancellationToken: cancellationToken);
-        }
-
-        // Emit compression requests for any raw (uncompressed) media
-        foreach (var url in plannedWorkout.Media.Where(m => m.RawUrl.Contains("raw=1")).Select(m => m.RawUrl))
-        {
-            await _mediaCompressionPublisher.Publish(new MediaCompressionRequestedMessage
-            {
-                FileUrl = url,
-                PlannedWorkoutId = request.PlannedWorkoutId,
-            }, cancellationToken);
         }
 
         return PlannedWorkoutResponse.From(plannedWorkout, exercises);
