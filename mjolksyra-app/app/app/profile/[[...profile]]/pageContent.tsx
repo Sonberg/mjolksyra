@@ -166,7 +166,7 @@ function CoachCard({ user }: { user: User }) {
               <button
                 type="button"
                 disabled={offboard.isPending}
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-50"
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-50"
                 onClick={() => offboard.mutate()}
               >
                 Yes, offboard me
@@ -237,7 +237,7 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
               <button
                 type="button"
                 disabled={cancel.isPending}
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-50"
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-50"
                 onClick={() => cancel.mutate()}
               >
                 Yes, cancel

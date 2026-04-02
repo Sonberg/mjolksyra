@@ -339,7 +339,7 @@ export function Workout({
                   setCompletionNote(workout.completionNote ?? "");
                   setIsLogging((x) => !x);
                 }}
-                className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
+                className="inline-flex items-center rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
               >
                 {isCompleted ? "Edit completion" : "Complete workout"}
               </button>
@@ -403,7 +403,7 @@ export function Workout({
                       reviewNote: reviewNote.trim() || null,
                     })
                   }
-                  className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                  className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
                 >
                   {saveReview.isPending ? "Saving..." : "Mark reviewed"}
                 </button>
@@ -470,7 +470,7 @@ export function Workout({
                     completionNote: completionNote.trim() || null,
                   })
                 }
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
               >
                 {saveCompletion.isPending ? "Saving..." : "Save completion"}
               </button>

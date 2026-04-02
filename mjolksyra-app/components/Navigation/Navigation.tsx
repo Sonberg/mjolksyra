@@ -106,7 +106,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
               <ThemeToggle />
               <RegisterDialog
                 trigger={
-                  <Button className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-accent-ink)] transition-colors hover:bg-[var(--shell-accent-hover)]">
+                  <Button className="rounded-none border border-transparent bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-accent-ink)] transition-colors hover:bg-[var(--shell-accent-hover)]">
                     Start free trial
                   </Button>
                 }

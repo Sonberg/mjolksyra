@@ -157,7 +157,7 @@ function PlannerChangesPanel({
         <div className="mt-3 flex items-center gap-2">
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             title="Publish all draft changes"
             onClick={onPublishAll}
             disabled={isSaving || draftWorkouts.length === 0}

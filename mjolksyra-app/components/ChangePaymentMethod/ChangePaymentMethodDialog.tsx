@@ -75,7 +75,7 @@ function PaymentForm({ clientSecret, onClose }: { clientSecret: string; onClose:
           <Button
             type="submit"
             disabled={isLoading}
-            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+            className="rounded-none border border-transparent bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
           >
             {isLoading ? "Saving..." : "Save card"}
           </Button>

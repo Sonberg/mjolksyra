@@ -106,7 +106,7 @@ export function CoachOnboarding({ user }: Props) {
             <Button
               onClick={start}
               disabled={isLoading}
-              className="w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] font-semibold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+              className="w-full rounded-none border border-transparent bg-[var(--shell-accent)] font-semibold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
             >
               {isLoading ? (
                 <Spinner size={8} />

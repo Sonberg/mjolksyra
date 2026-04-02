@@ -38,7 +38,7 @@ export function AthleteExerciseCard({
   return (
     <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)]">
       <div className="flex items-center gap-3 p-4">
-        <div className="grid h-10 w-10 shrink-0 place-items-center border border-[var(--shell-border)] bg-[var(--shell-accent)] text-base font-bold text-[var(--shell-accent-ink)]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center border border-transparent bg-[var(--shell-accent)] text-base font-bold text-[var(--shell-accent-ink)]">
           {index + 1}
         </div>
         <div className="min-w-0 flex-1">

@@ -152,7 +152,7 @@ export function BlocksPageContent() {
             <Button
               onClick={handleCreate}
               disabled={createMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
             >
               {createMutation.isPending ? (
                 <Loader2Icon className="h-4 w-4 animate-spin" />
@@ -220,7 +220,7 @@ export function BlocksPageContent() {
           </p>
           <Button
             onClick={handleCreate}
-            className="mt-6 inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
+            className="mt-6 inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
           >
             <PlusIcon className="h-4 w-4" />
             Create your first block

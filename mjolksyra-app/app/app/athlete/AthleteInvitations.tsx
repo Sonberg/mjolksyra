@@ -35,7 +35,7 @@ export function AthleteInvitations({ invitations }: Props) {
           </div>
           <div className="flex gap-4">
             <button
-              className="grid h-9 w-9 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
+              className="grid h-9 w-9 place-items-center rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
               onClick={() => accept.mutateAsync(x.id)}
             >
               <CheckIcon className="h-4 w-4" />

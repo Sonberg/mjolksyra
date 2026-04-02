@@ -214,7 +214,7 @@ export function NavigationNotifications({
                   showArrivalPulse ? "animate-ping" : "opacity-0",
                 )}
               />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)]" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-none border border-transparent bg-[var(--shell-accent)]" />
             </span>
           ) : null}
           {unreadCount > 0 ? (

@@ -262,7 +262,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               setCompletionNote(workout.completionNote ?? "");
               setIsLogging((x) => !x);
             }}
-            className="hidden shrink-0 items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 sm:inline-flex"
+            className="hidden shrink-0 items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 sm:inline-flex"
           >
             <CheckCircle2Icon className="h-3.5 w-3.5" />
             {isCompleted ? "Edit completion" : "Complete workout"}
@@ -350,7 +350,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
                     completionNote: completionNote.trim() || null,
                   })
                 }
-                className="flex-1 border border-[var(--shell-border)] bg-[var(--shell-accent)] py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                className="flex-1 border border-transparent bg-[var(--shell-accent)] py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
               >
                 {saveCompletion.isPending ? "Saving..." : "Save completion"}
               </button>
@@ -375,7 +375,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               setCompletionNote(workout.completionNote ?? "");
               setIsLogging((x) => !x);
             }}
-            className="flex w-full items-center justify-center gap-2 border border-[var(--shell-border)] bg-[var(--shell-accent)] py-4 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95"
+            className="flex w-full items-center justify-center gap-2 border border-transparent bg-[var(--shell-accent)] py-4 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95"
           >
             <CheckCircle2Icon className="h-5 w-5" />
             {isCompleted ? "Edit completion" : "Complete workout"}

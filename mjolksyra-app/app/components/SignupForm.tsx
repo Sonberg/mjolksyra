@@ -10,7 +10,7 @@ export const SignupForm = () => {
       </div>
       <RegisterDialog
         trigger={
-          <button className="inline-flex items-center justify-center rounded-none border border-[var(--home-border)] bg-[var(--home-accent)] px-6 py-3 font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]">
+          <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-6 py-3 font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]">
             Join Waitlist
           </button>
         }

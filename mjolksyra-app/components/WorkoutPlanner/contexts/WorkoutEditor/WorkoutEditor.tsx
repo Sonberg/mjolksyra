@@ -112,7 +112,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
             <div className="flex items-center gap-2">
               <button
                 style={{ fontSize: "0.75rem" }}
-                className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-1 text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+                className="inline-flex items-center gap-1 rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-1 text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
                 onClick={onPublish}
                 title="Publish drafts to athlete view"
               >

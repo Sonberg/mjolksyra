@@ -14,7 +14,7 @@ export const CTASection = () => {
           </p>
           <RegisterDialog
             trigger={
-              <button className="inline-flex items-center justify-center rounded-none border border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
+              <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
                 Get Started Now
               </button>
             }

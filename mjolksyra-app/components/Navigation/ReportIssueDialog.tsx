@@ -148,7 +148,7 @@ export function ReportIssueDialog({
             type="button"
             onClick={() => create.mutate()}
             disabled={create.isPending || message.trim().length === 0}
-            className="h-10 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+            className="h-10 rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
           >
             {create.isPending ? "Sending..." : "Send report"}
           </Button>
