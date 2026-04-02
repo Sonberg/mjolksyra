@@ -1,7 +1,8 @@
 "use client";
 
-import { MinusIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const faqs = [
   {
@@ -32,29 +33,29 @@ export const FAQSection = () => {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="font-[var(--font-display)] mb-12 text-center text-3xl text-[var(--home-text)] md:text-4xl">
+        <h2 className="mb-12 text-center text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
           Frequently Asked Questions
         </h2>
-        <div className="mx-auto grid max-w-3xl gap-4">
+        <div className="mx-auto max-w-3xl border-t border-[var(--home-border)]">
           {faqs.map((faq, index) => (
-            <div
-              key={faq.question}
-              className="overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]"
-            >
+            <div key={faq.question} className="border-b border-[var(--home-border)]">
               <button
                 onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                className="flex w-full items-center justify-between px-6 py-4 text-left"
+                className="flex w-full items-center justify-between gap-4 py-5 text-left"
               >
-                <span className="text-lg font-semibold text-[var(--home-text)]">{faq.question}</span>
-                {openFaqIndex === index ? (
-                  <MinusIcon className="h-5 w-5 text-[var(--home-muted)]" />
-                ) : (
-                  <PlusIcon className="h-5 w-5 text-[var(--home-muted)]" />
-                )}
+                <span className="text-base font-semibold text-[var(--home-text)]">
+                  {faq.question}
+                </span>
+                <ChevronDownIcon
+                  className={cn(
+                    "h-5 w-5 shrink-0 text-[var(--home-muted)] transition-transform duration-200",
+                    openFaqIndex === index && "rotate-180",
+                  )}
+                />
               </button>
               {openFaqIndex === index && (
-                <div className="px-6 pb-5">
-                  <p className="text-[var(--home-muted)]">{faq.answer}</p>
+                <div className="pb-5">
+                  <p className="leading-relaxed text-[var(--home-muted)]">{faq.answer}</p>
                 </div>
               )}
             </div>
@@ -63,4 +64,4 @@ export const FAQSection = () => {
       </div>
     </section>
   );
-}; 
+};

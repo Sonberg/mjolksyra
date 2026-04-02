@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Alfa_Slab_One, DM_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Navigation } from "@/components/Navigation";
 import { getUserMe } from "@/services/users/getUserMe";
@@ -7,16 +7,11 @@ import { getUserMe } from "@/services/users/getUserMe";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const displayFont = Alfa_Slab_One({
+const interFont = Inter({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-display",
-});
-
-const bodyFont = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-body",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -114,11 +109,11 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('mjolksyra-theme');var d=document.documentElement;var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){d.classList.add('dark');d.dataset.theme='dark';}else{d.dataset.theme='light';}}catch(e){}})()` }} />
       </head>
       <body
-        className={`${displayFont.variable} ${bodyFont.variable} antialiased flex h-[100dvh] flex-col overflow-hidden`}
+        className={`${interFont.variable} antialiased flex h-[100dvh] flex-col overflow-hidden`}
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-none focus:border-2 focus:border-[var(--shell-border)] focus:bg-[var(--shell-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--shell-accent-ink)]"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-none focus:border focus:border-[var(--shell-border)] focus:bg-[var(--shell-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--shell-accent-ink)]"
         >
           Skip to content
         </a>

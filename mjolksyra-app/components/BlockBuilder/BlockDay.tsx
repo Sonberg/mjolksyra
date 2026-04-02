@@ -70,7 +70,7 @@ export function BlockDay({
             <button
               type="button"
               onClick={onAddExercise}
-              className="mt-2 inline-flex h-8 items-center rounded-none border-2 border-[var(--shell-surface-strong)] bg-[var(--shell-surface)] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              className="mt-2 inline-flex h-8 items-center rounded-none border border-[var(--shell-surface-strong)] bg-[var(--shell-surface)] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
             >
               Add exercise
             </button>

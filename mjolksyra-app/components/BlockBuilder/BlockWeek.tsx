@@ -33,7 +33,7 @@ export function BlockWeek({
   selectedWorkout,
 }: Props) {
   return (
-    <section className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+    <section className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
       <div className="flex select-none items-center justify-between border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
         <div className="text-sm font-semibold text-[var(--shell-ink)]">
           Week {week}

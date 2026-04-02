@@ -119,7 +119,7 @@ export function Week({
     () => (
       <section
         ref={setDroppableNodeRef}
-        className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-sm"
+        className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-sm"
       >
         <div
           className={cn(

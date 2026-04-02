@@ -3,7 +3,7 @@ import { CoachWorkspaceShell } from "../CoachWorkspaceShell";
 function SkeletonBlock({ className }: { className: string }) {
   return (
     <div
-      className={`animate-pulse rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] ${className}`}
+      className={`animate-pulse rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] ${className}`}
     />
   );
 }
@@ -19,7 +19,7 @@ export function DashboardSkeleton() {
           <SkeletonBlock className="h-36 w-full" />
         </section>
 
-        <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
           <div className="space-y-3">
             <SkeletonBlock className="h-5 w-44 border-0" />
             <SkeletonBlock className="h-12 w-72 border-0" />
@@ -33,7 +33,7 @@ export function DashboardSkeleton() {
           </div>
         </section>
 
-        <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
           <div className="space-y-3">
             <SkeletonBlock className="h-5 w-44 border-0" />
             <SkeletonBlock className="h-8 w-96 border-0" />

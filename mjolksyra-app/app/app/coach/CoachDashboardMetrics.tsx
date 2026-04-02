@@ -23,7 +23,7 @@ export function CoachDashboardMetrics({
 }: Props) {
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Monthly recurring
         </p>
@@ -32,7 +32,7 @@ export function CoachDashboardMetrics({
         </p>
         <p className="mt-1 text-sm text-[var(--shell-muted)]">Athlete charges / month</p>
       </div>
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Coach plan
         </p>
@@ -41,7 +41,7 @@ export function CoachDashboardMetrics({
         </p>
         <p className="mt-1 text-sm text-[var(--shell-muted)]">Your monthly platform subscription</p>
       </div>
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Net after plan
         </p>
@@ -50,7 +50,7 @@ export function CoachDashboardMetrics({
         </p>
         <p className="mt-1 text-sm text-[var(--shell-muted)]">Athlete billing minus {coachPlanMonthlySek} kr plan</p>
       </div>
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Free athlete spots
         </p>

@@ -37,7 +37,7 @@ export function CustomTab<T extends string>({
     <div
       role="tablist"
       aria-orientation="horizontal"
-      className="inline-flex min-h-12 w-full max-w-[28rem] items-stretch justify-center border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-0"
+      className="inline-flex min-h-12 w-full max-w-[28rem] items-stretch justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] p-0"
       tabIndex={0}
       data-orientation="horizontal"
     >

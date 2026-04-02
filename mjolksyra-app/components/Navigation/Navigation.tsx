@@ -52,7 +52,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex flex-col border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-xl",
+        "sticky top-0 z-50 flex flex-col border-b border-[var(--shell-border)] bg-[var(--shell-surface)] backdrop-blur-xl",
       )}
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 md:px-6">
@@ -106,7 +106,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
               <ThemeToggle />
               <RegisterDialog
                 trigger={
-                  <Button className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-accent-ink)] transition-colors hover:bg-[var(--shell-accent-hover)]">
+                  <Button className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 font-semibold text-[var(--shell-accent-ink)] transition-colors hover:bg-[var(--shell-accent-hover)]">
                     Start free trial
                   </Button>
                 }
@@ -115,7 +115,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
                 trigger={
                   <Button
                     variant="outline"
-                    className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 font-medium text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
+                    className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 font-medium text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
                   >
                     Log in
                   </Button>

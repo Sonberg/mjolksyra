@@ -28,7 +28,7 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
 
   return (
     <CoachWorkspaceShell>
-      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
+      <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
         <PageSectionHeader
           eyebrow="Workout review"
           title={athleteName}
@@ -36,7 +36,7 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
           leading={
             <button
               type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               onClick={() => router.push("/app/coach/athletes")}
               aria-label="Back to athletes"
             >
@@ -49,7 +49,7 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
               onClick={() =>
                 router.push(`/app/coach/athletes/${traineeId}/planner`)
               }
-              className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
+              className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
             >
               <ClipboardCheckIcon className="h-4 w-4" />
               Open planner

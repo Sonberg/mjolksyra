@@ -18,7 +18,7 @@ const DemoSection = dynamic(
     loading: () => (
       <section className="py-20 lg:py-32">
         <div className="mx-auto max-w-screen-xl px-4">
-          <div className="h-72 animate-pulse border-2 border-[var(--home-border)] bg-[var(--home-surface)]" />
+          <div className="h-72 animate-pulse border border-[var(--home-border)] bg-[var(--home-surface)]" />
         </div>
       </section>
     ),

@@ -68,14 +68,14 @@ function PaymentForm({ clientSecret, onClose }: { clientSecret: string; onClose:
             type="button"
             variant="outline"
             onClick={onClose}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={isLoading}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
+            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
           >
             {isLoading ? "Saving..." : "Save card"}
           </Button>
@@ -152,7 +152,7 @@ export function ChangePaymentMethodDialog({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
+      <div className="w-full max-w-md rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
         <h2 className="mb-4 text-lg font-semibold text-[var(--shell-ink)]">
           Change payment method
         </h2>

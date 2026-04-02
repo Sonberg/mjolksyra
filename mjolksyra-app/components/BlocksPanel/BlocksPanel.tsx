@@ -46,7 +46,7 @@ function renderPreview(block: Block) {
       {sortedWeeks.map(([weekNumber, days]) => {
         const sortedDays = [...days.entries()].sort((a, b) => a[0] - b[0]).slice(0, 4);
         return (
-          <div key={weekNumber} className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-2">
+          <div key={weekNumber} className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-2">
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
               Week {weekNumber}
             </p>
@@ -103,7 +103,7 @@ function BlockItem({ block }: BlockItemProps) {
       <HoverCardContent
         side="right"
         align="start"
-        className="z-50 w-80 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+        className="z-50 w-80 border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
       >
         <div className="mb-2">
           <p className="text-sm font-semibold text-[var(--shell-ink)]">{block.name}</p>
@@ -137,7 +137,7 @@ export function BlocksPanel({ getBlocks }: Props) {
 
   if (blocks.length === 0) {
     return (
-      <div className="m-4 rounded-none border-2 border-dashed border-[var(--shell-border)] p-6 text-center">
+      <div className="m-4 rounded-none border border-dashed border-[var(--shell-border)] p-6 text-center">
         <Layers className="mx-auto mb-3 h-6 w-6 text-[var(--shell-muted)]" />
         <p className="text-sm font-medium text-[var(--shell-ink)]">No blocks yet</p>
         <p className="mt-1 text-xs text-[var(--shell-muted)]">

@@ -30,7 +30,7 @@ export function CoachPlanNudge({ currentPlan, plans, athleteCount }: Props) {
   const savings = currentCost - betterUpgrade.cost;
 
   return (
-    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-ink)]">
+    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-ink)]">
       <span className="font-semibold">Tip:</span> Upgrading to the{" "}
       <span className="font-semibold">{betterUpgrade.plan.name}</span> plan would save you{" "}
       <span className="font-semibold">{savings} kr/mo</span> with your current{" "}

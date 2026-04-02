@@ -4,7 +4,7 @@ export const CTASection = () => {
   return (
     <section className="bg-[var(--home-surface)]/70 py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4 text-center">
-        <div className="mx-auto max-w-3xl rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-12 md:px-10">
+        <div className="mx-auto max-w-3xl rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-12 md:px-10">
           <h2 className="font-[var(--font-display)] mb-6 text-3xl text-[var(--home-text)] md:text-4xl">
           Ready to start your coaching journey?
           </h2>
@@ -14,7 +14,7 @@ export const CTASection = () => {
           </p>
           <RegisterDialog
             trigger={
-              <button className="inline-flex items-center justify-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[#ce2f10]">
+              <button className="inline-flex items-center justify-center rounded-none border border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
                 Get Started Now
               </button>
             }

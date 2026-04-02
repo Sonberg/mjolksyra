@@ -31,7 +31,7 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
 
   return (
     <section className="space-y-4">
-      <div className="mb-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
+      <div className="mb-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
         <PageSectionHeader
           eyebrow="Workout details"
           title="Log sets and complete exercises"
@@ -39,7 +39,7 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
           leading={
             <Link
               href={backHref}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               aria-label="Back to workouts"
             >
               <ChevronLeftIcon className="h-4 w-4" />
@@ -49,13 +49,13 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
       </div>
 
       {isLoading ? (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
           Loading workout...
         </div>
       ) : null}
 
       {isError ? (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4 text-sm text-[var(--shell-accent)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4 text-sm text-[var(--shell-accent)]">
           Could not load this workout.
         </div>
       ) : null}

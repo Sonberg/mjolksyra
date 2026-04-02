@@ -36,9 +36,9 @@ export function AthleteExerciseCard({
   const prescription = formatPrescription(exercise.prescription);
 
   return (
-    <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+    <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)]">
       <div className="flex items-center gap-3 p-4">
-        <div className="grid h-10 w-10 shrink-0 place-items-center border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-base font-bold text-[var(--shell-accent-ink)]">
+        <div className="grid h-10 w-10 shrink-0 place-items-center border border-[var(--shell-border)] bg-[var(--shell-accent)] text-base font-bold text-[var(--shell-accent-ink)]">
           {index + 1}
         </div>
         <div className="min-w-0 flex-1">
@@ -73,7 +73,7 @@ export function AthleteExerciseCard({
               isDone: !(exercise.isDone ?? false),
             })
           }
-          className={`inline-flex shrink-0 items-center gap-1.5 border-2 border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition disabled:opacity-60 ${
+          className={`inline-flex shrink-0 items-center gap-1.5 border border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition disabled:opacity-60 ${
             exercise.isDone
               ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
               : "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:brightness-95"
@@ -89,7 +89,7 @@ export function AthleteExerciseCard({
       </div>
 
       {exercise.note?.trim() ? (
-        <div className="mx-4 mb-3 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-muted)]">
+        <div className="mx-4 mb-3 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-muted)]">
           {exercise.note}
         </div>
       ) : null}

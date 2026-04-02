@@ -38,9 +38,9 @@ export function WorkoutExerciseCard({
   onUpdateSetActual,
 }: Props) {
   return (
-    <div className="grid gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 sm:p-4">
+    <div className="grid gap-2 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 sm:p-4">
       <div className="flex items-start gap-3 sm:items-center sm:gap-4">
-        <div className="grid h-8 w-8 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)]">
+        <div className="grid h-8 w-8 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)]">
           {index + 1}
         </div>
         <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2 sm:gap-3">
@@ -72,8 +72,8 @@ export function WorkoutExerciseCard({
               }
               className={
                 exercise.isDone
-                  ? "inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition disabled:opacity-60"
-                  : "inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
+                  ? "inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition disabled:opacity-60"
+                  : "inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
               }
               title={exercise.isDone ? "Undo done" : "Mark done"}
             >
@@ -85,14 +85,14 @@ export function WorkoutExerciseCard({
               {exercise.isDone ? "Done" : "Mark done"}
             </button>
           ) : exercise.isDone ? (
-            <span className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)]">
+            <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)]">
               Done
             </span>
           ) : null}
         </div>
       </div>
       {exercise.note?.trim() ? (
-        <div className="ml-0 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs text-[var(--shell-muted)] sm:ml-12">
+        <div className="ml-0 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs text-[var(--shell-muted)] sm:ml-12">
           {exercise.note}
         </div>
       ) : null}

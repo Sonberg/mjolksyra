@@ -29,7 +29,7 @@ export function ExerciseCard({
     <div
       onClick={onClick}
       className={cn(
-        "group rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-xs transition",
+        "group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-xs transition",
         isActive && "border-[var(--shell-accent)]",
         !isActive && "hover:bg-[var(--shell-surface-strong)]",
         (isDragging || isGhost) && "opacity-40",

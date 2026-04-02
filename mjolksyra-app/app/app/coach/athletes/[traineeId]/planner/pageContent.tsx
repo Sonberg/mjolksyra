@@ -47,7 +47,7 @@ function PlannerChangesTabLabel({
     <span className="inline-flex w-full items-center justify-center gap-1.5">
       Changes
       {pendingWorkoutCount > 0 ? (
-        <span className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--shell-ink)]">
+        <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--shell-ink)]">
           {pendingWorkoutCount}
         </span>
       ) : null}
@@ -157,7 +157,7 @@ function PlannerChangesPanel({
         <div className="mt-3 flex items-center gap-2">
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             title="Publish all draft changes"
             onClick={onPublishAll}
             disabled={isSaving || draftWorkouts.length === 0}
@@ -167,7 +167,7 @@ function PlannerChangesPanel({
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
             title="Revert all drafts to the latest published state"
             onClick={onRevertAll}
             disabled={isSaving || draftWorkouts.length === 0}
@@ -180,7 +180,7 @@ function PlannerChangesPanel({
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
         <div className="flex flex-col gap-2">
           {draftWorkouts.length === 0 ? (
-            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 text-sm text-[var(--shell-muted)]">
+            <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 text-sm text-[var(--shell-muted)]">
               Nothing to publish right now.
             </div>
           ) : (
@@ -191,13 +191,13 @@ function PlannerChangesPanel({
               return (
                 <div
                   key={workout.id}
-                  className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3"
+                  className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-[var(--shell-ink)]">
                       {dayjs(workout.plannedAt).format("ddd, D MMM YYYY")}
                     </p>
-                    <span className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+                    <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
                       {draftExercises.length} draft
                     </span>
                   </div>
@@ -277,7 +277,7 @@ export function PageContent({ traineeId }: Props) {
           <div className="flex w-full items-center gap-2">
             <button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               onClick={() => router.push("/app/coach/athletes")}
               aria-label="Back to athletes"
             >

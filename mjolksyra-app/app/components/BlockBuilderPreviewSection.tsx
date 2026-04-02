@@ -25,7 +25,7 @@ export function BlockBuilderPreviewSection() {
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mb-3 inline-flex items-center gap-2 rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--home-muted)]">
+            <p className="mb-3 inline-flex items-center gap-2 rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--home-muted)]">
               <Layers3Icon className="h-3.5 w-3.5" />
               New Preview
             </p>
@@ -39,18 +39,18 @@ export function BlockBuilderPreviewSection() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-4 md:p-6">
+        <div className="overflow-hidden rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] p-4 md:p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {previewWeeks.map((item) => (
               <article
                 key={item.week}
-                className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] p-4"
+                className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-4"
               >
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-base text-[var(--home-text)]">
                     {item.week}
                   </h3>
-                  <span className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--home-muted)]">
+                  <span className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                     {item.focus}
                   </span>
                 </div>
@@ -58,7 +58,7 @@ export function BlockBuilderPreviewSection() {
                   {item.sessions.map((session) => (
                     <div
                       key={session}
-                      className="rounded-none border-2 border-[var(--home-border)]/35 bg-[var(--home-surface)] px-3 py-2 text-sm text-[var(--home-text)]"
+                      className="rounded-none border border-[var(--home-border)]/35 bg-[var(--home-surface)] px-3 py-2 text-sm text-[var(--home-text)]"
                     >
                       {session}
                     </div>

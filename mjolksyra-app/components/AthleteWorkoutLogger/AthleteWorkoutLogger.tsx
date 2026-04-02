@@ -233,11 +233,11 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
   return (
     <div>
       {/* Header */}
-      <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+      <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
         <div className="flex items-center gap-3">
           <Link
             href={backHref}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
             aria-label="Back to workouts"
           >
             <ChevronLeftIcon className="h-5 w-5" />
@@ -251,7 +251,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
             </p>
           </div>
           {isCompleted ? (
-            <span className="inline-flex shrink-0 items-center gap-1 border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
+            <span className="inline-flex shrink-0 items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
               <CheckCircle2Icon className="h-3 w-3" />
               Done
             </span>
@@ -262,7 +262,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               setCompletionNote(workout.completionNote ?? "");
               setIsLogging((x) => !x);
             }}
-            className="hidden shrink-0 items-center gap-1.5 border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 sm:inline-flex"
+            className="hidden shrink-0 items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 sm:inline-flex"
           >
             <CheckCircle2Icon className="h-3.5 w-3.5" />
             {isCompleted ? "Edit completion" : "Complete workout"}
@@ -273,7 +273,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
       <div className="grid gap-4 pb-28 pt-4 sm:pb-6">
         {/* Coach note */}
         {workout.note?.trim() ? (
-          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Coach note
             </p>
@@ -283,7 +283,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
 
         {/* Athlete log (shown after completion) */}
         {isCompleted && workout.completionNote?.trim() ? (
-          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Your log
             </p>
@@ -295,7 +295,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
 
         {/* Coach feedback */}
         {workout.reviewNote?.trim() ? (
-          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Coach feedback
             </p>
@@ -329,7 +329,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
 
         {/* Completion form */}
         {isLogging ? (
-          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Completion note (optional)
             </p>
@@ -338,7 +338,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               onChange={(e) => setCompletionNote(e.target.value)}
               rows={3}
               placeholder="How did it feel? Any notes for your coach?"
-              className="mt-2 w-full resize-y border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+              className="mt-2 w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
             />
             <div className="mt-3 flex gap-2">
               <button
@@ -350,14 +350,14 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
                     completionNote: completionNote.trim() || null,
                   })
                 }
-                className="flex-1 border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                className="flex-1 border border-[var(--shell-border)] bg-[var(--shell-accent)] py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
               >
                 {saveCompletion.isPending ? "Saving..." : "Save completion"}
               </button>
               <button
                 type="button"
                 onClick={() => setIsLogging(false)}
-                className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+                className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
               >
                 Cancel
               </button>
@@ -375,7 +375,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               setCompletionNote(workout.completionNote ?? "");
               setIsLogging((x) => !x);
             }}
-            className="flex w-full items-center justify-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] py-4 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95"
+            className="flex w-full items-center justify-center gap-2 border border-[var(--shell-border)] bg-[var(--shell-accent)] py-4 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95"
           >
             <CheckCircle2Icon className="h-5 w-5" />
             {isCompleted ? "Edit completion" : "Complete workout"}

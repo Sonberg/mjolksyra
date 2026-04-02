@@ -64,7 +64,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
             <button
               type="button"
               onClick={onAddExercise}
-              className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
             >
               <PlusIcon className="h-3.5 w-3.5" />
               Add
@@ -72,7 +72,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
             <button
               type="button"
               onClick={onClose}
-              className="grid h-8 w-8 place-content-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              className="grid h-8 w-8 place-content-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
             >
               <XIcon className="h-4 w-4" />
             </button>
@@ -85,7 +85,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
           {workout.exercises.map((exercise, index) => (
             <article
               key={exercise.id}
-              className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4"
+              className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4"
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -103,7 +103,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
                     onClick={() => moveExercise(index, "up")}
                     disabled={index === 0}
                     className={cn(
-                      "inline-flex h-8 w-8 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
+                      "inline-flex h-8 w-8 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
                       index === 0
                         ? "opacity-40"
                         : "cursor-pointer hover:bg-[var(--shell-surface)]",
@@ -116,7 +116,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
                     onClick={() => moveExercise(index, "down")}
                     disabled={index === workout.exercises.length - 1}
                     className={cn(
-                      "inline-flex h-8 w-8 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
+                      "inline-flex h-8 w-8 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
                       index === workout.exercises.length - 1
                         ? "opacity-40"
                         : "cursor-pointer hover:bg-[var(--shell-surface)]",
@@ -133,7 +133,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
                   updateExercise(exercise.id, { note: ev.target.value || null })
                 }
                 placeholder="Add note for this exercise..."
-                className="mb-3 min-h-16 w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
+                className="mb-3 min-h-16 w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
               />
 
               <ExercisePrescriptionEditor

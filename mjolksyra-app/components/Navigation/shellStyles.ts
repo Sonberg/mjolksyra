@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 export const shellSegmentedContainerClass =
-  "inline-flex items-stretch border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] divide-x-2 divide-[var(--shell-border)]";
+  "inline-flex items-stretch border border-[var(--shell-border)] bg-[var(--shell-surface)] divide-x divide-[var(--shell-border)]";
 
 export function shellRoleLinkClass(isActive: boolean) {
   return cn(

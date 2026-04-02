@@ -23,7 +23,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
               Pricing table
             </h2>
           </div>
-          <div className="border-2 border-white/50 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white">
+          <div className="border border-white/50 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white">
             Cancel anytime
           </div>
         </div>
@@ -36,14 +36,14 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
                 key={plan.id}
                 className={
                   isFeatured
-                    ? "border-2 border-white bg-black px-4 py-4 text-white shadow-[8px_8px_0_0_rgba(0,0,0,0.5)]"
-                    : "border-2 border-white/50 bg-white/5 px-4 py-4 text-white"
+                    ? "border border-white bg-black px-4 py-4 text-white shadow-[8px_8px_0_0_rgba(0,0,0,0.5)]"
+                    : "border border-white/50 bg-white/5 px-4 py-4 text-white"
                 }
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-[var(--font-display)] text-2xl">{plan.name}</h3>
                   {isFeatured ? (
-                    <span className="border-2 border-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]">
+                    <span className="border border-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]">
                       Popular
                     </span>
                   ) : null}
@@ -62,7 +62,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
           })}
         </div>
 
-        <div className="hidden overflow-hidden border-2 border-white/50 bg-white/5 md:block">
+        <div className="hidden overflow-hidden border border-white/50 bg-white/5 md:block">
           <div className="grid grid-cols-4 border-b-2 border-white/40 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white">
             <span>Plan</span>
             <span>Monthly</span>
@@ -82,7 +82,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
                   }
                 >
                   {isFeatured ? (
-                    <span className="absolute -right-2 -top-2 border-2 border-white bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black">
+                    <span className="absolute -right-2 -top-2 border border-white bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black">
                       Most popular
                     </span>
                   ) : null}
@@ -105,7 +105,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
         </div>
 
         <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-white/80">
-          <span className="h-2.5 w-2.5 border-2 border-white bg-black" />
+          <span className="h-2.5 w-2.5 border border-white bg-black" />
           Stripe fees and taxes are excluded
         </div>
       </div>

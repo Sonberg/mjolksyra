@@ -44,14 +44,14 @@ export function AthleteTransactions({ coach }: Props) {
   return (
     <div className="space-y-4">
       {data.billing.status === "PaymentFailed" ? (
-        <div className="flex items-center justify-between rounded-none border-2 border-red-500 bg-red-50 px-4 py-3 dark:bg-red-950">
+        <div className="flex items-center justify-between rounded-none border border-red-500 bg-red-50 px-4 py-3 dark:bg-red-950">
           <p className="text-sm font-medium text-red-700 dark:text-red-300">
             Your last payment failed. Update your payment method to avoid cancellation.
           </p>
           <button
             type="button"
             onClick={() => setChangeCardOpen(true)}
-            className="ml-4 shrink-0 rounded-none border-2 border-red-500 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+            className="ml-4 shrink-0 rounded-none border border-red-500 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
           >
             Update payment method
           </button>
@@ -61,7 +61,7 @@ export function AthleteTransactions({ coach }: Props) {
         open={changeCardOpen}
         onClose={() => setChangeCardOpen(false)}
       />
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
         <PageSectionHeader
           title="Transactions"
           titleClassName="text-xl md:text-2xl"
@@ -72,7 +72,7 @@ export function AthleteTransactions({ coach }: Props) {
             Billing status
           </p>
           <div className="mt-3 grid gap-3 md:grid-cols-3">
-            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+            <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 Status
               </p>
@@ -83,7 +83,7 @@ export function AthleteTransactions({ coach }: Props) {
                 {billingStatusText}
               </p>
             </div>
-            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+            <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 Last charge
               </p>
@@ -96,7 +96,7 @@ export function AthleteTransactions({ coach }: Props) {
                 Most recent successful charge
               </p>
             </div>
-            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+            <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 Next charge
               </p>
@@ -112,7 +112,7 @@ export function AthleteTransactions({ coach }: Props) {
           </div>
         </div>
       </div>
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
         {data.transactions.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-sm text-[var(--shell-muted)]">

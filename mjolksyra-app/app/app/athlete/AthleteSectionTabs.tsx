@@ -51,7 +51,7 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
               onCoachChange(selectedCoach);
               router.push(`/app/athlete/${selectedCoach.traineeId}/${activeTab}`);
             }}
-            className="h-10 w-[160px] rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none transition hover:bg-[var(--shell-surface-strong)] focus:border-[var(--shell-accent)] md:w-auto md:min-w-56"
+            className="h-10 w-[160px] rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none transition hover:bg-[var(--shell-surface-strong)] focus:border-[var(--shell-accent)] md:w-auto md:min-w-56"
           >
             {coaches.map((coach) => (
               <option key={coach.traineeId} value={coach.traineeId}>

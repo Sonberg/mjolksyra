@@ -228,9 +228,9 @@ export function TraineeCard({
   ];
 
   return (
-    <article className="group overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(42,36,29,0.18)]">
+    <article className="group overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(42,36,29,0.18)]">
       <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
-        <Avatar className="h-12 w-12 border-2 border-[var(--shell-border)]">
+        <Avatar className="h-12 w-12 border border-[var(--shell-border)]">
           <AvatarImage src={url} alt={trainee.athlete.name} />
           <AvatarFallback className="bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
             {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
@@ -246,7 +246,7 @@ export function TraineeCard({
                 : trainee.athlete.name}
             </h3>
             {hasUnpublishedChanges ? (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
                 <span className="h-1.5 w-1.5 rounded-none bg-[var(--shell-accent)]" />
                 Drafts
               </span>
@@ -258,7 +258,7 @@ export function TraineeCard({
           <div className="mt-2">
             <span
               className={cn(
-                "inline-flex items-center rounded-none border-2 px-2 py-1 text-xs font-semibold",
+                "inline-flex items-center rounded-none border px-2 py-1 text-xs font-semibold",
                 billingBadge.className,
               )}
             >
@@ -275,7 +275,7 @@ export function TraineeCard({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
               aria-label="Open actions"
             >
               <MoreHorizontalIcon className="h-4 w-4" />
@@ -283,7 +283,7 @@ export function TraineeCard({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-52 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+            className="w-52 border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
           >
             <DropdownMenuItem
               onSelect={() => {
@@ -326,7 +326,7 @@ export function TraineeCard({
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-3 text-center"
+            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-3 text-center"
           >
             <p className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               {metric.label}
@@ -366,7 +366,7 @@ export function TraineeCard({
                   <div className="flex items-center gap-3 min-w-0">
                     <span
                       className={cn(
-                        "shrink-0 inline-flex items-center rounded-none border-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+                        "shrink-0 inline-flex items-center rounded-none border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
                         tx.status === "Succeeded" &&
                           "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
                         tx.status === "Refunded" &&
@@ -389,7 +389,7 @@ export function TraineeCard({
                       type="button"
                       disabled={refund.isPending}
                       onClick={() => refund.mutate(tx.id)}
-                      className="shrink-0 inline-flex items-center gap-1.5 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
+                      className="shrink-0 inline-flex items-center gap-1.5 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
                     >
                       <UndoIcon className="h-3 w-3" />
                       Refund
@@ -404,7 +404,7 @@ export function TraineeCard({
 
       <div className="flex flex-wrap gap-3 bg-[var(--shell-surface)] px-5 py-4 md:px-6">
         <button
-          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
+          className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
           onClick={() =>
             router.push(`/app/coach/athletes/${trainee.id}/planner`)
           }
@@ -413,7 +413,7 @@ export function TraineeCard({
           Plan workouts
         </button>
         <button
-          className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+          className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
           onClick={() =>
             router.push(`/app/coach/athletes/${trainee.id}/workouts`)
           }
@@ -439,7 +439,7 @@ export function TraineeCard({
       )}
 
       <Dialog open={isPriceEditorOpen} onOpenChange={setPriceEditorOpen}>
-        <DialogContent className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-md">
+        <DialogContent className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Change price</DialogTitle>
             <DialogDescription className="text-[var(--shell-muted)]">
@@ -461,11 +461,11 @@ export function TraineeCard({
                 value={price}
                 onChange={(e) => setPrice(e.target.value.replace(/[^\d]/g, ""))}
                 placeholder="1000"
-                className="w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm font-semibold text-[var(--shell-ink)] outline-none transition placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
+                className="w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm font-semibold text-[var(--shell-ink)] outline-none transition placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
               />
               <span className="text-sm text-[var(--shell-muted)]">kr/mo</span>
             </div>
-            <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
+            <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
                 Apply method
               </p>
@@ -478,7 +478,7 @@ export function TraineeCard({
                 type="button"
                 onClick={() => setBillingMode("ChargeNow")}
                 className={cn(
-                  "w-full rounded-none border-2 px-3 py-3 text-left transition",
+                  "w-full rounded-none border px-3 py-3 text-left transition",
                   billingMode === "ChargeNow"
                     ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
                     : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface)]",
@@ -487,7 +487,7 @@ export function TraineeCard({
                 <span className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "mt-0.5 rounded-none border-2 p-1.5",
+                      "mt-0.5 rounded-none border p-1.5",
                       billingMode === "ChargeNow"
                         ? "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                         : "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]",
@@ -512,7 +512,7 @@ export function TraineeCard({
                 type="button"
                 onClick={() => setBillingMode("NextCycle")}
                 className={cn(
-                  "w-full rounded-none border-2 px-3 py-3 text-left transition",
+                  "w-full rounded-none border px-3 py-3 text-left transition",
                   billingMode === "NextCycle"
                     ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
                     : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface)]",
@@ -521,7 +521,7 @@ export function TraineeCard({
                 <span className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "mt-0.5 rounded-none border-2 p-1.5",
+                      "mt-0.5 rounded-none border p-1.5",
                       billingMode === "NextCycle"
                         ? "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                         : "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]",
@@ -554,7 +554,7 @@ export function TraineeCard({
               type="button"
               variant="outline"
               onClick={() => setPriceEditorOpen(false)}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
             >
               Cancel
             </Button>
@@ -564,7 +564,7 @@ export function TraineeCard({
               onClick={() =>
                 savePrice.mutateAsync().then(() => setPriceEditorOpen(false))
               }
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
             >
               {savePrice.isPending
                 ? "Saving..."

@@ -108,7 +108,7 @@ export function CoachDashboardSubscriptionSection({
   }
 
   return (
-    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
       <div className="space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
@@ -124,7 +124,7 @@ export function CoachDashboardSubscriptionSection({
           </div>
           <span
             className={cn(
-              "inline-flex w-fit items-center rounded-none border-2 px-2.5 py-1 text-xs font-semibold",
+              "inline-flex w-fit items-center rounded-none border px-2.5 py-1 text-xs font-semibold",
               coachPaymentStatus.badgeClass,
             )}
           >
@@ -133,7 +133,7 @@ export function CoachDashboardSubscriptionSection({
         </div>
 
         {isTrialing && (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-ink)]">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-ink)]">
             Free trial active. Your first charge starts on{" "}
             <span className="font-semibold">
               {trialEndsAt!.toLocaleDateString("sv-SE")}
@@ -148,7 +148,7 @@ export function CoachDashboardSubscriptionSection({
           athleteCount={athleteCount}
         />
 
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Discount code</p>
           <AppliedDiscountCard
             code={effectiveDiscountCode}
@@ -163,13 +163,13 @@ export function CoachDashboardSubscriptionSection({
               value={discountCode}
               onChange={(e) => setDiscountCode(e.target.value)}
               placeholder="Enter code"
-              className="flex-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+              className="flex-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
             />
             <Button
               type="button"
               onClick={handleApplyCode}
               disabled={isApplyingCode || !discountCode.trim()}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
             >
               {isApplyingCode ? <Spinner size={14} /> : "Apply"}
             </Button>
@@ -184,7 +184,7 @@ export function CoachDashboardSubscriptionSection({
           )}
         </div>
 
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
           <CoachPlanSelector
             plans={plans}
             currentPlanId={currentPlan.id}
@@ -193,18 +193,18 @@ export function CoachDashboardSubscriptionSection({
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
               Monthly platform charge
             </p>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                   Base plan
                 </p>
                 <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{currentPlan.monthlyPriceSek} kr</p>
               </div>
-              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                   Overage
                 </p>
@@ -215,7 +215,7 @@ export function CoachDashboardSubscriptionSection({
                   {overageAthletes} x {currentPlan.extraAthletePriceSek} kr
                 </p>
               </div>
-              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                   Estimated total
                 </p>
@@ -230,7 +230,7 @@ export function CoachDashboardSubscriptionSection({
             </p>
           </div>
 
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
               Stripe account
             </p>
@@ -239,7 +239,7 @@ export function CoachDashboardSubscriptionSection({
               type="button"
               onClick={onOpenStripeDashboard}
               disabled={isOpeningStripe}
-              className="mt-4 w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-semibold text-[var(--shell-accent-ink)] hover:bg-[#ce2f10] disabled:opacity-60"
+              className="mt-4 w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] font-semibold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
             >
               {isOpeningStripe ? <Spinner size={14} /> : "Open Stripe"}
             </Button>

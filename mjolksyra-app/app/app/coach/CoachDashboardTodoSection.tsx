@@ -19,7 +19,7 @@ type Props = {
 
 export function CoachDashboardTodoSection({ items }: Props) {
   return (
-    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
           Coach to-do
@@ -38,11 +38,11 @@ export function CoachDashboardTodoSection({ items }: Props) {
           return (
             <div
               key={item.key}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className={cn("mt-0.5 rounded-none border-2 p-2", item.tone)}>
+                  <div className={cn("mt-0.5 rounded-none border p-2", item.tone)}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
@@ -53,7 +53,7 @@ export function CoachDashboardTodoSection({ items }: Props) {
                     )}
                   </div>
                 </div>
-                <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs font-semibold text-[var(--shell-ink)]">
+                <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs font-semibold text-[var(--shell-ink)]">
                   {item.count}
                 </div>
               </div>

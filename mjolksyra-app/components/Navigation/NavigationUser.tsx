@@ -37,12 +37,12 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
   const { theme, toggleTheme } = useTheme();
   const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
   const dropdownVars = {
-    "--shell-surface": "var(--shell-surface, #fff7ec)",
-    "--shell-surface-strong": "var(--shell-surface-strong, #ecdcc5)",
-    "--shell-border": "var(--shell-border, #2a241d)",
-    "--shell-ink": "var(--shell-ink, #101010)",
-    "--shell-muted": "var(--shell-muted, #5e5448)",
-    "--shell-accent": "var(--shell-accent, #f03a17)",
+    "--shell-surface": "var(--shell-surface, #ffffff)",
+    "--shell-surface-strong": "var(--shell-surface-strong, #e8e9ea)",
+    "--shell-border": "var(--shell-border, #d0d0d0)",
+    "--shell-ink": "var(--shell-ink, #1b1b1b)",
+    "--shell-muted": "var(--shell-muted, #767676)",
+    "--shell-accent": "var(--shell-accent, #60CD18)",
   } as CSSProperties;
   const resolvedUser = {
     name: user?.name ?? auth.name ?? null,
@@ -59,10 +59,10 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+          className="inline-flex h-10 items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
           aria-label="Open user menu"
         >
-          <Avatar className="h-8 w-8 border-2 border-[var(--shell-border)]">
+          <Avatar className="h-8 w-8 border border-[var(--shell-border)]">
             <AvatarImage src={url} alt={resolvedUser.name ?? "User"} />
             <AvatarFallback className="rounded-none bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
               {initial.toUpperCase()}
@@ -79,7 +79,7 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       <DropdownMenuContent
         align="end"
         style={dropdownVars}
-        className="w-52 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+        className="w-52 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
       >
         <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
           <Link href="/app/profile">

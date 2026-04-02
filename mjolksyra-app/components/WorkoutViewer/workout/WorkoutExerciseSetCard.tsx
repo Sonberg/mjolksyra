@@ -108,7 +108,7 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-xs text-[var(--shell-ink)]"
+                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual reps for set ${setIndex + 1}`}
                   />
                   <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
@@ -146,7 +146,7 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
+                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual duration for set ${setIndex + 1}`}
                   />
                   <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
@@ -184,7 +184,7 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
+                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual distance for set ${setIndex + 1}`}
                   />
                   <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
@@ -221,7 +221,7 @@ export function WorkoutExerciseSetCard({
                         note: set.actual?.note ?? null,
                       });
                     }}
-                    className="h-8 w-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
+                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual weight for set ${setIndex + 1}`}
                   />
                   <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
@@ -252,7 +252,7 @@ export function WorkoutExerciseSetCard({
                     note: nextNote,
                   });
                 }}
-                className="h-8 min-w-[180px] flex-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs text-[var(--shell-ink)]"
+                className="h-8 min-w-[180px] flex-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs text-[var(--shell-ink)]"
                 placeholder="Set note (actual)"
                 aria-label={`Actual note for set ${setIndex + 1}`}
               />
@@ -294,8 +294,8 @@ export function WorkoutExerciseSetCard({
           }
           className={
             set.actual?.isDone
-              ? "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition disabled:opacity-60"
-              : "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)] disabled:opacity-60"
+              ? "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition disabled:opacity-60"
+              : "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)] disabled:opacity-60"
           }
           title={set.actual?.isDone ? "Mark set incomplete" : "Mark set done"}
         >
@@ -310,8 +310,8 @@ export function WorkoutExerciseSetCard({
         <span
           className={
             set.actual?.isDone
-              ? "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)]"
-              : "inline-flex items-center justify-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]"
+              ? "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)]"
+              : "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]"
           }
         >
           {set.actual?.isDone ? "Done" : "Not done"}

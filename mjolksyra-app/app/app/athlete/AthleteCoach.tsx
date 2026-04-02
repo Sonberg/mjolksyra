@@ -12,7 +12,7 @@ type Props = {
 
 export function AthleteCoach({ coach, isSelected, href, onSelect }: Props) {
   const classNames = cn({
-    "flex items-center gap-3 rounded-none border-2 p-3 transition-all": true,
+    "flex items-center gap-3 rounded-none border p-3 transition-all": true,
     "cursor-pointer border-[var(--shell-border)] bg-[var(--shell-surface)] hover:bg-[var(--shell-surface-strong)]":
       !isSelected,
     "border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": isSelected,
@@ -23,7 +23,7 @@ export function AthleteCoach({ coach, isSelected, href, onSelect }: Props) {
       href={href}
       onClick={isSelected ? undefined : onSelect}
     >
-      <div className="grid h-9 w-9 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="grid h-9 w-9 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
         <UserCircle2Icon className="h-4 w-4 text-[var(--shell-muted)]" />
       </div>
       <div>

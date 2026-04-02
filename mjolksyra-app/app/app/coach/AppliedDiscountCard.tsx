@@ -34,7 +34,7 @@ export function AppliedDiscountCard({
     : null;
 
   return (
-    <div className="mt-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs">
+    <div className="mt-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs">
       <p className="uppercase tracking-[0.16em] text-[var(--shell-muted)]">
         Applied
       </p>

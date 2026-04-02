@@ -64,7 +64,7 @@ export function CoachAthletesContent({ trainees }: Props) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+      <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
@@ -88,7 +88,7 @@ export function CoachAthletesContent({ trainees }: Props) {
             trigger={
               <Button
                 disabled={false}
-                className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
+                className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
                 size="lg"
               >
                 <UserPlusIcon className="h-5 w-5" />
@@ -110,7 +110,7 @@ export function CoachAthletesContent({ trainees }: Props) {
           ))}
         </div>
       ) : (
-        <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] p-12 text-center">
+        <div className="rounded-none border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] p-12 text-center">
           <h3 className="text-xl text-[var(--shell-ink)]">No athletes yet</h3>
           <p className="mt-2 text-sm text-[var(--shell-muted)]">
             Send your first invitation to start building your coaching roster.

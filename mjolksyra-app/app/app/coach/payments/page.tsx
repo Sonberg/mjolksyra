@@ -10,7 +10,7 @@ export default function Page() {
     <Suspense
       fallback={
         <CoachWorkspaceShell>
-          <div className="animate-pulse rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] h-96" />
+          <div className="animate-pulse rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] h-96" />
         </CoachWorkspaceShell>
       }
     >

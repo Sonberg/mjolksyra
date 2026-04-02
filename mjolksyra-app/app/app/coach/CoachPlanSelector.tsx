@@ -52,7 +52,7 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
             <div
               key={plan.id}
               className={cn(
-                "rounded-none border-2 p-4 flex flex-col gap-2",
+                "rounded-none border p-4 flex flex-col gap-2",
                 isActive
                   ? "border-[var(--shell-ink)] bg-[var(--shell-surface-strong)]"
                   : "border-[var(--shell-border)] bg-[var(--shell-surface)]",
@@ -89,7 +89,7 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
                     setSelectingPlanId(plan.id);
                     mutation.mutate(plan.id);
                   }}
-                  className="mt-auto rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
+                  className="mt-auto rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
                 >
                   {isPending && mutation.isPending ? <Spinner size={12} /> : "Select"}
                 </Button>

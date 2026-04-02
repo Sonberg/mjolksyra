@@ -145,12 +145,12 @@ export function AthleteOnboardingFlow({
   return (
     <div className="bg-background">
       {isSyncingReturn ? (
-        <div className="mb-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm text-[var(--shell-muted)]">
+        <div className="mb-4 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm text-[var(--shell-muted)]">
           Finalizing your payment method setup...
         </div>
       ) : null}
       {returnError ? (
-        <div className="mb-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-accent)]">
+        <div className="mb-4 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-accent)]">
           {returnError}
         </div>
       ) : null}

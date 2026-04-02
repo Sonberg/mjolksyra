@@ -112,7 +112,7 @@ export function WorkoutEditorExercise({
   }
 
   return (
-    <article className="group overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
+    <article className="group overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
@@ -127,7 +127,7 @@ export function WorkoutEditorExercise({
           <div
             onClick={onMoveUp}
             className={cn({
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": true,
+              "inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": true,
               "cursor-pointer hover:bg-[var(--shell-surface)]": canMoveUp,
               "text-[var(--shell-muted)] opacity-40": !canMoveUp,
             })}
@@ -137,7 +137,7 @@ export function WorkoutEditorExercise({
           <div
             onClick={onMoveDown}
             className={cn({
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": true,
+              "inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": true,
               "cursor-pointer hover:bg-[var(--shell-surface)]": canMoveDown,
               "text-[var(--shell-muted)] opacity-40": !canMoveDown,
             })}
@@ -147,7 +147,7 @@ export function WorkoutEditorExercise({
         </div>
       </div>
       <Textarea
-        className="min-h-[92px] mb-2 w-full resize-y rounded-none  bg-[var(--shell-surface)] border-2 border-[var(--shell-border)] px-3 py-2 text-sm font-medium text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
+        className="min-h-[92px] mb-2 w-full resize-y rounded-none  bg-[var(--shell-surface)] border border-[var(--shell-border)] px-3 py-2 text-sm font-medium text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
         value={plannedExercise.note ?? ""}
         onChange={(ev) => onUpdateNote(ev.target.value)}
         placeholder="Exercise note (optional)"

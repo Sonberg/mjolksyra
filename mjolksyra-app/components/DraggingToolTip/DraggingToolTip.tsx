@@ -118,7 +118,7 @@ export function DraggingToolTip({
       {isHovering && position
         ? createPortal(
             <div
-              className="fixed z-[80] min-w-44 max-w-80 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-2 shadow-[0_12px_30px_rgba(42,36,29,0.25)]"
+              className="fixed z-[80] min-w-44 max-w-80 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-2 shadow-[0_12px_30px_rgba(42,36,29,0.25)]"
               style={{
                 top: position.top,
                 left: position.left,

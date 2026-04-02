@@ -312,8 +312,8 @@ export function Workout({
       data-today={displayName === "Today"}
       className={
         isHighlighted
-          ? "overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] ring-2 ring-[var(--shell-accent)]/30"
-          : "overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]"
+          ? "overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] ring-2 ring-[var(--shell-accent)]/30"
+          : "overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
       }
     >
       <CardHeader className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
@@ -327,7 +327,7 @@ export function Workout({
                     ? `/app/athlete/${traineeId}/workouts/${workout.id}?tab=${backTab}`
                     : `/app/athlete/${traineeId}/workouts/${workout.id}`
                 }
-                className="inline-flex items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
+                className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
               >
                 Open workout
               </Link>
@@ -339,20 +339,20 @@ export function Workout({
                   setCompletionNote(workout.completionNote ?? "");
                   setIsLogging((x) => !x);
                 }}
-                className="inline-flex items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
+                className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
               >
                 {isCompleted ? "Edit completion" : "Complete workout"}
               </button>
             ) : null}
             <div className="flex items-center gap-2">
               {isCompleted ? (
-                <span className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
+                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
                   <CheckCircle2Icon className="h-3 w-3" />
                   Completed
                 </span>
               ) : null}
               {viewerMode === "coach" && isReviewed ? (
-                <span className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-ink)]">
+                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-ink)]">
                   Reviewed
                 </span>
               ) : null}
@@ -374,7 +374,7 @@ export function Workout({
                       completionNote: workout.completionNote ?? null,
                     })
                   }
-                  className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
+                  className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
                 >
                   <RotateCcwIcon className="h-3.5 w-3.5" />
                   Mark incomplete
@@ -384,7 +384,7 @@ export function Workout({
                 <button
                   type="button"
                   disabled
-                  className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-2 text-xs font-semibold text-[var(--shell-surface)]"
+                  className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-2 text-xs font-semibold text-[var(--shell-surface)]"
                 >
                   <CheckCircle2Icon className="h-3.5 w-3.5" />
                   Completed
@@ -403,7 +403,7 @@ export function Workout({
                       reviewNote: reviewNote.trim() || null,
                     })
                   }
-                  className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                  className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
                 >
                   {saveReview.isPending ? "Saving..." : "Mark reviewed"}
                 </button>
@@ -417,7 +417,7 @@ export function Workout({
                       reviewNote: reviewNote.trim() || null,
                     })
                   }
-                  className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
+                  className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
                 >
                   {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
                 </button>
@@ -428,7 +428,7 @@ export function Workout({
                   setReviewNote(workout.reviewNote ?? "");
                   setIsReviewing((x) => !x);
                 }}
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
               >
                 {isReviewing ? "Hide review details" : "Review details"}
               </button>
@@ -447,7 +447,7 @@ export function Workout({
         </div>
 
         {isDetailView && isLogging ? (
-          <div className="grid gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
+          <div className="grid gap-3 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                 Completion note (optional)
@@ -457,7 +457,7 @@ export function Workout({
                 onChange={(e) => setCompletionNote(e.target.value)}
                 rows={3}
                 placeholder="How did it feel? Any notes to your coach?"
-                className="mt-2 w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+                className="mt-2 w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -470,7 +470,7 @@ export function Workout({
                     completionNote: completionNote.trim() || null,
                   })
                 }
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
               >
                 {saveCompletion.isPending ? "Saving..." : "Save completion"}
               </button>
@@ -478,7 +478,7 @@ export function Workout({
                 type="button"
                 disabled={saveCompletion.isPending}
                 onClick={() => setIsLogging(false)}
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)] disabled:opacity-60"
+                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)] disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -487,7 +487,7 @@ export function Workout({
         ) : null}
 
         {workout.note?.trim() ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Coach note
             </p>
@@ -498,7 +498,7 @@ export function Workout({
         ) : null}
         {(isDetailView || viewerMode === "coach") &&
         workout.completionNote?.trim() ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               {viewerMode === "coach" ? "Athlete log" : "Your log"}
             </p>
@@ -510,12 +510,12 @@ export function Workout({
         {viewerMode === "coach" &&
         isReviewing &&
         !workout.completionNote?.trim() ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-muted)]">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-muted)]">
             Athlete completed this workout without a completion note.
           </div>
         ) : null}
         {viewerMode === "coach" && isReviewing ? (
-          <div className="grid gap-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
+          <div className="grid gap-3 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                 Coach log
@@ -525,7 +525,7 @@ export function Workout({
                 onChange={(e) => setReviewNote(e.target.value)}
                 rows={3}
                 placeholder="Feedback for the athlete, notes for follow-up, or coaching observations."
-                className="mt-2 w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+                className="mt-2 w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -540,7 +540,7 @@ export function Workout({
                     reviewNote: reviewNote.trim() || null,
                   })
                 }
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-2 text-xs font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)] disabled:opacity-60"
+                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-2 text-xs font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)] disabled:opacity-60"
               >
                 {saveReview.isPending ? "Saving..." : "Save coach log"}
               </button>
@@ -550,7 +550,7 @@ export function Workout({
         {viewerMode === "coach" &&
         workout.reviewNote?.trim() &&
         !isReviewing ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Coach log
             </p>
@@ -560,7 +560,7 @@ export function Workout({
           </div>
         ) : null}
         {viewerMode === "athlete" && workout.reviewNote?.trim() ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Coach feedback
             </p>
