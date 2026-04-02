@@ -74,14 +74,13 @@ export function WorkoutMediaGallery({ media }: Props) {
                     playsInline
                     className="h-full w-full object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-ink)]/20 transition group-hover:bg-[var(--shell-ink)]/30">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--shell-surface)]/90">
-                      <PlayIcon className="h-3 w-3 translate-x-px text-[var(--shell-ink)]" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-ink)]/35 transition group-hover:bg-[var(--shell-ink)]/45">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--shell-ink)] text-[var(--shell-surface)]">
+                      <PlayIcon className="h-4 w-4 translate-x-px" />
                     </div>
                   </div>
                 </>
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={item.url}
                   alt={`Workout media ${idx + 1}`}
@@ -128,7 +127,6 @@ export function WorkoutMediaGallery({ media }: Props) {
                 className="max-h-[85vh] max-w-[90vw]"
               />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={activeItem.url}
                 alt={`Workout media ${lightboxIndex! + 1}`}

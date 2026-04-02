@@ -115,7 +115,7 @@ export function WorkoutMediaUploader({
         setIsUploading(false);
       }
     },
-    [media, onUploadComplete],
+    [IMAGE_MAX_BYTES, VIDEO_MAX_BYTES, media, onUploadComplete, plannedWorkoutId],
   );
 
   const removeMedia = (item: PlannedWorkoutMedia) => {
@@ -142,40 +142,47 @@ export function WorkoutMediaUploader({
           {/* Confirmed uploads */}
           {media.map((item) =>
             item.type === "Video" ? (
-              <div key={item.rawUrl} className="relative">
+              <div
+                key={item.rawUrl}
+                className="group relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
+              >
                 <video
                   src={item.rawUrl}
                   preload="metadata"
                   muted
                   playsInline
-                  className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover"
+                  className="h-full w-full object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <PlayIcon className="h-6 w-6 text-white drop-shadow" />
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[var(--shell-ink)]/35">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--shell-ink)] text-[var(--shell-surface)]">
+                    <PlayIcon className="h-4 w-4 translate-x-px" />
+                  </div>
                 </div>
                 <button
                   type="button"
                   disabled={disabled}
                   onClick={() => removeMedia(item)}
-                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center bg-[var(--shell-ink)] text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)] disabled:opacity-40"
+                  className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
                   aria-label="Remove video"
                 >
                   <XIcon className="h-3 w-3" />
                 </button>
               </div>
             ) : (
-              <div key={item.rawUrl} className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div
+                key={item.rawUrl}
+                className="group relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
+              >
                 <img
                   src={item.compressedUrl ?? item.rawUrl}
                   alt="Workout media"
-                  className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover"
+                  className="h-full w-full object-cover"
                 />
                 <button
                   type="button"
                   disabled={disabled}
                   onClick={() => removeMedia(item)}
-                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center bg-[var(--shell-ink)] text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)] disabled:opacity-40"
+                  className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
                   aria-label="Remove image"
                 >
                   <XIcon className="h-3 w-3" />
@@ -187,21 +194,26 @@ export function WorkoutMediaUploader({
           {/* Pending previews — shown immediately on file selection */}
           {pendingPreviews.map((preview) =>
             preview.isVideo ? (
-              <div key={preview.id} className="relative">
-                <div className="h-20 w-20 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] opacity-50" />
-                <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                key={preview.id}
+                className="relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
+              >
+                <div className="h-full w-full bg-[var(--shell-surface)] opacity-60" />
+                <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-surface)]/30">
                   <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
                 </div>
               </div>
             ) : (
-              <div key={preview.id} className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div
+                key={preview.id}
+                className="relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
+              >
                 <img
                   src={preview.localUrl}
                   alt="Uploading..."
-                  className="h-20 w-20 border-2 border-[var(--shell-border)] object-cover opacity-50"
+                  className="h-full w-full object-cover opacity-60"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-surface)]/30">
                   <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
                 </div>
               </div>

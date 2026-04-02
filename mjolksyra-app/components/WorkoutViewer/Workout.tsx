@@ -509,9 +509,8 @@ export function Workout({
             </p>
           </div>
         ) : null}
-        {(isDetailView || viewerMode === "coach") &&
-        (workout.media?.length ?? 0) > 0 ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+        { (workout.media?.length ?? 0) > 0 ? (
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
             <WorkoutMediaGallery media={workout.media ?? []} />
           </div>
         ) : null}
