@@ -15,6 +15,7 @@ import {
 } from "@/components/WorkoutViewer/workout/types";
 import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
 import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
+import { PageHeader } from "@/components/Navigation/PageHeader";
 
 type Props = {
   workout: PlannedWorkout;
@@ -240,9 +241,10 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
 
   return (
     <div>
-      {/* Header */}
-      <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-        <div className="flex items-center gap-3">
+      <PageHeader
+        sectionClassName="bg-[var(--shell-surface-strong)] p-4"
+        className="gap-2"
+        leading={
           <Link
             href={backHref}
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
@@ -250,47 +252,49 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           >
             <ChevronLeftIcon className="h-5 w-5" />
           </Link>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              {displayName} · {workout.name ?? "Workout"}
-            </p>
-            {["Yesterday", "Today", "Tomorrow"].includes(displayName) ? (
-              <p className="text-sm text-[var(--shell-muted)]">
-                {date.format("ddd D MMM YYYY")}
-              </p>
+        }
+        eyebrow={workout.name ?? "Workout"}
+        title={displayName}
+        titleClassName="text-lg md:text-xl"
+        description={
+          ["Yesterday", "Today", "Tomorrow"].includes(displayName)
+            ? date.format("ddd D MMM YYYY")
+            : undefined
+        }
+        actions={
+          <div className="flex items-center gap-2">
+            {isCompleted ? (
+              <span className="inline-flex shrink-0 items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
+                <CheckCircle2Icon className="h-3 w-3" />
+                Done
+              </span>
             ) : null}
+            <button
+              type="button"
+              disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
+              onClick={() => {
+                if (isCompleted) {
+                  setCompletionNote(workout.completionNote ?? "");
+                  setIsLogging((x) => !x);
+                } else {
+                  saveCompletion.mutate({
+                    completedAt: new Date(),
+                    completionNote: completionNote.trim() || null,
+                  });
+                }
+              }}
+              className="hidden shrink-0 items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60 sm:inline-flex"
+            >
+              <CheckCircle2Icon className="h-3.5 w-3.5" />
+              {saveCompletion.isPending && !isCompleted
+                ? "Saving..."
+                : isCompleted
+                  ? "Edit completion"
+                  : "Complete workout"}
+            </button>
           </div>
-          {isCompleted ? (
-            <span className="inline-flex shrink-0 items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
-              <CheckCircle2Icon className="h-3 w-3" />
-              Done
-            </span>
-          ) : null}
-          <button
-            type="button"
-            disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
-            onClick={() => {
-              if (isCompleted) {
-                setCompletionNote(workout.completionNote ?? "");
-                setIsLogging((x) => !x);
-              } else {
-                saveCompletion.mutate({
-                  completedAt: new Date(),
-                  completionNote: completionNote.trim() || null,
-                });
-              }
-            }}
-            className="hidden shrink-0 items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60 sm:inline-flex"
-          >
-            <CheckCircle2Icon className="h-3.5 w-3.5" />
-            {saveCompletion.isPending && !isCompleted
-              ? "Saving..."
-              : isCompleted
-                ? "Edit completion"
-                : "Complete workout"}
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid gap-4 pb-28 pt-4 sm:pb-6">
         {/* Coach note */}
