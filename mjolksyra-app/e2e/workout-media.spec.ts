@@ -267,4 +267,18 @@ test.describe("Workout media upload", () => {
     const completeButton = page.getByRole("button", { name: /complete workout/i }).first();
     await expect(completeButton).toBeDisabled();
   });
+
+  test("AthleteWorkoutLogger renders workout chat composer", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+    );
+
+    await page.waitForSelector("textarea[placeholder='Write a message...']", {
+      timeout: 10_000,
+    });
+
+    await expect(page.getByText("Workout chat", { exact: true })).toBeVisible();
+    await expect(page.locator("textarea[placeholder='Write a message...']")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
+  });
 });

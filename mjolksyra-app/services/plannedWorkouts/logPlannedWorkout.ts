@@ -17,7 +17,6 @@ type PlannedExerciseLogPayload = {
 
 type LogPlannedWorkoutPayload = {
   completedAt: Date | null | undefined;
-  completionNote: string | null | undefined;
   mediaUrls: string[];
   exercises: PlannedExerciseLogPayload[];
 };

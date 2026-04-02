@@ -81,15 +81,14 @@ export function PlannerProvider({
           await plannedWorkouts.create({
             plannedWorkout: {
               id: v4(),
-              traineeId,
-              name: null,
-              note: null,
-              completionNote: null,
-              media: [],
-              exercises: [cloning.exercise],
-              plannedAt: cloning.targetDate,
-              createdAt: null,
-              completedAt: null,
+                traineeId,
+                name: null,
+                note: null,
+                media: [],
+                exercises: [cloning.exercise],
+                plannedAt: cloning.targetDate,
+                createdAt: null,
+                completedAt: null,
               appliedBlock: null,
             },
           });

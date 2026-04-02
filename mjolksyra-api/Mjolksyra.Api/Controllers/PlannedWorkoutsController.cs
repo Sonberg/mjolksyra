@@ -8,10 +8,13 @@ using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkoutChatMessages;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkoutChatMessage;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -144,6 +147,57 @@ public class PlannedWorkoutsController : Controller
         }
 
         return NoContent();
+    }
+
+    [HttpGet("{plannedWorkoutId:guid}/chat-messages")]
+    public async Task<ActionResult<ICollection<PlannedWorkoutChatMessageResponse>>> GetChatMessages(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetPlannedWorkoutChatMessagesRequest
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+        }, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPost("{plannedWorkoutId:guid}/chat-messages")]
+    public async Task<ActionResult<PlannedWorkoutChatMessageResponse>> AddChatMessage(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        [FromBody] PlannedWorkoutChatMessageRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AddPlannedWorkoutChatMessageCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+            Message = request,
+        }, cancellationToken);
+
+        return result is null ? Forbid() : Ok(result);
+    }
+
+    [HttpPatch("{plannedWorkoutId:guid}/chat-messages/{chatMessageId:guid}")]
+    public async Task<ActionResult<PlannedWorkoutChatMessageResponse>> UpdateChatMessage(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        Guid chatMessageId,
+        [FromBody] PlannedWorkoutChatMessageEditRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UpdatePlannedWorkoutChatMessageCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+            ChatMessageId = chatMessageId,
+            Message = request,
+        }, cancellationToken);
+
+        return result is null ? Forbid() : Ok(result);
     }
 
     private static GetPlannedWorkoutsRequest CreateGetRequest(

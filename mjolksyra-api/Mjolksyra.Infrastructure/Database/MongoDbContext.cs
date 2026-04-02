@@ -16,6 +16,8 @@ public interface IMongoDbContext
     IMongoCollection<Trainee> Trainees { get; }
 
     IMongoCollection<PlannedWorkout> PlannedWorkout { get; }
+
+    IMongoCollection<PlannedWorkoutChatMessage> PlannedWorkoutChatMessages { get; }
     
     IMongoCollection<Block> Blocks { get; }
 
@@ -45,6 +47,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<Trainee> Trainees => Database.GetCollection<Trainee>("trainees");
 
     public IMongoCollection<PlannedWorkout> PlannedWorkout => Database.GetCollection<PlannedWorkout>("planned-workouts");
+
+    public IMongoCollection<PlannedWorkoutChatMessage> PlannedWorkoutChatMessages => Database.GetCollection<PlannedWorkoutChatMessage>("planned-workout-chat-messages");
 
     public IMongoCollection<Block> Blocks => Database.GetCollection<Block>("blocks");
 

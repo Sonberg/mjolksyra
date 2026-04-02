@@ -16,6 +16,7 @@ import {
 import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
 import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
 import { PageHeader } from "@/components/Navigation/PageHeader";
+import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 
 type Props = {
   workout: PlannedWorkout;
@@ -27,17 +28,12 @@ type Props = {
 
 export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMediaPending }: Props) {
   const queryClient = useQueryClient();
-  const [isLogging, setIsLogging] = useState(false);
-  const [completionNote, setCompletionNote] = useState(
-    workout.completionNote ?? "",
-  );
   const [media, setMedia] = useState<PlannedWorkout["media"]>(workout.media ?? []);
   const [isMediaPendingInternal, setIsMediaPending] = useState(false);
   const isMediaPending = _testIsMediaPending ?? isMediaPendingInternal;
 
   function buildLogPayload(overrides: {
     completedAt?: Date | null;
-    completionNote?: string | null;
     exerciseActualOverride?: {
       exerciseId: string;
       setIndex?: number;
@@ -55,10 +51,6 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
         overrides.completedAt !== undefined
           ? overrides.completedAt
           : (workout.completedAt ?? null),
-      completionNote:
-        overrides.completionNote !== undefined
-          ? overrides.completionNote
-          : (workout.completionNote ?? null),
       mediaUrls: media.map((m) => m.rawUrl),
       exercises: workout.exercises.map((e) => ({
         id: e.id,
@@ -124,18 +116,15 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
   const saveCompletion = useMutation({
     mutationFn: async ({
       completedAt,
-      completionNote,
     }: {
       completedAt: Date | null;
-      completionNote: string | null;
     }) =>
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ completedAt, completionNote }),
+        log: buildLogPayload({ completedAt }),
       }),
     onSuccess: async () => {
-      setIsLogging(false);
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
       await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
     },
@@ -273,15 +262,9 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
               type="button"
               disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
               onClick={() => {
-                if (isCompleted) {
-                  setCompletionNote(workout.completionNote ?? "");
-                  setIsLogging((x) => !x);
-                } else {
-                  saveCompletion.mutate({
-                    completedAt: new Date(),
-                    completionNote: completionNote.trim() || null,
-                  });
-                }
+                saveCompletion.mutate({
+                  completedAt: isCompleted ? null : new Date(),
+                });
               }}
               className="hidden shrink-0 items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60 sm:inline-flex"
             >
@@ -289,7 +272,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
               {saveCompletion.isPending && !isCompleted
                 ? "Saving..."
                 : isCompleted
-                  ? "Edit completion"
+                  ? "Mark incomplete"
                   : "Complete workout"}
             </button>
           </div>
@@ -307,34 +290,10 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           </div>
         ) : null}
 
-        {/* Athlete log (shown after completion) */}
-        {isCompleted && workout.completionNote?.trim() ? (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Your log
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-ink)]">
-              {workout.completionNote}
-            </p>
-          </div>
-        ) : null}
-
         {/* Media gallery (shown after completion) */}
         {isCompleted && (workout.media?.length ?? 0) > 0 ? (
           <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
             <WorkoutMediaGallery media={workout.media ?? []} />
-          </div>
-        ) : null}
-
-        {/* Coach feedback */}
-        {workout.reviewNote?.trim() ? (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Coach feedback
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-ink)]">
-              {workout.reviewNote}
-            </p>
           </div>
         ) : null}
 
@@ -376,75 +335,11 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           </div>
         ) : null}
 
-        {/* Completion note — always visible for incomplete workouts */}
-        {!isCompleted ? (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Completion note (optional)
-            </p>
-            <textarea
-              value={completionNote}
-              onChange={(e) => setCompletionNote(e.target.value)}
-              rows={3}
-              placeholder="How did it feel? Any notes for your coach?"
-              className="mt-2 w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-            />
-          </div>
-        ) : null}
-
-        {/* Edit-completion form — only shown for already-completed workouts */}
-        {isLogging && isCompleted ? (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Completion note (optional)
-            </p>
-            <textarea
-              value={completionNote}
-              onChange={(e) => setCompletionNote(e.target.value)}
-              rows={3}
-              placeholder="How did it feel? Any notes for your coach?"
-              className="mt-2 w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-            />
-            {/* When editing a completed workout, show the uploader in the form
-                so media can be added or removed as part of the edit. */}
-            <div className="mt-3">
-              <WorkoutMediaUploader
-                traineeId={traineeId}
-                plannedWorkoutId={workout.id}
-                media={media}
-                onUploadComplete={setMedia}
-                isPending={saveCompletion.isPending}
-                onPendingChange={setIsMediaPending}
-              />
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                disabled={saveCompletion.isPending || isMediaPending}
-                onClick={() =>
-                  saveCompletion.mutate({
-                    completedAt: new Date(),
-                    completionNote: completionNote.trim() || null,
-                  })
-                }
-                className="flex-1 border border-transparent bg-[var(--shell-accent)] py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-              >
-                {saveCompletion.isPending
-                  ? "Saving..."
-                  : isMediaPending
-                    ? "Waiting for uploads..."
-                    : "Save completion"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsLogging(false)}
-                className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : null}
+        <WorkoutChatPanel
+          traineeId={workout.traineeId}
+          plannedWorkoutId={workout.id}
+          viewerMode="athlete"
+        />
       </div>
 
       {/* Sticky bottom bar — mobile only */}
@@ -454,15 +349,9 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
             type="button"
             disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
             onClick={() => {
-              if (isCompleted) {
-                setCompletionNote(workout.completionNote ?? "");
-                setIsLogging((x) => !x);
-              } else {
-                saveCompletion.mutate({
-                  completedAt: new Date(),
-                  completionNote: completionNote.trim() || null,
-                });
-              }
+              saveCompletion.mutate({
+                completedAt: isCompleted ? null : new Date(),
+              });
             }}
             className="flex w-full items-center justify-center gap-2 border border-transparent bg-[var(--shell-accent)] py-4 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
           >
@@ -470,7 +359,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
             {saveCompletion.isPending && !isCompleted
               ? "Saving..."
               : isCompleted
-                ? "Edit completion"
+                ? "Mark incomplete"
                 : "Complete workout"}
           </button>
         </div>

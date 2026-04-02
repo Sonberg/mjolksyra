@@ -4,8 +4,6 @@ public class LogPlannedWorkoutRequest
 {
     public DateTimeOffset? CompletedAt { get; set; }
 
-    public string? CompletionNote { get; set; }
-
     public ICollection<string> MediaUrls { get; set; } = [];
 
     public required ICollection<PlannedExerciseLogRequest> Exercises { get; set; }

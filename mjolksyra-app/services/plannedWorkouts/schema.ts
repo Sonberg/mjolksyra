@@ -53,11 +53,9 @@ export const workoutSchema = z.object({
   traineeId: z.string(),
   name: z.string().nullable(),
   note: z.string().nullable(),
-  completionNote: z.string().nullable().optional(),
   plannedAt: z.string(),
   completedAt: z.coerce.date().nullable().optional(),
   reviewedAt: z.coerce.date().nullable().optional(),
-  reviewNote: z.string().nullable().optional(),
   media: z
     .array(
       z.object({
@@ -81,4 +79,23 @@ export const workoutSchema = z.object({
     .nullable()
     .optional()
     .default(null),
+});
+
+export const workoutChatMessageSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  message: z.string(),
+  media: z
+    .array(
+      z.object({
+        rawUrl: z.string(),
+        compressedUrl: z.string().nullable().optional(),
+        type: z.enum(["Image", "Video"]),
+      }),
+    )
+    .optional()
+    .default([]),
+  role: z.enum(["Athlete", "Coach"]),
+  createdAt: z.coerce.date(),
+  modifiedAt: z.coerce.date(),
 });

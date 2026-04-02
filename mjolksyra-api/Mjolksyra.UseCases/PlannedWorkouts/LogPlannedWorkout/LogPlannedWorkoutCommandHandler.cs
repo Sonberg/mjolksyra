@@ -45,7 +45,6 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
 
         plannedWorkout.CompletedAt = request.Log.CompletedAt;
-        plannedWorkout.CompletionNote = request.Log.CompletionNote;
         plannedWorkout.Media = request.Log.MediaUrls
             .Select(url => new PlannedWorkoutMedia
             {
@@ -57,7 +56,6 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
         if (request.Log.CompletedAt is null || previousCompletedAt != request.Log.CompletedAt)
         {
             plannedWorkout.ReviewedAt = null;
-            plannedWorkout.ReviewNote = null;
         }
 
         foreach (var exerciseLog in request.Log.Exercises)
@@ -106,9 +104,7 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
             trainee is not null)
         {
             var title = "Workout completed";
-            var body = string.IsNullOrWhiteSpace(plannedWorkout.CompletionNote)
-                ? $"Athlete completed the workout for {plannedWorkout.PlannedAt:yyyy-MM-dd}."
-                : $"Athlete completed the workout and left a note: {plannedWorkout.CompletionNote}";
+            var body = $"Athlete completed the workout for {plannedWorkout.PlannedAt:yyyy-MM-dd}.";
 
             await _notificationService.Notify(
                 trainee.CoachUserId,

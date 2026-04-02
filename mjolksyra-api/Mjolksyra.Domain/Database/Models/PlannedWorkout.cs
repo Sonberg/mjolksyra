@@ -15,6 +15,7 @@ public class PlannedWorkoutMedia
     public PlannedWorkoutMediaType Type { get; set; }
 }
 
+
 [BsonIgnoreExtraElements]
 public class PlannedWorkout : IDocument
 {
@@ -34,14 +35,10 @@ public class PlannedWorkout : IDocument
 
     public DateTimeOffset? CompletedAt { get; set; }
 
-    public string? CompletionNote { get; set; }
-
     [BsonElement("media")]
     public ICollection<PlannedWorkoutMedia> Media { get; set; } = [];
 
     public DateTimeOffset? ReviewedAt { get; set; }
-
-    public string? ReviewNote { get; set; }
 
     public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }
 

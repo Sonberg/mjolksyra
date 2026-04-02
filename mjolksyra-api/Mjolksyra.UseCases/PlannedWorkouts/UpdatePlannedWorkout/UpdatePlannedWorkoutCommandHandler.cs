@@ -36,14 +36,12 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
         }
 
         var previousReviewedAt = plannedWorkout.ReviewedAt;
-        var previousReviewNote = plannedWorkout.ReviewNote;
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
         var existingExercises = plannedWorkout.Exercises.ToList();
 
         plannedWorkout.Name = request.Workout.Name;
         plannedWorkout.Note = request.Workout.Note;
         plannedWorkout.ReviewedAt = request.Workout.ReviewedAt;
-        plannedWorkout.ReviewNote = request.Workout.ReviewNote;
 
         plannedWorkout.Exercises = request.Workout.Exercises
             .Select(x =>
@@ -95,23 +93,18 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
 
         await _plannedWorkoutRepository.Update(plannedWorkout, cancellationToken);
 
-        var reviewChanged = previousReviewedAt != plannedWorkout.ReviewedAt ||
-                            previousReviewNote != plannedWorkout.ReviewNote;
+        var reviewChanged = previousReviewedAt != plannedWorkout.ReviewedAt;
 
         if (trainee is not null &&
             plannedWorkout.CompletedAt is not null &&
             reviewChanged &&
-            (plannedWorkout.ReviewedAt is not null || !string.IsNullOrWhiteSpace(plannedWorkout.ReviewNote)))
+            plannedWorkout.ReviewedAt is not null)
         {
-            var body = string.IsNullOrWhiteSpace(plannedWorkout.ReviewNote)
-                ? "Your coach reviewed your completed workout."
-                : $"Your coach left feedback: {plannedWorkout.ReviewNote}";
-
             await _notificationService.Notify(
                 trainee.AthleteUserId,
                 type: "workout.reviewed",
                 title: "Coach reviewed your workout",
-                body: body,
+                body: "Your coach reviewed your completed workout.",
                 href: $"/app/athlete/{trainee.Id}/workouts?workoutTab=past&workoutId={plannedWorkout.Id}",
                 cancellationToken: cancellationToken);
         }

@@ -105,7 +105,6 @@ public class LogPlannedWorkoutCommandValidatorTests
             Log = new LogPlannedWorkoutRequest
             {
                 CompletedAt = DateTimeOffset.UtcNow,
-                CompletionNote = null,
                 MediaUrls = mediaUrls,
                 Exercises = []
             }

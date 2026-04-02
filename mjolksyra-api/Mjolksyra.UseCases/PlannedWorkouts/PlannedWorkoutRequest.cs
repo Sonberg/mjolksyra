@@ -12,9 +12,5 @@ public class PlannedWorkoutRequest
 
     public DateTimeOffset? CompletedAt { get; set; }
 
-    public string? CompletionNote { get; set; }
-
     public DateTimeOffset? ReviewedAt { get; set; }
-
-    public string? ReviewNote { get; set; }
 }

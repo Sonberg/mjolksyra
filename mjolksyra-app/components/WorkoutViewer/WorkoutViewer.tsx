@@ -136,9 +136,7 @@ export function WorkoutViewer({
           if (mode === "changes") {
             return !!(
               x.completedAt ||
-              x.reviewedAt ||
-              x.completionNote?.trim() ||
-              x.reviewNote?.trim()
+              x.reviewedAt
             );
           }
 
@@ -153,7 +151,6 @@ export function WorkoutViewer({
           const visible =
             x.exercises.length > 0 ||
             !!x.note?.trim() ||
-            !!x.completionNote?.trim() ||
             !!x.completedAt;
 
           if (!visible) {

@@ -1,6 +1,6 @@
 "use client"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { AthleteWorkoutLogger } from "./AthleteWorkoutLogger"
 import { PlannedWorkout } from "@/services/plannedWorkouts/type"
 import { ExerciseType } from "@/lib/exercisePrescription"
@@ -17,11 +17,9 @@ const baseWorkout: PlannedWorkout = {
   traineeId: "trainee-1",
   name: "Push Day",
   note: null,
-  completionNote: null,
   plannedAt: "2026-03-09",
   completedAt: null,
   reviewedAt: null,
-  reviewNote: null,
   media: [],
   createdAt: new Date("2026-03-01"),
   appliedBlock: null,
@@ -116,10 +114,7 @@ export const Completed: Story = {
 export const NotCompletedWithNote: Story = {
   render: () => (
     <AthleteWorkoutLogger
-      workout={{
-        ...baseWorkout,
-        completionNote: "Felt solid today. Bench was smooth.",
-      }}
+      workout={baseWorkout}
       traineeId="trainee-1"
       backHref="/app/athlete/workouts"
     />
@@ -145,8 +140,6 @@ export const WithNotes: Story = {
         ...baseWorkout,
         note: "Focus on your form today. Keep the intensity moderate — this is a volume week.",
         completedAt: new Date("2026-03-09T15:00:00"),
-        completionNote: "Felt great today! Hit all the sets. Bench felt strong.",
-        reviewNote: "Good work! Next session try increasing bench by 2.5 kg.",
       }}
       traineeId="trainee-1"
       backHref="/app/athlete/workouts"
