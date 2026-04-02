@@ -37,7 +37,7 @@ export const DemoSection = () => {
           <button
             type="button"
             onClick={() => setIsDemoRunning((state) => !state)}
-            className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-text)] shadow-[3px_3px_0_var(--home-border)] transition hover:bg-[var(--home-surface-strong)]"
+            className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-text)] transition hover:bg-[var(--home-surface-strong)]"
           >
             {isDemoRunning ? "Stop demo" : "Start demo"}
           </button>
@@ -57,7 +57,7 @@ export const DemoSection = () => {
                 <button
                   type="button"
                   onClick={() => setIsDemoRunning(true)}
-                  className="rounded-none border border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-3 text-base font-semibold uppercase tracking-[0.08em] text-[var(--home-accent-ink)] shadow-[4px_4px_0_var(--home-border)] transition hover:brightness-95"
+                  className="rounded-none border border-transparent bg-[var(--home-accent)] px-8 py-3 text-base font-semibold uppercase tracking-[0.08em] text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]"
                 >
                   Start demo
                 </button>

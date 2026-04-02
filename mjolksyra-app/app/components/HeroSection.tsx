@@ -10,7 +10,8 @@ export const HeroSection = () => {
       <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-none bg-[var(--home-border)]/10 blur-3xl" />
       <div className="relative mx-auto grid max-w-screen-xl gap-8 px-4 pb-12 pt-20 lg:grid-cols-12 lg:pt-32">
         <div className="mr-auto place-self-center lg:col-span-7">
-          <div className="mb-6 inline-flex items-center rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-text)]">
+            <span className="h-1.5 w-1.5 rounded-none bg-[var(--home-accent)]" />
             Coaching Platform
           </div>
           <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
