@@ -8,7 +8,7 @@ export const StripeSection = () => {
           Powered by Stripe
         </h2>
         <div className="flex flex-wrap items-center justify-center gap-8">
-          <div className="w-full max-w-md rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-8">
+          <div className="w-full max-w-md rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] p-8">
             <Image
               src="/images/stripe-white.svg"
               alt="Stripe logo"

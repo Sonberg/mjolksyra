@@ -47,7 +47,7 @@ export function ExerciseRow({ exercise, exercises }: Props) {
       }
 
       return (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
           <div className="mb-1 text-xs font-semibold text-[var(--shell-ink)]">
             {title}
           </div>
@@ -90,7 +90,7 @@ export function ExerciseRow({ exercise, exercises }: Props) {
                 <ExerciseRowStar exercise={exercise} exercises={exercises} />
               </div>
             </div>
-            <HoverCardContent className="z-30 w-72 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
+            <HoverCardContent className="z-30 w-72 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
               <div className="mb-4 font-semibold text-[var(--shell-ink)]">
                 {exercise.name}
               </div>

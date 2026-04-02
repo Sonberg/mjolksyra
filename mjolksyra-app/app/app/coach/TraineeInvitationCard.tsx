@@ -8,9 +8,9 @@ type Props = {
 
 export function TraineeInvitationCard({ invitation }: Props) {
   return (
-    <div className="group rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 transition-all duration-300 hover:bg-[var(--shell-surface-strong)] hover:-translate-y-0.5">
+    <div className="group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 transition-all duration-300 hover:bg-[var(--shell-surface-strong)] hover:-translate-y-0.5">
       <div className="flex items-center gap-4">
-        <Avatar className="h-10 w-10 border-2 border-[var(--shell-border)]">
+        <Avatar className="h-10 w-10 border border-[var(--shell-border)]">
           <AvatarFallback className="bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
             {invitation.email[0].toUpperCase()}
           </AvatarFallback>

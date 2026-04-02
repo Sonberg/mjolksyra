@@ -33,13 +33,13 @@ export function BlockWeek({
   selectedWorkout,
 }: Props) {
   return (
-    <section className="overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
-      <div className="flex select-none items-center justify-between border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
+    <section className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="flex select-none items-center justify-between border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1">
         <div className="text-sm font-semibold text-[var(--shell-ink)]">
           Week {week}
         </div>
       </div>
-      <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)] border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]">
+      <div className="grid grid-cols-7 divide-x divide-[var(--shell-border)] border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)]">
         {DAY_NAMES.map((dayName, index) => {
           const dayOfWeek = index + 1;
           const workout = workouts.find(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeader } from "@/components/Navigation/PageHeader";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { ChangePaymentMethodDialog } from "@/components/ChangePaymentMethod/ChangePaymentMethodDialog";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { getTrainee } from "@/services/trainees/getTrainee";
@@ -31,13 +31,14 @@ export function AthleteSettings({ coach }: Props) {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title="Settings"
-        titleClassName="text-xl md:text-2xl"
-        description="Manage your relationship and billing information."
-        sectionClassName="p-4 md:p-5"
-      />
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
+        <PageSectionHeader
+          title="Settings"
+          titleClassName="text-xl md:text-2xl"
+          description="Manage your relationship and billing information."
+        />
+      </div>
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
         <div className="divide-y divide-[var(--shell-border)]/30">
           <div className="flex items-center justify-between py-4">
             <div>
@@ -77,7 +78,7 @@ export function AthleteSettings({ coach }: Props) {
             <button
               type="button"
               onClick={() => setChangeCardOpen(true)}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
             >
               Change card
             </button>
@@ -89,7 +90,7 @@ export function AthleteSettings({ coach }: Props) {
             type="button"
             disabled={cancel.isPending}
             onClick={() => cancel.mutateAsync()}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
           </button>

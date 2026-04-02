@@ -52,48 +52,51 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
             <div
               key={plan.id}
               className={cn(
-                "rounded-none border-2 p-4 flex flex-col gap-2",
+                "rounded-none border flex flex-col overflow-hidden",
                 isActive
-                  ? "border-[var(--shell-ink)] bg-[var(--shell-surface-strong)]"
+                  ? "border-[var(--shell-accent)]"
                   : "border-[var(--shell-border)] bg-[var(--shell-surface)]",
               )}
             >
-              <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold text-[var(--shell-ink)]">{plan.name}</p>
-                {isCheapest && (
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] border border-[var(--shell-border)] px-1.5 py-0.5 text-[var(--shell-ink)] whitespace-nowrap">
-                    Best value
-                  </span>
+              {isActive && (
+                <div className="bg-[var(--shell-accent)] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--shell-accent-ink)]">
+                  Current plan
+                </div>
+              )}
+              <div className={cn("p-4 flex flex-col gap-2 flex-1", isActive && "bg-[var(--shell-surface-strong)]")}>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-[var(--shell-ink)]">{plan.name}</p>
+                  {isCheapest && (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] border border-[var(--shell-border)] px-1.5 py-0.5 text-[var(--shell-ink)] whitespace-nowrap">
+                      Best value
+                    </span>
+                  )}
+                </div>
+                <p className="text-2xl font-semibold text-[var(--shell-ink)]">
+                  {plan.monthlyPriceSek} kr
+                  <span className="text-sm font-normal text-[var(--shell-muted)]">/mo</span>
+                </p>
+                <ul className="text-xs text-[var(--shell-muted)] space-y-0.5">
+                  <li>{plan.includedAthletes} athletes included</li>
+                  <li>+{plan.extraAthletePriceSek} kr/extra athlete</li>
+                  <li className="font-medium text-[var(--shell-ink)]">
+                    Total now: {cost} kr/mo
+                  </li>
+                </ul>
+                {!isActive && (
+                  <Button
+                    type="button"
+                    disabled={mutation.isPending}
+                    onClick={() => {
+                      setSelectingPlanId(plan.id);
+                      mutation.mutate(plan.id);
+                    }}
+                    className="mt-auto rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
+                  >
+                    {isPending && mutation.isPending ? <Spinner size={12} /> : "Select"}
+                  </Button>
                 )}
               </div>
-              <p className="text-2xl font-semibold text-[var(--shell-ink)]">
-                {plan.monthlyPriceSek} kr
-                <span className="text-sm font-normal text-[var(--shell-muted)]">/mo</span>
-              </p>
-              <ul className="text-xs text-[var(--shell-muted)] space-y-0.5">
-                <li>{plan.includedAthletes} athletes included</li>
-                <li>+{plan.extraAthletePriceSek} kr/extra athlete</li>
-                <li className="font-medium text-[var(--shell-ink)]">
-                  Total now: {cost} kr/mo
-                </li>
-              </ul>
-              {isActive ? (
-                <p className="mt-auto pt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                  Current plan
-                </p>
-              ) : (
-                <Button
-                  type="button"
-                  disabled={mutation.isPending}
-                  onClick={() => {
-                    setSelectingPlanId(plan.id);
-                    mutation.mutate(plan.id);
-                  }}
-                  className="mt-auto rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
-                >
-                  {isPending && mutation.isPending ? <Spinner size={12} /> : "Select"}
-                </Button>
-              )}
             </div>
           );
         })}

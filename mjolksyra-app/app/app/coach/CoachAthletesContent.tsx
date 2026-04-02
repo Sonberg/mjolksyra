@@ -9,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import { UserPlusIcon } from "lucide-react";
 import { TraineeCard } from "./TraineeCard";
 import { TraineeInvitationCard } from "./TraineeInvitationCard";
-import { PageHeader } from "@/components/Navigation/PageHeader";
 
 type Props = {
   trainees: Trainee[];
@@ -65,19 +64,23 @@ export function CoachAthletesContent({ trainees }: Props) {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        eyebrow="Athlete management"
-        title="Athletes"
-        description={
-          <>
-            <p>Manage pricing, workouts, and coach relationships.</p>
-            <p>
+      <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
+              Athlete management
+            </p>
+            <h2 className="text-2xl text-[var(--shell-ink)] md:text-3xl">
+              Athletes
+            </h2>
+            <p className="text-sm text-[var(--shell-muted)]">
+              Manage pricing, workouts, and coach relationships.
+            </p>
+            <p className="text-sm text-[var(--shell-muted)]">
               {trainees.length} active athlete{trainees.length === 1 ? "" : "s"}.
               $39/mo includes {includedAthletes}; overage: ${overageAthletes * 4}/mo.
             </p>
-          </>
-        }
-        actions={
+          </div>
           <InviteTraineeDialog
             onCompletion={async () => {
               await invitaions.refetch();
@@ -85,7 +88,7 @@ export function CoachAthletesContent({ trainees }: Props) {
             trigger={
               <Button
                 disabled={false}
-                className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
+                className="inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
                 size="lg"
               >
                 <UserPlusIcon className="h-5 w-5" />
@@ -93,8 +96,8 @@ export function CoachAthletesContent({ trainees }: Props) {
               </Button>
             }
           />
-        }
-      />
+        </div>
+      </section>
 
       {trainees.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -107,7 +110,7 @@ export function CoachAthletesContent({ trainees }: Props) {
           ))}
         </div>
       ) : (
-        <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] p-12 text-center">
+        <div className="rounded-none border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] p-12 text-center">
           <h3 className="text-xl text-[var(--shell-ink)]">No athletes yet</h3>
           <p className="mt-2 text-sm text-[var(--shell-muted)]">
             Send your first invitation to start building your coaching roster.

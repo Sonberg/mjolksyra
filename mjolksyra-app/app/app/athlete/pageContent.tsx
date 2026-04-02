@@ -45,7 +45,7 @@ export function PageContent({
     return (
       <PageLayout>
         <div className="space-y-6 px-4 pb-8 md:space-y-8 md:px-6 md:pb-10">
-          <section className="relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-10">
+          <section className="relative overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-10">
             <div className="pointer-events-none absolute left-12 top-16 h-px w-32 bg-[var(--shell-border)]/40" />
             <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="space-y-2">
@@ -60,7 +60,7 @@ export function PageContent({
                   started.
                 </p>
               </div>
-              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-5 py-4">
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-5 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                   Pending invitations
                 </p>
@@ -81,7 +81,7 @@ export function PageContent({
                 />
               </div>
               {isPaymentSetupComplete ? (
-                <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 lg:col-span-7">
+                <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 lg:col-span-7">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                     Status
                   </p>
@@ -93,7 +93,7 @@ export function PageContent({
                     workspace will become active automatically.
                   </p>
                   <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+                    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
                       <p className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                         1
                       </p>
@@ -101,7 +101,7 @@ export function PageContent({
                         Accept invitation
                       </p>
                     </div>
-                    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+                    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
                       <p className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                         2
                       </p>
@@ -109,7 +109,7 @@ export function PageContent({
                         Coach connection activates
                       </p>
                     </div>
-                    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+                    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
                       <p className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                         3
                       </p>
@@ -174,7 +174,7 @@ export function PageContent({
           <AthleteSettings coach={coach} />
         )
       ) : (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-center">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-center">
           <p className="text-lg font-semibold text-[var(--shell-ink)]">
             No active coach selected
           </p>

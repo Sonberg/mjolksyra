@@ -29,13 +29,13 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
   return (
     <section className="grid gap-4">
       {isLoading ? (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
           Loading workout...
         </div>
       ) : null}
 
       {isError ? (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
           Could not load this workout.
         </div>
       ) : null}

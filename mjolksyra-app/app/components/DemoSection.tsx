@@ -19,7 +19,7 @@ export const DemoSection = () => {
         </div>
       </div>
       <div className="mx-auto max-w-screen-2xl px-4 md:hidden">
-        <div className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-6">
+        <div className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Planner Demo
           </p>
@@ -37,13 +37,13 @@ export const DemoSection = () => {
           <button
             type="button"
             onClick={() => setIsDemoRunning((state) => !state)}
-            className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-text)] shadow-[3px_3px_0_var(--home-border)] transition hover:bg-[var(--home-surface-strong)]"
+            className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-text)] shadow-[3px_3px_0_var(--home-border)] transition hover:bg-[var(--home-surface-strong)]"
           >
             {isDemoRunning ? "Stop demo" : "Start demo"}
           </button>
         </div>
 
-        <div className="relative h-[78vh] max-h-[78vh] overflow-hidden rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
+        <div className="relative h-[78vh] max-h-[78vh] overflow-hidden rounded-none border border-[var(--home-border)] bg-[var(--home-surface)]">
           <div className={`h-full ${isDemoRunning ? "" : "pointer-events-none select-none"}`}>
             <WorkoutPlannerDemo />
           </div>
@@ -51,13 +51,13 @@ export const DemoSection = () => {
           {!isDemoRunning ? (
             <div className="absolute inset-0 z-40 grid place-items-center bg-zinc-500/40">
               <div className="flex flex-col items-center gap-3">
-                <div className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--home-muted)]">
+                <div className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--home-muted)]">
                   Demo paused
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsDemoRunning(true)}
-                  className="rounded-none border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-3 text-base font-semibold uppercase tracking-[0.08em] text-[var(--home-accent-ink)] shadow-[4px_4px_0_var(--home-border)] transition hover:brightness-95"
+                  className="rounded-none border border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-3 text-base font-semibold uppercase tracking-[0.08em] text-[var(--home-accent-ink)] shadow-[4px_4px_0_var(--home-border)] transition hover:brightness-95"
                 >
                   Start demo
                 </button>

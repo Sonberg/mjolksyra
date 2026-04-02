@@ -39,7 +39,7 @@ export function FeedbackReportList({ reports: initialReports, accessToken }: Pro
       {reports.map((report) => (
         <div
           key={report.id}
-          className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
+          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
@@ -62,7 +62,7 @@ export function FeedbackReportList({ reports: initialReports, accessToken }: Pro
                 type="button"
                 disabled={updating.has(report.id)}
                 onClick={() => handleMarkResolved(report.id)}
-                className="shrink-0 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
+                className="shrink-0 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
               >
                 {updating.has(report.id) ? "Saving…" : "Mark Resolved"}
               </button>
@@ -78,7 +78,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-none border-2 border-[var(--shell-border)] px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-none border border-[var(--shell-border)] px-2 py-0.5 text-xs font-medium",
         status === "Resolved"
           ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
           : "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",

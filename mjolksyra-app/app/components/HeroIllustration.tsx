@@ -9,32 +9,32 @@ export function HeroIllustration() {
       aria-hidden="true"
     >
       <style>{`
-        .hi-bg-s1 { stop-color: #F6EEDF; }
-        .hi-bg-s2 { stop-color: #F1E3CC; }
-        .hi-glow-s1 { stop-color: #2A241D; stop-opacity: 0.16; }
-        .hi-glow-s2 { stop-color: #2A241D; stop-opacity: 0; }
-        .hi-surface { fill: #FFF7EC; }
-        .hi-surface-strong { fill: #ECDCC5; }
-        .hi-border { stroke: #2A241D; }
-        .hi-ink { fill: #141414; }
-        .hi-ink-s { fill: none; stroke: #141414; }
-        .hi-muted { fill: #5E5448; }
-        .hi-deco { fill: none; stroke: #2A241D; }
-        .hi-accent-s { fill: none; stroke: #F03A17; }
-        .hi-display { font-family: var(--font-display, 'Alfa Slab One', Georgia, serif); }
-        .hi-body { font-family: var(--font-body, 'DM Sans', Arial, sans-serif); }
+        .hi-bg-s1 { stop-color: #f2f3f4; }
+        .hi-bg-s2 { stop-color: #e8e9ea; }
+        .hi-glow-s1 { stop-color: #d0d0d0; stop-opacity: 0.3; }
+        .hi-glow-s2 { stop-color: #d0d0d0; stop-opacity: 0; }
+        .hi-surface { fill: #ffffff; }
+        .hi-surface-strong { fill: #e8e9ea; }
+        .hi-border { stroke: #d0d0d0; }
+        .hi-ink { fill: #1b1b1b; }
+        .hi-ink-s { fill: none; stroke: #1b1b1b; }
+        .hi-muted { fill: #767676; }
+        .hi-deco { fill: none; stroke: #d0d0d0; }
+        .hi-accent-s { fill: none; stroke: #60CD18; }
+        .hi-display { font-family: var(--font-display, 'Inter', Arial, sans-serif); }
+        .hi-body { font-family: var(--font-body, 'Inter', Arial, sans-serif); }
 
-        .dark .hi-bg-s1, [data-theme="dark"] .hi-bg-s1 { stop-color: #110e0d; }
-        .dark .hi-bg-s2, [data-theme="dark"] .hi-bg-s2 { stop-color: #191615; }
-        .dark .hi-glow-s1, [data-theme="dark"] .hi-glow-s1 { stop-color: #ede7e4; stop-opacity: 0.04; }
-        .dark .hi-glow-s2, [data-theme="dark"] .hi-glow-s2 { stop-color: #ede7e4; stop-opacity: 0; }
-        .dark .hi-surface, [data-theme="dark"] .hi-surface { fill: #191615; }
-        .dark .hi-surface-strong, [data-theme="dark"] .hi-surface-strong { fill: #24211e; }
-        .dark .hi-border, [data-theme="dark"] .hi-border { stroke: #342f2d; }
-        .dark .hi-ink, [data-theme="dark"] .hi-ink { fill: #ede7e4; }
-        .dark .hi-ink-s, [data-theme="dark"] .hi-ink-s { stroke: #ede7e4; }
-        .dark .hi-muted, [data-theme="dark"] .hi-muted { fill: #948d89; }
-        .dark .hi-deco, [data-theme="dark"] .hi-deco { stroke: #342f2d; }
+        .dark .hi-bg-s1, [data-theme="dark"] .hi-bg-s1 { stop-color: #1b1b1b; }
+        .dark .hi-bg-s2, [data-theme="dark"] .hi-bg-s2 { stop-color: #242424; }
+        .dark .hi-glow-s1, [data-theme="dark"] .hi-glow-s1 { stop-color: #f2f3f4; stop-opacity: 0.04; }
+        .dark .hi-glow-s2, [data-theme="dark"] .hi-glow-s2 { stop-color: #f2f3f4; stop-opacity: 0; }
+        .dark .hi-surface, [data-theme="dark"] .hi-surface { fill: #242424; }
+        .dark .hi-surface-strong, [data-theme="dark"] .hi-surface-strong { fill: #2e2e2e; }
+        .dark .hi-border, [data-theme="dark"] .hi-border { stroke: #3d3d3d; }
+        .dark .hi-ink, [data-theme="dark"] .hi-ink { fill: #f2f3f4; }
+        .dark .hi-ink-s, [data-theme="dark"] .hi-ink-s { stroke: #f2f3f4; }
+        .dark .hi-muted, [data-theme="dark"] .hi-muted { fill: #8a8a8a; }
+        .dark .hi-deco, [data-theme="dark"] .hi-deco { stroke: #3d3d3d; }
       `}</style>
 
       <defs>
@@ -43,8 +43,8 @@ export function HeroIllustration() {
           <stop offset="1" className="hi-bg-s2" />
         </linearGradient>
         <radialGradient id="hi-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(210 120) rotate(18) scale(430 270)">
-          <stop stopColor="#F03A17" stopOpacity="0.2" />
-          <stop offset="1" stopColor="#F03A17" stopOpacity="0" />
+          <stop stopColor="#60CD18" stopOpacity="0.12" />
+          <stop offset="1" stopColor="#60CD18" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="hi-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 780) rotate(-14) scale(500 260)">
           <stop className="hi-glow-s1" />
@@ -92,8 +92,8 @@ export function HeroIllustration() {
       <text x="104" y="524" className="hi-muted hi-body" fontSize="27">Plan sessions for runners and lifters in one workspace.</text>
 
       {/* CTA button */}
-      <rect x="104" y="566" width="292" height="62" className="hi-border" fill="#F03A17" strokeWidth="3" />
-      <text x="140" y="606" className="hi-body" fill="#FFF7EC" fontSize="31" fontWeight="700">Open Planner</text>
+      <rect x="104" y="566" width="292" height="62" className="hi-border" fill="#60CD18" strokeWidth="3" />
+      <text x="140" y="606" className="hi-body" fill="#ffffff" fontSize="31" fontWeight="700">Open Planner</text>
 
       {/* Athletes button */}
       <rect x="410" y="566" width="230" height="62" className="hi-surface-strong hi-border" strokeWidth="3" />

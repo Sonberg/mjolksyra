@@ -17,7 +17,7 @@ export function OnboardingCard({
   variant = "default",
 }: Props) {
   const baseStyles =
-    "relative overflow-hidden rounded-none border-2 border-[var(--shell-border)] p-8 transition-colors";
+    "relative overflow-hidden rounded-none border border-[var(--shell-border)] p-8 transition-colors";
   const hoverEffect = "hover:bg-[var(--shell-surface-strong)]";
 
   const backgroundStyles = cn({

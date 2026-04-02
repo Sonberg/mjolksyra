@@ -53,7 +53,7 @@ export function AthleteSetRow({
 
   return (
     <div
-      className={`border-t-2 border-[var(--shell-border)] px-4 py-4 transition-colors ${
+      className={`border-t border-[var(--shell-border)] px-4 py-4 transition-colors ${
         isDone ? "bg-[var(--shell-surface-strong)]" : "bg-[var(--shell-surface)]"
       }`}
     >
@@ -75,7 +75,7 @@ export function AthleteSetRow({
       >
         {isSetsReps ? (
           <>
-            <div className="flex h-14 flex-col justify-between border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+            <div className="flex h-14 flex-col justify-between border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
               <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                 Reps
               </span>
@@ -108,7 +108,7 @@ export function AthleteSetRow({
               </div>
             </div>
 
-            <div className="flex h-14 flex-col justify-between border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+            <div className="flex h-14 flex-col justify-between border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
               <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                 Weight
               </span>
@@ -143,7 +143,7 @@ export function AthleteSetRow({
             </div>
           </>
         ) : isDuration ? (
-          <div className="flex h-14 flex-col justify-between border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+          <div className="flex h-14 flex-col justify-between border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Duration
             </span>
@@ -178,7 +178,7 @@ export function AthleteSetRow({
             </div>
           </div>
         ) : (
-          <div className="flex h-14 flex-col justify-between border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+          <div className="flex h-14 flex-col justify-between border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               Distance
             </span>
@@ -233,7 +233,7 @@ export function AthleteSetRow({
               distanceMeters: set.actual?.distanceMeters ?? null,
             });
           }}
-          className="h-10 w-full border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+          className="h-10 w-full border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
           placeholder="Set note..."
           aria-label={`Note for set ${setIndex + 1}`}
         />
@@ -243,7 +243,7 @@ export function AthleteSetRow({
         type="button"
         disabled={isPending}
         onClick={() => onToggleSetDone({ exerciseId, setIndex })}
-        className={`mt-3 flex w-full items-center justify-center gap-2 border-2 border-[var(--shell-border)] py-3 text-sm font-semibold uppercase tracking-[0.14em] transition disabled:opacity-60 ${
+        className={`mt-3 flex w-full items-center justify-center gap-2 border border-[var(--shell-border)] py-3 text-sm font-semibold uppercase tracking-[0.14em] transition disabled:opacity-60 ${
           isDone
             ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
             : "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:brightness-95"

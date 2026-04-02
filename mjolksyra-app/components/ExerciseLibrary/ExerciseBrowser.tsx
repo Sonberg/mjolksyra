@@ -68,7 +68,7 @@ export function ExerciseBrowser({ exercies }: Props) {
         </span>
       </div>
 
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
         {browser.data.map((x) => (
           <ExerciseRow key={x.id} exercise={x} exercises={exercies} />
         ))}

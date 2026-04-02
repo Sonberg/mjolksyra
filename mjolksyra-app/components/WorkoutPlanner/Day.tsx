@@ -267,7 +267,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
               <button
                 type="button"
                 onClick={() => setIsQuickSearchOpen(true)}
-                className="mt-2 inline-flex h-8 items-center justify-between rounded-none  bg-[var(--shell-surface)] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] border-2  border-[var(--shell-surface-strong)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                className="mt-2 inline-flex h-8 items-center justify-between rounded-none  bg-[var(--shell-surface)] px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)] border border-[var(--shell-surface-strong)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
               >
                 <span>Add exercise</span>
               </button>

@@ -80,7 +80,7 @@ export function UsersTab({ initialCoaches }: Props) {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+      <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <div>
           <h2 className="text-lg text-[var(--shell-ink)]">Coachs & Athletes</h2>
           <p className="mt-1 text-sm text-[var(--shell-muted)]">
@@ -101,8 +101,8 @@ export function UsersTab({ initialCoaches }: Props) {
       </section>
 
       <div className="grid gap-4 lg:grid-cols-[19rem_1fr]">
-        <aside className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
-          <div className="border-b-2 border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+        <aside className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+          <div className="border-b border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
             Coaches
           </div>
           <ul className="max-h-[36rem] overflow-y-auto">
@@ -131,10 +131,10 @@ export function UsersTab({ initialCoaches }: Props) {
           </ul>
         </aside>
 
-        <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
+        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
           {selectedCoach ? (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[var(--shell-border)]/30 pb-3">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--shell-border)]/30 pb-3">
                 <div>
                   <h3 className="text-lg text-[var(--shell-ink)]">{selectedCoach.coachName}</h3>
                   <p className="text-sm text-[var(--shell-muted)]">{selectedCoach.coachEmail}</p>
@@ -156,8 +156,8 @@ export function UsersTab({ initialCoaches }: Props) {
                 <StatusBox label="Total revenue" value={formatSek(selectedCoach.totalAthleteRevenue)} helper="Succeeded charges only" />
               </div>
 
-              <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
-                <div className="border-b-2 border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+                <div className="border-b border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                   Athletes and status
                 </div>
                 {selectedCoach.athletes.length === 0 ? (
@@ -171,10 +171,10 @@ export function UsersTab({ initialCoaches }: Props) {
                           <p className="text-xs text-[var(--shell-muted)]">{athlete.athleteEmail}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+                          <span className="inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
                             {athlete.relationshipStatus}
                           </span>
-                          <span className="inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+                          <span className="inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                             {athlete.billingStatus}
                           </span>
                           {athlete.billingStatus === "Subscription missing" && (
@@ -213,7 +213,7 @@ function SyncButton({
   size: "sm" | "md";
 }) {
   const base =
-    "rounded-none border-2 border-[var(--shell-ink)] bg-[var(--shell-ink)] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)] hover:bg-transparent hover:text-[var(--shell-ink)] transition-colors disabled:opacity-40";
+    "rounded-none border border-[var(--shell-ink)] bg-[var(--shell-ink)] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)] hover:bg-transparent hover:text-[var(--shell-ink)] transition-colors disabled:opacity-40";
   const sizes = {
     sm: "px-2 py-0.5 text-[11px] tracking-[0.08em]",
     md: "px-3 py-2 text-xs",
@@ -235,7 +235,7 @@ function StatusBox({
   helper: string;
 }) {
   return (
-    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
+    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">{label}</p>
       <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{value}</p>
       <p className="mt-1 text-xs text-[var(--shell-muted)]">{helper}</p>

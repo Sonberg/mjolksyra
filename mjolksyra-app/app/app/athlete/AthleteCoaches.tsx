@@ -41,7 +41,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
   ) : null;
 
   return (
-    <section className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
+    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
       <div
         className="flex cursor-pointer items-center justify-between"
         onClick={() => setOpen((state) => !state)}

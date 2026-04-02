@@ -28,20 +28,20 @@ export function AthleteInvitations({ invitations }: Props) {
       {invitations.map((x) => (
         <div
           key={x.id}
-          className="flex items-center justify-between rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-3"
+          className="flex items-center justify-between rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3"
         >
           <div className="font-medium text-[var(--shell-ink)]">
             {x.givenName} {x.familyName}
           </div>
           <div className="flex gap-4">
             <button
-              className="grid h-9 w-9 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
+              className="grid h-9 w-9 place-items-center rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
               onClick={() => accept.mutateAsync(x.id)}
             >
               <CheckIcon className="h-4 w-4" />
             </button>
             <button
-              className="grid h-9 w-9 place-items-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+              className="grid h-9 w-9 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
               onClick={() => decline.mutateAsync(x.id)}
             >
               <XIcon className="h-4 w-4" />

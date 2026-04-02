@@ -68,7 +68,7 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
         text="To complete your registration, please add a payment method. You won't be charged until your coach confirms the subscription."
       />
 
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
         <form onSubmit={handleSubmit}>
           <PaymentElement
             onReady={() => setReady(true)}
@@ -93,14 +93,14 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
                 type="button"
                 variant="outline"
                 onClick={onBack}
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
               >
                 Back
               </Button>
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] font-bold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
               >
                 {isLoading ? "Saving..." : "Complete Setup"}
               </Button>

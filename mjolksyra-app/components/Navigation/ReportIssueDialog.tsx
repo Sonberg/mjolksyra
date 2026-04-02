@@ -30,12 +30,12 @@ export function ReportIssueDialog({
   onOpenChange,
 }: ReportIssueDialogProps) {
   const dialogVars = {
-    "--shell-surface": "var(--shell-surface, #fff7ec)",
-    "--shell-surface-strong": "var(--shell-surface-strong, #ecdcc5)",
-    "--shell-border": "var(--shell-border, #2a241d)",
-    "--shell-ink": "var(--shell-ink, #101010)",
-    "--shell-muted": "var(--shell-muted, #5e5448)",
-    "--shell-accent": "var(--shell-accent, #f03a17)",
+    "--shell-surface": "var(--shell-surface, #ffffff)",
+    "--shell-surface-strong": "var(--shell-surface-strong, #e8e9ea)",
+    "--shell-border": "var(--shell-border, #d0d0d0)",
+    "--shell-ink": "var(--shell-ink, #1b1b1b)",
+    "--shell-muted": "var(--shell-muted, #767676)",
+    "--shell-accent": "var(--shell-accent, #60CD18)",
   } as CSSProperties;
 
   const pathname = usePathname();
@@ -83,7 +83,7 @@ export function ReportIssueDialog({
           {trigger ?? (
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
               aria-label="Report issue"
             >
               <MessageSquareWarningIcon className="h-4 w-4" />
@@ -93,7 +93,7 @@ export function ReportIssueDialog({
       ) : null}
       <DialogContent
         style={dialogVars}
-        className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-lg [&>button]:rounded-none [&>button]:border-2 [&>button]:border-[var(--shell-border)] [&>button]:bg-[var(--shell-surface)] [&>button]:p-1 [&>button]:text-[var(--shell-ink)] [&>button]:opacity-100 [&>button]:ring-0 [&>button]:hover:bg-[var(--shell-surface-strong)] [&>button]:focus:ring-0 [&>button]:focus:ring-offset-0 [&>button_svg]:h-4 [&>button_svg]:w-4"
+        className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-lg [&>button]:rounded-none [&>button]:border [&>button]:border-[var(--shell-border)] [&>button]:bg-[var(--shell-surface)] [&>button]:p-1 [&>button]:text-[var(--shell-ink)] [&>button]:opacity-100 [&>button]:ring-0 [&>button]:hover:bg-[var(--shell-surface-strong)] [&>button]:focus:ring-0 [&>button]:focus:ring-offset-0 [&>button_svg]:h-4 [&>button_svg]:w-4"
       >
         <DialogHeader>
           <DialogTitle>Report issue</DialogTitle>
@@ -103,7 +103,7 @@ export function ReportIssueDialog({
         </DialogHeader>
 
         {sent ? (
-          <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)]">
+          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)]">
             Thanks. Your report was submitted.
           </div>
         ) : null}
@@ -121,7 +121,7 @@ export function ReportIssueDialog({
             onChange={(e) => setMessage(e.target.value)}
             rows={5}
             placeholder="What happened? What did you expect to happen?"
-            className="w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
+            className="w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
           />
           {create.isError ? (
             <p className="text-sm text-[var(--shell-accent)]">
@@ -140,7 +140,7 @@ export function ReportIssueDialog({
             type="button"
             variant="outline"
             onClick={() => setOpen(false)}
-            className="h-10 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+            className="h-10 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
           >
             Close
           </Button>
@@ -148,7 +148,7 @@ export function ReportIssueDialog({
             type="button"
             onClick={() => create.mutate()}
             disabled={create.isPending || message.trim().length === 0}
-            className="h-10 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
+            className="h-10 rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
           >
             {create.isPending ? "Sending..." : "Send report"}
           </Button>

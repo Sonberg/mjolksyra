@@ -12,7 +12,7 @@ function Fixture({ initialOpen }: { initialOpen: boolean }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)]"
+        className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)]"
       >
         Open dialog
       </button>

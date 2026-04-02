@@ -54,7 +54,7 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-[var(--shell-muted)]">{label}</p>
         {icon}

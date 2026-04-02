@@ -13,7 +13,7 @@ import {
 } from "./calculatorUtils";
 
 const sliderClass =
-  "h-2.5 w-full cursor-pointer appearance-none rounded-none [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[var(--home-border)] [&::-moz-range-thumb]:bg-[var(--home-accent)] [&::-moz-range-thumb]:shadow-none [&::-webkit-slider-runnable-track]:h-2.5 [&::-webkit-slider-runnable-track]:rounded-none [&::-webkit-slider-thumb]:-mt-[3px] [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[var(--home-border)] [&::-webkit-slider-thumb]:bg-[var(--home-accent)] [&::-webkit-slider-thumb]:shadow-none";
+  "h-2.5 w-full cursor-pointer appearance-none rounded-none [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-[var(--home-border)] [&::-moz-range-thumb]:bg-[var(--home-accent)] [&::-moz-range-thumb]:shadow-none [&::-webkit-slider-runnable-track]:h-2.5 [&::-webkit-slider-runnable-track]:rounded-none [&::-webkit-slider-thumb]:-mt-[3px] [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[var(--home-border)] [&::-webkit-slider-thumb]:bg-[var(--home-accent)] [&::-webkit-slider-thumb]:shadow-none";
 
 type CalculatorSectionProps = {
   plansOverride?: Plan[];
@@ -95,7 +95,7 @@ export const CalculatorSection = ({
     <section className="py-20 lg:py-32" data-testid="calculator-section">
       <div className="mx-auto max-w-screen-xl px-4">
 
-        <div className="mb-12 border-b-2 border-[var(--home-border)] pb-8">
+        <div className="mb-12 border-b border-[var(--home-border)] pb-8">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Revenue Calculator
           </p>
@@ -104,8 +104,8 @@ export const CalculatorSection = ({
           </h2>
         </div>
 
-        <div className="mb-6 border-2 border-[var(--home-border)] bg-[var(--home-surface)] p-4">
-          <div className="mb-3 flex items-center justify-between gap-3 border-b-2 border-[var(--home-border)] pb-2">
+        <div className="mb-6 border border-[var(--home-border)] bg-[var(--home-surface)] p-4">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b border-[var(--home-border)] pb-2">
             <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
               Plan
             </span>
@@ -118,7 +118,8 @@ export const CalculatorSection = ({
             activeKey={selectedPlan.id}
             size="sm"
             className="w-full"
-            itemClassName="px-3"
+            itemClassName="px-3 text-[var(--home-muted)]"
+            activeItemClassName="!bg-[var(--home-accent)] !text-[var(--home-accent-ink)] font-bold"
             fullWidth
           />
           {isUsingFallbackPricing ? (
@@ -132,8 +133,8 @@ export const CalculatorSection = ({
 
           {/* Sliders */}
           <div className="space-y-4">
-            <div className="border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
-              <div className="flex items-baseline justify-between border-b-2 border-[var(--home-border)] px-5 py-3">
+            <div className="border border-[var(--home-border)] bg-[var(--home-surface)]">
+              <div className="flex items-baseline justify-between border-b border-[var(--home-border)] px-5 py-3">
                 <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                   Athletes
                 </span>
@@ -160,8 +161,8 @@ export const CalculatorSection = ({
               </div>
             </div>
 
-            <div className="border-2 border-[var(--home-border)] bg-[var(--home-surface)]">
-              <div className="flex items-baseline justify-between border-b-2 border-[var(--home-border)] px-5 py-3">
+            <div className="border border-[var(--home-border)] bg-[var(--home-surface)]">
+              <div className="flex items-baseline justify-between border-b border-[var(--home-border)] px-5 py-3">
                 <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                   Monthly fee per athlete
                 </span>
@@ -196,14 +197,14 @@ export const CalculatorSection = ({
           </div>
 
           {/* Breakdown */}
-          <div className="border-2 border-[var(--home-border)]">
-            <div className="border-b-2 border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-3">
+          <div className="border border-[var(--home-border)]">
+            <div className="border-b border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-3">
               <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                 Monthly breakdown
               </span>
             </div>
 
-            <div className="divide-y-2 divide-[var(--home-border)] bg-[var(--home-surface)]">
+            <div className="divide-y divide-[var(--home-border)] bg-[var(--home-surface)]">
               <div className="flex items-center justify-between px-6 py-4">
                 <div>
                   <div className="text-sm text-[var(--home-text)]">Revenue</div>

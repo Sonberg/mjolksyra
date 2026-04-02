@@ -54,7 +54,7 @@ export function BlockEditorContent({ blockId }: Props) {
   if (isLoading) {
     return (
       <CoachWorkspaceShell>
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
           Loading...
         </div>
       </CoachWorkspaceShell>
@@ -64,7 +64,7 @@ export function BlockEditorContent({ blockId }: Props) {
   if (!block) {
     return (
       <CoachWorkspaceShell>
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 text-[var(--shell-muted)]">
           Block not found.
         </div>
       </CoachWorkspaceShell>
@@ -201,12 +201,12 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
                 className="min-h-0 overflow-hidden"
               >
                 <div className="flex h-full min-h-0 flex-col">
-                  <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5 border-b-2 border-[var(--shell-border)]">
+                  <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5 border-b border-[var(--shell-border)]">
                     <div className="flex items-center gap-3 rounded-none">
                       <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="min-w-0 flex-1 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-lg font-semibold text-[var(--shell-ink)]"
+                        className="min-w-0 flex-1 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-lg font-semibold text-[var(--shell-ink)]"
                         placeholder="Block name"
                       />
                       <div className="flex shrink-0 items-center gap-2">
@@ -230,7 +230,7 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
                               ),
                             );
                           }}
-                          className="w-16 border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
+                          className="w-16 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                         />
                       </div>
                       <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -238,7 +238,7 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
                           onClick={handleSave}
                           disabled={saveMutation.isPending}
                           size="sm"
-                          className="rounded-none border-2 h-10 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[#ce2f10]"
+                          className="rounded-none border h-10 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
                         >
                           <SaveIcon className="mr-2 h-4 w-4" />
                           {saveMutation.isPending ? "Saving..." : "Save"}

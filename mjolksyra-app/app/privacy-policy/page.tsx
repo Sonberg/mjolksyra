@@ -234,49 +234,6 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
 
-      <style>{`
-        .home-shell {
-          --home-bg: #f6eedf;
-          --home-surface: #fff7ec;
-          --home-surface-strong: #ecdcc5;
-          --home-border: #2a241d;
-          --home-text: #161311;
-          --home-muted: #5e5448;
-          --home-accent: #f03a17;
-          --home-accent-ink: #141414;
-          --home-accent-2: #151515;
-          --font-display: "Alfa Slab One", "Alfa Slab One Fallback";
-          background: var(--home-bg);
-          color: var(--home-text);
-          padding-bottom: 6rem;
-        }
-
-        .dark .home-shell,
-        [data-theme="dark"] .home-shell {
-          --home-bg: #110e0d;
-          --home-surface: #191615;
-          --home-surface-strong: #24211e;
-          --home-border: #342f2d;
-          --home-text: #ede7e4;
-          --home-muted: #948d89;
-          --home-accent: #ff4520;
-          --home-accent-ink: #141414;
-          --home-accent-2: #ede7e4;
-        }
-
-        .home-glow {
-          background:
-            radial-gradient(700px 420px at 8% 0%, #f03a1720 0%, transparent 62%),
-            radial-gradient(560px 320px at 92% 12%, #00000012 0%, transparent 68%);
-        }
-
-        .dark .home-glow,
-        [data-theme="dark"] .home-glow {
-          background:
-            radial-gradient(700px 420px at 8% 0%, #f03a1738 0%, transparent 62%),
-            radial-gradient(560px 320px at 92% 12%, #00000020 0%, transparent 68%);
-        }
-      `}</style>
     </div>
   );
 }

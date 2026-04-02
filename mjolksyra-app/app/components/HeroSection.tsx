@@ -10,7 +10,7 @@ export const HeroSection = () => {
       <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-none bg-[var(--home-border)]/10 blur-3xl" />
       <div className="relative mx-auto grid max-w-screen-xl gap-8 px-4 pb-12 pt-20 lg:grid-cols-12 lg:pt-32">
         <div className="mr-auto place-self-center lg:col-span-7">
-          <div className="mb-6 inline-flex items-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
+          <div className="mb-6 inline-flex items-center rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Coaching Platform
           </div>
           <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
@@ -23,7 +23,7 @@ export const HeroSection = () => {
             Built for coaches in strength training, powerlifting, and functional
             fitness.
           </p>
-          <div className="mb-8 inline-flex items-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface-strong)] px-4 py-2 text-sm font-medium text-[var(--home-text)]">
+          <div className="mb-8 inline-flex items-center rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-4 py-2 text-sm font-medium text-[var(--home-text)]">
             14-day free trial. Cancel anytime.
           </div>
           <div className="space-y-3 sm:flex sm:space-x-3 sm:space-y-0">
@@ -33,14 +33,14 @@ export const HeroSection = () => {
               <>
                 <RegisterDialog
                   trigger={
-                    <button className="inline-flex items-center justify-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
+                    <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
                       Start free trial
                     </button>
                   }
                 />
                 <a
                   href="#planner-demo"
-                  className="inline-flex items-center justify-center rounded-none border-2 border-[var(--home-border)] bg-[var(--home-surface)] px-8 py-4 text-lg font-semibold text-[var(--home-text)] transition hover:bg-[var(--home-surface-strong)]"
+                  className="inline-flex items-center justify-center rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-8 py-4 text-lg font-semibold text-[var(--home-text)] transition hover:bg-[var(--home-surface-strong)]"
                 >
                   Try live demo
                 </a>

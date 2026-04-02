@@ -33,13 +33,13 @@ export function ExerciseStarred({ exercises }: Props) {
       </div>
 
       {data?.length ? (
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
           {data.map((x) => (
             <ExerciseRow key={x.id} exercise={x} exercises={exercises} />
           ))}
         </div>
       ) : (
-        <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] px-3 py-4 text-xs text-[var(--shell-muted)]">
+        <div className="rounded-none border border-dashed border-[var(--shell-border)] px-3 py-4 text-xs text-[var(--shell-muted)]">
           No starred exercises yet.
         </div>
       )}

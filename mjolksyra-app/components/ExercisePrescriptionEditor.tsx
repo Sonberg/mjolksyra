@@ -93,7 +93,7 @@ export function ExercisePrescriptionEditor({
           updateType(ev.target.value as ExercisePrescription["type"])
         }
         className={cn(
-          "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 text-[var(--shell-ink)]",
+          "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 text-[var(--shell-ink)]",
           isSm ? "h-8 text-xs" : "mb-2 py-2 text-sm",
         )}
       >
@@ -113,7 +113,7 @@ export function ExercisePrescriptionEditor({
           <div
             key={`${exerciseId}-set-${setIndex}`}
             className={cn(
-              "rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
+              "rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
               isSm ? "p-2" : "p-3",
             )}
           >
@@ -135,7 +135,7 @@ export function ExercisePrescriptionEditor({
                 type="button"
                 onClick={() => removeSet(setIndex)}
                 disabled={sets.length <= 1}
-                className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:opacity-40"
+                className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:opacity-40"
               >
                 <Trash2Icon className="h-3 w-3" />
                 Remove
@@ -158,7 +158,7 @@ export function ExercisePrescriptionEditor({
                         })
                       }
                       className={cn(
-                        "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-[var(--shell-ink)]",
+                        "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-[var(--shell-ink)]",
                         isSm ? "h-8 text-xs" : "py-1.5 text-sm",
                       )}
                       placeholder="0"
@@ -187,7 +187,7 @@ export function ExercisePrescriptionEditor({
                         })
                       }
                       className={cn(
-                        "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
+                        "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
                         isSm ? "h-8 text-xs" : "py-1.5 text-sm",
                       )}
                       placeholder="0"
@@ -219,7 +219,7 @@ export function ExercisePrescriptionEditor({
                       })
                     }
                     className={cn(
-                      "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
+                      "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
                       isSm ? "h-8 text-xs" : "py-1.5 text-sm",
                     )}
                     placeholder="0"
@@ -250,7 +250,7 @@ export function ExercisePrescriptionEditor({
                       })
                     }
                     className={cn(
-                      "w-full rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
+                      "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
                       isSm ? "h-8 text-xs" : "py-1.5 text-sm",
                     )}
                     placeholder="0"
@@ -273,7 +273,7 @@ export function ExercisePrescriptionEditor({
                   patchSetTarget(setIndex, { note: ev.target.value || null })
                 }
                 className={cn(
-                  "w-full resize-y rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 font-medium text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]",
+                  "w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 font-medium text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]",
                   isSm ? "min-h-16 text-xs" : "min-h-[84px] text-sm",
                 )}
                 placeholder="Set note (optional)"
@@ -285,7 +285,7 @@ export function ExercisePrescriptionEditor({
         <button
           type="button"
           onClick={addSet}
-          className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+          className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
         >
           <PlusIcon className="h-3.5 w-3.5" />
           Add set

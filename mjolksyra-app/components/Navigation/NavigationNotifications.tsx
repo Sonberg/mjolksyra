@@ -28,12 +28,12 @@ export function NavigationNotifications({
   forceVisible = false,
 }: NavigationNotificationsProps) {
   const dropdownVars = {
-    "--shell-surface": "var(--shell-surface, #fff7ec)",
-    "--shell-surface-strong": "var(--shell-surface-strong, #ecdcc5)",
-    "--shell-border": "var(--shell-border, #2a241d)",
-    "--shell-ink": "var(--shell-ink, #101010)",
-    "--shell-muted": "var(--shell-muted, #5e5448)",
-    "--shell-accent": "var(--shell-accent, #f03a17)",
+    "--shell-surface": "var(--shell-surface, #ffffff)",
+    "--shell-surface-strong": "var(--shell-surface-strong, #e8e9ea)",
+    "--shell-border": "var(--shell-border, #d0d0d0)",
+    "--shell-ink": "var(--shell-ink, #1b1b1b)",
+    "--shell-muted": "var(--shell-muted, #767676)",
+    "--shell-accent": "var(--shell-accent, #60CD18)",
   } as CSSProperties;
 
   const auth = useAuth();
@@ -146,7 +146,7 @@ export function NavigationNotifications({
     const content = (
       <div
         className={cn(
-          "rounded-none border-2 px-3 py-2 transition",
+          "rounded-none border px-3 py-2 transition",
           item.readAt
             ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]"
             : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
@@ -196,7 +196,7 @@ export function NavigationNotifications({
         <button
           type="button"
           className={cn(
-            "relative inline-flex h-10 w-10 items-center justify-center rounded-none border-2 border-[var(--shell-border)] transition",
+            "relative inline-flex h-10 w-10 items-center justify-center rounded-none border border-[var(--shell-border)] transition",
             open
               ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
               : "bg-[var(--shell-surface)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]",
@@ -214,11 +214,11 @@ export function NavigationNotifications({
                   showArrivalPulse ? "animate-ping" : "opacity-0",
                 )}
               />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)]" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-none border border-transparent bg-[var(--shell-accent)]" />
             </span>
           ) : null}
           {unreadCount > 0 ? (
-            <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-1.5 text-[10px] font-bold text-[var(--shell-surface)]">
+            <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-1.5 text-[10px] font-bold text-[var(--shell-surface)]">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           ) : null}
@@ -227,7 +227,7 @@ export function NavigationNotifications({
       <DropdownMenuContent
         align="end"
         style={dropdownVars}
-        className="w-[22rem] rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)]"
+        className="w-[22rem] rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)]"
       >
         <div className="flex items-center justify-between px-3 py-2">
           <DropdownMenuLabel className="p-0 text-[var(--shell-ink)]">
@@ -237,7 +237,7 @@ export function NavigationNotifications({
             type="button"
             disabled={unreadCount === 0 || isMarkingAll}
             onClick={() => void handleMarkAllRead()}
-            className="inline-flex items-center gap-1 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-xs text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-xs text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
           >
             <CheckIcon className="h-3.5 w-3.5" />
             Mark all read
@@ -248,7 +248,7 @@ export function NavigationNotifications({
           {isLoading && items.length === 0 ? (
             <p className="text-sm text-[var(--shell-muted)]">Loading…</p>
           ) : items.length === 0 ? (
-            <p className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-4 text-sm text-[var(--shell-muted)]">
+            <p className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-4 text-sm text-[var(--shell-muted)]">
               No notifications yet.
             </p>
           ) : (

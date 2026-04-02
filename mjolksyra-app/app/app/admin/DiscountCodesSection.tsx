@@ -85,7 +85,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
   }
 
   return (
-    <section className="mt-8 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+    <section className="mt-8 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
       <div className="mb-4">
         <h2 className="text-lg text-[var(--shell-ink)]">Discount codes</h2>
         <p className="mt-1 text-sm text-[var(--shell-muted)]">
@@ -97,7 +97,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
         <div className="mb-6 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse text-left">
             <thead>
-              <tr className="border-b-2 border-[var(--shell-border)] text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+              <tr className="border-b border-[var(--shell-border)] text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                 <th className="px-3 py-2">Code</th>
                 <th className="px-3 py-2">Description</th>
                 <th className="px-3 py-2">Redemptions</th>
@@ -117,8 +117,8 @@ export function DiscountCodesSection({ initialCodes }: Props) {
                     <span
                       className={
                         c.isActive
-                          ? "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-surface)]"
-                          : "inline-flex rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-muted)]"
+                          ? "inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-surface)]"
+                          : "inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-muted)]"
                       }
                     >
                       {c.isActive ? "Active" : "Inactive"}
@@ -134,7 +134,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
         </div>
       )}
 
-      <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
           Create new code
         </p>
@@ -146,7 +146,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               placeholder="FRIEND2024"
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 font-mono text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 font-mono text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
             />
           </div>
           <div className="flex flex-col gap-1 sm:col-span-2 lg:col-span-2">
@@ -156,7 +156,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Auto-generated if empty"
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -164,7 +164,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
             <select
               value={discountType}
               onChange={(e) => setDiscountType(e.target.value as DiscountType)}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] focus:outline-none"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] focus:outline-none"
             >
               <option value="Percent">Percent (%)</option>
               <option value="FixedAmount">Fixed amount (öre)</option>
@@ -179,7 +179,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
               value={discountValue}
               onChange={(e) => setDiscountValue(e.target.value)}
               placeholder={discountType === "Percent" ? "50" : "10000"}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -187,7 +187,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
             <select
               value={duration}
               onChange={(e) => setDuration(e.target.value as DiscountDuration)}
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] focus:outline-none"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] focus:outline-none"
             >
               <option value="Forever">Forever</option>
               <option value="Once">Once</option>
@@ -202,7 +202,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
                 value={durationInMonths}
                 onChange={(e) => setDurationInMonths(e.target.value)}
                 placeholder="3"
-                className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
               />
             </div>
           )}
@@ -213,7 +213,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
               value={maxRedemptions}
               onChange={(e) => setMaxRedemptions(e.target.value)}
               placeholder="Unlimited"
-              className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
             />
           </div>
         </div>
@@ -222,7 +222,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
           type="button"
           onClick={handleCreate}
           disabled={isCreating}
-          className="mt-4 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] px-5 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
+          className="mt-4 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-5 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
         >
           {isCreating ? <Spinner size={14} /> : "Create"}
         </Button>

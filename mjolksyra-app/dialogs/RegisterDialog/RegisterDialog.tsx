@@ -12,7 +12,7 @@ export function RegisterDialog({ trigger }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-h-[85vh] border-2 bg-zinc-950 p-0 shadow-none sm:max-w-md [&>button]:hidden">
+      <DialogContent className="max-h-[85vh] border bg-zinc-950 p-0 shadow-none sm:max-w-md [&>button]:hidden">
         <Waitlist
           appearance={{
             elements: {

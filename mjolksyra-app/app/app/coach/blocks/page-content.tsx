@@ -19,7 +19,7 @@ import { createBlock } from "@/services/blocks/createBlock";
 import { deleteBlock } from "@/services/blocks/deleteBlock";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/dialogs/ConfirmDialog";
-import { PageHeader } from "@/components/Navigation/PageHeader";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { CoachWorkspaceShell } from "../CoachWorkspaceShell";
 import { Block } from "@/services/blocks/type";
 
@@ -36,7 +36,7 @@ function renderBlockPreview(block: Block) {
 
   if (validWorkouts.length === 0) {
     return (
-      <div className="mt-3 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+      <div className="mt-3 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
         <p className="text-xs text-[var(--shell-muted)]">No workouts in this block yet.</p>
       </div>
     );
@@ -66,7 +66,7 @@ function renderBlockPreview(block: Block) {
         return (
           <div
             key={weekNumber}
-            className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2"
+            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2"
           >
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
               Week {weekNumber}
@@ -139,28 +139,34 @@ export function BlocksPageContent() {
 
   return (
     <CoachWorkspaceShell>
-      <PageHeader
-        eyebrow="Block management"
-        title="Training Blocks"
-        description="Build reusable training plans and organize sessions week by week."
-        actions={
-          <Button
-            onClick={handleCreate}
-            disabled={createMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10] disabled:opacity-60"
-          >
-            {createMutation.isPending ? (
-              <Loader2Icon className="h-4 w-4 animate-spin" />
-            ) : (
-              <PlusIcon className="h-4 w-4" />
-            )}
-            New Block
-          </Button>
-        }
-      />
+      <section className="relative overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
+        <div className="pointer-events-none absolute -right-12 -top-10 h-32 w-32 rotate-12 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]/40" />
+        <div className="pointer-events-none absolute left-10 top-16 h-px w-28 bg-[var(--shell-border)]/40" />
+        <PageSectionHeader
+          className="relative"
+          eyebrow="Block management"
+          title="Training Blocks"
+          titleClassName="text-2xl md:text-3xl"
+          description="Build reusable training plans and organize sessions week by week."
+          actions={
+            <Button
+              onClick={handleCreate}
+              disabled={createMutation.isPending}
+              className="inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
+            >
+              {createMutation.isPending ? (
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              ) : (
+                <PlusIcon className="h-4 w-4" />
+              )}
+              New Block
+            </Button>
+          }
+        />
+      </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[var(--shell-muted)]">Total blocks</p>
             <Layers3Icon className="h-4 w-4 text-[var(--shell-muted)]" />
@@ -170,7 +176,7 @@ export function BlocksPageContent() {
           </p>
         </div>
         <div
-          className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
+          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
           style={{ animationDelay: "90ms" }}
         >
           <div className="flex items-center justify-between">
@@ -182,7 +188,7 @@ export function BlocksPageContent() {
           </p>
         </div>
         <div
-          className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
+          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
           style={{ animationDelay: "180ms" }}
         >
           <div className="flex items-center justify-between">
@@ -200,12 +206,12 @@ export function BlocksPageContent() {
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
-              className="h-24 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] blocks-pulse"
+              className="h-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] blocks-pulse"
             />
           ))}
         </div>
       ) : sortedBlocks.length === 0 ? (
-        <div className="rounded-none border-2 border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-16 text-center">
+        <div className="rounded-none border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-16 text-center">
           <p className="text-xl font-semibold text-[var(--shell-ink)]">
             No blocks yet
           </p>
@@ -214,7 +220,7 @@ export function BlocksPageContent() {
           </p>
           <Button
             onClick={handleCreate}
-            className="mt-6 inline-flex items-center gap-2 rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[#ce2f10]"
+            className="mt-6 inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
           >
             <PlusIcon className="h-4 w-4" />
             Create your first block
@@ -234,7 +240,7 @@ export function BlocksPageContent() {
             return (
               <div
                 key={block.id}
-                className="group rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 transition hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(42,36,29,0.18)]"
+                className="group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 transition hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)]"
                 style={{ animationDelay: `${120 + index * 70}ms` }}
               >
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
@@ -243,7 +249,7 @@ export function BlocksPageContent() {
                       <h2 className="text-xl text-[var(--shell-ink)]">
                         {block.name}
                       </h2>
-                      <span className="rounded-none border-2 border-[var(--shell-border)] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+                      <span className="rounded-none border border-[var(--shell-border)] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
                         {block.numberOfWeeks} week
                         {block.numberOfWeeks !== 1 ? "s" : ""}
                       </span>
@@ -265,7 +271,7 @@ export function BlocksPageContent() {
                       onClick={() =>
                         router.push(`/app/coach/blocks/${block.id}`)
                       }
-                      className="rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-ink)] font-semibold text-[var(--shell-surface)] hover:bg-[var(--shell-border)]"
+                      className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] font-semibold text-[var(--shell-surface)] hover:bg-[var(--shell-border)]"
                     >
                       <Pencil className="mr-1 h-4 w-4" />
                       Open
@@ -285,7 +291,7 @@ export function BlocksPageContent() {
                           variant="ghost"
                           size="sm"
                           disabled={isDeleting}
-                          className="rounded-none border-2 border-[var(--shell-border)] bg-transparent text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
+                          className="rounded-none border border-[var(--shell-border)] bg-transparent text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
                         >
                           {isDeleting ? (
                             <Loader2Icon className="h-4 w-4 animate-spin" />
@@ -297,7 +303,7 @@ export function BlocksPageContent() {
                     />
                   </div>
                 </div>
-                <div className="mt-4 border-t-2 border-[var(--shell-border)]/30 pt-3">
+                <div className="mt-4 border-t border-[var(--shell-border)]/30 pt-3">
                   {renderBlockPreview(block)}
                   {block.workouts.length > 0 && block.numberOfWeeks > 2 ? (
                     <p className="mt-2 text-[11px] text-[var(--shell-muted)]">
