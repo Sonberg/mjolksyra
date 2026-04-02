@@ -124,7 +124,7 @@ export function ExerciseQuickSearchOverlay({
                     key={exercise.id}
                     type="button"
                     onClick={async () => handleSelect(exercise)}
-                    className="group flex w-full items-center justify-between gap-3 border-b-2 border-[var(--shell-border)] px-4 py-3 text-left transition hover:bg-[var(--shell-surface-strong)] focus-visible:bg-[var(--shell-surface-strong)]"
+                    className="group flex w-full items-center justify-between gap-3 border-b border-[var(--shell-border)] px-4 py-3 text-left transition hover:bg-[var(--shell-surface-strong)] focus-visible:bg-[var(--shell-surface-strong)]"
                   >
                     <div className="min-w-0">
                       <span className="block truncate text-sm font-bold uppercase tracking-[0.04em] text-[var(--shell-ink)]">

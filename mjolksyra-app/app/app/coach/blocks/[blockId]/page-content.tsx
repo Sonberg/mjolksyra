@@ -201,7 +201,7 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
                 className="min-h-0 overflow-hidden"
               >
                 <div className="flex h-full min-h-0 flex-col">
-                  <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5 border-b-2 border-[var(--shell-border)]">
+                  <div className="shrink-0 p-6 pb-4 md:p-8 md:pb-5 border-b border-[var(--shell-border)]">
                     <div className="flex items-center gap-3 rounded-none">
                       <Input
                         value={name}

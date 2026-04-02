@@ -88,7 +88,7 @@ export function ExerciseLibrary({ exercies }: Props) {
   return (
     <TooltipProvider>
       <div className="relative flex h-full min-h-0 flex-col border-[var(--shell-border)] bg-[var(--shell-surface)]">
-        <div className="sticky top-0 z-20 border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)]/95 p-4">
+        <div className="sticky top-0 z-20 border-b border-[var(--shell-border)] bg-[var(--shell-surface)]/95 p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <p className="font-[var(--font-display)] text-sm tracking-[0.08em] text-[var(--shell-ink)]">
@@ -192,7 +192,7 @@ export function ExerciseLibrary({ exercies }: Props) {
           )}
         </div>
 
-        <div className="sticky bottom-0 left-0 right-0 z-20 border-t-2 border-[var(--shell-border)] bg-gradient-to-b from-[var(--shell-surface)]/0 via-[var(--shell-surface)]/90 to-[var(--shell-surface)] px-4 pb-4 pt-3">
+        <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-[var(--shell-border)] bg-gradient-to-b from-[var(--shell-surface)]/0 via-[var(--shell-surface)]/90 to-[var(--shell-surface)] px-4 pb-4 pt-3">
           <CreateExerciseDialog
             exercises={exercies}
             trigger={

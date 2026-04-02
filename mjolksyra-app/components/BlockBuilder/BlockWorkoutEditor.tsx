@@ -50,7 +50,7 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
 
   return (
     <div className="flex h-full flex-col">
-      <div className="shrink-0 border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+      <div className="shrink-0 border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">

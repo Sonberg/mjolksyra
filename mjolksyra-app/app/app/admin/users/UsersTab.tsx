@@ -102,7 +102,7 @@ export function UsersTab({ initialCoaches }: Props) {
 
       <div className="grid gap-4 lg:grid-cols-[19rem_1fr]">
         <aside className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
-          <div className="border-b-2 border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+          <div className="border-b border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
             Coaches
           </div>
           <ul className="max-h-[36rem] overflow-y-auto">
@@ -134,7 +134,7 @@ export function UsersTab({ initialCoaches }: Props) {
         <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
           {selectedCoach ? (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[var(--shell-border)]/30 pb-3">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--shell-border)]/30 pb-3">
                 <div>
                   <h3 className="text-lg text-[var(--shell-ink)]">{selectedCoach.coachName}</h3>
                   <p className="text-sm text-[var(--shell-muted)]">{selectedCoach.coachEmail}</p>
@@ -157,7 +157,7 @@ export function UsersTab({ initialCoaches }: Props) {
               </div>
 
               <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
-                <div className="border-b-2 border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                <div className="border-b border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                   Athletes and status
                 </div>
                 {selectedCoach.athletes.length === 0 ? (

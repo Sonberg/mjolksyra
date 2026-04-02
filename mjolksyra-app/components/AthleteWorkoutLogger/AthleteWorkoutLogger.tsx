@@ -367,7 +367,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
       </div>
 
       {/* Sticky bottom bar — mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-[var(--shell-border)] bg-[var(--shell-bg)] px-4 py-4 sm:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--shell-border)] bg-[var(--shell-bg)] px-4 py-4 sm:hidden">
         <div className="mx-auto max-w-6xl">
           <button
             type="button"

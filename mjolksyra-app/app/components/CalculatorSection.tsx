@@ -95,7 +95,7 @@ export const CalculatorSection = ({
     <section className="py-20 lg:py-32" data-testid="calculator-section">
       <div className="mx-auto max-w-screen-xl px-4">
 
-        <div className="mb-12 border-b-2 border-[var(--home-border)] pb-8">
+        <div className="mb-12 border-b border-[var(--home-border)] pb-8">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--home-muted)]">
             Revenue Calculator
           </p>
@@ -105,7 +105,7 @@ export const CalculatorSection = ({
         </div>
 
         <div className="mb-6 border border-[var(--home-border)] bg-[var(--home-surface)] p-4">
-          <div className="mb-3 flex items-center justify-between gap-3 border-b-2 border-[var(--home-border)] pb-2">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b border-[var(--home-border)] pb-2">
             <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
               Plan
             </span>
@@ -133,7 +133,7 @@ export const CalculatorSection = ({
           {/* Sliders */}
           <div className="space-y-4">
             <div className="border border-[var(--home-border)] bg-[var(--home-surface)]">
-              <div className="flex items-baseline justify-between border-b-2 border-[var(--home-border)] px-5 py-3">
+              <div className="flex items-baseline justify-between border-b border-[var(--home-border)] px-5 py-3">
                 <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                   Athletes
                 </span>
@@ -161,7 +161,7 @@ export const CalculatorSection = ({
             </div>
 
             <div className="border border-[var(--home-border)] bg-[var(--home-surface)]">
-              <div className="flex items-baseline justify-between border-b-2 border-[var(--home-border)] px-5 py-3">
+              <div className="flex items-baseline justify-between border-b border-[var(--home-border)] px-5 py-3">
                 <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                   Monthly fee per athlete
                 </span>
@@ -197,13 +197,13 @@ export const CalculatorSection = ({
 
           {/* Breakdown */}
           <div className="border border-[var(--home-border)]">
-            <div className="border-b-2 border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-3">
+            <div className="border-b border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-3">
               <span className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                 Monthly breakdown
               </span>
             </div>
 
-            <div className="divide-y-2 divide-[var(--home-border)] bg-[var(--home-surface)]">
+            <div className="divide-y divide-[var(--home-border)] bg-[var(--home-surface)]">
               <div className="flex items-center justify-between px-6 py-4">
                 <div>
                   <div className="text-sm text-[var(--home-text)]">Revenue</div>

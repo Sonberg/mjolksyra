@@ -240,7 +240,7 @@ export function BlocksPageContent() {
             return (
               <div
                 key={block.id}
-                className="group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 transition hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(42,36,29,0.18)]"
+                className="group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 transition hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)]"
                 style={{ animationDelay: `${120 + index * 70}ms` }}
               >
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
@@ -303,7 +303,7 @@ export function BlocksPageContent() {
                     />
                   </div>
                 </div>
-                <div className="mt-4 border-t-2 border-[var(--shell-border)]/30 pt-3">
+                <div className="mt-4 border-t border-[var(--shell-border)]/30 pt-3">
                   {renderBlockPreview(block)}
                   {block.workouts.length > 0 && block.numberOfWeeks > 2 ? (
                     <p className="mt-2 text-[11px] text-[var(--shell-muted)]">

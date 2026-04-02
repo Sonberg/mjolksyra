@@ -53,7 +53,7 @@ export function AthleteSetRow({
 
   return (
     <div
-      className={`border-t-2 border-[var(--shell-border)] px-4 py-4 transition-colors ${
+      className={`border-t border-[var(--shell-border)] px-4 py-4 transition-colors ${
         isDone ? "bg-[var(--shell-surface-strong)]" : "bg-[var(--shell-surface)]"
       }`}
     >

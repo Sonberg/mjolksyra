@@ -14,7 +14,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
     <section className="relative overflow-hidden bg-[#151515] py-20 lg:py-32 dark:bg-[#0b0b0b]">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(to_right,rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:32px_32px]" />
       <div className="mx-auto max-w-screen-xl px-4">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b-2 border-white/40 pb-8">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-white/40 pb-8">
           <div>
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-white/70">
               Pricing
@@ -63,7 +63,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
         </div>
 
         <div className="hidden overflow-hidden border border-white/50 bg-white/5 md:block">
-          <div className="grid grid-cols-4 border-b-2 border-white/40 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white">
+          <div className="grid grid-cols-4 border-b border-white/40 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white">
             <span>Plan</span>
             <span>Monthly</span>
             <span>Included athletes</span>
@@ -77,8 +77,8 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
                   key={plan.id}
                   className={
                     isFeatured
-                      ? "group relative grid grid-cols-4 border-b-2 border-white/35 bg-black px-5 py-5 text-white transition last:border-b-0"
-                      : "group relative grid grid-cols-4 border-b-2 border-white/35 px-5 py-5 text-white transition hover:bg-white/10 last:border-b-0"
+                      ? "group relative grid grid-cols-4 border-b border-white/35 bg-black px-5 py-5 text-white transition last:border-b-0"
+                      : "group relative grid grid-cols-4 border-b border-white/35 px-5 py-5 text-white transition hover:bg-white/10 last:border-b-0"
                   }
                 >
                   {isFeatured ? (

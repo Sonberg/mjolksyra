@@ -316,7 +316,7 @@ export function Workout({
           : "overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
       }
     >
-      <CardHeader className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
+      <CardHeader className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="truncate">{displayName}</span>
           <div className="flex shrink-0 flex-wrap items-center gap-2">

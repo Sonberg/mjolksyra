@@ -89,7 +89,7 @@ function ProfileCard() {
           <p className="text-sm text-[var(--shell-muted)]">{auth.email ?? "—"}</p>
         </div>
       </div>
-      <div className="divide-y divide-[var(--shell-border)]/40 border-t-2 border-[var(--shell-border)]">
+      <div className="divide-y divide-[var(--shell-border)]/40 border-t border-[var(--shell-border)]">
         <Row label="First name" value={auth.givenName} />
         <Row label="Last name" value={auth.familyName} />
         <Row label="Email" value={auth.email} />
@@ -120,7 +120,7 @@ function CoachCard({ user }: { user: User }) {
 
   return (
     <SectionCard title="Coach">
-      <div className="mb-5 -mt-1 divide-y divide-[var(--shell-border)]/40 border-t-2 border-[var(--shell-border)]">
+      <div className="mb-5 -mt-1 divide-y divide-[var(--shell-border)]/40 border-t border-[var(--shell-border)]">
         <div className="flex items-center justify-between py-3">
           <span className="text-sm text-[var(--shell-muted)]">Status</span>
           <StatusBadge status={user.onboarding.coach} />
@@ -274,7 +274,7 @@ function AthleteCard({ user }: { user: User }) {
 
   return (
     <SectionCard title="Athlete">
-      <div className="-mt-1 divide-y divide-[var(--shell-border)]/40 border-t-2 border-[var(--shell-border)]">
+      <div className="-mt-1 divide-y divide-[var(--shell-border)]/40 border-t border-[var(--shell-border)]">
         <div className="flex items-center justify-between py-3">
           <span className="text-sm text-[var(--shell-muted)]">Status</span>
           <StatusBadge status={user.onboarding.athlete} />
@@ -282,7 +282,7 @@ function AthleteCard({ user }: { user: User }) {
       </div>
 
       {hasCoaches && (
-        <div className="mt-4 border-t-2 border-[var(--shell-border)] pt-4">
+        <div className="mt-4 border-t border-[var(--shell-border)] pt-4">
           <p className="mb-1 text-xs font-medium text-[var(--shell-muted)]">
             Active coaches
           </p>
@@ -295,7 +295,7 @@ function AthleteCard({ user }: { user: User }) {
       )}
 
       {hasInvitations && (
-        <div className="mt-4 border-t-2 border-[var(--shell-border)] pt-4">
+        <div className="mt-4 border-t border-[var(--shell-border)] pt-4">
           <p className="mb-1 text-xs font-medium text-[var(--shell-muted)]">
             Pending invitations
           </p>
@@ -308,7 +308,7 @@ function AthleteCard({ user }: { user: User }) {
       )}
 
       {!hasCoaches && !hasInvitations && (
-        <p className="mt-4 border-t-2 border-[var(--shell-border)] pt-4 text-sm text-[var(--shell-muted)]">
+        <p className="mt-4 border-t border-[var(--shell-border)] pt-4 text-sm text-[var(--shell-muted)]">
           No active coaches.
         </p>
       )}

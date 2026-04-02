@@ -67,7 +67,7 @@ export function AthleteTransactions({ coach }: Props) {
           titleClassName="text-xl md:text-2xl"
           description="Your billing and payment history."
         />
-        <div className="mt-4 border-t-2 border-[var(--shell-border)]/30 pt-4">
+        <div className="mt-4 border-t border-[var(--shell-border)]/30 pt-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
             Billing status
           </p>

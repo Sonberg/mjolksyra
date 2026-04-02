@@ -228,7 +228,7 @@ export function TraineeCard({
   ];
 
   return (
-    <article className="group overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(42,36,29,0.18)]">
+    <article className="group overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)]">
       <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
         <Avatar className="h-12 w-12 border border-[var(--shell-border)]">
           <AvatarImage src={url} alt={trainee.athlete.name} />
@@ -322,7 +322,7 @@ export function TraineeCard({
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 border-y-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-4 md:grid-cols-4 md:px-6">
+      <div className="grid grid-cols-2 gap-3 border-y border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-4 md:grid-cols-4 md:px-6">
         {metrics.map((metric) => (
           <div
             key={metric.label}
@@ -339,7 +339,7 @@ export function TraineeCard({
       </div>
 
       {trainee.transactions.length > 0 && (
-        <div className="border-b-2 border-[var(--shell-border)] bg-[var(--shell-surface)]">
+        <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)]">
           <button
             type="button"
             onClick={() => setTransactionsOpen((v) => !v)}
@@ -357,7 +357,7 @@ export function TraineeCard({
             />
           </button>
           {isTransactionsOpen && (
-            <div className="divide-y-2 divide-[var(--shell-border)] px-5 pb-3 md:px-6">
+            <div className="divide-y divide-[var(--shell-border)] px-5 pb-3 md:px-6">
               {trainee.transactions.map((tx) => (
                 <div
                   key={tx.id}
@@ -424,7 +424,7 @@ export function TraineeCard({
       </div>
 
       {chargeNowMessage && (
-        <div className="border-t-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-3 md:px-6">
+        <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-3 md:px-6">
           <p
             className={cn(
               "text-sm",

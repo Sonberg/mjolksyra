@@ -97,7 +97,7 @@ export function DiscountCodesSection({ initialCodes }: Props) {
         <div className="mb-6 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse text-left">
             <thead>
-              <tr className="border-b-2 border-[var(--shell-border)] text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+              <tr className="border-b border-[var(--shell-border)] text-xs uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                 <th className="px-3 py-2">Code</th>
                 <th className="px-3 py-2">Description</th>
                 <th className="px-3 py-2">Redemptions</th>
