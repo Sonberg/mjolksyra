@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, XIcon, PlayIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
 
 type PlannedWorkoutMedia = PlannedWorkout["media"][number];
 
@@ -57,37 +58,16 @@ export function WorkoutMediaGallery({ media }: Props) {
 
         <div className="flex flex-wrap gap-2">
           {allMedia.map((item, idx) => (
-            <button
+            <WorkoutMediaThumbnail
               key={item.url}
-              type="button"
+              src={item.url}
+              alt={`Workout media ${idx + 1}`}
+              isVideo={item.isVideo}
               onClick={() => setLightboxIndex(idx)}
-              className="group relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)] sm:h-32 sm:w-32"
-              aria-label={`${item.isVideo ? "Play video" : "View image"} ${idx + 1}`}
-            >
-              {item.isVideo ? (
-                <>
-                  {/* Loads first frame via preload="metadata" as the thumbnail */}
-                  <video
-                    src={item.url}
-                    preload="metadata"
-                    muted
-                    playsInline
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-ink)]/35 transition group-hover:bg-[var(--shell-ink)]/45">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--shell-ink)] text-[var(--shell-surface)]">
-                      <PlayIcon className="h-4 w-4 translate-x-px" />
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <img
-                  src={item.url}
-                  alt={`Workout media ${idx + 1}`}
-                  className="h-full w-full object-cover transition group-hover:opacity-90"
-                />
-              )}
-            </button>
+              buttonProps={{
+                "aria-label": `${item.isVideo ? "Play video" : "View image"} ${idx + 1}`,
+              }}
+            />
           ))}
         </div>
       </div>

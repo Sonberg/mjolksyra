@@ -1,5 +1,5 @@
 import addonPerformancePanel from "@github-ui/storybook-addon-performance-panel";
-import { definePreview } from "@storybook/nextjs";
+import { definePreview } from "@storybook/nextjs-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 import "../app/globals.css";

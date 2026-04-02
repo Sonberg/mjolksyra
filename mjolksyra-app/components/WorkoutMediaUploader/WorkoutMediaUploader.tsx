@@ -2,8 +2,9 @@
 
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ImageIcon, PlayIcon, XIcon, Loader2Icon } from "lucide-react";
+import { ImageIcon, XIcon } from "lucide-react";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
 
 type PlannedWorkoutMedia = PlannedWorkout["media"][number];
 
@@ -142,82 +143,52 @@ export function WorkoutMediaUploader({
           {/* Confirmed uploads */}
           {media.map((item) =>
             item.type === "Video" ? (
-              <div
+              <WorkoutMediaThumbnail
                 key={item.rawUrl}
-                className="group relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
-              >
-                <video
-                  src={item.rawUrl}
-                  preload="metadata"
-                  muted
-                  playsInline
-                  className="h-full w-full object-cover"
-                />
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[var(--shell-ink)]/35">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--shell-ink)] text-[var(--shell-surface)]">
-                    <PlayIcon className="h-4 w-4 translate-x-px" />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => removeMedia(item)}
-                  className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
-                  aria-label="Remove video"
-                >
-                  <XIcon className="h-3 w-3" />
-                </button>
-              </div>
+                src={item.rawUrl}
+                alt="Workout media"
+                isVideo
+                actionButton={
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => removeMedia(item)}
+                    className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
+                    aria-label="Remove video"
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
+                }
+              />
             ) : (
-              <div
+              <WorkoutMediaThumbnail
                 key={item.rawUrl}
-                className="group relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
-              >
-                <img
-                  src={item.compressedUrl ?? item.rawUrl}
-                  alt="Workout media"
-                  className="h-full w-full object-cover"
-                />
-                <button
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => removeMedia(item)}
-                  className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
-                  aria-label="Remove image"
-                >
-                  <XIcon className="h-3 w-3" />
-                </button>
-              </div>
+                src={item.compressedUrl ?? item.rawUrl}
+                alt="Workout media"
+                actionButton={
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => removeMedia(item)}
+                    className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
+                    aria-label="Remove image"
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
+                }
+              />
             ),
           )}
 
           {/* Pending previews — shown immediately on file selection */}
           {pendingPreviews.map((preview) =>
-            preview.isVideo ? (
-              <div
-                key={preview.id}
-                className="relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
-              >
-                <div className="h-full w-full bg-[var(--shell-surface)] opacity-60" />
-                <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-surface)]/30">
-                  <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
-                </div>
-              </div>
-            ) : (
-              <div
-                key={preview.id}
-                className="relative h-24 w-24 overflow-hidden border border-[var(--shell-border)] sm:h-32 sm:w-32"
-              >
-                <img
-                  src={preview.localUrl}
-                  alt="Uploading..."
-                  className="h-full w-full object-cover opacity-60"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-surface)]/30">
-                  <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
-                </div>
-              </div>
-            ),
+            <WorkoutMediaThumbnail
+              key={preview.id}
+              src={preview.isVideo ? undefined : preview.localUrl}
+              alt="Uploading..."
+              isVideo={preview.isVideo}
+              isPending
+            />,
           )}
         </div>
       ) : null}
