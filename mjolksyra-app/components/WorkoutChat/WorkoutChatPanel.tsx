@@ -83,14 +83,14 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
   }, [isMediaPending, media.length, message]);
 
   return (
-    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+    <section className="overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-sm">
       <div className="border-b border-[var(--shell-border)] px-3 py-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
           Workout chat
         </p>
       </div>
 
-      <div className="max-h-80 space-y-3 overflow-y-auto bg-[var(--shell-surface-strong)] p-3">
+      <div className="max-h-80 space-y-4 overflow-y-auto bg-gradient-to-b from-[var(--shell-surface-strong)] to-[var(--shell-surface)] p-3">
         {chatMessages.isLoading ? (
           <p className="text-sm text-[var(--shell-muted)]">Loading messages...</p>
         ) : null}
@@ -109,12 +109,12 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
               key={chatMessage.id}
               className={isSelf ? "flex justify-end" : "flex justify-start"}
             >
-              <div className="max-w-[85%] sm:max-w-[75%]">
+              <div className="max-w-[88%] sm:max-w-[76%]">
                 <div
                   className={
                     isSelf
-                      ? "rounded-2xl rounded-br-md border border-[var(--shell-accent)] bg-[var(--shell-accent)] px-3.5 py-2.5 text-white shadow-sm"
-                      : "rounded-2xl rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3.5 py-2.5 text-[var(--shell-ink)] shadow-sm"
+                      ? "rounded-2xl border border-[var(--shell-accent)]/80 bg-[var(--shell-accent)] px-4 py-3 text-[var(--shell-accent-ink)] shadow-md"
+                      : "rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-[var(--shell-ink)] shadow-md"
                   }
                 >
                   {editingMessageId === chatMessage.id ? (
@@ -123,7 +123,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                         value={editingMessageBody}
                         onChange={(e) => setEditingMessageBody(e.target.value)}
                         rows={3}
-                        className="w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-sm leading-6 text-[var(--shell-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
+                        className="w-full resize-y rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -132,7 +132,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                             setEditingMessageId(null);
                             setEditingMessageBody("");
                           }}
-                          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-ink)]"
+                          className="rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-ink)]"
                         >
                           Cancel
                         </button>
@@ -140,28 +140,32 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                           type="button"
                           disabled={editMessage.isPending || editingMessageBody.trim().length === 0}
                           onClick={() => editMessage.mutate()}
-                          className="rounded-none border border-transparent bg-[var(--shell-ink)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-surface)] disabled:opacity-60"
+                          className="rounded-lg border border-transparent bg-[var(--shell-ink)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-surface)] disabled:opacity-60"
                         >
                           {editMessage.isPending ? "Saving..." : "Save"}
                         </button>
                       </div>
                     </div>
                   ) : chatMessage.message.trim().length > 0 ? (
-                    <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                    <p className="whitespace-pre-wrap break-words text-[15px] font-medium leading-6">
                       {chatMessage.message}
                     </p>
                   ) : null}
                   {chatMessage.media.length > 0 ? (
                     <div className={chatMessage.message.trim().length > 0 ? "mt-2" : ""}>
-                      <WorkoutMediaGallery media={chatMessage.media} thumbnailSize="small" />
+                      <WorkoutMediaGallery
+                        media={chatMessage.media}
+                        thumbnailSize="small"
+                        thumbnailClassName="rounded-xl border-white/35 shadow-sm"
+                      />
                     </div>
                   ) : null}
                 </div>
                 <p
                   className={
                     isSelf
-                      ? "mt-1.5 text-right text-[11px] text-[var(--shell-muted)]"
-                      : "mt-1.5 text-[11px] text-[var(--shell-muted)]"
+                      ? "mt-2 text-right text-xs font-medium text-[var(--shell-muted)]"
+                      : "mt-2 text-xs font-medium text-[var(--shell-muted)]"
                   }
                 >
                   {chatMessage.role === "Athlete" ? "Athlete" : "Coach"} · {dayjs(chatMessage.createdAt).format("HH:mm")}

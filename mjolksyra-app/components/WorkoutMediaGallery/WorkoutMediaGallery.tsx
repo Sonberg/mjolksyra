@@ -10,6 +10,7 @@ type PlannedWorkoutMedia = PlannedWorkout["media"][number];
 type Props = {
   media: PlannedWorkoutMedia[];
   thumbnailSize?: "default" | "small";
+  thumbnailClassName?: string;
 };
 
 type MediaItem = {
@@ -17,7 +18,7 @@ type MediaItem = {
   isVideo: boolean;
 };
 
-export function WorkoutMediaGallery({ media, thumbnailSize = "default" }: Props) {
+export function WorkoutMediaGallery({ media, thumbnailSize = "default", thumbnailClassName }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const allMedia: MediaItem[] = media.map((item) => ({
@@ -61,6 +62,7 @@ export function WorkoutMediaGallery({ media, thumbnailSize = "default" }: Props)
               alt={`Workout media ${idx + 1}`}
               isVideo={item.isVideo}
               size={thumbnailSize}
+              className={thumbnailClassName}
               onClick={() => setLightboxIndex(idx)}
               buttonProps={{
                 "aria-label": `${item.isVideo ? "Play video" : "View image"} ${idx + 1}`,
