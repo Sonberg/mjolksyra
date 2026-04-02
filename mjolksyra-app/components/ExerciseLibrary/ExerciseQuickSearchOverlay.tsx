@@ -75,14 +75,14 @@ export function ExerciseQuickSearchOverlay({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        overlayClassName="bg-black/60"
-        className="w-[min(52rem,92vw)] max-w-none gap-0 overflow-hidden rounded-none border-4 border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)] [&>button]:hidden"
+        overlayClassName="bg-black/10 backdrop-blur-[2px]"
+        className="w-[min(52rem,92vw)] max-w-none gap-0 overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)] [&>button]:hidden"
       >
-        <DialogHeader className="space-y-0 border-b-4 border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-          <DialogTitle className="font-[var(--font-display)] text-lg uppercase tracking-[0.12em] text-[var(--shell-ink)] md:text-xl">
+        <DialogHeader className="space-y-0 border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+          <DialogTitle className="font-[var(--font-display)] text-lg text-[var(--shell-ink)] md:text-xl">
             {title}
           </DialogTitle>
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--shell)]">
+          <p className="text-xs font-medium text-[var(--shell-muted)]">
             Search and add exercises to the workout plan.
           </p>
         </DialogHeader>
@@ -96,7 +96,7 @@ export function ExerciseQuickSearchOverlay({
               onChange={(event) => setSearch(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type an exercise name..."
-              className="h-full min-h-14 w-full rounded-none border-0 border-b-4 border-[var(--shell-border)] bg-[var(--shell-surface)] pl-8 pr-3 text-sm font-semibold text-[var(--shell-ink)] placeholder:font-medium placeholder:text-[var(--shell-muted)] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="h-full min-h-14 w-full rounded-none border-0 border-b border-[var(--shell-border)] bg-[var(--shell-surface)] pl-8 pr-3 text-sm font-semibold text-[var(--shell-ink)] placeholder:font-medium placeholder:text-[var(--shell-muted)] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>
@@ -116,7 +116,7 @@ export function ExerciseQuickSearchOverlay({
               </div>
             ) : hasResults ? (
               <div>
-                <div className="border-b-4 border-[var(--shell-border)] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                <div className="border-b border-[var(--shell-border)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                   Results {hasSearch ? `(${exercises.length})` : ""}
                 </div>
                 {exercises.map((exercise) => (
@@ -127,7 +127,7 @@ export function ExerciseQuickSearchOverlay({
                     className="group flex w-full items-center justify-between gap-3 border-b border-[var(--shell-border)] px-4 py-3 text-left transition hover:bg-[var(--shell-surface-strong)] focus-visible:bg-[var(--shell-surface-strong)]"
                   >
                     <div className="min-w-0">
-                      <span className="block truncate text-sm font-bold uppercase tracking-[0.04em] text-[var(--shell-ink)]">
+                      <span className="block truncate text-sm font-semibold text-[var(--shell-ink)]">
                         {exercise.name}
                       </span>
                       <span className="mt-0.5 block text-xs text-[var(--shell-muted)]">
@@ -148,7 +148,7 @@ export function ExerciseQuickSearchOverlay({
           </div>
         </div>
 
-        <div className={`flex flex-wrap items-center justify-end gap-3 bg-[var(--shell-surface-strong)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] ${shouldShowBody ? "border-t-4 border-[var(--shell-border)]" : ""}`}>
+        <div className={`flex flex-wrap items-center justify-end gap-3 bg-[var(--shell-surface-strong)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] ${shouldShowBody ? "border-t border-[var(--shell-border)]" : ""}`}>
           <span>Press Esc to close</span>
         </div>
       </DialogContent>

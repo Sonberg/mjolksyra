@@ -11,7 +11,7 @@ export function PageHeader({ sectionClassName, children, ...props }: Props) {
   return (
     <section
       className={cn(
-        "rounded-none border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7",
+        "rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7",
         sectionClassName,
       )}
     >

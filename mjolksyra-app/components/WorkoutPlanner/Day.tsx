@@ -252,13 +252,13 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
                 className={cn(
                   "grid  h-full min-h-32 place-items-center rounded-none px-4 text-center text-sm text-[var(--shell-muted)] transition-all ",
                   canPlan
-                    ? "border cursor-pointer border-dashed border-[var(--shell-border)] opacity-70 hover:opacity-100"
+                    ? "border cursor-pointer border-dashed border-[var(--shell-border)] opacity-60 hover:opacity-100 hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] hover:border-[var(--shell-ink)]"
                     : "opacity-30",
                 )}
               >
                 <div className="select-none">
                   {canPlan
-                    ? "Drag & drop exercises or click here to start planning"
+                    ? "Click or drag to add exercises"
                     : "Planning is available for today and future days"}
                 </div>
               </div>
