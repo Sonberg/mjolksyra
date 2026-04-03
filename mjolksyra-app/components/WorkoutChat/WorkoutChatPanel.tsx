@@ -82,15 +82,30 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
     return (message.trim().length > 0 || media.length > 0) && !isMediaPending;
   }, [isMediaPending, media.length, message]);
 
+  const counterpartLabel = viewerMode === "athlete" ? "Coach" : "Athlete";
+  const selfLabel = viewerMode === "athlete" ? "Athlete" : "Coach";
+
   return (
-    <section className="overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-sm">
-      <div className="border-b border-[var(--shell-border)] px-3 py-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-          Workout chat
-        </p>
+    <section
+      className="overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-sm"
+      data-testid="workout-chat-panel"
+    >
+      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--shell-surface-strong)] text-sm font-bold text-[var(--shell-ink)]">
+            {counterpartLabel.slice(0, 1)}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-[var(--shell-ink)]">{counterpartLabel}</p>
+            <p className="text-[11px] font-medium text-[var(--shell-muted)]">Workout chat</p>
+          </div>
+        </div>
       </div>
 
-      <div className="max-h-80 space-y-4 overflow-y-auto bg-gradient-to-b from-[var(--shell-surface-strong)] to-[var(--shell-surface)] p-3">
+      <div
+        className="max-h-96 space-y-3 overflow-y-auto bg-gradient-to-b from-[var(--shell-surface-strong)] via-[var(--shell-surface)] to-[var(--shell-surface)] px-3 py-4 sm:px-4"
+        data-testid="workout-chat-messages"
+      >
         {chatMessages.isLoading ? (
           <p className="text-sm text-[var(--shell-muted)]">Loading messages...</p>
         ) : null}
@@ -103,18 +118,24 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
           const isSelf =
             (viewerMode === "athlete" && chatMessage.role === "Athlete") ||
             (viewerMode === "coach" && chatMessage.role === "Coach");
+          const roleLabel = chatMessage.role === "Athlete" ? "Athlete" : "Coach";
 
           return (
             <article
               key={chatMessage.id}
-              className={isSelf ? "flex justify-end" : "flex justify-start"}
+              className={isSelf ? "flex items-end justify-end gap-2" : "flex items-end justify-start gap-2"}
             >
+              {!isSelf ? (
+                <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--shell-surface-strong)] text-[11px] font-bold text-[var(--shell-muted)]">
+                  {roleLabel.slice(0, 1)}
+                </span>
+              ) : null}
               <div className="max-w-[88%] sm:max-w-[76%]">
                 <div
                   className={
                     isSelf
-                      ? "rounded-2xl border border-[var(--shell-accent)]/80 bg-[var(--shell-accent)] px-4 py-3 text-[var(--shell-accent-ink)] shadow-md"
-                      : "rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-[var(--shell-ink)] shadow-md"
+                      ? "rounded-[1.25rem] rounded-br-md border border-[var(--shell-accent)]/80 bg-[var(--shell-accent)] px-3 py-2.5 text-[var(--shell-accent-ink)] shadow-sm"
+                      : "rounded-[1.25rem] rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2.5 text-[var(--shell-ink)] shadow-sm"
                   }
                 >
                   {editingMessageId === chatMessage.id ? (
@@ -147,7 +168,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                       </div>
                     </div>
                   ) : chatMessage.message.trim().length > 0 ? (
-                    <p className="whitespace-pre-wrap break-words text-[15px] font-medium leading-6">
+                    <p className="whitespace-pre-wrap break-words text-sm font-medium leading-6">
                       {chatMessage.message}
                     </p>
                   ) : null}
@@ -168,7 +189,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                       : "mt-2 text-xs font-medium text-[var(--shell-muted)]"
                   }
                 >
-                  {chatMessage.role === "Athlete" ? "Athlete" : "Coach"} · {dayjs(chatMessage.createdAt).format("HH:mm")}
+                  {roleLabel} · {dayjs(chatMessage.createdAt).format("HH:mm")}
                   {dayjs(chatMessage.modifiedAt).isAfter(dayjs(chatMessage.createdAt)) ? " · edited" : ""}
                 </p>
                 {isSelf && editingMessageId !== chatMessage.id ? (
@@ -186,19 +207,27 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                   </div>
                 ) : null}
               </div>
+              {isSelf ? (
+                <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--shell-accent)]/25 text-[11px] font-bold text-[var(--shell-ink)]">
+                  {selfLabel.slice(0, 1)}
+                </span>
+              ) : null}
             </article>
           );
         })}
       </div>
 
-      <div className="border-t border-[var(--shell-border)] p-3">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={3}
-          placeholder="Write a message..."
-          className="w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-        />
+      <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 sm:p-4">
+        <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={2}
+            placeholder="Write a message..."
+            data-testid="workout-chat-composer"
+            className="w-full resize-y border-0 bg-transparent px-2 py-1 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+          />
+        </div>
         <div className="mt-2">
           <WorkoutMediaUploader
             traineeId={traineeId}
@@ -214,7 +243,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
             type="button"
             disabled={!canSend || sendMessage.isPending}
             onClick={() => sendMessage.mutate()}
-            className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+            className="rounded-full border border-transparent bg-[var(--shell-accent)] px-4 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
           >
             {sendMessage.isPending ? "Sending..." : "Send"}
           </button>

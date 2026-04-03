@@ -276,8 +276,18 @@ test.describe("Workout media upload", () => {
       timeout: 10_000,
     });
 
+    await expect(page.getByTestId("workout-chat-panel")).toBeVisible();
+    await expect(page.getByTestId("workout-chat-messages")).toBeVisible();
     await expect(page.getByText("Workout chat", { exact: true })).toBeVisible();
-    await expect(page.locator("textarea[placeholder='Write a message...']")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
+    await expect(page.getByText("Coach", { exact: true })).toBeVisible();
+
+    const composer = page.getByTestId("workout-chat-composer");
+    const sendButton = page.getByRole("button", { name: "Send" });
+
+    await expect(composer).toBeVisible();
+    await expect(sendButton).toBeDisabled();
+
+    await composer.fill("Looks good, thanks coach!");
+    await expect(sendButton).toBeEnabled();
   });
 });
