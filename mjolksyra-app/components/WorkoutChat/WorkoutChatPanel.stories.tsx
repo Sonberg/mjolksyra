@@ -30,8 +30,20 @@ function withMockedFetch(fetchImpl: typeof globalThis.fetch) {
   return Decorator
 }
 
+function getInputUrl(input: Parameters<typeof globalThis.fetch>[0]) {
+  if (typeof input === "string") {
+    return input
+  }
+
+  if (input instanceof URL) {
+    return input.toString()
+  }
+
+  return input.url
+}
+
 const mockEmptyChatFetch: typeof globalThis.fetch = async (input) => {
-  const url = typeof input === "string" ? input : input.url
+  const url = getInputUrl(input)
   if (url.includes("/chat-messages")) {
     return new Response(JSON.stringify({ data: [] }), {
       status: 200,
@@ -46,7 +58,7 @@ const mockEmptyChatFetch: typeof globalThis.fetch = async (input) => {
 }
 
 const mockConversationFetch: typeof globalThis.fetch = async (input) => {
-  const url = typeof input === "string" ? input : input.url
+  const url = getInputUrl(input)
   if (url.includes("/chat-messages")) {
     return new Response(
       JSON.stringify({
