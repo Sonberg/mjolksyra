@@ -38,7 +38,11 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
         var trainee = await _traineeRepository.GetById(request.TraineeId, cancellationToken);
         var previousCompletedAt = plannedWorkout.CompletedAt;
 
-        plannedWorkout.CompletedAt = DateTimeOffset.UtcNow;
+        plannedWorkout.CompletedAt = request.Log.CompletedAt;
+        if (plannedWorkout.CompletedAt is not null)
+        {
+            plannedWorkout.ReviewedAt = null;
+        }
 
         foreach (var exerciseLog in request.Log.Exercises)
         {
@@ -86,7 +90,7 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
             trainee is not null)
         {
             var title = "Workout completed";
-            var body = $"Athlete completed the workout for {plannedWorkout.PlannedAt:yyyy-MM-dd}.";
+            var body = $"Athlete completed the workout for {plannedWorkout.PlannedAt:yyyy-MM-dd}. It now needs review.";
 
             await _notificationService.Notify(
                 trainee.CoachUserId,

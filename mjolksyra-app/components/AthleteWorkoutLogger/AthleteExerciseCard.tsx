@@ -98,7 +98,7 @@ export function AthleteExerciseCard({
         <div>
           {sets.map((set, setIndex) => (
             <AthleteSetRow
-              key={`${exercise.id}-set-${setIndex}`}
+              key={`${exercise.id}-set-${setIndex}-${set.actual?.reps ?? ""}-${set.actual?.weightKg ?? ""}-${set.actual?.durationSeconds ?? ""}-${set.actual?.distanceMeters ?? ""}-${set.actual?.note ?? ""}-${set.actual?.isDone ? "done" : "todo"}`}
               exerciseId={exercise.id}
               set={set}
               setIndex={setIndex}

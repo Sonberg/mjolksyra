@@ -26,6 +26,10 @@ public class PlannedWorkoutResponse
 
     public required DateTimeOffset CreatedAt { get; set; }
 
+    public DateTimeOffset? CompletedAt { get; set; }
+
+    public DateTimeOffset? ReviewedAt { get; set; }
+
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
     public static PlannedWorkoutResponse From(PlannedWorkout workout, ICollection<Exercise> exercises)
@@ -36,8 +40,12 @@ public class PlannedWorkoutResponse
             TraineeId = workout.TraineeId,
             Name = workout.Name,
             Note = workout.Note,
-            Exercises = workout.Exercises.Select(x => PlannedExerciseResponse.From(x, exercises)).ToList(),
+            Exercises = workout.Exercises
+                .Select(x => PlannedExerciseResponse.From(x, exercises, workout.CompletedAt is not null))
+                .ToList(),
             CreatedAt = workout.CreatedAt,
+            CompletedAt = workout.CompletedAt,
+            ReviewedAt = workout.ReviewedAt,
             PlannedAt = workout.PlannedAt,
             AppliedBlock = workout.AppliedBlock is null
                 ? null
@@ -86,7 +94,10 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public ICollection<ExerciseSport> Sports { get; set; } = [];
 
-    public static PlannedExerciseResponse From(PlannedExercise plannedExercise, ICollection<Exercise> exercises)
+    public static PlannedExerciseResponse From(
+        PlannedExercise plannedExercise,
+        ICollection<Exercise> exercises,
+        bool isWorkoutCompleted)
     {
         var exercise = exercises.FirstOrDefault(e => e.Id == plannedExercise.ExerciseId);
         var sets = plannedExercise.Prescription?.Sets;
@@ -99,7 +110,9 @@ public class PlannedExerciseResponse : IExerciseResponse
             Name = exercise?.Name ?? plannedExercise.Name,
             Note = plannedExercise.Note,
             IsPublished = plannedExercise.IsPublished,
-            IsDone = sets?.Count > 0 && sets.All(s => s.Actual?.IsDone == true),
+            IsDone = sets?.Count > 0
+                ? sets.All(s => s.Actual?.IsDone == true)
+                : isWorkoutCompleted,
             Prescription = plannedExercise.Prescription is null
                 ? null
                 : new PlannedExercisePrescriptionResponse

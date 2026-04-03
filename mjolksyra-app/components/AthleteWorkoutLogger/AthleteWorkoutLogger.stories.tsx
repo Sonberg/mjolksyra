@@ -134,3 +134,36 @@ export const WithNotes: Story = {
     />
   ),
 }
+
+export const CompletedAllExercisesDone: Story = {
+  render: () => (
+    <AthleteWorkoutLogger
+      workout={{
+        ...baseWorkout,
+        completedAt: new Date("2026-03-09T16:00:00"),
+        exercises: baseWorkout.exercises.map((exercise) => ({
+          ...exercise,
+          isDone: true,
+          prescription: exercise.prescription
+            ? {
+                ...exercise.prescription,
+                sets: (exercise.prescription.sets ?? []).map((set) => ({
+                  ...set,
+                  actual: {
+                    reps: set.target?.reps ?? null,
+                    weightKg: set.target?.weightKg ?? null,
+                    durationSeconds: set.target?.durationSeconds ?? null,
+                    distanceMeters: set.target?.distanceMeters ?? null,
+                    note: null,
+                    isDone: true,
+                  },
+                })),
+              }
+            : null,
+        })),
+      }}
+      traineeId="trainee-1"
+      backHref="/app/athlete/workouts"
+    />
+  ),
+}

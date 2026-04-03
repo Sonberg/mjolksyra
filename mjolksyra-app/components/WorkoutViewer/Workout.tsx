@@ -3,7 +3,7 @@
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
@@ -36,10 +36,10 @@ export function Workout({
   backTab,
 }: Props) {
   const queryClient = useQueryClient();
-  const [isReviewing, setIsReviewing] = useState(false);
 
   function buildLogPayload(overrides: {
     completedAt?: Date | null;
+    markAllExercisesDone?: boolean;
     exerciseActualOverride?: {
       exerciseId: string;
       setIndex?: number;
@@ -61,6 +61,17 @@ export function Workout({
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
+          if (overrides.markAllExercisesDone) {
+            return {
+              reps: s.actual?.reps ?? null,
+              weightKg: s.actual?.weightKg ?? null,
+              durationSeconds: s.actual?.durationSeconds ?? null,
+              distanceMeters: s.actual?.distanceMeters ?? null,
+              note: s.actual?.note ?? null,
+              isDone: true,
+            };
+          }
+
           const override = overrides.exerciseActualOverride;
           if (override && override.exerciseId === e.id) {
             if (override.setIndex !== undefined && override.setIndex === idx) {
@@ -122,13 +133,15 @@ export function Workout({
   const saveCompletion = useMutation({
     mutationFn: async ({
       completedAt,
+      markAllExercisesDone,
     }: {
       completedAt: Date | null;
+      markAllExercisesDone?: boolean;
     }) =>
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ completedAt }),
+        log: buildLogPayload({ completedAt, markAllExercisesDone }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -147,7 +160,6 @@ export function Workout({
         },
       }),
     onSuccess: async () => {
-      setIsReviewing(false);
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
     },
   });
@@ -348,6 +360,7 @@ export function Workout({
                 onClick={() =>
                   saveCompletion.mutate({
                     completedAt: isCompleted ? null : new Date(),
+                    markAllExercisesDone: !isCompleted,
                   })
                 }
                 className="inline-flex items-center rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
@@ -490,13 +503,6 @@ export function Workout({
                       {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => setIsReviewing((x) => !x)}
-                    className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
-                  >
-                    {isReviewing ? "Hide review actions" : "Open review actions"}
-                  </button>
                 </>
               ) : null}
               {workout.completedAt ? (

@@ -103,7 +103,7 @@ export function WorkoutExerciseCard({
           </div>
           {exercise.prescription.sets.map((set, setIndex) => (
             <WorkoutExerciseSetCard
-              key={`${exercise.id}-set-target-${setIndex}`}
+              key={`${exercise.id}-set-target-${setIndex}-${set.actual?.reps ?? ""}-${set.actual?.weightKg ?? ""}-${set.actual?.durationSeconds ?? ""}-${set.actual?.distanceMeters ?? ""}-${set.actual?.note ?? ""}-${set.actual?.isDone ? "done" : "todo"}`}
               exerciseId={exercise.id}
               set={set}
               setIndex={setIndex}

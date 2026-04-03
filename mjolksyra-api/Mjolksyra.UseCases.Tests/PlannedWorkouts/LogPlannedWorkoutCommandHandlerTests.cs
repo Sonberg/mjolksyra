@@ -103,6 +103,126 @@ public class LogPlannedWorkoutCommandHandlerTests
         Assert.NotNull(savedWorkout!.CompletedAt);
     }
 
+    [Fact]
+    public async Task Handle_WhenCompletedAtIsNull_ClearsCompletion()
+    {
+        var workoutId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var plannedWorkout = new PlannedWorkout
+        {
+            Id = workoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 3, 15),
+            Exercises = [],
+            CreatedAt = DateTimeOffset.UtcNow,
+            CompletedAt = DateTimeOffset.UtcNow.AddDays(-1),
+            ReviewedAt = DateTimeOffset.UtcNow.AddDays(-1),
+        };
+
+        PlannedWorkout? savedWorkout = null;
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(plannedWorkout);
+        plannedWorkoutRepository
+            .Setup(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
+            .Callback<PlannedWorkout, CancellationToken>((w, _) => savedWorkout = w);
+
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var notificationService = new Mock<INotificationService>();
+        var sut = CreateSut(plannedWorkoutRepository, exerciseRepository, notificationService: notificationService);
+
+        var command = CreateCommand(workoutId, traineeId);
+        command.Log.CompletedAt = null;
+
+        await sut.Handle(command, CancellationToken.None);
+
+        Assert.NotNull(savedWorkout);
+        Assert.Null(savedWorkout!.CompletedAt);
+        notificationService.Verify(
+            x => x.Notify(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_WhenFirstCompletion_SendsCoachNotificationAndResetsReview()
+    {
+        var workoutId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var coachUserId = Guid.NewGuid();
+        var completion = DateTimeOffset.UtcNow;
+        var plannedWorkout = new PlannedWorkout
+        {
+            Id = workoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 3, 15),
+            Exercises = [],
+            CreatedAt = DateTimeOffset.UtcNow,
+            CompletedAt = null,
+            ReviewedAt = DateTimeOffset.UtcNow.AddDays(-2),
+        };
+
+        PlannedWorkout? savedWorkout = null;
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(plannedWorkout);
+        plannedWorkoutRepository
+            .Setup(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
+            .Callback<PlannedWorkout, CancellationToken>((w, _) => savedWorkout = w);
+
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = coachUserId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = Domain.Database.Enum.TraineeStatus.Active,
+            });
+
+        var notificationService = new Mock<INotificationService>();
+        var sut = CreateSut(
+            plannedWorkoutRepository,
+            exerciseRepository,
+            traineeRepository,
+            notificationService);
+
+        var command = CreateCommand(workoutId, traineeId);
+        command.Log.CompletedAt = completion;
+
+        await sut.Handle(command, CancellationToken.None);
+
+        Assert.NotNull(savedWorkout);
+        Assert.Equal(completion, savedWorkout!.CompletedAt);
+        Assert.Null(savedWorkout.ReviewedAt);
+        notificationService.Verify(
+            x => x.Notify(
+                coachUserId,
+                "workout.completed",
+                "Workout completed",
+                It.Is<string>(body => body.Contains("needs review")),
+                It.Is<string>(href => href.Contains("tab=changes")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static LogPlannedWorkoutCommandHandler CreateSut(
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
