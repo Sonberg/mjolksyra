@@ -15,6 +15,7 @@ type Props = {
   onUploadComplete: (media: PlannedWorkoutMedia[]) => void;
   isPending?: boolean;
   onPendingChange?: (hasPending: boolean) => void;
+  compact?: boolean;
   /** @internal For Storybook and testing only. Pre-populates pending previews. */
   _testPendingPreviews?: PendingPreview[];
 };
@@ -52,6 +53,7 @@ export function WorkoutMediaUploader({
   onUploadComplete,
   isPending,
   onPendingChange,
+  compact,
   _testPendingPreviews,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -131,11 +133,12 @@ export function WorkoutMediaUploader({
 
   const disabled = isPending;
   const hasItems = media.length > 0 || pendingPreviews.length > 0;
+  const thumbnailSize = compact ? "xsmall" : "small";
 
   return (
     <div>
       {hasItems ? (
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className={compact ? "mt-1.5 flex flex-wrap gap-1.5" : "mt-2 flex flex-wrap gap-2"}>
           {/* Confirmed uploads */}
           {media.map((item) =>
             item.type === "Video" ? (
@@ -144,7 +147,7 @@ export function WorkoutMediaUploader({
                 src={item.rawUrl}
                 alt="Workout media"
                 isVideo
-                size="small"
+                size={thumbnailSize}
                 actionButton={
                   <button
                     type="button"
@@ -162,7 +165,7 @@ export function WorkoutMediaUploader({
                 key={item.rawUrl}
                 src={item.compressedUrl ?? item.rawUrl}
                 alt="Workout media"
-                size="small"
+                size={thumbnailSize}
                 actionButton={
                   <button
                     type="button"
@@ -186,12 +189,13 @@ export function WorkoutMediaUploader({
               alt="Uploading..."
               isVideo={preview.isVideo}
               isPending
+              size={thumbnailSize}
             />,
           )}
         </div>
       ) : null}
 
-      <div className="mt-2">
+      <div className={compact ? "mt-1.5" : "mt-2"}>
         <input
           ref={inputRef}
           type="file"
@@ -205,12 +209,14 @@ export function WorkoutMediaUploader({
         <label
           htmlFor="workout-media-input"
           className={[
-            "inline-flex cursor-pointer items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]",
+            compact
+              ? "inline-flex cursor-pointer items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+              : "inline-flex cursor-pointer items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]",
             disabled ? "cursor-not-allowed opacity-60" : "",
           ].join(" ")}
         >
-          <ImageIcon className="h-3.5 w-3.5" />
-          Add photos / videos
+          <ImageIcon className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
+          {compact ? "Add media" : "Add photos / videos"}
         </label>
         {uploadError && (
           <p className="mt-1 text-xs text-red-500">{uploadError}</p>

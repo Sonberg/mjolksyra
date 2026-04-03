@@ -1,5 +1,7 @@
 import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { WorkoutChatComposerInput } from "@/components/WorkoutChat/WorkoutChatComposerInput";
+import { WorkoutChatComposerSendButton } from "@/components/WorkoutChat/WorkoutChatComposerSendButton";
 
 type Props = {
   traineeId: string;
@@ -27,18 +29,16 @@ export function WorkoutChatComposer({
   onSend,
 }: Props) {
   return (
-    <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-2.5 sm:p-3">
-      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-1.5">
-        <textarea
-          value={message}
-          onChange={(e) => onMessageChange(e.target.value)}
-          rows={1}
-          placeholder="Write a message..."
-          data-testid="workout-chat-composer"
-          className="w-full min-h-10 resize-none border-0 bg-transparent px-2 py-1 text-sm leading-5 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+    <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-2">
+      <div className="flex items-stretch gap-1.5">
+        <WorkoutChatComposerInput value={message} onChange={onMessageChange} />
+        <WorkoutChatComposerSendButton
+          isSending={isSending}
+          canSend={canSend}
+          onSend={onSend}
         />
       </div>
-      <div className="mt-1.5">
+      <div className="mt-1">
         <WorkoutMediaUploader
           traineeId={traineeId}
           plannedWorkoutId={plannedWorkoutId}
@@ -46,17 +46,8 @@ export function WorkoutChatComposer({
           onUploadComplete={onMediaChange}
           isPending={isSending}
           onPendingChange={onMediaPendingChange}
+          compact
         />
-      </div>
-      <div className="mt-1.5 flex justify-end">
-        <button
-          type="button"
-          disabled={!canSend || isSending}
-          onClick={onSend}
-          className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-        >
-          {isSending ? "Sending..." : "Send"}
-        </button>
       </div>
     </div>
   );

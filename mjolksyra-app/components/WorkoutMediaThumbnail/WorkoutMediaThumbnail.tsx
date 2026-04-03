@@ -13,7 +13,7 @@ type Props = {
   buttonProps?: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "type">;
   actionButton?: ReactNode;
   className?: string;
-  size?: "default" | "small";
+  size?: "default" | "small" | "xsmall";
 };
 
 export function WorkoutMediaThumbnail({
@@ -76,9 +76,11 @@ export function WorkoutMediaThumbnail({
   );
 
   const baseClassName = cn(
-    size === "small"
-      ? "group relative h-16 w-16 overflow-hidden sm:h-20 sm:w-20"
-      : "group relative h-24 w-24 overflow-hidden sm:h-32 sm:w-32",
+    size === "xsmall"
+      ? "group relative h-12 w-12 overflow-hidden sm:h-14 sm:w-14"
+      : size === "small"
+        ? "group relative h-16 w-16 overflow-hidden sm:h-20 sm:w-20"
+        : "group relative h-24 w-24 overflow-hidden sm:h-32 sm:w-32",
     isInteractive
       ? "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
       : "",

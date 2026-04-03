@@ -82,7 +82,6 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
   }, [isMediaPending, media.length, message]);
 
   const counterpartLabel = viewerMode === "athlete" ? "Coach" : "Athlete";
-  const selfLabel = viewerMode === "athlete" ? "Athlete" : "Coach";
 
   return (
     <section
@@ -90,14 +89,9 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
       data-testid="workout-chat-panel"
     >
       <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-        <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-sm font-bold text-[var(--shell-ink)]">
-            {counterpartLabel.slice(0, 1)}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[var(--shell-ink)]">{counterpartLabel}</p>
-            <p className="text-[11px] font-medium text-[var(--shell-muted)]">Workout chat</p>
-          </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-[var(--shell-ink)]">{counterpartLabel}</p>
+          <p className="text-[11px] font-medium text-[var(--shell-muted)]">Workout chat</p>
         </div>
       </div>
 
@@ -119,7 +113,6 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
               key={chatMessage.id}
               chatMessage={chatMessage}
               viewerMode={viewerMode}
-              selfLabel={selfLabel}
               editingMessageId={editingMessageId}
               editingMessageBody={editingMessageBody}
               isEditPending={editMessage.isPending}

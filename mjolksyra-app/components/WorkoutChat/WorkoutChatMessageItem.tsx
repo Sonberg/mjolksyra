@@ -5,7 +5,6 @@ import { PlannedWorkoutChatMessage } from "@/services/plannedWorkouts/type";
 type Props = {
   chatMessage: PlannedWorkoutChatMessage;
   viewerMode: "athlete" | "coach";
-  selfLabel: string;
   editingMessageId: string | null;
   editingMessageBody: string;
   isEditPending: boolean;
@@ -18,7 +17,6 @@ type Props = {
 export function WorkoutChatMessageItem({
   chatMessage,
   viewerMode,
-  selfLabel,
   editingMessageId,
   editingMessageBody,
   isEditPending,
@@ -34,13 +32,8 @@ export function WorkoutChatMessageItem({
 
   return (
     <article
-      className={isSelf ? "flex items-end justify-end gap-2" : "flex items-end justify-start gap-2"}
+      className={isSelf ? "flex justify-end" : "flex justify-start"}
     >
-      {!isSelf ? (
-        <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[11px] font-bold text-[var(--shell-muted)]">
-          {roleLabel.slice(0, 1)}
-        </span>
-      ) : null}
       <div className="max-w-[88%] sm:max-w-[76%]">
         <div
           className={
@@ -112,11 +105,6 @@ export function WorkoutChatMessageItem({
           </div>
         ) : null}
       </div>
-      {isSelf ? (
-        <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-none border border-[var(--shell-accent)]/50 bg-[var(--shell-accent)]/20 text-[11px] font-bold text-[var(--shell-ink)]">
-          {selfLabel.slice(0, 1)}
-        </span>
-      ) : null}
     </article>
   );
 }
