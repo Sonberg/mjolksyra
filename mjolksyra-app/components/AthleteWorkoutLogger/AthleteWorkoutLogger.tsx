@@ -27,6 +27,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
 
   function buildLogPayload(overrides: {
     completedAt?: Date | null;
+    markAllExercisesDone?: boolean;
     exerciseActualOverride?: {
       exerciseId: string;
       setIndex?: number;
@@ -48,6 +49,17 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
+          if (overrides.markAllExercisesDone) {
+            return {
+              reps: s.actual?.reps ?? null,
+              weightKg: s.actual?.weightKg ?? null,
+              durationSeconds: s.actual?.durationSeconds ?? null,
+              distanceMeters: s.actual?.distanceMeters ?? null,
+              note: s.actual?.note ?? null,
+              isDone: true,
+            };
+          }
+
           const override = overrides.exerciseActualOverride;
           if (override && override.exerciseId === e.id) {
             if (override.setIndex !== undefined && override.setIndex === idx) {
@@ -109,13 +121,15 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
   const saveCompletion = useMutation({
     mutationFn: async ({
       completedAt,
+      markAllExercisesDone,
     }: {
       completedAt: Date | null;
+      markAllExercisesDone?: boolean;
     }) =>
       logPlannedWorkout({
         traineeId: workout.traineeId,
         plannedWorkoutId: workout.id,
-        log: buildLogPayload({ completedAt }),
+        log: buildLogPayload({ completedAt, markAllExercisesDone }),
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -257,6 +271,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               onClick={() => {
                 saveCompletion.mutate({
                   completedAt: isCompleted ? null : new Date(),
+                  markAllExercisesDone: !isCompleted,
                 });
               }}
               className="hidden shrink-0 items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60 sm:inline-flex"

@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { CheckCircle2Icon } from "lucide-react";
 import { ExerciseType } from "@/lib/exercisePrescription";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   ToggleSetDoneInput,
   UpdateSetActualInput,
@@ -25,6 +27,18 @@ function parseNullableNumber(rawValue: string): number | null | "invalid" {
   return Number.isNaN(parsed) ? "invalid" : parsed;
 }
 
+type SetActualDraft = {
+  reps: string;
+  weightKg: string;
+  durationSeconds: string;
+  distanceMeters: string;
+  note: string;
+};
+
+function toInputValue(value: number | null | undefined): string {
+  return value == null ? "" : String(value);
+}
+
 export function AthleteSetRow({
   exerciseId,
   set,
@@ -37,6 +51,55 @@ export function AthleteSetRow({
   const isDone = set.actual?.isDone ?? false;
   const isSetsReps = targetType === ExerciseType.SetsReps;
   const isDuration = targetType === ExerciseType.DurationSeconds;
+  const [draft, setDraft] = useState<SetActualDraft>({
+    reps: toInputValue(set.actual?.reps ?? set.target?.reps ?? null),
+    weightKg: toInputValue(set.actual?.weightKg ?? set.target?.weightKg ?? null),
+    durationSeconds: toInputValue(
+      set.actual?.durationSeconds ?? set.target?.durationSeconds ?? null,
+    ),
+    distanceMeters: toInputValue(
+      set.actual?.distanceMeters ?? set.target?.distanceMeters ?? null,
+    ),
+    note: set.actual?.note ?? "",
+  });
+
+  const commitDraft = useCallback(
+    (nextDraft: SetActualDraft) => {
+      const reps = parseNullableNumber(nextDraft.reps);
+      const weightKg = parseNullableNumber(nextDraft.weightKg);
+      const durationSeconds = parseNullableNumber(nextDraft.durationSeconds);
+      const distanceMeters = parseNullableNumber(nextDraft.distanceMeters);
+      if (
+        reps === "invalid" ||
+        weightKg === "invalid" ||
+        durationSeconds === "invalid" ||
+        distanceMeters === "invalid"
+      ) {
+        return;
+      }
+
+      onUpdateSetActual({
+        exerciseId,
+        setIndex,
+        reps,
+        weightKg,
+        durationSeconds,
+        distanceMeters,
+        note: nextDraft.note.trim() || null,
+      });
+    },
+    [exerciseId, onUpdateSetActual, setIndex],
+  );
+
+  const commitDraftDebounced = useDebounce(commitDraft, 600);
+
+  function updateDraft(partial: Partial<SetActualDraft>) {
+    setDraft((prev) => {
+      const next = { ...prev, ...partial };
+      commitDraftDebounced(next);
+      return next;
+    });
+  }
 
   const targetParts: string[] = [];
   if (isSetsReps) {
@@ -81,24 +144,11 @@ export function AthleteSetRow({
               </span>
               <div className="relative flex items-center">
                 <input
-                  key={`${exerciseId}-${setIndex}-reps-${set.actual?.reps ?? set.target?.reps ?? "none"}`}
                   type="number"
                   min={0}
-                  defaultValue={set.actual?.reps ?? set.target?.reps ?? ""}
-                  onBlur={(ev) => {
-                    const next = parseNullableNumber(ev.target.value);
-                    if (next === "invalid") return;
-                    if ((set.actual?.reps ?? null) === next) return;
-                    onUpdateSetActual({
-                      exerciseId,
-                      setIndex,
-                      reps: next,
-                      weightKg: set.actual?.weightKg ?? null,
-                      durationSeconds: set.actual?.durationSeconds ?? null,
-                      distanceMeters: set.actual?.distanceMeters ?? null,
-                      note: set.actual?.note ?? null,
-                    });
-                  }}
+                  value={draft.reps}
+                  onChange={(ev) => updateDraft({ reps: ev.target.value })}
+                  onBlur={() => commitDraft(draft)}
                   className="w-full bg-transparent pr-12 text-lg font-bold text-[var(--shell-ink)] outline-none"
                   aria-label={`Actual reps for set ${setIndex + 1}`}
                 />
@@ -114,25 +164,12 @@ export function AthleteSetRow({
               </span>
               <div className="relative flex items-center">
                 <input
-                  key={`${exerciseId}-${setIndex}-weight-${set.actual?.weightKg ?? set.target?.weightKg ?? "none"}`}
                   type="number"
                   min={0}
                   step="0.5"
-                  defaultValue={set.actual?.weightKg ?? set.target?.weightKg ?? ""}
-                  onBlur={(ev) => {
-                    const next = parseNullableNumber(ev.target.value);
-                    if (next === "invalid") return;
-                    if ((set.actual?.weightKg ?? null) === next) return;
-                    onUpdateSetActual({
-                      exerciseId,
-                      setIndex,
-                      weightKg: next,
-                      reps: set.actual?.reps ?? null,
-                      durationSeconds: set.actual?.durationSeconds ?? null,
-                      distanceMeters: set.actual?.distanceMeters ?? null,
-                      note: set.actual?.note ?? null,
-                    });
-                  }}
+                  value={draft.weightKg}
+                  onChange={(ev) => updateDraft({ weightKg: ev.target.value })}
+                  onBlur={() => commitDraft(draft)}
                   className="w-full bg-transparent pr-8 text-lg font-bold text-[var(--shell-ink)] outline-none"
                   aria-label={`Actual weight for set ${setIndex + 1}`}
                 />
@@ -149,26 +186,11 @@ export function AthleteSetRow({
             </span>
             <div className="relative flex items-center">
               <input
-                key={`${exerciseId}-${setIndex}-duration-${set.actual?.durationSeconds ?? set.target?.durationSeconds ?? "none"}`}
                 type="number"
                 min={0}
-                defaultValue={
-                  set.actual?.durationSeconds ?? set.target?.durationSeconds ?? ""
-                }
-                onBlur={(ev) => {
-                  const next = parseNullableNumber(ev.target.value);
-                  if (next === "invalid") return;
-                  if ((set.actual?.durationSeconds ?? null) === next) return;
-                  onUpdateSetActual({
-                    exerciseId,
-                    setIndex,
-                    durationSeconds: next,
-                    reps: set.actual?.reps ?? null,
-                    weightKg: set.actual?.weightKg ?? null,
-                    distanceMeters: set.actual?.distanceMeters ?? null,
-                    note: set.actual?.note ?? null,
-                  });
-                }}
+                value={draft.durationSeconds}
+                onChange={(ev) => updateDraft({ durationSeconds: ev.target.value })}
+                onBlur={() => commitDraft(draft)}
                 className="w-full bg-transparent pr-6 text-lg font-bold text-[var(--shell-ink)] outline-none"
                 aria-label={`Actual duration for set ${setIndex + 1}`}
               />
@@ -184,26 +206,11 @@ export function AthleteSetRow({
             </span>
             <div className="relative flex items-center">
               <input
-                key={`${exerciseId}-${setIndex}-distance-${set.actual?.distanceMeters ?? set.target?.distanceMeters ?? "none"}`}
                 type="number"
                 min={0}
-                defaultValue={
-                  set.actual?.distanceMeters ?? set.target?.distanceMeters ?? ""
-                }
-                onBlur={(ev) => {
-                  const next = parseNullableNumber(ev.target.value);
-                  if (next === "invalid") return;
-                  if ((set.actual?.distanceMeters ?? null) === next) return;
-                  onUpdateSetActual({
-                    exerciseId,
-                    setIndex,
-                    distanceMeters: next,
-                    reps: set.actual?.reps ?? null,
-                    weightKg: set.actual?.weightKg ?? null,
-                    durationSeconds: set.actual?.durationSeconds ?? null,
-                    note: set.actual?.note ?? null,
-                  });
-                }}
+                value={draft.distanceMeters}
+                onChange={(ev) => updateDraft({ distanceMeters: ev.target.value })}
+                onBlur={() => commitDraft(draft)}
                 className="w-full bg-transparent pr-6 text-lg font-bold text-[var(--shell-ink)] outline-none"
                 aria-label={`Actual distance for set ${setIndex + 1}`}
               />
@@ -217,22 +224,10 @@ export function AthleteSetRow({
 
       <div className={`mt-3 ${isDone ? "opacity-50" : ""}`}>
         <input
-          key={`${exerciseId}-${setIndex}-note-${set.actual?.note ?? "none"}`}
           type="text"
-          defaultValue={set.actual?.note ?? ""}
-          onBlur={(ev) => {
-            const nextNote = ev.target.value.trim() || null;
-            if ((set.actual?.note ?? null) === nextNote) return;
-            onUpdateSetActual({
-              exerciseId,
-              setIndex,
-              note: nextNote,
-              reps: set.actual?.reps ?? null,
-              weightKg: set.actual?.weightKg ?? null,
-              durationSeconds: set.actual?.durationSeconds ?? null,
-              distanceMeters: set.actual?.distanceMeters ?? null,
-            });
-          }}
+          value={draft.note}
+          onChange={(ev) => updateDraft({ note: ev.target.value })}
+          onBlur={() => commitDraft(draft)}
           className="h-10 w-full border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
           placeholder="Set note..."
           aria-label={`Note for set ${setIndex + 1}`}

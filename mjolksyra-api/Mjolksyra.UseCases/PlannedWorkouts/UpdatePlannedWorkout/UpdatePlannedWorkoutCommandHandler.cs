@@ -25,6 +25,8 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
 
         plannedWorkout.Name = request.Workout.Name;
         plannedWorkout.Note = request.Workout.Note;
+        plannedWorkout.CompletedAt = request.Workout.CompletedAt;
+        plannedWorkout.ReviewedAt = request.Workout.ReviewedAt;
         plannedWorkout.Exercises = request.Workout.Exercises
             .Select(x =>
             {

@@ -23,6 +23,53 @@ async function mockR2Upload(page: Page) {
   });
 }
 
+function buildMockLoggedWorkoutResponse(completedAt: string | null = null) {
+  return {
+    id: "workout-1",
+    traineeId: "trainee-1",
+    name: "Push Day",
+    note: null,
+    plannedAt: "2026-03-09",
+    completedAt,
+    reviewedAt: null,
+    media: [],
+    createdAt: "2026-03-01T00:00:00.000Z",
+    appliedBlock: null,
+    exercises: [
+      {
+        id: "ex-1",
+        exerciseId: "exercise-bench",
+        name: "Bench Press",
+        note: null,
+        isPublished: true,
+        isDone: true,
+        prescription: {
+          type: "SetsReps",
+          sets: [
+            {
+              target: {
+                reps: 5,
+                durationSeconds: null,
+                distanceMeters: null,
+                weightKg: 80,
+                note: null,
+              },
+              actual: {
+                reps: 5,
+                weightKg: 80,
+                durationSeconds: null,
+                distanceMeters: null,
+                note: null,
+                isDone: true,
+              },
+            },
+          ],
+        },
+      },
+    ],
+  };
+}
+
 test.describe("Workout media upload", () => {
   test("athlete sees media uploader in completion form", async ({ page }) => {
     await page.goto("/app/athlete/workouts");
@@ -265,6 +312,69 @@ test.describe("Workout media upload", () => {
 
     const completeButton = page.getByRole("button", { name: /complete workout/i }).first();
     await expect(completeButton).toBeEnabled();
+  });
+
+  test("AthleteWorkoutLogger complete sends all sets as done", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+    );
+
+    const logRequests: Record<string, unknown>[] = [];
+    await page.route("**/api/trainees/*/planned-workouts/*/log", async (route) => {
+      logRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(buildMockLoggedWorkoutResponse(new Date().toISOString())),
+      });
+    });
+
+    const completeButton = page.getByRole("button", { name: /complete workout/i }).first();
+    await completeButton.click();
+
+    await expect.poll(() => logRequests.length).toBeGreaterThan(0);
+
+    const request = logRequests[0];
+    expect(request.completedAt).toBeTruthy();
+
+    const exercises = (request.exercises as Record<string, unknown>[]) ?? [];
+    const allSetsDone = exercises.every((exercise) =>
+      ((exercise.sets as Record<string, unknown>[]) ?? []).every(
+        (set) => set.isDone === true,
+      ),
+    );
+    expect(allSetsDone).toBe(true);
+  });
+
+  test("AthleteWorkoutLogger auto-saves while typing set values", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+    );
+
+    const logRequests: Record<string, unknown>[] = [];
+    await page.route("**/api/trainees/*/planned-workouts/*/log", async (route) => {
+      logRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(buildMockLoggedWorkoutResponse()),
+      });
+    });
+
+    const repsInput = page.getByLabel("Actual reps for set 1").first();
+    await repsInput.fill("12");
+
+    await expect.poll(() => logRequests.length).toBeGreaterThan(0);
+
+    const containsUpdatedReps = logRequests.some((request) => {
+      const exercises = (request.exercises as Record<string, unknown>[]) ?? [];
+      const firstExercise = exercises[0] ?? {};
+      const sets = (firstExercise.sets as Record<string, unknown>[]) ?? [];
+      const firstSet = sets[0] ?? {};
+      return firstSet.reps === 12;
+    });
+
+    expect(containsUpdatedReps).toBe(true);
   });
 
   test("AthleteWorkoutLogger renders workout chat composer", async ({ page }) => {
