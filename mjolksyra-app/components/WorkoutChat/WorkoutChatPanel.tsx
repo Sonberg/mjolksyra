@@ -5,9 +5,9 @@ import { useMemo, useState } from "react";
 import { addPlannedWorkoutChatMessage } from "@/services/plannedWorkouts/addPlannedWorkoutChatMessage";
 import { getPlannedWorkoutChatMessages } from "@/services/plannedWorkouts/getPlannedWorkoutChatMessages";
 import { updatePlannedWorkoutChatMessage } from "@/services/plannedWorkouts/updatePlannedWorkoutChatMessage";
-import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
+import { WorkoutChatComposer } from "@/components/WorkoutChat/WorkoutChatComposer";
 import dayjs from "dayjs";
 
 type Props = {
@@ -217,38 +217,18 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         })}
       </div>
 
-      <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-2.5 sm:p-3">
-        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-1.5">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={1}
-            placeholder="Write a message..."
-            data-testid="workout-chat-composer"
-            className="w-full min-h-10 resize-none border-0 bg-transparent px-2 py-1 text-sm leading-5 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-          />
-        </div>
-        <div className="mt-1.5">
-          <WorkoutMediaUploader
-            traineeId={traineeId}
-            plannedWorkoutId={plannedWorkoutId}
-            media={media}
-            onUploadComplete={setMedia}
-            isPending={sendMessage.isPending}
-            onPendingChange={setIsMediaPending}
-          />
-        </div>
-        <div className="mt-1.5 flex justify-end">
-          <button
-            type="button"
-            disabled={!canSend || sendMessage.isPending}
-            onClick={() => sendMessage.mutate()}
-            className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-          >
-            {sendMessage.isPending ? "Sending..." : "Send"}
-          </button>
-        </div>
-      </div>
+      <WorkoutChatComposer
+        traineeId={traineeId}
+        plannedWorkoutId={plannedWorkoutId}
+        message={message}
+        onMessageChange={setMessage}
+        media={media}
+        onMediaChange={setMedia}
+        onMediaPendingChange={setIsMediaPending}
+        isSending={sendMessage.isPending}
+        canSend={canSend}
+        onSend={() => sendMessage.mutate()}
+      />
     </section>
   );
 }
