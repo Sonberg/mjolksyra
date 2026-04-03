@@ -134,10 +134,6 @@ export function WorkoutMediaUploader({
 
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-        Media (optional)
-      </p>
-
       {hasItems ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {/* Confirmed uploads */}
@@ -148,6 +144,7 @@ export function WorkoutMediaUploader({
                 src={item.rawUrl}
                 alt="Workout media"
                 isVideo
+                size="small"
                 actionButton={
                   <button
                     type="button"
@@ -165,6 +162,7 @@ export function WorkoutMediaUploader({
                 key={item.rawUrl}
                 src={item.compressedUrl ?? item.rawUrl}
                 alt="Workout media"
+                size="small"
                 actionButton={
                   <button
                     type="button"

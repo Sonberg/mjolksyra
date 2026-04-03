@@ -87,12 +87,12 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
 
   return (
     <section
-      className="overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-sm"
+      className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
       data-testid="workout-chat-panel"
     >
       <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--shell-surface-strong)] text-sm font-bold text-[var(--shell-ink)]">
+          <span className="grid h-10 w-10 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-sm font-bold text-[var(--shell-ink)]">
             {counterpartLabel.slice(0, 1)}
           </span>
           <div className="min-w-0">
@@ -103,7 +103,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
       </div>
 
       <div
-        className="max-h-96 space-y-3 overflow-y-auto bg-gradient-to-b from-[var(--shell-surface-strong)] via-[var(--shell-surface)] to-[var(--shell-surface)] px-3 py-4 sm:px-4"
+        className="max-h-96 space-y-3 overflow-y-auto bg-[var(--shell-surface-strong)] px-3 py-4 sm:px-4"
         data-testid="workout-chat-messages"
       >
         {chatMessages.isLoading ? (
@@ -126,7 +126,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
               className={isSelf ? "flex items-end justify-end gap-2" : "flex items-end justify-start gap-2"}
             >
               {!isSelf ? (
-                <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--shell-surface-strong)] text-[11px] font-bold text-[var(--shell-muted)]">
+                <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[11px] font-bold text-[var(--shell-muted)]">
                   {roleLabel.slice(0, 1)}
                 </span>
               ) : null}
@@ -134,8 +134,8 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                 <div
                   className={
                     isSelf
-                      ? "rounded-[1.25rem] rounded-br-md border border-[var(--shell-accent)]/80 bg-[var(--shell-accent)] px-3 py-2.5 text-[var(--shell-accent-ink)] shadow-sm"
-                      : "rounded-[1.25rem] rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2.5 text-[var(--shell-ink)] shadow-sm"
+                      ? "rounded-2xl rounded-br-md border border-[var(--shell-accent)]/80 bg-[var(--shell-accent)] px-3 py-2.5 text-[var(--shell-accent-ink)]"
+                      : "rounded-2xl rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2.5 text-[var(--shell-ink)]"
                   }
                 >
                   {editingMessageId === chatMessage.id ? (
@@ -208,7 +208,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
                 ) : null}
               </div>
               {isSelf ? (
-                <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--shell-accent)]/25 text-[11px] font-bold text-[var(--shell-ink)]">
+                <span className="mb-1 grid h-7 w-7 shrink-0 place-items-center rounded-none border border-[var(--shell-accent)]/50 bg-[var(--shell-accent)]/20 text-[11px] font-bold text-[var(--shell-ink)]">
                   {selfLabel.slice(0, 1)}
                 </span>
               ) : null}
@@ -217,18 +217,18 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         })}
       </div>
 
-      <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-3 sm:p-4">
-        <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2">
+      <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-2.5 sm:p-3">
+        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-1.5">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            rows={2}
+            rows={1}
             placeholder="Write a message..."
             data-testid="workout-chat-composer"
-            className="w-full resize-y border-0 bg-transparent px-2 py-1 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+            className="w-full min-h-10 resize-none border-0 bg-transparent px-2 py-1 text-sm leading-5 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
           />
         </div>
-        <div className="mt-2">
+        <div className="mt-1.5">
           <WorkoutMediaUploader
             traineeId={traineeId}
             plannedWorkoutId={plannedWorkoutId}
@@ -238,12 +238,12 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
             onPendingChange={setIsMediaPending}
           />
         </div>
-        <div className="mt-2 flex justify-end">
+        <div className="mt-1.5 flex justify-end">
           <button
             type="button"
             disabled={!canSend || sendMessage.isPending}
             onClick={() => sendMessage.mutate()}
-            className="rounded-full border border-transparent bg-[var(--shell-accent)] px-4 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+            className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
           >
             {sendMessage.isPending ? "Sending..." : "Send"}
           </button>
