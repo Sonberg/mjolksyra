@@ -272,44 +272,50 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
         }
       />
 
-      <div className="grid gap-4 pb-28 pt-4 sm:pb-6">
-        {/* Coach note */}
-        {workout.note?.trim() ? (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Coach note
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-ink)]">{workout.note}</p>
-          </div>
-        ) : null}
+      <div className="pb-28 pt-4 sm:pb-6">
+        <div className="grid gap-4 lg:grid-cols-3 lg:items-start">
+          <section className="grid gap-4 lg:col-span-2">
+            {/* Coach note */}
+            {workout.note?.trim() ? (
+              <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                  Coach note
+                </p>
+                <p className="mt-1 text-sm text-[var(--shell-ink)]">{workout.note}</p>
+              </div>
+            ) : null}
 
-        {/* Exercises */}
-        {workout.exercises.map((exercise, index) => (
-          <AthleteExerciseCard
-            key={exercise.id}
-            exercise={exercise}
-            index={index}
-            isToggleExerciseDonePending={toggleExerciseDone.isPending}
-            isSetActionPending={
-              toggleSetDone.isPending || updateSetActual.isPending
-            }
-            onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
-              toggleExerciseDone.mutate(input)
-            }
-            onToggleSetDone={(input: ToggleSetDoneInput) =>
-              toggleSetDone.mutate(input)
-            }
-            onUpdateSetActual={(input: UpdateSetActualInput) =>
-              updateSetActual.mutate(input)
-            }
-          />
-        ))}
+            {/* Exercises */}
+            {workout.exercises.map((exercise, index) => (
+              <AthleteExerciseCard
+                key={exercise.id}
+                exercise={exercise}
+                index={index}
+                isToggleExerciseDonePending={toggleExerciseDone.isPending}
+                isSetActionPending={
+                  toggleSetDone.isPending || updateSetActual.isPending
+                }
+                onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
+                  toggleExerciseDone.mutate(input)
+                }
+                onToggleSetDone={(input: ToggleSetDoneInput) =>
+                  toggleSetDone.mutate(input)
+                }
+                onUpdateSetActual={(input: UpdateSetActualInput) =>
+                  updateSetActual.mutate(input)
+                }
+              />
+            ))}
+          </section>
 
-        <WorkoutChatPanel
-          traineeId={workout.traineeId}
-          plannedWorkoutId={workout.id}
-          viewerMode="athlete"
-        />
+          <aside className="lg:sticky lg:top-4 lg:col-span-1">
+            <WorkoutChatPanel
+              traineeId={workout.traineeId}
+              plannedWorkoutId={workout.id}
+              viewerMode="athlete"
+            />
+          </aside>
+        </div>
       </div>
 
       {/* Sticky bottom bar — mobile only */}
