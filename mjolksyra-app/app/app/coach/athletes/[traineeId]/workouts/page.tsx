@@ -1,5 +1,6 @@
 import { getAuth } from "@/context/Auth";
 import { PageContent } from "./pageContent";
+import { redirect } from "next/navigation";
 
 type Props = {
   params: Promise<{ traineeId: string }>;
@@ -11,17 +12,26 @@ export default async function Page({ params, searchParams }: Props) {
     redirect: "/",
   });
 
+  const routeParams = await params;
   const query = (await searchParams) ?? {};
   const initialTab =
     query.tab === "past" || query.tab === "future" || query.tab === "changes"
       ? query.tab
       : undefined;
 
+  if (query.workoutId) {
+    const target = new URLSearchParams();
+    if (initialTab) {
+      target.set("tab", initialTab);
+    }
+    const suffix = target.toString() ? `?${target.toString()}` : "";
+    redirect(`/app/coach/athletes/${routeParams.traineeId}/workouts/${query.workoutId}${suffix}`);
+  }
+
   return (
     <PageContent
-      traineeId={(await params).traineeId}
+      traineeId={routeParams.traineeId}
       initialTab={initialTab}
-      focusWorkoutId={query.workoutId ?? null}
     />
   );
 }

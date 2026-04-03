@@ -11,10 +11,9 @@ import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 type Props = {
   traineeId: string;
   initialTab?: "past" | "future" | "changes";
-  focusWorkoutId?: string | null;
 };
 
-export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
+export function PageContent({ traineeId, initialTab }: Props) {
   const router = useRouter();
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "workoutReviewHeader"],
@@ -62,7 +61,6 @@ export function PageContent({ traineeId, initialTab, focusWorkoutId }: Props) {
         traineeId={traineeId}
         mode="coach"
         initialTab={initialTab}
-        focusWorkoutId={focusWorkoutId}
       />
     </CoachWorkspaceShell>
   );

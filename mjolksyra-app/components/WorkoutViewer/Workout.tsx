@@ -25,7 +25,7 @@ type Props = {
   isHighlighted?: boolean;
   traineeId?: string;
   isDetailView?: boolean;
-  backTab?: "past" | "future";
+  backTab?: "past" | "future" | "changes";
 };
 
 export function Workout({
@@ -261,6 +261,28 @@ export function Workout({
 
   const isCompleted = !!workout.completedAt;
   const isReviewed = !!workout.reviewedAt;
+  const totalExercises = workout.exercises.length;
+  const doneExercises = workout.exercises.filter((exercise) => exercise.isDone).length;
+  const totalSets = workout.exercises.reduce(
+    (count, exercise) => count + (exercise.prescription?.sets?.length ?? 0),
+    0,
+  );
+  const doneSets = workout.exercises.reduce(
+    (count, exercise) =>
+      count +
+      (exercise.prescription?.sets?.filter((set) => set.actual?.isDone).length ?? 0),
+    0,
+  );
+
+  const detailHref = traineeId
+    ? viewerMode === "coach"
+      ? backTab
+        ? `/app/coach/athletes/${traineeId}/workouts/${workout.id}?tab=${backTab}`
+        : `/app/coach/athletes/${traineeId}/workouts/${workout.id}`
+      : backTab
+        ? `/app/athlete/${traineeId}/workouts/${workout.id}?tab=${backTab}`
+        : `/app/athlete/${traineeId}/workouts/${workout.id}`
+    : null;
 
   function getSetTargetLabel(
     targetType: string | undefined,
@@ -305,18 +327,19 @@ export function Workout({
     >
       <CardHeader className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="truncate">{displayName}</span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+              {viewerMode === "coach" ? "Review session" : "Workout"}
+            </p>
+            <p className="truncate text-base font-semibold text-[var(--shell-ink)]">{displayName}</p>
+          </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {viewerMode === "athlete" && !isDetailView && traineeId ? (
+            {!isDetailView && detailHref ? (
               <Link
-                href={
-                  backTab
-                    ? `/app/athlete/${traineeId}/workouts/${workout.id}?tab=${backTab}`
-                    : `/app/athlete/${traineeId}/workouts/${workout.id}`
-                }
+                href={detailHref}
                 className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
               >
-                Open workout
+                {viewerMode === "coach" ? "Review session" : "Start session"}
               </Link>
             ) : null}
             {viewerMode === "athlete" && isDetailView ? (
@@ -350,10 +373,81 @@ export function Workout({
         </div>
       </CardHeader>
       <CardContent className="grid gap-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:gap-4 sm:p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {viewerMode === "athlete" ? (
-            <>
-              {isDetailView && isCompleted ? (
+        {!isDetailView ? (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+                {totalExercises} exercises
+              </span>
+              {totalSets > 0 ? (
+                <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+                  {doneSets}/{totalSets} sets done
+                </span>
+              ) : null}
+              <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+                {doneExercises}/{totalExercises} exercises done
+              </span>
+              {viewerMode === "coach" && isCompleted && !isReviewed ? (
+                <span className="rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-accent-ink)]">
+                  Needs review
+                </span>
+              ) : null}
+            </div>
+
+            {workout.note?.trim() ? (
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                  Coach note
+                </p>
+                <p className="mt-1 text-sm text-[var(--shell-ink)]">
+                  {workout.note}
+                </p>
+              </div>
+            ) : null}
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              {workout.exercises.slice(0, 4).map((exercise, index) => (
+                <div
+                  key={exercise.id}
+                  className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                    Exercise {index + 1}
+                  </p>
+                  <p
+                    className={
+                      exercise.isDone
+                        ? "mt-1 text-sm text-[var(--shell-muted)] line-through"
+                        : "mt-1 text-sm text-[var(--shell-ink)]"
+                    }
+                  >
+                    {exercise.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {workout.exercises.length > 4 ? (
+              <p className="text-xs text-[var(--shell-muted)]">
+                +{workout.exercises.length - 4} more exercise{workout.exercises.length - 4 > 1 ? "s" : ""}
+              </p>
+            ) : null}
+
+            {workout.completedAt ? (
+              <span className="text-xs text-[var(--shell-muted)]">
+                Completed {new Date(workout.completedAt).toLocaleString()}
+              </span>
+            ) : null}
+            {viewerMode === "coach" && workout.reviewedAt ? (
+              <span className="text-xs text-[var(--shell-muted)]">
+                Reviewed {new Date(workout.reviewedAt).toLocaleString()}
+              </span>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              {viewerMode === "athlete" && isCompleted ? (
                 <button
                   type="button"
                   disabled={saveCompletion.isPending}
@@ -368,112 +462,97 @@ export function Workout({
                   Mark incomplete
                 </button>
               ) : null}
-              {!isDetailView && isCompleted ? (
-                <button
-                  type="button"
-                  disabled
-                  className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-3 py-2 text-xs font-semibold text-[var(--shell-surface)]"
-                >
-                  <CheckCircle2Icon className="h-3.5 w-3.5" />
-                  Completed
-                </button>
+              {viewerMode === "coach" && isCompleted ? (
+                <>
+                  {!isReviewed ? (
+                    <button
+                      type="button"
+                      disabled={saveReview.isPending}
+                      onClick={() =>
+                        saveReview.mutate({
+                          reviewedAt: new Date(),
+                        })
+                      }
+                      className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                    >
+                      {saveReview.isPending ? "Saving..." : "Mark reviewed"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={saveReview.isPending}
+                      onClick={() =>
+                        saveReview.mutate({
+                          reviewedAt: null,
+                        })
+                      }
+                      className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
+                    >
+                      {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsReviewing((x) => !x)}
+                    className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+                  >
+                    {isReviewing ? "Hide review actions" : "Open review actions"}
+                  </button>
+                </>
               ) : null}
-            </>
-          ) : isCompleted ? (
-            <>
-              {!isReviewed ? (
-                <button
-                  type="button"
-                  disabled={saveReview.isPending}
-                  onClick={() =>
-                    saveReview.mutate({
-                      reviewedAt: new Date(),
-                    })
-                  }
-                  className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-                >
-                  {saveReview.isPending ? "Saving..." : "Mark reviewed"}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={saveReview.isPending}
-                  onClick={() =>
-                    saveReview.mutate({
-                      reviewedAt: null,
-                    })
-                  }
-                  className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
-                >
-                  {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsReviewing((x) => !x)}
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
-              >
-                {isReviewing ? "Hide review actions" : "Open review actions"}
-              </button>
-            </>
-          ) : null}
-          {workout.completedAt ? (
-            <span className="text-xs text-[var(--shell-muted)]">
-              Completed {new Date(workout.completedAt).toLocaleString()}
-            </span>
-          ) : null}
-          {viewerMode === "coach" && workout.reviewedAt ? (
-            <span className="text-xs text-[var(--shell-muted)]">
-              Reviewed {new Date(workout.reviewedAt).toLocaleString()}
-            </span>
-          ) : null}
-        </div>
+              {workout.completedAt ? (
+                <span className="text-xs text-[var(--shell-muted)]">
+                  Completed {new Date(workout.completedAt).toLocaleString()}
+                </span>
+              ) : null}
+              {viewerMode === "coach" && workout.reviewedAt ? (
+                <span className="text-xs text-[var(--shell-muted)]">
+                  Reviewed {new Date(workout.reviewedAt).toLocaleString()}
+                </span>
+              ) : null}
+            </div>
 
-        {workout.note?.trim() ? (
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Coach note
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-ink)]">
-              {workout.note}
-            </p>
-          </div>
-        ) : null}
-        { (workout.media?.length ?? 0) > 0 ? (
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
-            <WorkoutMediaGallery media={workout.media ?? []} />
-          </div>
-        ) : null}
-        {isDetailView || viewerMode === "coach" ? (
-          <WorkoutChatPanel
-            traineeId={workout.traineeId}
-            plannedWorkoutId={workout.id}
-            viewerMode={viewerMode}
-          />
-        ) : null}
-        {workout.exercises.map((exercise, index) => (
-          <WorkoutExerciseCard
-            key={exercise.id}
-            exercise={exercise}
-            index={index}
-            viewerMode={viewerMode}
-            isDetailView={isDetailView}
-            isToggleExerciseDonePending={toggleExerciseDone.isPending}
-            isSetActionPending={
-              toggleSetDone.isPending || updateSetWeight.isPending
-            }
-            getSetTargetLabel={getSetTargetLabel}
-            onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
-              toggleExerciseDone.mutate(input)
-            }
-            onToggleSetDone={(input: ToggleSetDoneInput) =>
-              toggleSetDone.mutate(input)
-            }
-            onUpdateSetActual={(input: UpdateSetActualInput) =>
-              updateSetWeight.mutate(input)
-            }
-          />
-        ))}
+            {workout.note?.trim() ? (
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                  Coach note
+                </p>
+                <p className="mt-1 text-sm text-[var(--shell-ink)]">{workout.note}</p>
+              </div>
+            ) : null}
+            {(workout.media?.length ?? 0) > 0 ? (
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
+                <WorkoutMediaGallery media={workout.media ?? []} />
+              </div>
+            ) : null}
+            <WorkoutChatPanel
+              traineeId={workout.traineeId}
+              plannedWorkoutId={workout.id}
+              viewerMode={viewerMode}
+            />
+            {workout.exercises.map((exercise, index) => (
+              <WorkoutExerciseCard
+                key={exercise.id}
+                exercise={exercise}
+                index={index}
+                viewerMode={viewerMode}
+                isDetailView={isDetailView}
+                isToggleExerciseDonePending={toggleExerciseDone.isPending}
+                isSetActionPending={toggleSetDone.isPending || updateSetWeight.isPending}
+                getSetTargetLabel={getSetTargetLabel}
+                onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
+                  toggleExerciseDone.mutate(input)
+                }
+                onToggleSetDone={(input: ToggleSetDoneInput) =>
+                  toggleSetDone.mutate(input)
+                }
+                onUpdateSetActual={(input: UpdateSetActualInput) =>
+                  updateSetWeight.mutate(input)
+                }
+              />
+            ))}
+          </>
+        )}
       </CardContent>
     </Card>
   );

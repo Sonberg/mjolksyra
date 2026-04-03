@@ -28,7 +28,7 @@ export function WorkoutViewer({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const defaultMode = viewerMode === "coach" ? "past" : "future";
+  const defaultMode = viewerMode === "coach" ? "changes" : "future";
   const [mode, setMode] = useState<"past" | "future" | "changes">(
     initialTab ?? defaultMode,
   );
@@ -134,10 +134,11 @@ export function WorkoutViewer({
           }
 
           if (mode === "changes") {
-            return !!(
-              x.completedAt ||
-              x.reviewedAt
-            );
+            if (viewerMode === "coach") {
+              return !!x.completedAt && !x.reviewedAt;
+            }
+
+            return !!(x.completedAt || x.reviewedAt);
           }
 
           if (mode === "future") {
@@ -186,8 +187,14 @@ export function WorkoutViewer({
   const emptyState = useMemo(() => {
     if (mode === "changes") {
       return {
-        title: "No workouts with changes",
-        body: "Completed or updated workouts will appear here when athletes log and review sessions.",
+        title:
+          viewerMode === "coach"
+            ? "No workouts need review"
+            : "No workouts with changes",
+        body:
+          viewerMode === "coach"
+            ? "Completed sessions that still need coach feedback will appear here."
+            : "Completed or updated workouts will appear here when athletes log and review sessions.",
       };
     }
 
@@ -199,10 +206,13 @@ export function WorkoutViewer({
     }
 
     return {
-      title: "No past workouts",
-      body: "Completed or previously planned sessions will appear here.",
+      title: viewerMode === "coach" ? "No reviewed workouts" : "No past workouts",
+      body:
+        viewerMode === "coach"
+          ? "Sessions you already reviewed will appear here."
+          : "Completed or previously planned sessions will appear here.",
     };
-  }, [mode]);
+  }, [mode, viewerMode]);
 
   useEffect(() => {
     if (!isEndIntersecting) {
@@ -265,8 +275,8 @@ export function WorkoutViewer({
             ? mode === "future"
               ? "Upcoming workouts"
               : mode === "changes"
-                ? "Workouts with changes"
-                : "Completed workouts"
+                ? "Needs review"
+                : "Reviewed workouts"
             : mode === "future"
               ? "Upcoming workouts"
               : "Past workouts"
@@ -286,12 +296,12 @@ export function WorkoutViewer({
               },
               ...(viewerMode === "coach"
                 ? [
-                    {
-                      key: "changes" as const,
-                      label: "Changes",
-                      onSelect: () => setModeWithUrl("changes"),
-                    },
-                  ]
+                      {
+                        key: "changes" as const,
+                        label: "Needs review",
+                        onSelect: () => setModeWithUrl("changes"),
+                      },
+                    ]
                 : []),
             ]}
             activeKey={mode}
@@ -320,7 +330,7 @@ export function WorkoutViewer({
               viewerMode={viewerMode}
               traineeId={traineeId}
               isHighlighted={focusWorkoutId === x.id}
-              backTab={mode === "future" || mode === "past" ? mode : undefined}
+              backTab={mode}
             />
           ))
         )}
@@ -328,7 +338,9 @@ export function WorkoutViewer({
       {data.length > 0 && !hasNextPage ? (
         <div className="text-muted text-lg text-center mt-8">
           {mode === "changes"
-            ? "No workouts with changes"
+            ? viewerMode === "coach"
+              ? "No workouts currently need review"
+              : "No workouts with changes"
             : "No more workouts planned"}
         </div>
       ) : null}
