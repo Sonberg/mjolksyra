@@ -306,8 +306,9 @@ export function WorkoutViewer({
             ]}
             activeKey={mode}
             size="md"
-            fullWidth
+            fullWidth={viewerMode !== "coach"}
             className="w-full max-w-[34rem]"
+            itemClassName={viewerMode === "coach" ? "px-3 text-sm" : undefined}
           />
         }
       />

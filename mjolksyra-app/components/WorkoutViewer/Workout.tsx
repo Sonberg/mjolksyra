@@ -16,7 +16,6 @@ import {
   ToggleSetDoneInput,
   UpdateSetActualInput,
 } from "./workout/types";
-import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 
 type Props = {
@@ -58,7 +57,7 @@ export function Workout({
         overrides.completedAt !== undefined
           ? overrides.completedAt
           : (workout.completedAt ?? null),
-      mediaUrls: workout.media?.map((m) => m.rawUrl) ?? [],
+      mediaUrls: [],
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -337,7 +336,7 @@ export function Workout({
             {!isDetailView && detailHref ? (
               <Link
                 href={detailHref}
-                className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
+                className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:brightness-95"
               >
                 {viewerMode === "coach" ? "Review session" : "Start session"}
               </Link>
@@ -518,11 +517,6 @@ export function Workout({
                   Coach note
                 </p>
                 <p className="mt-1 text-sm text-[var(--shell-ink)]">{workout.note}</p>
-              </div>
-            ) : null}
-            {(workout.media?.length ?? 0) > 0 ? (
-              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
-                <WorkoutMediaGallery media={workout.media ?? []} />
               </div>
             ) : null}
             <WorkoutChatPanel

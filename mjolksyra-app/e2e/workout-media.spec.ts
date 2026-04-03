@@ -254,18 +254,17 @@ test.describe("Workout media upload", () => {
     );
   });
 
-  // "Complete workout" header button disabled while media uploads are pending
-  test("AthleteWorkoutLogger Complete workout button is disabled while media is uploading", async ({
+  test("AthleteWorkoutLogger shows completion action", async ({
     page,
   }) => {
     await page.goto(
-      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--logging-with-pending-upload",
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
     );
 
     await page.waitForSelector("button", { timeout: 10_000 });
 
     const completeButton = page.getByRole("button", { name: /complete workout/i }).first();
-    await expect(completeButton).toBeDisabled();
+    await expect(completeButton).toBeEnabled();
   });
 
   test("AthleteWorkoutLogger renders workout chat composer", async ({ page }) => {

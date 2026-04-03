@@ -1,7 +1,7 @@
 "use client";
 
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { CheckCircle2Icon, ChevronLeftIcon } from "lucide-react";
@@ -13,8 +13,6 @@ import {
   ToggleSetDoneInput,
   UpdateSetActualInput,
 } from "@/components/WorkoutViewer/workout/types";
-import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
-import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
 import { PageHeader } from "@/components/Navigation/PageHeader";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 
@@ -22,15 +20,10 @@ type Props = {
   workout: PlannedWorkout;
   traineeId: string;
   backHref: string;
-  /** @internal For Storybook and testing only. Forces the media-pending state. */
-  _testIsMediaPending?: boolean;
 };
 
-export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMediaPending }: Props) {
+export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
   const queryClient = useQueryClient();
-  const [media, setMedia] = useState<PlannedWorkout["media"]>(workout.media ?? []);
-  const [isMediaPendingInternal, setIsMediaPending] = useState(false);
-  const isMediaPending = _testIsMediaPending ?? isMediaPendingInternal;
 
   function buildLogPayload(overrides: {
     completedAt?: Date | null;
@@ -51,7 +44,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
         overrides.completedAt !== undefined
           ? overrides.completedAt
           : (workout.completedAt ?? null),
-      mediaUrls: media.map((m) => m.rawUrl),
+      mediaUrls: [],
       exercises: workout.exercises.map((e) => ({
         id: e.id,
         sets: (e.prescription?.sets ?? []).map((s, idx) => {
@@ -260,7 +253,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
             ) : null}
             <button
               type="button"
-              disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
+              disabled={saveCompletion.isPending}
               onClick={() => {
                 saveCompletion.mutate({
                   completedAt: isCompleted ? null : new Date(),
@@ -290,13 +283,6 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           </div>
         ) : null}
 
-        {/* Media gallery (shown after completion) */}
-        {isCompleted && (workout.media?.length ?? 0) > 0 ? (
-          <div className="border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <WorkoutMediaGallery media={workout.media ?? []} />
-          </div>
-        ) : null}
-
         {/* Exercises */}
         {workout.exercises.map((exercise, index) => (
           <AthleteExerciseCard
@@ -319,22 +305,6 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
           />
         ))}
 
-        {/* Media uploader — always visible while workout is in progress so
-            athletes can add photos as they train, before marking complete.
-            media is included in every buildLogPayload call (as raw URLs), so uploads
-            are persisted to the DB on the next set/exercise interaction. */}
-        {!isCompleted ? (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-            <WorkoutMediaUploader
-              traineeId={traineeId}
-              plannedWorkoutId={workout.id}
-              media={media}
-              onUploadComplete={setMedia}
-              onPendingChange={setIsMediaPending}
-            />
-          </div>
-        ) : null}
-
         <WorkoutChatPanel
           traineeId={workout.traineeId}
           plannedWorkoutId={workout.id}
@@ -347,7 +317,7 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref, _testIsMedi
         <div className="mx-auto max-w-6xl">
           <button
             type="button"
-            disabled={saveCompletion.isPending || (isMediaPending && !isCompleted)}
+            disabled={saveCompletion.isPending}
             onClick={() => {
               saveCompletion.mutate({
                 completedAt: isCompleted ? null : new Date(),

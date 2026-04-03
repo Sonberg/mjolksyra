@@ -121,18 +121,6 @@ export const NotCompletedWithNote: Story = {
   ),
 }
 
-/** Shows "Complete workout" button disabled while media uploads are pending. */
-export const LoggingWithPendingUpload: Story = {
-  render: () => (
-    <AthleteWorkoutLogger
-      workout={baseWorkout}
-      traineeId="trainee-1"
-      backHref="/app/athlete/workouts"
-      _testIsMediaPending
-    />
-  ),
-};
-
 export const WithNotes: Story = {
   render: () => (
     <AthleteWorkoutLogger

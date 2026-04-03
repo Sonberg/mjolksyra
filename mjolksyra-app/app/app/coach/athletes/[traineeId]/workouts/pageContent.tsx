@@ -48,7 +48,7 @@ export function PageContent({ traineeId, initialTab }: Props) {
               onClick={() =>
                 router.push(`/app/coach/athletes/${traineeId}/planner`)
               }
-              className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:bg-[var(--shell-ink-soft)]"
+              className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:brightness-95"
             >
               <ClipboardCheckIcon className="h-4 w-4" />
               Open planner
