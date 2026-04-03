@@ -1,11 +1,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Clerk;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Infrastructure.Clerk;
+using Mjolksyra.Infrastructure.AI;
 using Mjolksyra.Infrastructure.Database;
 using Mjolksyra.Infrastructure.Email;
 using Mjolksyra.Infrastructure.Messaging;
@@ -43,6 +45,10 @@ public static class Configure
             .ValidateOnStart();
 
         services
+            .AddOptions<GeminiOptions>()
+            .Bind(configuration.GetSection(GeminiOptions.SectionName));
+
+        services
             .AddOptions<MediaStorageOptions>()
             .Configure(opts => opts.PublicBaseUrl = configuration[$"{R2Options.SectionName}:PublicBaseUrl"] ?? string.Empty);
 
@@ -67,6 +73,7 @@ public static class Configure
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<IDiscountCodeRepository, DiscountCodeRepository>();
         services.AddScoped<IPlanRepository, PlanRepository>();
+        services.AddScoped<IWorkoutMediaAnalysisRepository, WorkoutMediaAnalysisRepository>();
         services.AddHostedService<PlanSeeder>();
         services.AddHostedService<FfmpegInitializer>();
         services.AddScoped<BrevoEmailSender>();
@@ -80,6 +87,7 @@ public static class Configure
         services.AddScoped<IR2FileUploader, R2FileUploader>();
         services.AddScoped<IR2FileDeleter, R2FileDeleter>();
         services.AddScoped<IMediaCompressionPublisher, MassTransitMediaCompressionPublisher>();
+        services.AddScoped<IWorkoutMediaAnalysisAgent, GeminiWorkoutMediaAnalysisAgent>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>

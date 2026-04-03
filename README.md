@@ -31,6 +31,7 @@ The API runs on `http://localhost:5108` by default. Configuration is in `Mjolksy
 - `Jwt.Secret`
 - `Stripe.ApiKey` / `Stripe.WebhookSecret`
 - `Brevo.ApiKey` (email)
+- `Gemini.ApiKey` (workout media analysis with Gemini 2.5 Pro)
 - `Otel` (OpenTelemetry; local default points to Aspire Dashboard OTLP on `http://localhost:18890`)
 
 API docs are available at `http://localhost:5108/scalar`.

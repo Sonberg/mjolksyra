@@ -31,7 +31,12 @@ function withMockedFetch(fetchImpl: typeof globalThis.fetch) {
 }
 
 const mockEmptyChatFetch: typeof globalThis.fetch = async (input) => {
-  const url = typeof input === "string" ? input : input.url
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url
   if (url.includes("/chat-messages")) {
     return new Response(JSON.stringify({ data: [] }), {
       status: 200,
@@ -46,7 +51,12 @@ const mockEmptyChatFetch: typeof globalThis.fetch = async (input) => {
 }
 
 const mockConversationFetch: typeof globalThis.fetch = async (input) => {
-  const url = typeof input === "string" ? input : input.url
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url
   if (url.includes("/chat-messages")) {
     return new Response(
       JSON.stringify({
@@ -131,4 +141,22 @@ export const WithConversation: Story = {
       viewerMode="athlete"
     />
   ),
+}
+
+export const ReadyForAnalysis: Story = {
+  decorators: [withMockedFetch(mockConversationFetch)],
+  render: () => (
+    <WorkoutChatPanel
+      traineeId="trainee-1"
+      plannedWorkoutId="workout-1"
+      viewerMode="athlete"
+    />
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: "Type a message and use the Analyze button to request Gemini 2.5 Pro workout analysis.",
+      },
+    },
+  },
 }

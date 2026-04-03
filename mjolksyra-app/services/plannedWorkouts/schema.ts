@@ -99,3 +99,10 @@ export const workoutChatMessageSchema = z.object({
   createdAt: z.coerce.date(),
   modifiedAt: z.coerce.date(),
 });
+
+export const workoutMediaAnalysisSchema = z.object({
+  summary: z.string(),
+  keyFindings: z.array(z.string()).default([]),
+  techniqueRisks: z.array(z.string()).default([]),
+  coachSuggestions: z.array(z.string()).default([]),
+});

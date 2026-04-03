@@ -290,4 +290,50 @@ test.describe("Workout media upload", () => {
     await composer.fill("Looks good, thanks coach!");
     await expect(sendButton).toBeEnabled();
   });
+
+  test("AthleteWorkoutLogger analyzes text and media with Gemini", async ({ page }) => {
+    await page.route("**/api/trainees/**/planned-workouts/**/chat-messages", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "[]",
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.route("**/api/trainees/**/planned-workouts/**/analysis", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          summary: "Session quality is solid with stable pacing.",
+          keyFindings: ["Consistent squat depth"],
+          techniqueRisks: ["Mild valgus on fatigue reps"],
+          coachSuggestions: ["Cue knees out through ascent"],
+        }),
+      });
+    });
+
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+    );
+
+    const composer = page.getByTestId("workout-chat-composer");
+    await composer.fill("Please analyze squat form and bar speed");
+
+    const analyzeButton = page.getByRole("button", { name: "Analyze" });
+    await expect(analyzeButton).toBeEnabled();
+    await analyzeButton.click();
+
+    await expect(page.getByText("AI analysis", { exact: true })).toBeVisible();
+    await expect(page.getByText("Session quality is solid with stable pacing.", { exact: true })).toBeVisible();
+  });
 });

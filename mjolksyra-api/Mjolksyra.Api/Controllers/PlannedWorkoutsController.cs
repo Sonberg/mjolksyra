@@ -15,6 +15,7 @@ using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkoutChatMessage;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
+using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -195,6 +196,23 @@ public class PlannedWorkoutsController : Controller
             PlannedWorkoutId = plannedWorkoutId,
             ChatMessageId = chatMessageId,
             Message = request,
+        }, cancellationToken);
+
+        return result is null ? Forbid() : Ok(result);
+    }
+
+    [HttpPost("{plannedWorkoutId:guid}/analysis")]
+    public async Task<ActionResult<WorkoutMediaAnalysisResponse>> AnalyzeWorkoutMedia(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        [FromBody] WorkoutMediaAnalysisRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AnalyzeWorkoutMediaCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+            Analysis = request,
         }, cancellationToken);
 
         return result is null ? Forbid() : Ok(result);
