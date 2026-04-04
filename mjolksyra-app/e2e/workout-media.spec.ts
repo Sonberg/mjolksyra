@@ -474,18 +474,22 @@ test.describe("Workout media upload", () => {
     });
 
     await page.goto(
-      "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
+      "http://localhost:6006/iframe.html?id=workoutviewer-workoutdetail--coach-view",
     );
 
-    await expect(page.getByTestId("workout-analysis-section")).toBeVisible();
-    await expect(page.getByText("Latest saved analysis from a previous run.", { exact: true })).toBeVisible();
-    const analyzeButton = page.getByRole("button", { name: "Analyze" });
+    const sidebar = page.getByTestId("workout-detail-sidebar");
+    await expect(sidebar.getByTestId("workout-analysis-section")).toBeVisible();
+    
+    const mainContent = page.getByTestId("workout-detail-main");
+    await expect(mainContent.getByText("Latest saved analysis from a previous run.")).toBeVisible();
+
+    const analyzeButton = sidebar.getByRole("button", { name: "Analyze" });
     await expect(analyzeButton).toBeEnabled();
     await analyzeButton.click();
 
-    await expect(page.getByTestId("workout-analysis-outcome")).toBeVisible();
-    await expect(page.getByText("AI analysis", { exact: true })).toBeVisible();
-    await expect(page.getByText("Session quality is solid with stable pacing.", { exact: true })).toBeVisible();
+    await expect(mainContent.getByTestId("workout-analysis-outcome")).toBeVisible();
+    await expect(mainContent.getByText("AI analysis")).toBeVisible();
+    await expect(mainContent.getByText("Session quality is solid with stable pacing.")).toBeVisible();
   });
 
   test("Coach sees credit error when analysis credits are insufficient", async ({ page }) => {
@@ -516,7 +520,7 @@ test.describe("Workout media upload", () => {
     });
 
     await page.goto(
-      "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
+      "http://localhost:6006/iframe.html?id=workoutviewer-workoutdetail--coach-view",
     );
 
     const analyzeButton = page.getByRole("button", { name: "Analyze" });
@@ -540,7 +544,7 @@ test.describe("Workout media upload", () => {
     });
 
     await page.goto(
-      "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
+      "http://localhost:6006/iframe.html?id=workoutviewer-workoutdetail--coach-view",
     );
 
     await expect(page.getByRole("button", { name: "Analyze (5 credits)" })).toBeVisible();

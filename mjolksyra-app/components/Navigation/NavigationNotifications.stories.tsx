@@ -1,6 +1,6 @@
 "use client"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useEffect } from "react"
 import type { AxiosRequestConfig } from "axios"
 import { NavigationNotifications } from "./NavigationNotifications"

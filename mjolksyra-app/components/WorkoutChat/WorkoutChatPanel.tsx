@@ -89,18 +89,15 @@ export function WorkoutChatPanel({
 
   return (
     <section
-      className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+      className="flex h-full flex-col overflow-hidden"
       data-testid="workout-chat-panel"
     >
-      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-[var(--shell-ink)]">{counterpartLabel}</p>
-          <p className="text-[11px] font-medium text-[var(--shell-muted)]">Workout chat</p>
-        </div>
+      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Chat</p>
       </div>
 
       <div
-        className="max-h-96 space-y-3 overflow-y-auto bg-[var(--shell-surface-strong)] px-3 py-4 sm:px-4"
+        className="flex-1 space-y-3 overflow-y-auto px-3 py-4 sm:px-4"
         data-testid="workout-chat-messages"
       >
         {chatMessages.isLoading ? (
@@ -150,3 +147,4 @@ export function WorkoutChatPanel({
     </section>
   );
 }
+

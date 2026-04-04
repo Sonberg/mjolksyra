@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -12,19 +10,9 @@ type Props = {
   plannedWorkoutId: string;
 };
 
-export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
+export function WorkoutAnalysisTrigger({ traineeId, plannedWorkoutId }: Props) {
   const queryClient = useQueryClient();
   const [context, setContext] = useState("");
-
-  const latestAnalysis = useQuery({
-    queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
-    queryFn: ({ signal }) =>
-      getLatestWorkoutMediaAnalysis({
-        traineeId,
-        plannedWorkoutId,
-        signal,
-      }),
-  });
 
   const analyze = useMutation({
     mutationFn: async () =>
@@ -51,7 +39,6 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
     return !analyze.isPending;
   }, [analyze.isPending]);
 
-  const analysis = analyze.data ?? latestAnalysis.data;
   const analyzeCost = useMemo(() => {
     const mediaAction = pricing.data?.find((item) => item.action === "AnalyzeWorkoutMedia");
     return mediaAction?.creditCost ?? null;
@@ -74,92 +61,101 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
   }, [analyze.error, analyze.isError]);
 
   return (
-    <section
-      className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
-      data-testid="workout-analysis-section"
-    >
-      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-        <p className="text-sm font-semibold text-[var(--shell-ink)]">Workout analysis</p>
-        <p className="text-[11px] font-medium text-[var(--shell-muted)]">
-          Media is fetched from workout chat attachments.
+    <section className="space-y-3" data-testid="workout-analysis-section">
+      <textarea
+        value={context}
+        onChange={(event) => setContext(event.target.value)}
+        rows={2}
+        placeholder="Optional context for analysis..."
+        data-testid="workout-analysis-context"
+        className="w-full resize-none border-b border-[var(--shell-border)] bg-transparent py-1.5 text-sm leading-5 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+      />
+
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs text-[var(--shell-muted)]">
+          Uses latest chat media.{analyzeCost ? ` ${analyzeCost} credits.` : ""}
         </p>
+        <button
+          type="button"
+          disabled={!canAnalyze}
+          onClick={() => analyze.mutate()}
+          className="shrink-0 border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+        >
+          {analyze.isPending ? "Analyzing..." : analyzeCost ? `Analyze (${analyzeCost} credits)` : "Analyze"}
+        </button>
       </div>
 
-      <div className="space-y-3 p-3 sm:p-4">
-        <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1.5">
-          <textarea
-            value={context}
-            onChange={(event) => setContext(event.target.value)}
-            rows={2}
-            placeholder="Optional context for analysis..."
-            data-testid="workout-analysis-context"
-            className="w-full resize-none border-0 bg-transparent text-sm leading-5 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-          />
-        </div>
+      {analyze.isPending ? (
+        <p className="text-xs text-[var(--shell-muted)]">Analyzing workout notes and media...</p>
+      ) : null}
 
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-xs text-[var(--shell-muted)]">
-            Always uses latest chat media.
-            {analyzeCost ? ` Cost: ${analyzeCost} credits.` : ""}
-          </p>
-          <button
-            type="button"
-            disabled={!canAnalyze}
-            onClick={() => analyze.mutate()}
-            className="min-h-10 shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 text-[11px] font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
-          >
-            {analyze.isPending ? "Analyzing..." : analyzeCost ? `Analyze (${analyzeCost} credits)` : "Analyze"}
-          </button>
-        </div>
+      {analyze.isError ? (
+        <p className="text-xs text-red-500">{analysisErrorMessage}</p>
+      ) : null}
+    </section>
+  );
+}
 
-        {analyze.isPending ? (
-          <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-medium text-[var(--shell-muted)]">
-            Analyzing workout notes and media...
-          </div>
-        ) : null}
+export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
+  const latestAnalysis = useQuery({
+    queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
+    queryFn: ({ signal }) =>
+      getLatestWorkoutMediaAnalysis({
+        traineeId,
+        plannedWorkoutId,
+        signal,
+      }),
+  });
 
-        {analyze.isError ? (
-          <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-medium text-red-500">
-            {analysisErrorMessage}
-          </div>
-        ) : null}
+  const analysis = latestAnalysis.data;
 
-        {latestAnalysis.isError && !analyze.data ? (
-          <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-medium text-red-500">
-            Could not load previous analysis.
-          </div>
-        ) : null}
+  return (
+    <>
+      {latestAnalysis.isError && !analysis ? (
+        <p className="text-xs text-red-500">Could not load previous analysis.</p>
+      ) : null}
 
-        {analysis ? (
-          <article
-            className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-3"
-            data-testid="workout-analysis-outcome"
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-              AI analysis
-            </p>
-            <p className="mt-1 text-sm font-medium text-[var(--shell-ink)]">{analysis.summary}</p>
+      {analysis ? (
+        <article
+          className="space-y-3"
+          data-testid="workout-analysis-outcome"
+        >
+          <div className="border-l-2 border-[var(--shell-accent)] pl-3">
+            <p className="text-sm font-medium text-[var(--shell-ink)]">{analysis.summary}</p>
             <p className="mt-1 text-[11px] text-[var(--shell-muted)]" data-testid="workout-analysis-timestamp">
               Last analyzed {new Date(analysis.createdAt).toLocaleString()}
             </p>
-            {analysis.keyFindings.length > 0 ? (
-              <p className="mt-2 text-xs text-[var(--shell-muted)]">
-                Findings: {analysis.keyFindings.join("; ")}
-              </p>
-            ) : null}
-            {analysis.techniqueRisks.length > 0 ? (
-              <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                Risks: {analysis.techniqueRisks.join("; ")}
-              </p>
-            ) : null}
-            {analysis.coachSuggestions.length > 0 ? (
-              <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                Suggestions: {analysis.coachSuggestions.join("; ")}
-              </p>
-            ) : null}
-          </article>
-        ) : null}
-      </div>
-    </section>
+          </div>
+          {(analysis.keyFindings.length > 0 || analysis.techniqueRisks.length > 0 || analysis.coachSuggestions.length > 0) ? (
+            <div className="space-y-2 text-xs text-[var(--shell-muted)]">
+              {analysis.keyFindings.length > 0 ? (
+                <div>
+                  <span className="font-semibold uppercase tracking-widest">Findings</span>
+                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                    {analysis.keyFindings.map((f, i) => <li key={i}>{f}</li>)}
+                  </ul>
+                </div>
+              ) : null}
+              {analysis.techniqueRisks.length > 0 ? (
+                <div>
+                  <span className="font-semibold uppercase tracking-widest">Risks</span>
+                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                    {analysis.techniqueRisks.map((r, i) => <li key={i}>{r}</li>)}
+                  </ul>
+                </div>
+              ) : null}
+              {analysis.coachSuggestions.length > 0 ? (
+                <div>
+                  <span className="font-semibold uppercase tracking-widest">Suggestions</span>
+                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                    {analysis.coachSuggestions.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </article>
+      ) : null}
+    </>
   );
 }

@@ -147,29 +147,47 @@ export function Workout({
     >
       <CardHeader className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div className="min-w-0 flex gap-4">
-            <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
-              {displayName}
-            </p>
-            <div className="flex items-center gap-2">
-              {isCompleted ? (
-                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-surface)]">
-                  <CheckCircle2Icon className="h-3 w-3" />
-                  Completed
+          <div>
+            <div className="flex flex-wrap items-baseline gap-x-2">
+              {workout.completedAt ? (
+                <span className="text-xs text-[var(--shell-muted)]">
+                  Completed{" "}
+                  {dayjs(workout.completedAt).format("YYYY-MM-DD HH:mm:ss")}
                 </span>
               ) : null}
-              {viewerMode === "coach" && isReviewed ? (
-                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-ink)]">
-                  Reviewed
+              {viewerMode === "coach" && workout.reviewedAt ? (
+                <span className="text-xs text-[var(--shell-muted)]">
+                  Reviewed{" "}
+                  {dayjs(workout.reviewedAt).format("YYYY-MM-DD HH:mm:ss")}
                 </span>
               ) : null}
             </div>
-            {viewerMode === "coach" && isCompleted && !isReviewed ? (
-              <span className="rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-accent-ink)]">
-                Needs review
-              </span>
-            ) : null}
+            <div className="flex items-baseline gap-2">
+              <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
+                {displayName}
+              </p>
+
+              <div className="flex items-center gap-2">
+                {isCompleted ? (
+                  <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-surface)]">
+                    <CheckCircle2Icon className="h-3 w-3" />
+                    Completed
+                  </span>
+                ) : null}
+                {viewerMode === "coach" && isReviewed ? (
+                  <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-ink)]">
+                    Reviewed
+                  </span>
+                ) : null}
+                {viewerMode === "coach" && isCompleted && !isReviewed ? (
+                  <span className="rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-accent-ink)]">
+                    Needs review
+                  </span>
+                ) : null}
+              </div>
+            </div>
           </div>
+
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {!isDetailView && detailHref ? (
               <Link
@@ -284,17 +302,6 @@ export function Workout({
                 {workout.exercises.length - 4 > 1 ? "s" : ""}
               </p>
             ) : null}
-
-            {workout.completedAt ? (
-              <span className="text-xs text-[var(--shell-muted)]">
-                Completed {new Date(workout.completedAt).toLocaleString()}
-              </span>
-            ) : null}
-            {viewerMode === "coach" && workout.reviewedAt ? (
-              <span className="text-xs text-[var(--shell-muted)]">
-                Reviewed {new Date(workout.reviewedAt).toLocaleString()}
-              </span>
-            ) : null}
           </>
         ) : (
           <>
@@ -313,17 +320,6 @@ export function Workout({
                   <RotateCcwIcon className="h-3.5 w-3.5" />
                   Mark incomplete
                 </button>
-              ) : null}
-
-              {workout.completedAt ? (
-                <span className="text-xs text-[var(--shell-muted)]">
-                  Completed {new Date(workout.completedAt).toLocaleString()}
-                </span>
-              ) : null}
-              {viewerMode === "coach" && workout.reviewedAt ? (
-                <span className="text-xs text-[var(--shell-muted)]">
-                  Reviewed {new Date(workout.reviewedAt).toLocaleString()}
-                </span>
               ) : null}
             </div>
 

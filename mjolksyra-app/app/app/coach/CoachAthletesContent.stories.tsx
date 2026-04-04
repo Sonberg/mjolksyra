@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { Trainee } from "@/services/trainees/type"
 import { CoachAthletesContent } from "./CoachAthletesContent"
 import dayjs from "dayjs"

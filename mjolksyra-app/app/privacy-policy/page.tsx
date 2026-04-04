@@ -37,7 +37,7 @@ export default function PrivacyPolicyPage() {
               className="leading-relaxed"
               style={{ color: "var(--home-muted)" }}
             >
-              Mjolksyra ("we", "us", or "our") operates a coaching platform for
+              Mjolksyra (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates a coaching platform for
               athletes and coaches. This Privacy Policy explains what
               information we collect, how we use it, and what rights you have
               over your data. By using our service you agree to the practices
@@ -176,7 +176,7 @@ export default function PrivacyPolicyPage() {
               </Li>
               <Li>
                 <strong>Erasure</strong> — request deletion of your personal
-                data ("right to be forgotten").
+                data (&quot;right to be forgotten&quot;).
               </Li>
               <Li>
                 <strong>Portability</strong> — receive your data in a
@@ -209,7 +209,7 @@ export default function PrivacyPolicyPage() {
               by Clerk) and functional cookies for theme preferences. We use
               analytics cookies via PostHog to understand how the product is
               used. You can opt out of analytics tracking by contacting us or
-              using your browser's cookie controls.
+              using your browser&apos;s cookie controls.
             </p>
           </Section>
 

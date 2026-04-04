@@ -1,20 +1,22 @@
 "use client"
 
-import type { Decorator, Meta, StoryObj } from "@storybook/react"
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useEffect } from "react"
 import { AthleteOnboardingFlow } from "./AthleteOnboardingFlow"
 
 function withMockedFetch(fetchImpl: typeof globalThis.fetch): Decorator {
-  return (Story) => {
+  const Decorator = (Story: () => JSX.Element) => {
     useEffect(() => {
-      const original = globalThis.fetch
-      globalThis.fetch = fetchImpl
+      const original = globalThis.fetch;
+      globalThis.fetch = fetchImpl;
       return () => {
-        globalThis.fetch = original
-      }
-    }, [])
-    return <Story />
-  }
+        globalThis.fetch = original;
+      };
+    }, []);
+    return <Story />;
+  };
+  Decorator.displayName = "WithMockedFetch";
+  return Decorator;
 }
 
 const meta = {

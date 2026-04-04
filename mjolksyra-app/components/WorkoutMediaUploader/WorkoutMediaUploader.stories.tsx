@@ -1,6 +1,6 @@
 "use client";
 
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { WorkoutMediaUploader } from "./WorkoutMediaUploader";
 import type { PendingPreview } from "./WorkoutMediaUploader";
 import { useState } from "react";

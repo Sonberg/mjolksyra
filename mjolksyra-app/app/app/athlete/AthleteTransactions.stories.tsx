@@ -1,6 +1,6 @@
 "use client"
 
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AthleteTransactions } from "./AthleteTransactions"
