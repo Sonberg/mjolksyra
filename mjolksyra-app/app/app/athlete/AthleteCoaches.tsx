@@ -13,56 +13,48 @@ type Props = {
 export function AthleteCoaches({ user, selected, onSelect }: Props) {
   const [isOpen, setOpen] = useState(true);
 
-  const active =
-    user.coaches?.length > 0 ? (
-      <div className="mt-5 space-y-3">
-        <h3 className="text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-          Active
-        </h3>
-        {user.coaches.map((x) => (
-          <AthleteCoach
-            key={x.traineeId}
-            coach={x}
-            isSelected={x.traineeId === selected?.traineeId}
-            href={`/app/athlete/${x.traineeId}`}
-            onSelect={() => onSelect(x)}
-          />
-        ))}
-      </div>
-    ) : null;
-
-  const invitations = user.invitations.length ? (
-    <div className="mt-5">
-      <h3 className="text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-        Pending invitations
-      </h3>
-      <AthleteInvitations invitations={user.invitations} />
-    </div>
-  ) : null;
-
   return (
-    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
+    <div className="bg-[var(--shell-surface-strong)] p-4">
       <div
         className="flex cursor-pointer items-center justify-between"
         onClick={() => setOpen((state) => !state)}
       >
         <div>
-          <h2 className="text-xl text-[var(--shell-ink)]">Your coaches</h2>
-          <p className="mt-1 text-sm text-[var(--shell-muted)]">
-            {user.coaches.length} active connection
-            {user.coaches.length === 1 ? "" : "s"}
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Coaches</p>
+          <p className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">
+            {user.coaches.length} active connection{user.coaches.length === 1 ? "" : "s"}
           </p>
         </div>
-        <div className="text-[var(--shell-muted)]">
-          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-        </div>
+        <span className="text-[var(--shell-muted)]">
+          {isOpen ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+        </span>
       </div>
+
       {isOpen ? (
-        <>
-          {active}
-          {invitations}
-        </>
+        <div className="mt-4 space-y-4">
+          {user.coaches.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[11px] uppercase tracking-widest text-[var(--shell-muted)]">Active</p>
+              {user.coaches.map((x) => (
+                <AthleteCoach
+                  key={x.traineeId}
+                  coach={x}
+                  isSelected={x.traineeId === selected?.traineeId}
+                  href={`/app/athlete/${x.traineeId}`}
+                  onSelect={() => onSelect(x)}
+                />
+              ))}
+            </div>
+          ) : null}
+
+          {user.invitations.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[11px] uppercase tracking-widest text-[var(--shell-muted)]">Pending invitations</p>
+              <AthleteInvitations invitations={user.invitations} />
+            </div>
+          ) : null}
+        </div>
       ) : null}
-    </section>
+    </div>
   );
 }
