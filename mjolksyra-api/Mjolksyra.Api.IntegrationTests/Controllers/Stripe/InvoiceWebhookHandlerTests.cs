@@ -324,10 +324,12 @@ public class InvoiceWebhookHandlerTests
     private sealed class FakeUserRepository : IUserRepository
     {
         public Dictionary<Guid, User> UsersById { get; set; } = [];
+        public User? UserByPlatformSubscriptionId { get; set; }
 
         public Task<User?> GetByEmail(string email, CancellationToken ct) => Task.FromResult<User?>(null);
         public Task<User?> GetByClerkId(string clerkUserId, CancellationToken ct) => Task.FromResult<User?>(null);
         public Task<User> GetById(Guid id, CancellationToken ct) => Task.FromResult(UsersById[id]);
+        public Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct) => Task.FromResult(UserByPlatformSubscriptionId);
         public Task<ICollection<User>> GetManyById(ICollection<Guid> ids, CancellationToken ct) => Task.FromResult<ICollection<User>>([]);
         public Task<User> Create(User user, CancellationToken ct) => Task.FromResult(user);
         public Task<User> Update(User user, CancellationToken ct) => Task.FromResult(user);

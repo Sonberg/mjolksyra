@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { type CoachRevenueItem } from "@/services/admin/schema";
+import { grantCoachCredits } from "@/services/admin/grantCoachCredits";
 
 type Props = {
   initialCoaches: CoachRevenueItem[];
@@ -16,6 +17,9 @@ export function UsersTab({ initialCoaches }: Props) {
   const [selectedCoachId, setSelectedCoachId] = useState<string>(
     initialCoaches[0]?.coachUserId ?? "",
   );
+  const [grantCreditsAmount, setGrantCreditsAmount] = useState<string>("50");
+  const [grantReason, setGrantReason] = useState<string>("");
+  const [grantingCredits, setGrantingCredits] = useState(false);
 
   const sorted = useMemo(
     () =>
@@ -75,6 +79,32 @@ export function UsersTab({ initialCoaches }: Props) {
       setError(e instanceof Error ? e.message : "Failed to sync athlete subscription.");
     } finally {
       setSyncingAthleteId(null);
+    }
+  }
+
+  async function submitGrantCredits(coachUserId: string) {
+    try {
+      setError(null);
+      setSyncSummary(null);
+      setGrantingCredits(true);
+
+      const purchasedCredits = Number(grantCreditsAmount);
+      if (!Number.isFinite(purchasedCredits) || purchasedCredits <= 0) {
+        throw new Error("Credits amount must be greater than 0.");
+      }
+
+      await grantCoachCredits({
+        coachUserId,
+        purchasedCredits,
+        reason: grantReason.trim() || undefined,
+      });
+
+      setSyncSummary(`Granted ${purchasedCredits} purchased credits.`);
+      setGrantReason("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to grant credits.");
+    } finally {
+      setGrantingCredits(false);
     }
   }
 
@@ -154,6 +184,31 @@ export function UsersTab({ initialCoaches }: Props) {
                   : "Current platform fee status"} />
                 <StatusBox label="Monthly revenue" value={formatSek(selectedCoach.monthlyAthleteRevenue)} helper="Active athlete subscriptions" />
                 <StatusBox label="Total revenue" value={formatSek(selectedCoach.totalAthleteRevenue)} helper="Succeeded charges only" />
+              </div>
+
+              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">Grant purchased credits</p>
+                <div className="mt-3 grid gap-2 md:grid-cols-[9rem_1fr_auto]">
+                  <input
+                    value={grantCreditsAmount}
+                    onChange={(event) => setGrantCreditsAmount(event.target.value)}
+                    inputMode="numeric"
+                    className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] focus:outline-none"
+                    placeholder="Credits"
+                  />
+                  <input
+                    value={grantReason}
+                    onChange={(event) => setGrantReason(event.target.value)}
+                    className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] focus:outline-none"
+                    placeholder="Reason (optional)"
+                  />
+                  <SyncButton
+                    onClick={() => void submitGrantCredits(selectedCoach.coachUserId)}
+                    loading={grantingCredits}
+                    label="Grant"
+                    size="md"
+                  />
+                </div>
               </div>
 
               <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]">

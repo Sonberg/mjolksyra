@@ -154,6 +154,8 @@ public class InviteTraineeCommandHandlerTests
 
         public Task<User> GetById(Guid id, CancellationToken ct) => Task.FromResult(UserById!);
 
+        public Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct) => Task.FromResult<User?>(null);
+
         public Task<ICollection<User>> GetManyById(ICollection<Guid> ids, CancellationToken ct) =>
             Task.FromResult<ICollection<User>>([]);
 

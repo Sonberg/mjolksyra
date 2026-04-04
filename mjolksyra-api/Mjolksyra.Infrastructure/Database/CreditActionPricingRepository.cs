@@ -16,6 +16,14 @@ public class CreditActionPricingRepository(IMongoDbContext context) : ICreditAct
             .ContinueWith(t => t.Result.SingleOrDefault(), ct);
     }
 
+    public async Task<ICollection<CreditActionPricing>> GetAll(CancellationToken ct)
+    {
+        return await context.CreditActionPricings
+            .Find(Builders<CreditActionPricing>.Filter.Empty)
+            .ToListAsync(ct)
+            .ContinueWith(t => (ICollection<CreditActionPricing>)t.Result.ToList(), ct);
+    }
+
     public async Task Upsert(CreditActionPricing pricing, CancellationToken ct)
     {
         await context.CreditActionPricings.ReplaceOneAsync(

@@ -9,4 +9,6 @@ public class GetCreditsResponse
     public int TotalRemaining { get; set; }
 
     public DateTimeOffset? LastResetAt { get; set; }
+
+    public DateTimeOffset? NextResetAt { get; set; }
 }

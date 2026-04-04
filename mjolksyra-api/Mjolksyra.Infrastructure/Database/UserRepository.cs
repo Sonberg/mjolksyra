@@ -48,6 +48,15 @@ public class UserRepository : IUserRepository
             .ContinueWith(t => t.Result.Single(), ct);
     }
 
+    public async Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct)
+    {
+        return await _context.Users
+            .Find(x => x.Coach != null && x.Coach.Stripe != null && x.Coach.Stripe.PlatformSubscriptionId == subscriptionId)
+            .Limit(1)
+            .ToListAsync(ct)
+            .ContinueWith(t => t.Result.SingleOrDefault(), ct);
+    }
+
     public async Task<ICollection<User>> GetManyById(ICollection<Guid> ids, CancellationToken ct)
     {
         return await _context.Users

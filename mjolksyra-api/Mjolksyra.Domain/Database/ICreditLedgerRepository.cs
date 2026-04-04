@@ -5,4 +5,10 @@ namespace Mjolksyra.Domain.Database;
 public interface ICreditLedgerRepository
 {
     Task Append(CreditLedger entry, CancellationToken ct);
+
+    Task<ICollection<CreditLedger>> GetByCoachUserId(
+        Guid coachUserId,
+        int limit,
+        DateTimeOffset? before,
+        CancellationToken ct);
 }

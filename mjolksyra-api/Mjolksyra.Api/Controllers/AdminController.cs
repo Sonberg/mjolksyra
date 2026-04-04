@@ -8,6 +8,7 @@ using Mjolksyra.UseCases.Admin.GetAdminStats;
 using Mjolksyra.UseCases.Admin.GetCoachRevenue;
 using Mjolksyra.UseCases.Admin.GetDiscountCodes;
 using Mjolksyra.UseCases.Admin.GetFeedbackReports;
+using Mjolksyra.UseCases.Admin.GrantCoachCredits;
 using Mjolksyra.UseCases.Admin.UpdateFeedbackReportStatus;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Mjolksyra.UseCases.Trainees.TriggerMissingSubscriptionsForUser;
@@ -148,6 +149,23 @@ public class AdminController(IMediator mediator, IUserContext userContext, IUser
 
         return Ok(result);
     }
+
+    [HttpPost("coaches/{coachUserId:guid}/credits/grant")]
+    public async Task<ActionResult> GrantCoachCredits(
+        Guid coachUserId,
+        [FromBody] GrantCoachCreditsBody body,
+        CancellationToken ct)
+    {
+        if (!await userContext.IsAdminAsync(ct)) return Forbid();
+
+        if (body.PurchasedCredits <= 0)
+        {
+            return BadRequest(new { title = "PurchasedCredits must be greater than 0." });
+        }
+
+        await mediator.Send(new GrantCoachCreditsCommand(coachUserId, body.PurchasedCredits, body.Reason), ct);
+        return Ok();
+    }
 }
 
 public class UpdateFeedbackReportStatusBody
@@ -178,4 +196,11 @@ public class EnsureAllCoachPlatformSubscriptionsResult
     public required int Success { get; set; }
     public required int Failed { get; set; }
     public required ICollection<string> Errors { get; set; }
+}
+
+public class GrantCoachCreditsBody
+{
+    public required int PurchasedCredits { get; set; }
+
+    public string? Reason { get; set; }
 }

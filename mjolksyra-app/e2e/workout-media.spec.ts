@@ -524,4 +524,25 @@ test.describe("Workout media upload", () => {
 
     await expect(page.getByText("Insufficient credits.", { exact: true })).toBeVisible();
   });
+
+  test("Coach sees analysis credit cost on action", async ({ page }) => {
+    await page.route("**/api/coaches/credits/pricing", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            action: "AnalyzeWorkoutMedia",
+            creditCost: 5,
+          },
+        ]),
+      });
+    });
+
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
+    );
+
+    await expect(page.getByRole("button", { name: "Analyze (5 credits)" })).toBeVisible();
+  });
 });

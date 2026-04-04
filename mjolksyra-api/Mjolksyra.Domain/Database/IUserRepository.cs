@@ -10,6 +10,8 @@ public interface IUserRepository
 
     Task<User> GetById(Guid id, CancellationToken ct);
 
+    Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct);
+
     Task<ICollection<User>> GetManyById(ICollection<Guid> ids, CancellationToken ct);
 
     Task<User> Create(User user, CancellationToken ct);

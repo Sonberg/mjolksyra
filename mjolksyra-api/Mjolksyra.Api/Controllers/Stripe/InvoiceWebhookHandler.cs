@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.Coaches.AddPurchasedCredits;
+using Mjolksyra.UseCases.Coaches.ResetUserCredits;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -53,6 +54,15 @@ public class InvoiceWebhookHandler
         {
             await _mediator.Send(new AddPurchasedCreditsCommand(coachUserId, packId, eventId));
             return;
+        }
+
+        if (invoice.SubscriptionId is not null)
+        {
+            var platformCoach = await _userRepository.GetByPlatformSubscriptionId(invoice.SubscriptionId, CancellationToken.None);
+            if (platformCoach is not null)
+            {
+                await _mediator.Send(new ResetUserCreditsCommand(platformCoach.Id), CancellationToken.None);
+            }
         }
 
         if (invoice.SubscriptionId is null) return;

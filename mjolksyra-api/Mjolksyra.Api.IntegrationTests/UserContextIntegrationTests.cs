@@ -143,6 +143,8 @@ public class UserContextIntegrationTests
 
         public Task<User> GetById(Guid id, CancellationToken ct) => throw new NotImplementedException();
 
+        public Task<User?> GetByPlatformSubscriptionId(string subscriptionId, CancellationToken ct) => Task.FromResult<User?>(null);
+
         public Task<ICollection<User>> GetManyById(ICollection<Guid> ids, CancellationToken ct) =>
             throw new NotImplementedException();
 

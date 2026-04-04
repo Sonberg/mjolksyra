@@ -6,6 +6,7 @@ const creditsSchema = z.object({
   purchasedRemaining: z.number(),
   totalRemaining: z.number(),
   lastResetAt: z.string().nullable().optional(),
+  nextResetAt: z.string().nullable().optional(),
 });
 
 export type Credits = z.infer<typeof creditsSchema>;

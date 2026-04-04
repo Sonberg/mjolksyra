@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Coaches.ApplyDiscountCode;
+using Mjolksyra.UseCases.Coaches.GetCreditLedger;
+using Mjolksyra.UseCases.Coaches.GetCreditPricing;
 using Mjolksyra.UseCases.Coaches.GetCredits;
 using Mjolksyra.UseCases.Coaches.GetAppliedDiscountCode;
 using Mjolksyra.UseCases.Coaches.PurchaseCreditPack;
@@ -73,9 +75,33 @@ public class CoachesController(IMediator mediator, IUserContext userContext) : C
                 PurchasedRemaining = 0,
                 TotalRemaining = 0,
                 LastResetAt = null,
+                NextResetAt = null,
             });
         }
 
+        return Ok(response);
+    }
+
+    [HttpGet("credits/pricing")]
+    public async Task<ActionResult<ICollection<CreditPricingItemResponse>>> GetCreditPricing(CancellationToken ct)
+    {
+        var userId = await userContext.GetUserId(ct);
+        if (userId is null) return Unauthorized();
+
+        var response = await mediator.Send(new GetCreditPricingQuery(), ct);
+        return Ok(response);
+    }
+
+    [HttpGet("credits/ledger")]
+    public async Task<ActionResult<ICollection<CreditLedgerItemResponse>>> GetCreditLedger(
+        [FromQuery] int limit = 50,
+        [FromQuery] DateTimeOffset? before = null,
+        CancellationToken ct = default)
+    {
+        var userId = await userContext.GetUserId(ct);
+        if (userId is null) return Unauthorized();
+
+        var response = await mediator.Send(new GetCreditLedgerQuery(userId.Value, limit, before), ct);
         return Ok(response);
     }
 

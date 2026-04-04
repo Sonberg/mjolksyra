@@ -33,6 +33,33 @@ const connectedStatus = {
   badgeClass: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
 }
 
+const sampleCredits = {
+  includedRemaining: 18,
+  purchasedRemaining: 42,
+  totalRemaining: 60,
+  lastResetAt: new Date().toISOString(),
+  nextResetAt: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+}
+
+const samplePricing = [
+  {
+    action: "AnalyzeWorkoutMedia",
+    creditCost: 5,
+  },
+]
+
+const sampleLedger = [
+  {
+    id: "1",
+    type: "Deduct",
+    action: "AnalyzeWorkoutMedia",
+    includedCreditsChanged: -5,
+    purchasedCreditsChanged: 0,
+    referenceId: "Workout analysis",
+    createdAt: new Date().toISOString(),
+  },
+]
+
 const meta = {
   title: "Coach/CoachDashboardSubscriptionSection",
 } satisfies Meta
@@ -52,6 +79,9 @@ export const FreeTrial: Story = {
       onOpenStripeDashboard={() => {}}
       trialEndsAt={new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)}
       discount={null}
+      credits={sampleCredits}
+      creditPricing={samplePricing}
+      creditLedger={sampleLedger}
     />
   ),
 }
@@ -68,6 +98,9 @@ export const PlanNudge: Story = {
       onOpenStripeDashboard={() => {}}
       trialEndsAt={null}
       discount={null}
+      credits={sampleCredits}
+      creditPricing={samplePricing}
+      creditLedger={sampleLedger}
     />
   ),
 }
@@ -84,6 +117,9 @@ export const StripeNotConnected: Story = {
       onOpenStripeDashboard={() => {}}
       trialEndsAt={null}
       discount={null}
+      credits={sampleCredits}
+      creditPricing={samplePricing}
+      creditLedger={sampleLedger}
     />
   ),
 }
@@ -100,6 +136,9 @@ export const OpeningStripeDashboard: Story = {
       onOpenStripeDashboard={() => {}}
       trialEndsAt={null}
       discount={null}
+      credits={sampleCredits}
+      creditPricing={samplePricing}
+      creditLedger={sampleLedger}
     />
   ),
 }
@@ -123,6 +162,9 @@ export const WithAppliedDiscount: Story = {
         code: "SPRING50",
         description: "50% off for three months",
       }}
+      credits={sampleCredits}
+      creditPricing={samplePricing}
+      creditLedger={sampleLedger}
     />
   ),
 }
@@ -143,6 +185,9 @@ export const WithoutDiscount: Story = {
       onOpenStripeDashboard={() => {}}
       trialEndsAt={null}
       discount={null}
+      credits={sampleCredits}
+      creditPricing={samplePricing}
+      creditLedger={sampleLedger}
     />
   ),
 }

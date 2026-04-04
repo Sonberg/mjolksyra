@@ -20,6 +20,7 @@ public class GetCreditsQueryHandler(IUserCreditsRepository creditsRepository)
             PurchasedRemaining = credits.PurchasedRemaining,
             TotalRemaining = credits.IncludedRemaining + credits.PurchasedRemaining,
             LastResetAt = credits.LastResetAt,
+            NextResetAt = credits.LastResetAt?.AddMonths(1),
         };
     }
 }

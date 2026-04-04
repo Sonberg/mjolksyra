@@ -7,5 +7,7 @@ public interface ICreditActionPricingRepository
 {
     Task<CreditActionPricing?> GetByAction(CreditAction action, CancellationToken ct);
 
+    Task<ICollection<CreditActionPricing>> GetAll(CancellationToken ct);
+
     Task Upsert(CreditActionPricing pricing, CancellationToken ct);
 }

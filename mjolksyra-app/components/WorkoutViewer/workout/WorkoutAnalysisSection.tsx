@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { analyzeWorkoutMedia } from "@/services/plannedWorkouts/analyzeWorkoutMedia";
 import { getLatestWorkoutMediaAnalysis } from "@/services/plannedWorkouts/getLatestWorkoutMediaAnalysis";
 
@@ -41,11 +42,20 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
     },
   });
 
+  const pricing = useQuery({
+    queryKey: ["coach-credit-pricing"],
+    queryFn: getCreditPricing,
+  });
+
   const canAnalyze = useMemo(() => {
     return !analyze.isPending;
   }, [analyze.isPending]);
 
   const analysis = analyze.data ?? latestAnalysis.data;
+  const analyzeCost = useMemo(() => {
+    const mediaAction = pricing.data?.find((item) => item.action === "AnalyzeWorkoutMedia");
+    return mediaAction?.creditCost ?? null;
+  }, [pricing.data]);
   const analysisErrorMessage = useMemo(() => {
     if (!analyze.isError) {
       return null;
@@ -88,14 +98,17 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs text-[var(--shell-muted)]">Always uses latest chat media.</p>
+          <p className="text-xs text-[var(--shell-muted)]">
+            Always uses latest chat media.
+            {analyzeCost ? ` Cost: ${analyzeCost} credits.` : ""}
+          </p>
           <button
             type="button"
             disabled={!canAnalyze}
             onClick={() => analyze.mutate()}
             className="min-h-10 shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 text-[11px] font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
           >
-            {analyze.isPending ? "Analyzing..." : "Analyze"}
+            {analyze.isPending ? "Analyzing..." : analyzeCost ? `Analyze (${analyzeCost} credits)` : "Analyze"}
           </button>
         </div>
 
