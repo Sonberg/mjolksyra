@@ -3,6 +3,7 @@ export type Plan = {
   name: string;
   monthlyPriceSek: number;
   includedAthletes: number;
+  includedCreditsPerCycle: number;
   extraAthletePriceSek: number;
   sortOrder: number;
 };

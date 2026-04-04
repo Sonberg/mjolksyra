@@ -19,6 +19,7 @@ public class PlanSeeder(IServiceProvider serviceProvider) : IHostedService
             MonthlyPriceSek = 199,
             IncludedAthletes = 5,
             ExtraAthletePriceSek = 49,
+            IncludedCreditsPerCycle = 25,
             SortOrder = 1,
         }, cancellationToken);
 
@@ -29,6 +30,7 @@ public class PlanSeeder(IServiceProvider serviceProvider) : IHostedService
             MonthlyPriceSek = 399,
             IncludedAthletes = 12,
             ExtraAthletePriceSek = 39,
+            IncludedCreditsPerCycle = 100,
             SortOrder = 2,
         }, cancellationToken);
 
@@ -39,6 +41,7 @@ public class PlanSeeder(IServiceProvider serviceProvider) : IHostedService
             MonthlyPriceSek = 699,
             IncludedAthletes = 25,
             ExtraAthletePriceSek = 29,
+            IncludedCreditsPerCycle = 300,
             SortOrder = 3,
         }, cancellationToken);
     }

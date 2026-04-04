@@ -18,6 +18,7 @@ const STARTER_FALLBACK: Plan = {
   name: "Starter",
   monthlyPriceSek: 199,
   includedAthletes: 5,
+  includedCreditsPerCycle: 25,
   extraAthletePriceSek: 49,
   sortOrder: 1,
 };

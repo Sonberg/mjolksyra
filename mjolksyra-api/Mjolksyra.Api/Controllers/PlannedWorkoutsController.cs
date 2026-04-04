@@ -216,7 +216,10 @@ public class PlannedWorkoutsController : Controller
             Analysis = request,
         }, cancellationToken);
 
-        return result is null ? Forbid() : Ok(result);
+        return result.Match<ActionResult<WorkoutMediaAnalysisResponse>>(
+            success => Ok(success),
+            _ => Forbid(),
+            insufficient => UnprocessableEntity(new { error = insufficient.Reason }));
     }
 
     [HttpGet("{plannedWorkoutId:guid}/analysis/latest")]

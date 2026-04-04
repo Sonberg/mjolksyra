@@ -1,3 +1,4 @@
+using MediatR;
 using Mjolksyra.Api.Controllers.Stripe;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
@@ -49,7 +50,7 @@ public class InvoiceWebhookHandlerTests
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
         };
 
-        await sut.HandleSucceeded(invoice);
+        await sut.HandleSucceeded(invoice, "evt_1");
 
         Assert.NotNull(transactionRepo.UpsertedTransaction);
         Assert.Equal("pi_test456", transactionRepo.UpsertedTransaction!.PaymentIntentId);
@@ -97,7 +98,7 @@ public class InvoiceWebhookHandlerTests
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
         };
 
-        await sut.HandleFailed(invoice);
+        await sut.HandleFailed(invoice, "evt_2");
 
         Assert.NotNull(transactionRepo.UpsertedTransaction);
         Assert.Equal("pi_test999", transactionRepo.UpsertedTransaction!.PaymentIntentId);
@@ -112,7 +113,7 @@ public class InvoiceWebhookHandlerTests
         var transactionRepo = new FakeTransactionRepository();
         var sut = CreateHandler(new FakeTraineeRepository(), new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = null });
+        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = null }, "evt_3");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -123,7 +124,7 @@ public class InvoiceWebhookHandlerTests
         var transactionRepo = new FakeTransactionRepository();
         var sut = CreateHandler(new FakeTraineeRepository(), new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = null });
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = null }, "evt_4");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -135,7 +136,7 @@ public class InvoiceWebhookHandlerTests
         var traineeRepo = new FakeTraineeRepository { TraineeBySubscriptionId = null };
         var sut = CreateHandler(traineeRepo, new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" });
+        await sut.HandleSucceeded(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" }, "evt_5");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -147,7 +148,7 @@ public class InvoiceWebhookHandlerTests
         var traineeRepo = new FakeTraineeRepository { TraineeBySubscriptionId = null };
         var sut = CreateHandler(traineeRepo, new FakeUserRepository(), transactionRepo);
 
-        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" });
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_unknown" }, "evt_6");
 
         Assert.Null(transactionRepo.UpsertedTransaction);
     }
@@ -182,7 +183,7 @@ public class InvoiceWebhookHandlerTests
 
         var sut = CreateHandler(traineeRepo, userRepo, new FakeTransactionRepository());
 
-        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_test123", PaymentIntentId = "pi_test" });
+        await sut.HandleFailed(new Invoice { Id = "in_test", SubscriptionId = "sub_test123", PaymentIntentId = "pi_test" }, "evt_7");
 
         Assert.NotNull(traineeRepo.UpdatedTrainee);
         Assert.NotNull(traineeRepo.UpdatedTrainee!.PaymentFailedAt);
@@ -225,7 +226,7 @@ public class InvoiceWebhookHandlerTests
             SubscriptionId = "sub_test123",
             PaymentIntentId = "pi_test",
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
-        });
+        }, "evt_8");
 
         Assert.NotNull(traineeRepo.UpdatedTrainee);
         Assert.Null(traineeRepo.UpdatedTrainee!.PaymentFailedAt);
@@ -268,7 +269,7 @@ public class InvoiceWebhookHandlerTests
             SubscriptionId = "sub_test123",
             PaymentIntentId = "pi_test",
             HostedInvoiceUrl = "https://invoice.stripe.com/receipt"
-        });
+        }, "evt_9");
 
         Assert.Null(traineeRepo.UpdatedTrainee);
     }
@@ -283,7 +284,9 @@ public class InvoiceWebhookHandlerTests
             userRepo,
             transactionRepo,
             new FakeEmailSender(),
-            new FakeNotificationService());
+            new FakeNotificationService(),
+            new FakeProcessedStripeEventRepository(),
+            new FakeMediator());
     }
 
     private static User CreateUser(Guid id, string email, string givenName, string familyName) => new()
@@ -351,6 +354,40 @@ public class InvoiceWebhookHandlerTests
             return Task.CompletedTask;
         }
         public Task<decimal> TotalRevenueAsync(CancellationToken ct) => Task.FromResult(0m);
+    }
+
+    private sealed class FakeProcessedStripeEventRepository : IProcessedStripeEventRepository
+    {
+        private readonly HashSet<string> _eventIds = [];
+
+        public Task<bool> TryMarkAsProcessed(string eventId, string eventType, CancellationToken ct)
+        {
+            return Task.FromResult(_eventIds.Add(eventId));
+        }
+    }
+
+    private sealed class FakeMediator : IMediator
+    {
+        public Task Publish(object notification, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+            where TNotification : INotification => Task.CompletedTask;
+
+        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+            => Task.FromResult(default(TResponse)!);
+
+        public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+            where TRequest : IRequest
+            => Task.CompletedTask;
+
+        public Task<object?> Send(object request, CancellationToken cancellationToken = default)
+            => Task.FromResult<object?>(null);
+
+        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public IAsyncEnumerable<object?> CreateStream(object request, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
     }
 
     private sealed class FakeEmailSender : IEmailSender

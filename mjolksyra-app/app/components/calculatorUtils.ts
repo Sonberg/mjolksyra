@@ -5,6 +5,7 @@ export const FALLBACK_CALCULATOR_PLAN: Plan = {
   name: "Standard",
   monthlyPriceSek: 399,
   includedAthletes: 10,
+  includedCreditsPerCycle: 100,
   extraAthletePriceSek: 39,
   sortOrder: 999,
 };

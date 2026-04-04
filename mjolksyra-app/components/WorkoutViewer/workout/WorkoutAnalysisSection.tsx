@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { analyzeWorkoutMedia } from "@/services/plannedWorkouts/analyzeWorkoutMedia";
 import { getLatestWorkoutMediaAnalysis } from "@/services/plannedWorkouts/getLatestWorkoutMediaAnalysis";
 
@@ -45,6 +46,22 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
   }, [analyze.isPending]);
 
   const analysis = analyze.data ?? latestAnalysis.data;
+  const analysisErrorMessage = useMemo(() => {
+    if (!analyze.isError) {
+      return null;
+    }
+
+    if (analyze.error instanceof AxiosError && analyze.error.response?.status === 422) {
+      const errorMessage =
+        typeof analyze.error.response.data === "object" && analyze.error.response.data !== null
+          ? (analyze.error.response.data as { error?: string }).error
+          : null;
+
+      return errorMessage ?? "Not enough credits to analyze this check-in.";
+    }
+
+    return "Could not analyze this check-in right now.";
+  }, [analyze.error, analyze.isError]);
 
   return (
     <section
@@ -90,7 +107,7 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
 
         {analyze.isError ? (
           <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-medium text-red-500">
-            Could not analyze this check-in right now.
+            {analysisErrorMessage}
           </div>
         ) : null}
 

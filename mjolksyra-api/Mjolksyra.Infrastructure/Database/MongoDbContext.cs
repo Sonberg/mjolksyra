@@ -32,6 +32,16 @@ public interface IMongoDbContext
     IMongoCollection<Plan> Plans { get; }
 
     IMongoCollection<WorkoutMediaAnalysisRecord> WorkoutMediaAnalyses { get; }
+
+    IMongoCollection<UserCredits> UserCredits { get; }
+
+    IMongoCollection<CreditActionPricing> CreditActionPricings { get; }
+
+    IMongoCollection<CreditPack> CreditPacks { get; }
+
+    IMongoCollection<CreditLedger> CreditLedger { get; }
+
+    IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -65,6 +75,16 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<Plan> Plans => Database.GetCollection<Plan>("plans");
 
     public IMongoCollection<WorkoutMediaAnalysisRecord> WorkoutMediaAnalyses => Database.GetCollection<WorkoutMediaAnalysisRecord>("planned-workout-analyses");
+
+    public IMongoCollection<UserCredits> UserCredits => Database.GetCollection<UserCredits>("user-credits");
+
+    public IMongoCollection<CreditActionPricing> CreditActionPricings => Database.GetCollection<CreditActionPricing>("credit-action-pricings");
+
+    public IMongoCollection<CreditPack> CreditPacks => Database.GetCollection<CreditPack>("credit-packs");
+
+    public IMongoCollection<CreditLedger> CreditLedger => Database.GetCollection<CreditLedger>("credit-ledger");
+
+    public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

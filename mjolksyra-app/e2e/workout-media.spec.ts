@@ -487,4 +487,41 @@ test.describe("Workout media upload", () => {
     await expect(page.getByText("AI analysis", { exact: true })).toBeVisible();
     await expect(page.getByText("Session quality is solid with stable pacing.", { exact: true })).toBeVisible();
   });
+
+  test("Coach sees credit error when analysis credits are insufficient", async ({ page }) => {
+    await page.route("**/api/trainees/**/planned-workouts/**/chat-messages", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]",
+      });
+    });
+
+    await page.route("**/api/trainees/**/planned-workouts/**/analysis/latest", async (route) => {
+      await route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.route("**/api/trainees/**/planned-workouts/**/analysis", async (route) => {
+      await route.fulfill({
+        status: 422,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: "Insufficient credits.",
+        }),
+      });
+    });
+
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
+    );
+
+    const analyzeButton = page.getByRole("button", { name: "Analyze" });
+    await analyzeButton.click();
+
+    await expect(page.getByText("Insufficient credits.", { exact: true })).toBeVisible();
+  });
 });

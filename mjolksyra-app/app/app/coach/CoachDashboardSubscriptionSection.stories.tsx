@@ -6,6 +6,7 @@ const starterPlan = {
   name: "Starter",
   monthlyPriceSek: 399,
   includedAthletes: 10,
+  includedCreditsPerCycle: 100,
   extraAthletePriceSek: 39,
   sortOrder: 1,
 }
@@ -15,6 +16,7 @@ const proPlan = {
   name: "Pro",
   monthlyPriceSek: 799,
   includedAthletes: 25,
+  includedCreditsPerCycle: 300,
   extraAthletePriceSek: 29,
   sortOrder: 2,
 }

@@ -1,10 +1,13 @@
+using MediatR;
 using Moq;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
+using OneOf;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 
@@ -22,7 +25,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(), CancellationToken.None);
 
-        Assert.Null(result);
+        Assert.True(result.IsT1);
     }
 
     [Fact]
@@ -45,7 +48,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId: traineeId), CancellationToken.None);
 
-        Assert.Null(result);
+        Assert.True(result.IsT1);
     }
 
     [Fact]
@@ -91,7 +94,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId: traineeId), CancellationToken.None);
 
-        Assert.Null(result);
+        Assert.True(result.IsT1);
     }
 
     [Fact]
@@ -204,13 +207,18 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
             .Setup(x => x.Create(It.IsAny<WorkoutMediaAnalysisRecord>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((WorkoutMediaAnalysisRecord x, CancellationToken _) => x);
 
-        var sut = CreateSut(workoutRepository, chatMessageRepository, traineeRepository, userContext, analysisRepository, analysisAgent);
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(10, 5)));
+
+        var sut = CreateSut(mediator, workoutRepository, chatMessageRepository, traineeRepository, userContext, analysisRepository, analysisAgent);
 
         var result = await sut.Handle(CreateCommand(traineeId, workoutId), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal("Good control and tempo.", result!.Summary);
-        Assert.Single(result.KeyFindings);
+        Assert.True(result.IsT0);
+        Assert.Equal("Good control and tempo.", result.AsT0.Summary);
+        Assert.Single(result.AsT0.KeyFindings);
         analysisAgent.Verify(
             x => x.AnalyzeAsync(
                 It.Is<WorkoutMediaAnalysisInput>(input =>
@@ -280,7 +288,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId, workoutId), CancellationToken.None);
 
-        Assert.Null(result);
+        Assert.True(result.IsT1);
         analysisAgent.Verify(
             x => x.AnalyzeAsync(It.IsAny<WorkoutMediaAnalysisInput>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -337,11 +345,16 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
                 Summary = "ok",
             });
 
-        var sut = CreateSut(workoutRepository, chatMessageRepository, traineeRepository, userContext, analysisAgent: analysisAgent);
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(3, 0)));
+
+        var sut = CreateSut(mediator, workoutRepository, chatMessageRepository, traineeRepository, userContext, analysisAgent: analysisAgent);
 
         var result = await sut.Handle(CreateCommand(traineeId, workoutId), CancellationToken.None);
 
-        Assert.NotNull(result);
+        Assert.True(result.IsT0);
         analysisAgent.Verify(
             x => x.AnalyzeAsync(
                 It.Is<WorkoutMediaAnalysisInput>(input => input.Text == "Please review form"),
@@ -349,7 +362,61 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task Handle_WhenCreditsInsufficient_ReturnsInsufficientCreditsAndDoesNotAnalyze()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var workoutId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.HasAccess(traineeId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = Domain.Database.Enum.TraineeStatus.Active,
+            });
+
+        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        workoutRepository
+            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannedWorkout
+            {
+                Id = workoutId,
+                TraineeId = traineeId,
+                PlannedAt = new DateOnly(2026, 4, 1),
+                CreatedAt = DateTimeOffset.UtcNow,
+                Exercises = []
+            });
+
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT1(new ConsumeCreditsError("Insufficient credits.")));
+
+        var analysisAgent = new Mock<IWorkoutMediaAnalysisAgent>();
+        var sut = CreateSut(mediator: mediator, workoutRepository: workoutRepository, traineeRepository: traineeRepository, userContext: userContext, analysisAgent: analysisAgent);
+
+        var result = await sut.Handle(CreateCommand(traineeId, workoutId), CancellationToken.None);
+
+        Assert.True(result.IsT2);
+        Assert.Equal("Insufficient credits.", result.AsT2.Reason);
+        analysisAgent.Verify(x => x.AnalyzeAsync(It.IsAny<WorkoutMediaAnalysisInput>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static AnalyzeWorkoutMediaCommandHandler CreateSut(
+        Mock<IMediator>? mediator = null,
         Mock<IPlannedWorkoutRepository>? workoutRepository = null,
         Mock<IPlannedWorkoutChatMessageRepository>? chatMessageRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
@@ -358,6 +425,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
         Mock<IWorkoutMediaAnalysisAgent>? analysisAgent = null)
     {
         return new AnalyzeWorkoutMediaCommandHandler(
+            (mediator ?? new Mock<IMediator>()).Object,
             (workoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             (chatMessageRepository ?? new Mock<IPlannedWorkoutChatMessageRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,

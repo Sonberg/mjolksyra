@@ -100,14 +100,14 @@ public class WebhookController : Controller
             case "invoice.payment_succeeded":
                 if (stripeEvent.Data.Object is Invoice invoiceSucceeded)
                 {
-                    await _invoiceHandler.HandleSucceeded(invoiceSucceeded);
+                    await _invoiceHandler.HandleSucceeded(invoiceSucceeded, stripeEvent.Id);
                 }
 
                 break;
             case "invoice.payment_failed":
                 if (stripeEvent.Data.Object is Invoice invoiceFailed)
                 {
-                    await _invoiceHandler.HandleFailed(invoiceFailed);
+                    await _invoiceHandler.HandleFailed(invoiceFailed, stripeEvent.Id);
                 }
 
                 break;

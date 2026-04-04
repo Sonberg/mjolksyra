@@ -16,6 +16,7 @@ public class GetPlansQueryHandler(IPlanRepository planRepository) : IRequestHand
                 Name = x.Name,
                 MonthlyPriceSek = x.MonthlyPriceSek,
                 IncludedAthletes = x.IncludedAthletes,
+                IncludedCreditsPerCycle = x.IncludedCreditsPerCycle,
                 ExtraAthletePriceSek = x.ExtraAthletePriceSek,
                 SortOrder = x.SortOrder,
             })

@@ -1,41 +1,57 @@
 using MediatR;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.ConsumeCredits;
+using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 
 public class AnalyzeWorkoutMediaCommandHandler(
+    IMediator mediator,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IPlannedWorkoutChatMessageRepository plannedWorkoutChatMessageRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
-    IWorkoutMediaAnalysisAgent workoutMediaAnalysisAgent) : IRequestHandler<AnalyzeWorkoutMediaCommand, WorkoutMediaAnalysisResponse?>
+    IWorkoutMediaAnalysisAgent workoutMediaAnalysisAgent) : IRequestHandler<AnalyzeWorkoutMediaCommand, OneOf<WorkoutMediaAnalysisResponse, AnalyzeWorkoutMediaForbidden, AnalyzeWorkoutMediaInsufficientCredits>>
 {
-    public async Task<WorkoutMediaAnalysisResponse?> Handle(AnalyzeWorkoutMediaCommand request, CancellationToken cancellationToken)
+    public async Task<OneOf<WorkoutMediaAnalysisResponse, AnalyzeWorkoutMediaForbidden, AnalyzeWorkoutMediaInsufficientCredits>> Handle(AnalyzeWorkoutMediaCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
-            return null;
+            return new AnalyzeWorkoutMediaForbidden();
         }
 
         if (!await traineeRepository.HasAccess(request.TraineeId, userId, cancellationToken))
         {
-            return null;
+            return new AnalyzeWorkoutMediaForbidden();
         }
 
         var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
         if (trainee is null || trainee.CoachUserId != userId)
         {
-            return null;
+            return new AnalyzeWorkoutMediaForbidden();
         }
 
         var workout = await plannedWorkoutRepository.Get(request.PlannedWorkoutId, cancellationToken);
         if (workout is null || workout.TraineeId != request.TraineeId)
         {
-            return null;
+            return new AnalyzeWorkoutMediaForbidden();
+        }
+
+        var consumeResult = await mediator.Send(
+            new ConsumeCreditsCommand(
+                userId,
+                CreditAction.AnalyzeWorkoutMedia,
+                request.PlannedWorkoutId.ToString()),
+            cancellationToken);
+
+        if (consumeResult.IsT1)
+        {
+            return new AnalyzeWorkoutMediaInsufficientCredits(consumeResult.AsT1.Reason);
         }
 
         var chatMessages = await plannedWorkoutChatMessageRepository.GetByWorkoutId(

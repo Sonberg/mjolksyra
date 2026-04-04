@@ -11,5 +11,8 @@ public class Plan
     public int MonthlyPriceSek { get; set; }
     public int IncludedAthletes { get; set; }
     public int ExtraAthletePriceSek { get; set; }
+
+    public int IncludedCreditsPerCycle { get; set; }
+
     public int SortOrder { get; set; }
 }

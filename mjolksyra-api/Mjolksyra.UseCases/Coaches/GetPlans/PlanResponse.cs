@@ -6,6 +6,9 @@ public class PlanResponse
     public required string Name { get; set; }
     public required int MonthlyPriceSek { get; set; }
     public required int IncludedAthletes { get; set; }
+
+    public required int IncludedCreditsPerCycle { get; set; }
+
     public required int ExtraAthletePriceSek { get; set; }
     public required int SortOrder { get; set; }
 }

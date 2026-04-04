@@ -1,8 +1,10 @@
+using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Email;
 using Mjolksyra.Domain.Notifications;
+using Mjolksyra.UseCases.Coaches.AddPurchasedCredits;
 using Stripe;
 
 namespace Mjolksyra.Api.Controllers.Stripe;
@@ -14,23 +16,45 @@ public class InvoiceWebhookHandler
     private readonly ITraineeTransactionRepository _transactionRepository;
     private readonly IEmailSender _emailSender;
     private readonly INotificationService _notificationService;
+    private readonly IProcessedStripeEventRepository _processedStripeEventRepository;
+    private readonly IMediator _mediator;
 
     public InvoiceWebhookHandler(
         ITraineeRepository traineeRepository,
         IUserRepository userRepository,
         ITraineeTransactionRepository transactionRepository,
         IEmailSender emailSender,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IProcessedStripeEventRepository processedStripeEventRepository,
+        IMediator mediator)
     {
         _traineeRepository = traineeRepository;
         _userRepository = userRepository;
         _transactionRepository = transactionRepository;
         _emailSender = emailSender;
         _notificationService = notificationService;
+        _processedStripeEventRepository = processedStripeEventRepository;
+        _mediator = mediator;
     }
 
-    public async Task HandleSucceeded(Invoice invoice)
+    public async Task HandleSucceeded(Invoice invoice, string eventId)
     {
+        if (!await _processedStripeEventRepository.TryMarkAsProcessed(eventId, "invoice.payment_succeeded", CancellationToken.None))
+        {
+            return;
+        }
+
+        if (invoice.Metadata.TryGetValue("type", out var invoiceType)
+            && invoiceType == "credits-pack"
+            && invoice.Metadata.TryGetValue("packId", out var packIdRaw)
+            && invoice.Metadata.TryGetValue("coachUserId", out var coachUserIdRaw)
+            && Guid.TryParse(packIdRaw, out var packId)
+            && Guid.TryParse(coachUserIdRaw, out var coachUserId))
+        {
+            await _mediator.Send(new AddPurchasedCreditsCommand(coachUserId, packId, eventId));
+            return;
+        }
+
         if (invoice.SubscriptionId is null) return;
 
         var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
@@ -81,8 +105,13 @@ public class InvoiceWebhookHandler
             CancellationToken.None);
     }
 
-    public async Task HandleFailed(Invoice invoice)
+    public async Task HandleFailed(Invoice invoice, string eventId)
     {
+        if (!await _processedStripeEventRepository.TryMarkAsProcessed(eventId, "invoice.payment_failed", CancellationToken.None))
+        {
+            return;
+        }
+
         if (invoice.SubscriptionId is null) return;
 
         var trainee = await _traineeRepository.GetBySubscriptionId(invoice.SubscriptionId, CancellationToken.None);
