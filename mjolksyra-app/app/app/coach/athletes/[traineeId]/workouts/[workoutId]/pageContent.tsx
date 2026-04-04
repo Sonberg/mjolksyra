@@ -1,7 +1,7 @@
 "use client";
 
 import { CoachWorkspaceShell } from "../../../../CoachWorkspaceShell";
-import { Workout } from "@/components/WorkoutViewer/Workout";
+import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
 import { useQuery } from "@tanstack/react-query";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
 import { getTrainee } from "@/services/trainees/getTrainee";
@@ -70,10 +70,9 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
         </section>
       ) : null}
       {workout.data ? (
-        <Workout
+        <WorkoutDetail
           workout={workout.data}
           viewerMode="coach"
-          isDetailView
           traineeId={traineeId}
           backTab={backTab}
         />

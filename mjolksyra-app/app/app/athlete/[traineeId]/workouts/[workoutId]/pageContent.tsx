@@ -1,6 +1,6 @@
 "use client";
 
-import { Workout } from "@/components/WorkoutViewer/Workout";
+import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -66,11 +66,10 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
       ) : null}
 
       {data ? (
-        <Workout
+        <WorkoutDetail
           workout={data}
           viewerMode="athlete"
           traineeId={traineeId}
-          isDetailView
         />
       ) : null}
     </section>

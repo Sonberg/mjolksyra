@@ -1,16 +1,20 @@
 "use client";
 
+import { useWorkout } from "@/hooks/useWorkout";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
-import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { CheckCircle2Icon, RotateCcwIcon } from "lucide-react";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import Link from "next/link";
 import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   ToggleExerciseDoneInput,
   ToggleSetDoneInput,
@@ -36,208 +40,13 @@ export function Workout({
   isDetailView = false,
   backTab,
 }: Props) {
-  const queryClient = useQueryClient();
-
-  function buildLogPayload(overrides: {
-    completedAt?: Date | null;
-    markAllExercisesDone?: boolean;
-    exerciseActualOverride?: {
-      exerciseId: string;
-      setIndex?: number;
-      isDone?: boolean;
-      weightKg?: number | null;
-      reps?: number | null;
-      durationSeconds?: number | null;
-      distanceMeters?: number | null;
-      note?: string | null;
-      toggleSetDone?: boolean;
-    };
-  }) {
-    return {
-      completedAt:
-        overrides.completedAt !== undefined
-          ? overrides.completedAt
-          : (workout.completedAt ?? null),
-      mediaUrls: [],
-      exercises: workout.exercises.map((e) => ({
-        id: e.id,
-        sets: (e.prescription?.sets ?? []).map((s, idx) => {
-          if (overrides.markAllExercisesDone) {
-            return {
-              reps: s.actual?.reps ?? null,
-              weightKg: s.actual?.weightKg ?? null,
-              durationSeconds: s.actual?.durationSeconds ?? null,
-              distanceMeters: s.actual?.distanceMeters ?? null,
-              note: s.actual?.note ?? null,
-              isDone: true,
-            };
-          }
-
-          const override = overrides.exerciseActualOverride;
-          if (override && override.exerciseId === e.id) {
-            if (override.setIndex !== undefined && override.setIndex === idx) {
-              return {
-                reps:
-                  override.reps !== undefined
-                    ? override.reps
-                    : (s.actual?.reps ?? null),
-                weightKg:
-                  override.weightKg !== undefined
-                    ? override.weightKg
-                    : (s.actual?.weightKg ?? null),
-                durationSeconds:
-                  override.durationSeconds !== undefined
-                    ? override.durationSeconds
-                    : (s.actual?.durationSeconds ?? null),
-                distanceMeters:
-                  override.distanceMeters !== undefined
-                    ? override.distanceMeters
-                    : (s.actual?.distanceMeters ?? null),
-                note:
-                  override.note !== undefined
-                    ? override.note
-                    : (s.actual?.note ?? null),
-                isDone: override.toggleSetDone
-                  ? !(s.actual?.isDone ?? false)
-                  : override.isDone !== undefined
-                    ? override.isDone
-                    : (s.actual?.isDone ?? false),
-              };
-            }
-            if (override.setIndex === undefined) {
-              return {
-                reps: s.actual?.reps ?? null,
-                weightKg: s.actual?.weightKg ?? null,
-                durationSeconds: s.actual?.durationSeconds ?? null,
-                distanceMeters: s.actual?.distanceMeters ?? null,
-                note: s.actual?.note ?? null,
-                isDone:
-                  override.isDone !== undefined
-                    ? override.isDone
-                    : (s.actual?.isDone ?? false),
-              };
-            }
-          }
-          return {
-            reps: s.actual?.reps ?? null,
-            weightKg: s.actual?.weightKg ?? null,
-            durationSeconds: s.actual?.durationSeconds ?? null,
-            distanceMeters: s.actual?.distanceMeters ?? null,
-            note: s.actual?.note ?? null,
-            isDone: s.actual?.isDone ?? false,
-          };
-        }),
-      })),
-    };
-  }
-
-  const saveCompletion = useMutation({
-    mutationFn: async ({
-      completedAt,
-      markAllExercisesDone,
-    }: {
-      completedAt: Date | null;
-      markAllExercisesDone?: boolean;
-    }) =>
-      logPlannedWorkout({
-        traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
-        log: buildLogPayload({ completedAt, markAllExercisesDone }),
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-    },
-  });
-  const saveReview = useMutation({
-    mutationFn: async ({ reviewedAt }: { reviewedAt: Date | null }) =>
-      updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          reviewedAt,
-        },
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-    },
-  });
-  const toggleExerciseDone = useMutation({
-    mutationFn: async ({
-      exerciseId,
-      isDone,
-    }: {
-      exerciseId: string;
-      isDone: boolean;
-    }) =>
-      logPlannedWorkout({
-        traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
-        log: buildLogPayload({
-          exerciseActualOverride: { exerciseId, isDone },
-        }),
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
-    },
-  });
-  const toggleSetDone = useMutation({
-    mutationFn: async ({
-      exerciseId,
-      setIndex,
-    }: {
-      exerciseId: string;
-      setIndex: number;
-    }) =>
-      logPlannedWorkout({
-        traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
-        log: buildLogPayload({
-          exerciseActualOverride: { exerciseId, setIndex, toggleSetDone: true },
-        }),
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
-    },
-  });
-  const updateSetWeight = useMutation({
-    mutationFn: async ({
-      exerciseId,
-      setIndex,
-      weightKg,
-      reps,
-      durationSeconds,
-      distanceMeters,
-      note,
-    }: {
-      exerciseId: string;
-      setIndex: number;
-      weightKg: number | null;
-      reps: number | null;
-      durationSeconds: number | null;
-      distanceMeters: number | null;
-      note: string | null;
-    }) =>
-      logPlannedWorkout({
-        traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
-        log: buildLogPayload({
-          exerciseActualOverride: {
-            exerciseId,
-            setIndex,
-            weightKg,
-            reps,
-            durationSeconds,
-            distanceMeters,
-            note,
-          },
-        }),
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
-    },
-  });
+  const {
+    saveCompletion,
+    saveReview,
+    toggleExerciseDone,
+    toggleSetDone,
+    updateSetWeight,
+  } = useWorkout({ workout });
 
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
@@ -344,13 +153,13 @@ export function Workout({
             </p>
             <div className="flex items-center gap-2">
               {isCompleted ? (
-                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-surface)]">
+                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-surface)]">
                   <CheckCircle2Icon className="h-3 w-3" />
                   Completed
                 </span>
               ) : null}
               {viewerMode === "coach" && isReviewed ? (
-                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-ink)]">
+                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-ink)]">
                   Reviewed
                 </span>
               ) : null}
@@ -384,6 +193,37 @@ export function Workout({
               >
                 {isCompleted ? "Mark incomplete" : "Complete workout"}
               </button>
+            ) : null}
+            {viewerMode === "coach" && isCompleted ? (
+              <>
+                {!isReviewed ? (
+                  <button
+                    type="button"
+                    disabled={saveReview.isPending}
+                    onClick={() =>
+                      saveReview.mutate({
+                        reviewedAt: new Date(),
+                      })
+                    }
+                    className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                  >
+                    {saveReview.isPending ? "Saving..." : "Mark reviewed"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={saveReview.isPending}
+                    onClick={() =>
+                      saveReview.mutate({
+                        reviewedAt: null,
+                      })
+                    }
+                    className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
+                  >
+                    {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
+                  </button>
+                )}
+              </>
             ) : null}
           </div>
         </div>
@@ -455,20 +295,6 @@ export function Workout({
                 Reviewed {new Date(workout.reviewedAt).toLocaleString()}
               </span>
             ) : null}
-
-            {viewerMode === "coach" && isCompleted ? (
-              <div className="grid gap-3">
-                <WorkoutAnalysisSection
-                  traineeId={workout.traineeId}
-                  plannedWorkoutId={workout.id}
-                />
-                <WorkoutChatPanel
-                  traineeId={workout.traineeId}
-                  plannedWorkoutId={workout.id}
-                  viewerMode={viewerMode}
-                />
-              </div>
-            ) : null}
           </>
         ) : (
           <>
@@ -488,37 +314,7 @@ export function Workout({
                   Mark incomplete
                 </button>
               ) : null}
-              {viewerMode === "coach" && isCompleted ? (
-                <>
-                  {!isReviewed ? (
-                    <button
-                      type="button"
-                      disabled={saveReview.isPending}
-                      onClick={() =>
-                        saveReview.mutate({
-                          reviewedAt: new Date(),
-                        })
-                      }
-                      className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-                    >
-                      {saveReview.isPending ? "Saving..." : "Mark reviewed"}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={saveReview.isPending}
-                      onClick={() =>
-                        saveReview.mutate({
-                          reviewedAt: null,
-                        })
-                      }
-                      className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
-                    >
-                      {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
-                    </button>
-                  )}
-                </>
-              ) : null}
+
               {workout.completedAt ? (
                 <span className="text-xs text-[var(--shell-muted)]">
                   Completed {new Date(workout.completedAt).toLocaleString()}
@@ -542,24 +338,30 @@ export function Workout({
               </div>
             ) : null}
             {viewerMode === "coach" && isCompleted ? (
-              <Card>
-                <CardContent className="p-0">
-                  <WorkoutAnalysisSection
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>AI analysis</AccordionTrigger>
+                  <AccordionContent>
+                    <WorkoutAnalysisSection
+                      traineeId={workout.traineeId}
+                      plannedWorkoutId={workout.id}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            ) : null}
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>Chat</AccordionTrigger>
+                <AccordionContent>
+                  <WorkoutChatPanel
                     traineeId={workout.traineeId}
                     plannedWorkoutId={workout.id}
+                    viewerMode={viewerMode}
                   />
-                </CardContent>
-              </Card>
-            ) : null}
-            <Card>
-              <CardContent className="p-0">
-                <WorkoutChatPanel
-                  traineeId={workout.traineeId}
-                  plannedWorkoutId={workout.id}
-                  viewerMode={viewerMode}
-                />
-              </CardContent>
-            </Card>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
             <div className="grid grid-cols-1 gap-3">
               {workout.exercises.map((exercise, index) => (
                 <WorkoutExerciseCard

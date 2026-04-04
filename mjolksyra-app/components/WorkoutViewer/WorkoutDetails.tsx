@@ -1,6 +1,6 @@
 "use client";
 
-import { AthleteWorkoutLogger } from "@/components/AthleteWorkoutLogger/AthleteWorkoutLogger";
+import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
 import { useQuery } from "@tanstack/react-query";
 
@@ -22,10 +22,6 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
     retry: false,
   });
 
-  const backHref = backTab
-    ? `/app/athlete/${traineeId}/workouts?tab=${backTab}`
-    : `/app/athlete/${traineeId}/workouts`;
-
   return (
     <section className="grid gap-4">
       {isLoading ? (
@@ -41,10 +37,11 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
       ) : null}
 
       {data ? (
-        <AthleteWorkoutLogger
+        <WorkoutDetail
           workout={data}
           traineeId={traineeId}
-          backHref={backHref}
+          backTab={backTab}
+          viewerMode="athlete"
         />
       ) : null}
     </section>

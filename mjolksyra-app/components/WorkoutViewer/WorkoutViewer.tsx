@@ -2,7 +2,7 @@
 
 import { useWorkouts } from "./useWorkouts";
 import dayjs from "dayjs";
-import { Workout } from "./Workout";
+import { WorkoutCard } from "./WorkoutCard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { uniqBy } from "@/lib/uniqBy";
 import { sortBy } from "@/lib/sortBy";
@@ -325,7 +325,7 @@ export function WorkoutViewer({
           </section>
         ) : (
           data.map((x) => (
-            <Workout
+            <WorkoutCard
               key={x.id}
               workout={x}
               viewerMode={viewerMode}
