@@ -151,13 +151,13 @@ export const ReadyForAnalysis: Story = {
     <WorkoutChatPanel
       traineeId="trainee-1"
       plannedWorkoutId="workout-1"
-      viewerMode="athlete"
+      viewerMode="coach"
     />
   ),
   parameters: {
     docs: {
       description: {
-        story: "Type a message and use the Analyze button to request Gemini 2.5 Pro workout analysis.",
+        story: "Use this together with the workout analysis section to keep AI outcome and chat separate.",
       },
     },
   },

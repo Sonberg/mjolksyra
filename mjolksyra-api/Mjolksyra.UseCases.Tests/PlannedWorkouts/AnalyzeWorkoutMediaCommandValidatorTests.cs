@@ -12,7 +12,7 @@ public class AnalyzeWorkoutMediaCommandValidatorTests
     public void Valid_Text_Only_Passes()
     {
         var validator = CreateValidator();
-        var result = validator.TestValidate(CreateCommand("Looks good", []));
+        var result = validator.TestValidate(CreateCommand("Looks good"));
         result.ShouldNotHaveAnyValidationErrors();
     }
 
@@ -20,11 +20,11 @@ public class AnalyzeWorkoutMediaCommandValidatorTests
     public void Empty_Text_And_Media_Passes()
     {
         var validator = CreateValidator();
-        var result = validator.TestValidate(CreateCommand("   ", []));
+        var result = validator.TestValidate(CreateCommand("   "));
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    private static AnalyzeWorkoutMediaCommand CreateCommand(string text, ICollection<string> mediaUrls)
+    private static AnalyzeWorkoutMediaCommand CreateCommand(string text)
     {
         return new AnalyzeWorkoutMediaCommand
         {
@@ -33,7 +33,6 @@ public class AnalyzeWorkoutMediaCommandValidatorTests
             Analysis = new WorkoutMediaAnalysisRequest
             {
                 Text = text,
-                MediaUrls = mediaUrls,
             }
         };
     }

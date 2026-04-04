@@ -6,7 +6,6 @@ type Args = {
   plannedWorkoutId: string;
   analysis: {
     text: string;
-    mediaUrls: string[];
   };
 };
 

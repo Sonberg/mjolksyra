@@ -17,6 +17,7 @@ import {
   UpdateSetActualInput,
 } from "./workout/types";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
+import { WorkoutAnalysisSection } from "./workout/WorkoutAnalysisSection";
 
 type Props = {
   workout: PlannedWorkout;
@@ -457,12 +458,17 @@ export function Workout({
             ) : null}
 
             {viewerMode === "coach" && isCompleted ? (
-              <WorkoutChatPanel
-                traineeId={workout.traineeId}
-                plannedWorkoutId={workout.id}
-                viewerMode={viewerMode}
-                plannedWorkoutMedia={workout.media}
-              />
+              <div className="grid gap-3">
+                <WorkoutAnalysisSection
+                  traineeId={workout.traineeId}
+                  plannedWorkoutId={workout.id}
+                />
+                <WorkoutChatPanel
+                  traineeId={workout.traineeId}
+                  plannedWorkoutId={workout.id}
+                  viewerMode={viewerMode}
+                />
+              </div>
             ) : null}
           </>
         ) : (
@@ -534,11 +540,16 @@ export function Workout({
                 <p className="mt-1 text-sm text-[var(--shell-ink)]">{workout.note}</p>
               </div>
             ) : null}
+            {viewerMode === "coach" && isCompleted ? (
+              <WorkoutAnalysisSection
+                traineeId={workout.traineeId}
+                plannedWorkoutId={workout.id}
+              />
+            ) : null}
             <WorkoutChatPanel
               traineeId={workout.traineeId}
               plannedWorkoutId={workout.id}
               viewerMode={viewerMode}
-              plannedWorkoutMedia={workout.media}
             />
             {workout.exercises.map((exercise, index) => (
               <WorkoutExerciseCard

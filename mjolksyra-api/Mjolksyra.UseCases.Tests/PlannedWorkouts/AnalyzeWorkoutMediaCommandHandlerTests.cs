@@ -217,8 +217,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
                     input.Text.Contains("Please review form") &&
                     input.Text.Contains("[Athlete] Felt strong today") &&
                     input.Text.Contains("[Coach] Keep elbows under the bar") &&
-                    input.MediaUrls.Count == 3 &&
-                    input.MediaUrls.Contains("https://media.example.com/workouts/clip.mp4") &&
+                    input.MediaUrls.Count == 1 &&
                     input.MediaUrls.Contains("https://media.example.com/workouts/athlete-chat.mov") &&
                     input.Exercises.Count == 1 &&
                     input.Exercises.First().Name == "Back Squat"),
@@ -230,7 +229,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
                     record.TraineeId == traineeId &&
                     record.PlannedWorkoutId == workoutId &&
                     record.RequestedByUserId == userId &&
-                    record.MediaUrls.Count == 3),
+                    record.MediaUrls.Count == 1),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -319,10 +318,6 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Media =
-                [
-                    new PlannedWorkoutMedia { RawUrl = "https://media.example.com/workouts/clip.mp4", Type = PlannedWorkoutMediaType.Video },
-                ],
                 Exercises = []
             });
 
@@ -377,7 +372,6 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
             Analysis = new WorkoutMediaAnalysisRequest
             {
                 Text = "Please review form",
-                MediaUrls = ["https://utfs.io/f/clip.mp4", "https://utfs.io/f/photo.jpg"]
             }
         };
     }

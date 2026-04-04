@@ -51,9 +51,9 @@ public class AnalyzeWorkoutMediaCommandHandler(
             analysisText = $"{analysisText}\n\nWorkout chat history:\n{chatHistory}";
         }
 
-        var mediaUrls = workout.Media
+        var mediaUrls = chatMessages
+            .SelectMany(x => x.Media)
             .Select(x => x.CompressedUrl ?? x.RawUrl)
-            .Concat(chatMessages.SelectMany(x => x.Media).Select(x => x.CompressedUrl ?? x.RawUrl))
             .Where(url => !string.IsNullOrWhiteSpace(url))
             .Distinct()
             .ToList();
@@ -87,6 +87,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
                 .ToList(),
         }, cancellationToken);
 
+        var createdAt = DateTimeOffset.UtcNow;
         await workoutMediaAnalysisRepository.Create(new WorkoutMediaAnalysisRecord
         {
             Id = Guid.NewGuid(),
@@ -99,9 +100,9 @@ public class AnalyzeWorkoutMediaCommandHandler(
             KeyFindings = analysis.KeyFindings,
             TechniqueRisks = analysis.TechniqueRisks,
             CoachSuggestions = analysis.CoachSuggestions,
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = createdAt,
         }, cancellationToken);
 
-        return WorkoutMediaAnalysisResponse.From(analysis);
+        return WorkoutMediaAnalysisResponse.From(analysis, createdAt);
     }
 }

@@ -424,6 +424,7 @@ test.describe("Workout media upload", () => {
     );
 
     await expect(page.getByRole("button", { name: "Analyze" })).toHaveCount(0);
+    await expect(page.getByTestId("workout-analysis-section")).toHaveCount(0);
   });
 
   test("Coach can analyze planned workout media context", async ({ page }) => {
@@ -444,6 +445,20 @@ test.describe("Workout media upload", () => {
       });
     });
 
+    await page.route("**/api/trainees/**/planned-workouts/**/analysis/latest", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          summary: "Latest saved analysis from a previous run.",
+          keyFindings: ["Solid setup"],
+          techniqueRisks: ["Bar drifts forward at fatigue"],
+          coachSuggestions: ["Keep lats engaged through ascent"],
+          createdAt: "2026-04-03T08:45:00.000Z",
+        }),
+      });
+    });
+
     await page.route("**/api/trainees/**/planned-workouts/**/analysis", async (route) => {
       await route.fulfill({
         status: 200,
@@ -453,6 +468,7 @@ test.describe("Workout media upload", () => {
           keyFindings: ["Consistent squat depth"],
           techniqueRisks: ["Mild valgus on fatigue reps"],
           coachSuggestions: ["Cue knees out through ascent"],
+          createdAt: "2026-04-04T09:00:00.000Z",
         }),
       });
     });
@@ -461,10 +477,13 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
     );
 
+    await expect(page.getByTestId("workout-analysis-section")).toBeVisible();
+    await expect(page.getByText("Latest saved analysis from a previous run.", { exact: true })).toBeVisible();
     const analyzeButton = page.getByRole("button", { name: "Analyze" });
     await expect(analyzeButton).toBeEnabled();
     await analyzeButton.click();
 
+    await expect(page.getByTestId("workout-analysis-outcome")).toBeVisible();
     await expect(page.getByText("AI analysis", { exact: true })).toBeVisible();
     await expect(page.getByText("Session quality is solid with stable pacing.", { exact: true })).toBeVisible();
   });

@@ -328,7 +328,6 @@ export function AthleteWorkoutLogger({ workout, traineeId, backHref }: Props) {
               traineeId={workout.traineeId}
               plannedWorkoutId={workout.id}
               viewerMode="athlete"
-              plannedWorkoutMedia={workout.media}
             />
           </aside>
         </div>

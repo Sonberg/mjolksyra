@@ -105,4 +105,5 @@ export const workoutMediaAnalysisSchema = z.object({
   keyFindings: z.array(z.string()).default([]),
   techniqueRisks: z.array(z.string()).default([]),
   coachSuggestions: z.array(z.string()).default([]),
+  createdAt: z.coerce.date(),
 });
