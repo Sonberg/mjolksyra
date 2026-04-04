@@ -13,6 +13,19 @@ test("unauthenticated /app/coach does not 500 and redirects", async ({ page }) =
   await expect(page.locator("body")).not.toContainText("500");
 });
 
+test("unauthenticated /app/coach/credits does not 500 and redirects", async ({ page }) => {
+  const response = await page.goto("/app/coach/credits");
+
+  expect(response).not.toBeNull();
+  await page.waitForLoadState("domcontentloaded");
+
+  const url = page.url();
+  expect(url).not.toContain("/app/coach/credits");
+  expect(url.includes("/sign-in") || url.endsWith("/") || url.includes("clerk")).toBeTruthy();
+
+  await expect(page.locator("body")).not.toContainText("500");
+});
+
 // TODO: authenticated newly-onboarded coach sees trial banner on /app/coach
 // Requires: seeded test coach with TrialEndsAt set in the future in MongoDB, and Clerk test credentials
 // test("newly-onboarded coach sees free trial banner on dashboard", async ({ page }) => {

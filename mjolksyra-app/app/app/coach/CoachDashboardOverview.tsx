@@ -4,10 +4,13 @@ import { Trainee } from "@/services/trainees/type";
 import { User } from "@/services/users/type";
 import { AlertTriangleIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { getCredits } from "@/services/coaches/getCredits";
+import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { getPlans } from "@/services/plans/getPlans";
 import type { Plan } from "@/services/plans/type";
 import { useState } from "react";
 import { CoachDashboardMetrics } from "./CoachDashboardMetrics";
+import { CoachCreditsSummaryCard } from "./CoachCreditsSummaryCard";
 import {
   CoachDashboardTodoSection,
   type CoachTodoItem,
@@ -40,6 +43,14 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   const { data: plans = [] } = useQuery({
     queryKey: ["plans"],
     queryFn: getPlans,
+  });
+  const { data: credits } = useQuery({
+    queryKey: ["coach-credits"],
+    queryFn: getCredits,
+  });
+  const { data: creditPricing = [] } = useQuery({
+    queryKey: ["coach-credit-pricing"],
+    queryFn: getCreditPricing,
   });
 
   const currentPlan =
@@ -148,6 +159,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         freeAthleteSpotsLeft={freeAthleteSpotsLeft}
         includedAthletes={includedAthletes}
       />
+      <CoachCreditsSummaryCard credits={credits ?? null} creditPricing={creditPricing} />
       <CoachDashboardTodoSection items={todoItems} />
     </div>
   );

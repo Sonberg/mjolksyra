@@ -6,9 +6,6 @@ import { ApiClient } from "@/services/client";
 import { User } from "@/services/users/type";
 import { Trainee } from "@/services/trainees/type";
 import { getPlans } from "@/services/plans/getPlans";
-import { getCreditLedger } from "@/services/coaches/getCreditLedger";
-import { getCreditPricing } from "@/services/coaches/getCreditPricing";
-import { getCredits } from "@/services/coaches/getCredits";
 import type { Plan } from "@/services/plans/type";
 import { CoachDashboardSubscriptionSection } from "../CoachDashboardSubscriptionSection";
 
@@ -33,21 +30,6 @@ export function PaymentsPageContent({ user, trainees }: Props) {
   const { data: plans = [] } = useQuery({
     queryKey: ["plans"],
     queryFn: getPlans,
-  });
-
-  const { data: credits } = useQuery({
-    queryKey: ["coach-credits"],
-    queryFn: getCredits,
-  });
-
-  const { data: creditPricing = [] } = useQuery({
-    queryKey: ["coach-credit-pricing"],
-    queryFn: getCreditPricing,
-  });
-
-  const { data: creditLedger = [] } = useQuery({
-    queryKey: ["coach-credit-ledger"],
-    queryFn: () => getCreditLedger({ limit: 20 }),
   });
 
   const currentPlan =
@@ -99,9 +81,6 @@ export function PaymentsPageContent({ user, trainees }: Props) {
       onOpenStripeDashboard={openStripeDashboard}
       trialEndsAt={user.onboarding.coachTrialEndsAt ?? null}
       discount={user.discount ?? null}
-      credits={credits ?? null}
-      creditPricing={creditPricing}
-      creditLedger={creditLedger}
     />
   );
 }

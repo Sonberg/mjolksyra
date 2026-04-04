@@ -10,5 +10,9 @@ export default async function Page({
     redirect("/app/coach/athletes");
   }
 
+  if (params.tab === "credits") {
+    redirect("/app/coach/credits");
+  }
+
   redirect("/app/coach/dashboard");
 }
