@@ -44,7 +44,7 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
     <CoachWorkspaceShell>
       <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 md:p-6">
         <PageSectionHeader
-          eyebrow="Workout review"
+          eyebrow="Workout"
           title={athleteName}
           titleClassName="text-xl md:text-2xl"
           leading={

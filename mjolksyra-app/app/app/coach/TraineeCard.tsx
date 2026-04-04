@@ -53,8 +53,8 @@ function getMutationErrorMessage(error: unknown, fallback: string) {
   const responseMessage =
     typeof error.response?.data === "string"
       ? error.response.data
-      : (error.response?.data?.error as string | undefined)
-        ?? (error.response?.data?.message as string | undefined);
+      : ((error.response?.data?.error as string | undefined) ??
+        (error.response?.data?.message as string | undefined));
 
   return responseMessage || fallback;
 }
@@ -163,32 +163,37 @@ export function TraineeCard({
         return {
           label: "Subscription active",
           hint: "Recurring billing is active.",
-          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+          className:
+            "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "AwaitingAthletePaymentMethod":
         return {
           label: "Payment method not setup",
           hint: "Athlete must complete payment setup to start billing.",
-          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+          className:
+            "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "AwaitingCoachStripeSetup":
         return {
           label: "Coach Stripe not setup",
           hint: "Complete Stripe onboarding to enable billing.",
-          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+          className:
+            "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "PriceSet":
         return {
           label: "Price set (waiting setup)",
           hint: "Price is saved. Billing starts when payment and Stripe setup are ready.",
-          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+          className:
+            "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         };
       case "PriceNotSet":
       default:
         return {
           label: "Price not set",
           hint: "Set a monthly price to prepare billing.",
-          className: "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+          className:
+            "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
         };
     }
   }, [trainee.billing.status, trainee.cost?.total]);
@@ -264,7 +269,9 @@ export function TraineeCard({
             >
               {billingBadge.label}
             </span>
-            <p className="mt-1 text-xs text-[var(--shell-muted)]">{billingBadge.hint}</p>
+            <p className="mt-1 text-xs text-[var(--shell-muted)]">
+              {billingBadge.hint}
+            </p>
           </div>
         </div>
         <DropdownMenu
@@ -419,7 +426,7 @@ export function TraineeCard({
           }
         >
           <ClipboardCheckIcon className="h-4 w-4" />
-          Review workouts
+          Workouts
         </button>
       </div>
 
@@ -537,17 +544,19 @@ export function TraineeCard({
                       ) : null}
                     </span>
                     <span className="mt-1 block text-xs text-[var(--shell-muted)]">
-                      Save now and apply this price on the next scheduled charge.
+                      Save now and apply this price on the next scheduled
+                      charge.
                     </span>
                   </span>
                 </span>
               </button>
             </div>
-            {billingMode === "ChargeNow" && chargeNowMessage?.type === "error" && (
-              <p className="text-xs text-[var(--shell-accent)]">
-                {chargeNowMessage.text}
-              </p>
-            )}
+            {billingMode === "ChargeNow" &&
+              chargeNowMessage?.type === "error" && (
+                <p className="text-xs text-[var(--shell-accent)]">
+                  {chargeNowMessage.text}
+                </p>
+              )}
           </div>
           <DialogFooter>
             <Button
