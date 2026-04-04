@@ -18,6 +18,7 @@ import {
 } from "./workout/types";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 import { WorkoutAnalysisSection, WorkoutAnalysisTrigger } from "./workout/WorkoutAnalysisSection";
+import { StatusBadge } from "./StatusBadge";
 import { useWorkout } from "@/hooks/useWorkout";
 
 type Props = {
@@ -122,15 +123,13 @@ export function WorkoutDetail({
 
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {isCompleted ? (
-              <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-surface)]">
+              <StatusBadge variant="default">
                 <CheckCircle2Icon className="h-3 w-3" />
                 Completed
-              </span>
+              </StatusBadge>
             ) : null}
             {viewerMode === "coach" && isReviewed ? (
-              <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-ink)]">
-                Reviewed
-              </span>
+              <StatusBadge variant="solid">Reviewed</StatusBadge>
             ) : null}
             {viewerMode === "athlete" && (
               <button

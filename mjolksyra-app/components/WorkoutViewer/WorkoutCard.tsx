@@ -9,6 +9,7 @@ import { CheckCircle2Icon } from "lucide-react";
 import Link from "next/link";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 import { WorkoutAnalysisSection } from "./workout/WorkoutAnalysisSection";
+import { StatusBadge } from "./StatusBadge";
 
 type Props = {
   workout: PlannedWorkout;
@@ -110,21 +111,17 @@ export function WorkoutCard({
             </p>
             <div className="flex items-center gap-2">
               {isCompleted ? (
-                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-surface)]">
+                <StatusBadge variant="default">
                   <CheckCircle2Icon className="h-3 w-3" />
                   Completed
-                </span>
+                </StatusBadge>
               ) : null}
               {viewerMode === "coach" && isReviewed ? (
-                <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-ink)]">
-                  Reviewed
-                </span>
+                <StatusBadge variant="solid">Reviewed</StatusBadge>
               ) : null}
             </div>
             {viewerMode === "coach" && isCompleted && !isReviewed ? (
-              <span className="rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-accent-ink)]">
-                Needs review
-              </span>
+              <StatusBadge variant="accent">Needs review</StatusBadge>
             ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -142,17 +139,11 @@ export function WorkoutCard({
       <CardContent className="space-y-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:space-y-4 sm:p-4">
         <>
           <div className="flex flex-wrap items-baseline gap-2">
-            <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-              {totalExercises} exercises
-            </span>
+            <StatusBadge variant="subtle">{totalExercises} exercises</StatusBadge>
             {totalSets > 0 ? (
-              <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-                {doneSets}/{totalSets} sets done
-              </span>
+              <StatusBadge variant="subtle">{doneSets}/{totalSets} sets done</StatusBadge>
             ) : null}
-            <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-              {doneExercises}/{totalExercises} exercises done
-            </span>
+            <StatusBadge variant="subtle">{doneExercises}/{totalExercises} exercises done</StatusBadge>
           </div>
 
           {workout.note?.trim() ? (

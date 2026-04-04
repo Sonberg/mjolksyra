@@ -22,6 +22,7 @@ import {
 } from "./workout/types";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 import { WorkoutAnalysisSection } from "./workout/WorkoutAnalysisSection";
+import { StatusBadge } from "./StatusBadge";
 
 type Props = {
   workout: PlannedWorkout;
@@ -169,20 +170,16 @@ export function Workout({
 
               <div className="flex items-center gap-2">
                 {isCompleted ? (
-                  <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-surface)]">
+                  <StatusBadge variant="default">
                     <CheckCircle2Icon className="h-3 w-3" />
                     Completed
-                  </span>
+                  </StatusBadge>
                 ) : null}
                 {viewerMode === "coach" && isReviewed ? (
-                  <span className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-ink)]">
-                    Reviewed
-                  </span>
+                  <StatusBadge variant="solid">Reviewed</StatusBadge>
                 ) : null}
                 {viewerMode === "coach" && isCompleted && !isReviewed ? (
-                  <span className="rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-accent-ink)]">
-                    Needs review
-                  </span>
+                  <StatusBadge variant="accent">Needs review</StatusBadge>
                 ) : null}
               </div>
             </div>
@@ -250,17 +247,11 @@ export function Workout({
         {!isDetailView ? (
           <>
             <div className="flex flex-wrap items-baseline gap-2">
-              <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-                {totalExercises} exercises
-              </span>
+              <StatusBadge variant="subtle">{totalExercises} exercises</StatusBadge>
               {totalSets > 0 ? (
-                <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-                  {doneSets}/{totalSets} sets done
-                </span>
+                <StatusBadge variant="subtle">{doneSets}/{totalSets} sets done</StatusBadge>
               ) : null}
-              <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
-                {doneExercises}/{totalExercises} exercises done
-              </span>
+              <StatusBadge variant="subtle">{doneExercises}/{totalExercises} exercises done</StatusBadge>
             </div>
 
             {workout.note?.trim() ? (
