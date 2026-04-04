@@ -31,13 +31,11 @@ export function AthleteSettings({ coach }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
-        <PageSectionHeader
-          title="Settings"
-          titleClassName="text-xl md:text-2xl"
-          description="Manage your relationship and billing information."
-        />
-      </div>
+      <PageSectionHeader
+        title="Settings"
+        titleClassName="text-xl md:text-2xl"
+        description="Manage your relationship and billing information."
+      />
       <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8">
         <div className="divide-y divide-[var(--shell-border)]/30">
           <div className="flex items-center justify-between py-4">

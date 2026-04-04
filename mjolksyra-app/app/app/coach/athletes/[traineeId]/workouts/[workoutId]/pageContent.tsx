@@ -7,6 +7,7 @@ import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWork
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 
 type Props = {
   traineeId: string;
@@ -41,19 +42,20 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
 
   return (
     <CoachWorkspaceShell>
-      <div className="flex items-center gap-3 py-2">
-        <Link
-          href={backHref}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
-          aria-label="Back to workouts"
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-        </Link>
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Workout</p>
-          <p className="text-lg font-semibold text-[var(--shell-ink)]">{athleteName}</p>
-        </div>
-      </div>
+      <PageSectionHeader
+        eyebrow="Workout"
+        title={athleteName}
+        titleClassName="text-xl md:text-2xl"
+        leading={
+          <Link
+            href={backHref}
+            className="inline-flex items-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+            aria-label="Back to workouts"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+          </Link>
+        }
+      />
 
       {workout.isLoading ? (
         <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">

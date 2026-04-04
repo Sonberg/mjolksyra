@@ -2,6 +2,7 @@
 
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getAppliedDiscountCode } from "@/services/coaches/getAppliedDiscountCode";
@@ -66,17 +67,9 @@ export function CoachDashboardSubscriptionSection({
     queryFn: getAppliedDiscountCode,
   });
 
-  const effectiveDiscountCode = activeDiscountCode
-    ?? liveDiscount?.code
-    ?? discount?.code
-    ?? null;
-  const effectiveDiscountDescription = activeDiscountDescription
-    ?? liveDiscount?.description
-    ?? discount?.description
-    ?? null;
-  const effectiveDiscountStripeCouponId = activeDiscountStripeCouponId
-    ?? liveDiscount?.stripeCouponId
-    ?? null;
+  const effectiveDiscountCode = activeDiscountCode ?? liveDiscount?.code ?? discount?.code ?? null;
+  const effectiveDiscountDescription = activeDiscountDescription ?? liveDiscount?.description ?? discount?.description ?? null;
+  const effectiveDiscountStripeCouponId = activeDiscountStripeCouponId ?? liveDiscount?.stripeCouponId ?? null;
 
   async function handleApplyCode() {
     if (!discountCode.trim()) return;
@@ -109,20 +102,12 @@ export function CoachDashboardSubscriptionSection({
   }
 
   return (
-    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-              Payments
-            </p>
-            <h2 className="mt-2 text-2xl text-[var(--shell-ink)] md:text-3xl">
-              Coach subscription
-            </h2>
-            <p className="mt-2 text-sm text-[var(--shell-muted)]">
-              Manage your Stripe connection, payouts, and monthly platform charge.
-            </p>
-          </div>
+    <div className="space-y-8">
+      <PageSectionHeader
+        eyebrow="Payments"
+        title="Coach subscription"
+        description="Manage your Stripe connection, payouts, and monthly platform charge."
+        actions={
           <span
             className={cn(
               "inline-flex w-fit items-center rounded-none border px-2.5 py-1 text-xs font-semibold",
@@ -131,132 +116,111 @@ export function CoachDashboardSubscriptionSection({
           >
             {coachPaymentStatus.label}
           </span>
-        </div>
+        }
+      />
 
-        {isTrialing && (
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 text-sm text-[var(--shell-ink)]">
-            Free trial active. Your first charge starts on{" "}
-            <span className="font-semibold">
-              {trialEndsAt!.toLocaleDateString("sv-SE")}
-            </span>{" "}
-            ({trialDaysRemaining} day{trialDaysRemaining === 1 ? "" : "s"} remaining).
-          </div>
-        )}
+      {isTrialing && (
+        <p className="border-l-2 border-[var(--shell-accent)] pl-3 text-sm text-[var(--shell-ink)]">
+          Free trial active. Your first charge starts on{" "}
+          <span className="font-semibold">{trialEndsAt!.toLocaleDateString("sv-SE")}</span>{" "}
+          ({trialDaysRemaining} day{trialDaysRemaining === 1 ? "" : "s"} remaining).
+        </p>
+      )}
 
-        <CoachPlanNudge
-          currentPlan={currentPlan}
-          plans={plans}
-          athleteCount={athleteCount}
-        />
+      <CoachPlanNudge currentPlan={currentPlan} plans={plans} athleteCount={athleteCount} />
 
-        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Discount code</p>
-          <AppliedDiscountCard
-            code={effectiveDiscountCode}
-            description={effectiveDiscountDescription}
-            stripeCouponId={effectiveDiscountStripeCouponId}
-            stripePromotionCodeId={liveDiscount?.stripePromotionCodeId ?? null}
-            stripeCoupon={liveDiscount?.stripeCoupon ?? null}
-          />
-          <div className="mt-2 flex gap-2">
-            <input
-              type="text"
-              value={discountCode}
-              onChange={(e) => setDiscountCode(e.target.value)}
-              placeholder="Enter code"
-              className="flex-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
-            />
-            <Button
-              type="button"
-              onClick={handleApplyCode}
-              disabled={isApplyingCode || !discountCode.trim()}
-              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
-            >
-              {isApplyingCode ? <Spinner size={14} /> : "Apply"}
-            </Button>
-          </div>
-          {discountMessage && (
-            <p className={cn(
-              "mt-2 text-xs",
-              discountMessage.type === "success" ? "text-green-600" : "text-[var(--shell-accent)]",
-            )}>
-              {discountMessage.text}
-            </p>
-          )}
-        </div>
-
-        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-4">
-          <CoachPlanSelector
-            plans={plans}
-            currentPlanId={currentPlan.id}
-            athleteCount={athleteCount}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              Monthly platform charge
-            </p>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                  Base plan
-                </p>
-                <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{currentPlan.monthlyPriceSek} kr</p>
-              </div>
-              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                  Overage
-                </p>
-                <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">
-                  {overageTotalSek} kr
-                </p>
-                <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                  {overageAthletes} x {currentPlan.extraAthletePriceSek} kr
-                </p>
-              </div>
-              <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                  Estimated total
-                </p>
-                <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">
-                  {estimatedTotalSek} kr
-                </p>
-              </div>
-            </div>
-            <p className="mt-3 text-sm text-[var(--shell-muted)]">
-              Includes {currentPlan.includedAthletes} athletes. Athlete roster management lives in
-              the Athletes tab. Overage quantity is synced to Stripe as active athletes above {currentPlan.includedAthletes}.
-            </p>
-          </div>
-
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              Stripe account
-            </p>
-            <p className="mt-2 text-sm text-[var(--shell-ink)]">{coachPaymentStatus.text}</p>
-            <Button
-              type="button"
-              onClick={onOpenStripeDashboard}
-              disabled={isOpeningStripe}
-              className="mt-4 w-full rounded-none border border-transparent bg-[var(--shell-accent)] font-semibold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
-            >
-              {isOpeningStripe ? <Spinner size={14} /> : "Open Stripe"}
-            </Button>
-            <p className="mt-2 text-xs text-[var(--shell-muted)]">
-              Use Stripe to review payouts and update account settings.
-            </p>
-            <p className="mt-4 text-xs text-[var(--shell-muted)]">
-              Credit balance and usage details are now available in the{" "}
-              <Link href="/app/coach/credits" className="underline underline-offset-2">
-                Credits tab
-              </Link>
-              .
-            </p>
-          </div>
+      {/* Plan selector */}
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Plan</p>
+        <div className="mt-3">
+          <CoachPlanSelector plans={plans} currentPlanId={currentPlan.id} athleteCount={athleteCount} />
         </div>
       </div>
-    </section>
+
+      {/* Monthly charge */}
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Monthly platform charge</p>
+        <div className="mt-3 grid grid-cols-3 gap-6 sm:max-w-sm">
+          <div>
+            <p className="text-xs text-[var(--shell-muted)]">Base plan</p>
+            <p className="mt-1 text-xl font-semibold text-[var(--shell-ink)]">{currentPlan.monthlyPriceSek} kr</p>
+          </div>
+          <div>
+            <p className="text-xs text-[var(--shell-muted)]">Overage</p>
+            <p className="mt-1 text-xl font-semibold text-[var(--shell-ink)]">{overageTotalSek} kr</p>
+            <p className="text-xs text-[var(--shell-muted)]">{overageAthletes} × {currentPlan.extraAthletePriceSek} kr</p>
+          </div>
+          <div>
+            <p className="text-xs text-[var(--shell-muted)]">Total</p>
+            <p className="mt-1 text-xl font-semibold text-[var(--shell-ink)]">{estimatedTotalSek} kr</p>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-[var(--shell-muted)]">
+          Includes {currentPlan.includedAthletes} athletes. Overage is synced to Stripe as active athletes above {currentPlan.includedAthletes}.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {/* Discount code */}
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Discount code</p>
+          <div className="mt-3">
+            <AppliedDiscountCard
+              code={effectiveDiscountCode}
+              description={effectiveDiscountDescription}
+              stripeCouponId={effectiveDiscountStripeCouponId}
+              stripePromotionCodeId={liveDiscount?.stripePromotionCodeId ?? null}
+              stripeCoupon={liveDiscount?.stripeCoupon ?? null}
+            />
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+                placeholder="Enter code"
+                className="flex-1 border-b border-[var(--shell-border)] bg-transparent py-1.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none"
+              />
+              <Button
+                type="button"
+                onClick={handleApplyCode}
+                disabled={isApplyingCode || !discountCode.trim()}
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] px-4 text-sm font-semibold text-[var(--shell-accent-ink)] hover:opacity-90 disabled:opacity-50"
+              >
+                {isApplyingCode ? <Spinner size={14} /> : "Apply"}
+              </Button>
+            </div>
+            {discountMessage && (
+              <p className={cn("mt-2 text-xs", discountMessage.type === "success" ? "text-green-600" : "text-[var(--shell-accent)]")}>
+                {discountMessage.text}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Stripe account */}
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Stripe account</p>
+          <p className="mt-3 text-sm text-[var(--shell-ink)]">{coachPaymentStatus.text}</p>
+          <Button
+            type="button"
+            onClick={onOpenStripeDashboard}
+            disabled={isOpeningStripe}
+            className="mt-3 rounded-none border border-transparent bg-[var(--shell-accent)] px-4 py-2 font-semibold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
+          >
+            {isOpeningStripe ? <Spinner size={14} /> : "Open Stripe"}
+          </Button>
+          <p className="mt-2 text-xs text-[var(--shell-muted)]">
+            Use Stripe to review payouts and update account settings.
+          </p>
+          <p className="mt-3 text-xs text-[var(--shell-muted)]">
+            Credit balance and usage details are available in the{" "}
+            <Link href="/app/coach/credits" className="underline underline-offset-2">
+              Credits tab
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

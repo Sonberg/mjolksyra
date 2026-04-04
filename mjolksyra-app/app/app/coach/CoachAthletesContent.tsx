@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { InviteTraineeDialog } from "@/dialogs/InviteTraineeDialog";
 import { getTraineeInvitations } from "@/services/traineeInvitations/getTraineeInvitations";
 import { getPlannedWorkouts } from "@/services/plannedWorkouts/getPlannedWorkout";
@@ -64,23 +65,19 @@ export function CoachAthletesContent({ trainees }: Props) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-              Athlete management
-            </p>
-            <h2 className="text-2xl text-[var(--shell-ink)] md:text-3xl">
-              Athletes
-            </h2>
-            <p className="text-sm text-[var(--shell-muted)]">
-              Manage pricing, workouts, and coach relationships.
-            </p>
-            <p className="text-sm text-[var(--shell-muted)]">
-              {trainees.length} active athlete{trainees.length === 1 ? "" : "s"}.
-              $39/mo includes {includedAthletes}; overage: ${overageAthletes * 4}/mo.
+      <PageSectionHeader
+        title="Athletes"
+        description={
+          <div className="space-y-0.5">
+            <p>Manage pricing, workouts, and coach relationships.</p>
+            <p>
+              {trainees.length} active athlete{trainees.length === 1 ? "" : "s"}
+              . $39/mo includes {includedAthletes}; overage: $
+              {overageAthletes * 4}/mo.
             </p>
           </div>
+        }
+        actions={
           <InviteTraineeDialog
             onCompletion={async () => {
               await invitaions.refetch();
@@ -96,8 +93,8 @@ export function CoachAthletesContent({ trainees }: Props) {
               </Button>
             }
           />
-        </div>
-      </section>
+        }
+      />
 
       {trainees.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -105,7 +102,9 @@ export function CoachAthletesContent({ trainees }: Props) {
             <TraineeCard
               key={trainee.id}
               trainee={trainee}
-              hasUnpublishedChanges={unpublishedChanges.data[trainee.id] ?? false}
+              hasUnpublishedChanges={
+                unpublishedChanges.data[trainee.id] ?? false
+              }
             />
           ))}
         </div>
@@ -120,10 +119,15 @@ export function CoachAthletesContent({ trainees }: Props) {
 
       {invitaions.data.length > 0 ? (
         <section className="space-y-4">
-          <h3 className="text-lg text-[var(--shell-ink)]">Pending invitations</h3>
+          <h3 className="text-lg text-[var(--shell-ink)]">
+            Pending invitations
+          </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {invitaions.data.map((invitation) => (
-              <TraineeInvitationCard key={invitation.id} invitation={invitation} />
+              <TraineeInvitationCard
+                key={invitation.id}
+                invitation={invitation}
+              />
             ))}
           </div>
         </section>

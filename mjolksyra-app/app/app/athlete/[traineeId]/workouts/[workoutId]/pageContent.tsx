@@ -32,26 +32,24 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
 
   return (
     <section className="space-y-4">
-      <div className="mb-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 md:p-5">
-        <PageSectionHeader
-          eyebrow={
-            data
-              ? dayjs(data.plannedAt).format("ddd D MMM YYYY").toUpperCase()
-              : "Workout"
-          }
-          title={data?.name ?? "Workout"}
-          titleClassName="text-xl md:text-2xl"
-          leading={
-            <Link
-              href={backHref}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
-              aria-label="Back to workouts"
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Link>
-          }
-        />
-      </div>
+      <PageSectionHeader
+        eyebrow={
+          data
+            ? dayjs(data.plannedAt).format("ddd D MMM YYYY").toUpperCase()
+            : "Workout"
+        }
+        title={data?.name ?? "Workout"}
+        titleClassName="text-xl md:text-2xl"
+        leading={
+          <Link
+            href={backHref}
+            className="inline-flex items-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+            aria-label="Back to workouts"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+          </Link>
+        }
+      />
 
       {isLoading ? (
         <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">

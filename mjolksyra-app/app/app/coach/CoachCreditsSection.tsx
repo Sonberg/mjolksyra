@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import type { Credits } from "@/services/coaches/getCredits";
 import type { CreditLedgerItem } from "@/services/coaches/getCreditLedger";
 import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
@@ -13,79 +14,77 @@ type Props = {
 
 export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Props) {
   return (
-    <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
-      <div className="space-y-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">Credits</p>
-          <h2 className="mt-2 text-2xl text-[var(--shell-ink)] md:text-3xl">Usage and balance</h2>
-          <p className="mt-2 text-sm text-[var(--shell-muted)]">
-            Track remaining credits, review action costs, and see how credits are spent over time.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <PageSectionHeader
+        eyebrow="Credits"
+        title="Usage and balance"
+        description="Track remaining credits, review action costs, and see how credits are spent over time."
+      />
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Credits balance</p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {/* Balance + action costs */}
+        <div className="space-y-6">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits balance</p>
+            <div className="mt-3 grid grid-cols-3 gap-4">
               <Metric label="Included" value={`${credits?.includedRemaining ?? 0}`} />
               <Metric label="Purchased" value={`${credits?.purchasedRemaining ?? 0}`} />
               <Metric label="Total" value={`${credits?.totalRemaining ?? 0}`} />
             </div>
-            <p className="mt-3 text-xs text-[var(--shell-muted)]">
+            <p className="mt-2 text-xs text-[var(--shell-muted)]">
               {credits?.nextResetAt
                 ? `Included credits reset on ${new Date(credits.nextResetAt).toLocaleDateString("sv-SE")}.`
                 : "Included credits reset after successful subscription billing."}
             </p>
-            <div className="mt-3 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                Action costs
-              </p>
-              {creditPricing.length === 0 ? (
-                <p className="mt-2 text-xs text-[var(--shell-muted)]">No action pricing found.</p>
-              ) : (
-                <ul className="mt-2 space-y-1 text-sm text-[var(--shell-ink)]">
-                  {creditPricing.map((item) => (
-                    <li key={item.action} className="flex items-center justify-between">
-                      <span>{formatActionName(item.action)}</span>
-                      <span className="text-[var(--shell-muted)]">{item.creditCost} credits</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
           </div>
 
-          <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">Credits ledger</p>
-            {creditLedger.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--shell-muted)]">No credit activity yet.</p>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Action costs</p>
+            {creditPricing.length === 0 ? (
+              <p className="mt-2 text-xs text-[var(--shell-muted)]">No action pricing found.</p>
             ) : (
-              <ul className="mt-3 space-y-2">
-                {creditLedger.map((entry) => {
-                  const delta = entry.includedCreditsChanged + entry.purchasedCreditsChanged;
-                  const isPositive = delta >= 0;
-                  return (
-                    <li key={entry.id} className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm text-[var(--shell-ink)]">{formatLedgerTitle(entry.type, entry.action)}</p>
-                        <p className={cn("text-xs font-semibold", isPositive ? "text-green-600" : "text-[var(--shell-accent)]")}>
-                          {isPositive ? "+" : ""}
-                          {delta}
-                        </p>
-                      </div>
-                      <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                        {new Date(entry.createdAt).toLocaleString("sv-SE")}
-                        {entry.referenceId ? ` - ${entry.referenceId}` : ""}
-                      </p>
-                    </li>
-                  );
-                })}
+              <ul className="mt-2 divide-y divide-[var(--shell-border)]">
+                {creditPricing.map((item) => (
+                  <li key={item.action} className="flex items-center justify-between py-2 text-sm">
+                    <span className="text-[var(--shell-ink)]">{formatActionName(item.action)}</span>
+                    <span className="text-[var(--shell-muted)]">{item.creditCost} credits</span>
+                  </li>
+                ))}
               </ul>
             )}
           </div>
         </div>
+
+        {/* Ledger */}
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits ledger</p>
+          {creditLedger.length === 0 ? (
+            <p className="mt-3 text-sm text-[var(--shell-muted)]">No credit activity yet.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-[var(--shell-border)]">
+              {creditLedger.map((entry) => {
+                const delta = entry.includedCreditsChanged + entry.purchasedCreditsChanged;
+                const isPositive = delta >= 0;
+                return (
+                  <li key={entry.id} className="flex items-center justify-between gap-2 py-2">
+                    <div>
+                      <p className="text-sm text-[var(--shell-ink)]">{formatLedgerTitle(entry.type, entry.action)}</p>
+                      <p className="text-xs text-[var(--shell-muted)]">
+                        {new Date(entry.createdAt).toLocaleString("sv-SE")}
+                        {entry.referenceId ? ` · ${entry.referenceId}` : ""}
+                      </p>
+                    </div>
+                    <p className={cn("shrink-0 text-xs font-semibold", isPositive ? "text-green-600" : "text-[var(--shell-accent)]")}>
+                      {isPositive ? "+" : ""}{delta}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -119,9 +118,9 @@ function formatLedgerTitle(type: string, action?: string | null) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-3">
+    <div>
       <p className="text-xs uppercase tracking-[0.12em] text-[var(--shell-muted)]">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{value}</p>
+      <p className="mt-1 text-2xl font-semibold text-[var(--shell-ink)]">{value}</p>
     </div>
   );
 }
