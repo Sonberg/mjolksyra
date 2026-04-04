@@ -14,9 +14,15 @@ type Props = {
   traineeId: string;
   plannedWorkoutId: string;
   viewerMode: "athlete" | "coach";
+  plannedWorkoutMedia?: PlannedWorkout["media"];
 };
 
-export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Props) {
+export function WorkoutChatPanel({
+  traineeId,
+  plannedWorkoutId,
+  viewerMode,
+  plannedWorkoutMedia = [],
+}: Props) {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
   const [media, setMedia] = useState<PlannedWorkout["media"]>([]);
@@ -85,7 +91,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         plannedWorkoutId,
         analysis: {
           text: message,
-          mediaUrls: media.map((x) => x.rawUrl),
+          mediaUrls: plannedWorkoutMedia.map((x) => x.rawUrl),
         },
       }),
   });
@@ -95,8 +101,8 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
   }, [isMediaPending, media.length, message]);
 
   const canAnalyze = useMemo(() => {
-    return (message.trim().length > 0 || media.length > 0) && !isMediaPending;
-  }, [isMediaPending, media.length, message]);
+    return viewerMode === "coach" && !isMediaPending;
+  }, [isMediaPending, viewerMode]);
 
   const counterpartLabel = viewerMode === "athlete" ? "Coach" : "Athlete";
 
@@ -116,19 +122,19 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         className="max-h-96 space-y-3 overflow-y-auto bg-[var(--shell-surface-strong)] px-3 py-4 sm:px-4"
         data-testid="workout-chat-messages"
       >
-        {analyze.isPending ? (
+        {viewerMode === "coach" && analyze.isPending ? (
           <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-medium text-[var(--shell-muted)]">
             Analyzing workout notes and media...
           </div>
         ) : null}
 
-        {analyze.isError ? (
+        {viewerMode === "coach" && analyze.isError ? (
           <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-medium text-red-500">
             Could not analyze this check-in right now.
           </div>
         ) : null}
 
-        {analyze.data ? (
+        {viewerMode === "coach" && analyze.data ? (
           <article className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
               AI analysis
@@ -194,6 +200,7 @@ export function WorkoutChatPanel({ traineeId, plannedWorkoutId, viewerMode }: Pr
         onMediaPendingChange={setIsMediaPending}
         isSending={sendMessage.isPending}
         isAnalyzing={analyze.isPending}
+        showAnalyze={viewerMode === "coach"}
         canSend={canSend}
         canAnalyze={canAnalyze}
         onSend={() => sendMessage.mutate()}

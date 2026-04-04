@@ -30,6 +30,8 @@ public class PlannedWorkoutResponse
 
     public DateTimeOffset? ReviewedAt { get; set; }
 
+    public ICollection<PlannedWorkoutMediaResponse> Media { get; set; } = [];
+
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
     public static PlannedWorkoutResponse From(PlannedWorkout workout, ICollection<Exercise> exercises)
@@ -46,6 +48,14 @@ public class PlannedWorkoutResponse
             CreatedAt = workout.CreatedAt,
             CompletedAt = workout.CompletedAt,
             ReviewedAt = workout.ReviewedAt,
+            Media = workout.Media
+                .Select(x => new PlannedWorkoutMediaResponse
+                {
+                    RawUrl = x.RawUrl,
+                    CompressedUrl = x.CompressedUrl,
+                    Type = x.Type,
+                })
+                .ToList(),
             PlannedAt = workout.PlannedAt,
             AppliedBlock = workout.AppliedBlock is null
                 ? null

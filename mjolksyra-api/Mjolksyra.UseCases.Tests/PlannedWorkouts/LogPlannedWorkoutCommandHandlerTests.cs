@@ -54,12 +54,16 @@ public class LogPlannedWorkoutCommandHandlerTests
         var sut = CreateSut(plannedWorkoutRepository, exerciseRepository);
 
         var result = await sut.Handle(
-            CreateCommand(workoutId, traineeId),
+            CreateCommand(
+                workoutId,
+                traineeId,
+                ["https://media.example.com/workouts/checkin.mp4", "https://media.example.com/workouts/photo.jpg"]),
             CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(savedWorkout);
         Assert.NotNull(savedWorkout!.CompletedAt);
+        Assert.Equal(2, savedWorkout.Media.Count);
     }
 
     [Fact]

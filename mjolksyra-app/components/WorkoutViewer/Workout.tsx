@@ -455,6 +455,15 @@ export function Workout({
                 Reviewed {new Date(workout.reviewedAt).toLocaleString()}
               </span>
             ) : null}
+
+            {viewerMode === "coach" && isCompleted ? (
+              <WorkoutChatPanel
+                traineeId={workout.traineeId}
+                plannedWorkoutId={workout.id}
+                viewerMode={viewerMode}
+                plannedWorkoutMedia={workout.media}
+              />
+            ) : null}
           </>
         ) : (
           <>
@@ -529,6 +538,7 @@ export function Workout({
               traineeId={workout.traineeId}
               plannedWorkoutId={workout.id}
               viewerMode={viewerMode}
+              plannedWorkoutMedia={workout.media}
             />
             {workout.exercises.map((exercise, index) => (
               <WorkoutExerciseCard

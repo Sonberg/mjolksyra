@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Media;
 using Mjolksyra.Domain.Notifications;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
@@ -39,6 +40,14 @@ public class LogPlannedWorkoutCommandHandler : IRequestHandler<LogPlannedWorkout
         var previousCompletedAt = plannedWorkout.CompletedAt;
 
         plannedWorkout.CompletedAt = request.Log.CompletedAt;
+        plannedWorkout.Media = request.Log.MediaUrls
+            .Select(url => new PlannedWorkoutMedia
+            {
+                RawUrl = url,
+                Type = MediaUrlHelper.IsVideoUrl(url) ? PlannedWorkoutMediaType.Video : PlannedWorkoutMediaType.Image,
+            })
+            .ToList();
+
         if (plannedWorkout.CompletedAt is not null)
         {
             plannedWorkout.ReviewedAt = null;

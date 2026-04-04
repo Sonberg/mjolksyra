@@ -401,7 +401,32 @@ test.describe("Workout media upload", () => {
     await expect(sendButton).toBeEnabled();
   });
 
-  test("AthleteWorkoutLogger analyzes text and media with Gemini", async ({ page }) => {
+  test("AthleteWorkoutLogger hides analyze action for athlete", async ({ page }) => {
+    await page.route("**/api/trainees/**/planned-workouts/**/chat-messages", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "[]",
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+    );
+
+    await expect(page.getByRole("button", { name: "Analyze" })).toHaveCount(0);
+  });
+
+  test("Coach can analyze planned workout media context", async ({ page }) => {
     await page.route("**/api/trainees/**/planned-workouts/**/chat-messages", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
@@ -433,11 +458,8 @@ test.describe("Workout media upload", () => {
     });
 
     await page.goto(
-      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+      "http://localhost:6006/iframe.html?id=workoutviewer-workout--coach-needs-review-card",
     );
-
-    const composer = page.getByTestId("workout-chat-composer");
-    await composer.fill("Please analyze squat form and bar speed");
 
     const analyzeButton = page.getByRole("button", { name: "Analyze" });
     await expect(analyzeButton).toBeEnabled();
