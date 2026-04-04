@@ -107,6 +107,11 @@ Media references:
 Use the text and media references to produce a coach-friendly summary.
 If media cannot be accessed, explicitly mention that in keyFindings.
 
+Hard rules:
+- Treat ""Workout exercises (prescribed vs actual)"" as authoritative workout log data.
+- If actual reps are present, never report a conflicting exact rep count.
+- If video cannot be reliably inspected, do not guess exact rep counts from media.
+
 Return ONLY JSON with this exact shape:
 {{
   ""summary"": ""string"",

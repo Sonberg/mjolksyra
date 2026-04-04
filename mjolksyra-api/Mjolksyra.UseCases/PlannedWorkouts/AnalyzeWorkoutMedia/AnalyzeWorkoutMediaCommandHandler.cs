@@ -44,6 +44,14 @@ public class AnalyzeWorkoutMediaCommandHandler(
             cancellationToken);
 
         var analysisText = request.Analysis.Text.Trim();
+
+        var loggedRepEvidence = BuildLoggedRepEvidence(workout.Exercises);
+        if (!string.IsNullOrWhiteSpace(loggedRepEvidence))
+        {
+            analysisText =
+                $"{analysisText}\n\nAuthoritative workout log rep counts:\n{loggedRepEvidence}\nUse these logged rep counts as source of truth. Do not claim a different exact rep count from media alone.";
+        }
+
         if (chatMessages.Count > 0)
         {
             var chatHistory = string.Join('\n', chatMessages.Select(message =>
@@ -104,5 +112,32 @@ public class AnalyzeWorkoutMediaCommandHandler(
         }, cancellationToken);
 
         return WorkoutMediaAnalysisResponse.From(analysis, createdAt);
+    }
+
+    private static string BuildLoggedRepEvidence(ICollection<PlannedExercise> exercises)
+    {
+        var lines = exercises
+            .Select(exercise =>
+            {
+                var loggedSetReps = (exercise.Prescription?.Sets ?? [])
+                    .Select((set, index) => new { SetNumber = index + 1, set.Actual?.Reps })
+                    .Where(x => x.Reps.HasValue)
+                    .Select(x => new { x.SetNumber, Reps = x.Reps!.Value })
+                    .ToList();
+
+                if (loggedSetReps.Count == 0)
+                {
+                    return null;
+                }
+
+                var totalLoggedReps = loggedSetReps.Sum(x => x.Reps);
+                var perSet = string.Join(", ", loggedSetReps.Select(x => $"set {x.SetNumber}={x.Reps}"));
+                return $"- {exercise.Name}: totalLoggedReps={totalLoggedReps}; setsWithLoggedReps={loggedSetReps.Count}; perSet=[{perSet}]";
+            })
+            .Where(line => line is not null)
+            .Select(line => line!)
+            .ToList();
+
+        return string.Join('\n', lines);
     }
 }

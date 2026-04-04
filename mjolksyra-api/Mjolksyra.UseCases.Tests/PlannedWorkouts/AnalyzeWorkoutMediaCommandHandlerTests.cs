@@ -215,6 +215,9 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
             x => x.AnalyzeAsync(
                 It.Is<WorkoutMediaAnalysisInput>(input =>
                     input.Text.Contains("Please review form") &&
+                    input.Text.Contains("Authoritative workout log rep counts:") &&
+                    input.Text.Contains("Back Squat: totalLoggedReps=5; setsWithLoggedReps=1; perSet=[set 1=5]") &&
+                    input.Text.Contains("Use these logged rep counts as source of truth.") &&
                     input.Text.Contains("[Athlete] Felt strong today") &&
                     input.Text.Contains("[Coach] Keep elbows under the bar") &&
                     input.MediaUrls.Count == 1 &&
