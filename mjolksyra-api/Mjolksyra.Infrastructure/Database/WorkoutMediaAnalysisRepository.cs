@@ -19,4 +19,13 @@ public class WorkoutMediaAnalysisRepository(IMongoDbContext context) : IWorkoutM
             .SortByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(ct);
     }
+
+    public async Task<ICollection<WorkoutMediaAnalysisRecord>> GetRecentByTrainee(Guid traineeId, int count, CancellationToken ct)
+    {
+        return await context.WorkoutMediaAnalyses
+            .Find(x => x.TraineeId == traineeId)
+            .SortByDescending(x => x.CreatedAt)
+            .Limit(count)
+            .ToListAsync(ct);
+    }
 }

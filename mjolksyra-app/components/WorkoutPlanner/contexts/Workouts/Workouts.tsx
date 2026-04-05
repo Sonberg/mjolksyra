@@ -5,12 +5,14 @@ import {
   useContext,
   useEffect,
   useReducer,
+  useRef,
 } from "react";
 import type { Dispatch, ReactNode } from "react";
 
 import { MonthValue } from "@/hooks/useInfinitMonths";
 import { Action, MonthWorkouts, workoutsReducer } from "./workoutsReducer";
 import { usePlannedWorkoutActions } from "../PlannedWorkoutActions";
+import { useUserEvents } from "@/context/UserEvents/UserEvents";
 
 type Args = {
   traineeId: string;
@@ -37,6 +39,10 @@ export const useWorkouts = () => useContext(Context);
 export function WorkoutsProvider({ traineeId, months, children }: Args) {
   const [data, dispatch] = useReducer(workoutsReducer, {});
   const { get } = usePlannedWorkoutActions();
+  const { subscribe } = useUserEvents();
+  const monthsRef = useRef(months);
+  monthsRef.current = months;
+
   const reload = useCallback(
     async (monthId: string | MonthValue, signal?: AbortSignal) => {
       const month =
@@ -69,6 +75,23 @@ export function WorkoutsProvider({ traineeId, months, children }: Args) {
     },
     [months, get, traineeId]
   );
+
+  const reloadAll = useCallback(() => {
+    const fetched = Object.keys(data);
+    const tasks = monthsRef.current
+      .filter((x) => fetched.includes(x.monthId))
+      .map((x) => reload(x));
+    void Promise.all(tasks);
+  }, [data, reload]);
+
+  useEffect(() => {
+    return subscribe("planned-workouts.updated", (payload) => {
+      const p = payload as { traineeId?: string } | undefined;
+      if (p?.traineeId === traineeId) {
+        reloadAll();
+      }
+    });
+  }, [subscribe, traineeId, reloadAll]);
 
   useEffect(() => {
     if (typeof window === undefined) {

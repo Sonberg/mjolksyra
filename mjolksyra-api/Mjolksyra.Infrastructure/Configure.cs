@@ -95,6 +95,7 @@ public static class Configure
         services.AddScoped<IR2FileDeleter, R2FileDeleter>();
         services.AddScoped<IMediaCompressionPublisher, MassTransitMediaCompressionPublisher>();
         services.AddScoped<IWorkoutMediaAnalysisAgent, GeminiWorkoutMediaAnalysisAgent>();
+        services.AddScoped<IAIWorkoutPlannerAgent, GeminiAIWorkoutPlannerAgent>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>

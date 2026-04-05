@@ -21,7 +21,8 @@ import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
-import { ChevronLeftIcon, RotateCcwIcon, UploadIcon } from "lucide-react";
+import { AIPlannerPanel } from "@/components/AIPlannerPanel";
+import { ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -218,7 +219,7 @@ export function PageContent({ traineeId }: Props) {
   const router = useRouter();
   const { subscribe } = useUserEvents();
   const [rightSideTab, setRightSideTab] = useState<
-    "exercises" | "blocks" | "changes"
+    "exercises" | "blocks" | "changes" | "ai"
   >("exercises");
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "plannerHeader"],
@@ -321,6 +322,16 @@ export function PageContent({ traineeId }: Props) {
                   ),
                   onSelect: () => setRightSideTab("changes"),
                 },
+                {
+                  key: "ai",
+                  label: (
+                    <span className="inline-flex items-center gap-1">
+                      <SparklesIcon className="h-3 w-3" />
+                      AI
+                    </span>
+                  ),
+                  onSelect: () => setRightSideTab("ai"),
+                },
               ]}
               activeKey={rightSideTab}
               size="sm"
@@ -357,6 +368,15 @@ export function PageContent({ traineeId }: Props) {
             <PlannerChangesPanel
               draftWorkouts={draftWorkouts}
               onDraftsChanged={refetchDraftWorkouts}
+            />
+          </TabsContent>
+          <TabsContent
+            value="ai"
+            className="mt-0 min-h-0 flex-1 overflow-hidden"
+          >
+            <AIPlannerPanel
+              traineeId={traineeId}
+              onGenerated={refetchDraftWorkouts}
             />
           </TabsContent>
         </Tabs>
