@@ -101,24 +101,24 @@ export function WorkoutDetail({
       className="flex h-full flex-col overflow-hidden bg-[var(--shell-surface)]"
     >
       {/* Header — non-scrolling */}
-      <div className="flex-none border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
+      <div className="flex-none border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-baseline gap-x-2">
+            <p className="text-lg font-semibold tracking-tight text-[var(--shell-ink)]">
+              {displayName}
+            </p>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
               {workout.completedAt ? (
-                <span className="text-xs text-[var(--shell-muted)]">
+                <span className="text-[11px] text-[var(--shell-muted)]">
                   Completed {new Date(workout.completedAt).toLocaleString()}
                 </span>
               ) : null}
               {viewerMode === "coach" && workout.reviewedAt ? (
-                <span className="text-xs text-[var(--shell-muted)]">
+                <span className="text-[11px] text-[var(--shell-muted)]">
                   Reviewed {new Date(workout.reviewedAt).toLocaleString()}
                 </span>
               ) : null}
             </div>
-            <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
-              {displayName}
-            </p>
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -183,7 +183,7 @@ export function WorkoutDetail({
       {/* Body — two independently scrolling panels */}
       <div className="flex flex-1 min-h-0 flex-col md:flex-row overflow-hidden">
         {/* Left panel: exercises + AI analysis */}
-        <div className="min-h-0 flex-[2] overflow-y-auto overscroll-contain space-y-4 p-4 md:border-r md:border-[var(--shell-border)]">
+        <div className="min-h-0 flex-[2] overflow-y-auto overscroll-contain space-y-3 p-4 md:border-r md:border-[var(--shell-border)]">
           {workout.note?.trim() ? (
             <div className="border-l-2 border-[var(--shell-accent)] pl-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
@@ -216,7 +216,7 @@ export function WorkoutDetail({
               </AccordionItem>
             </Accordion>
           ) : null}
-          <div className="grid grid-cols-1 gap-3">
+          <div className="space-y-2">
             {workout.exercises.map((exercise, index) => (
               <WorkoutExerciseCard
                 key={exercise.id}

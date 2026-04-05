@@ -92,8 +92,8 @@ export function WorkoutChatPanel({
       className="flex h-full flex-col overflow-hidden"
       data-testid="workout-chat-panel"
     >
-      <div className="border-b border-[var(--shell-border)] px-4 py-3">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Chat</p>
+      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">Chat</p>
       </div>
 
       <div

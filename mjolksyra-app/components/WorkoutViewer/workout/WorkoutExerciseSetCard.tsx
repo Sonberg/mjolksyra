@@ -104,46 +104,42 @@ export function WorkoutExerciseSetCard({
     });
   }
 
+  const isDone = set.actual?.isDone;
+
   return (
-    <div className="flex items-start justify-between gap-3 border-t border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-2 sm:px-2.5">
-      <div className="min-w-0">
-        <div
-          className={
-            set.actual?.isDone
-              ? "text-sm font-semibold text-[var(--shell-muted)] line-through"
-              : "text-sm font-semibold text-[var(--shell-ink)]"
-          }
-        >
-          Set {setIndex + 1}: {getSetTargetLabel(targetType, set.target)}
-        </div>
-        {set.target?.note?.trim() ? (
-          <div className="mt-1 text-xs text-[var(--shell-muted)]">{set.target.note}</div>
-        ) : null}
-        <div className="mt-2 flex items-center gap-3 text-xs text-[var(--shell-muted)]">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-            Target
-          </span>
-          <span>
+    <div className="grid grid-cols-[1fr_auto] items-start gap-3 px-3 py-3 sm:px-4">
+      <div className="min-w-0 space-y-2">
+        {/* Set label + target */}
+        <div className="grid grid-cols-[5rem_1fr] items-baseline gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+            Set {setIndex + 1}
+          </p>
+          <p
+            className={
+              isDone
+                ? "text-xs text-[var(--shell-muted)] line-through"
+                : "text-xs font-medium text-[var(--shell-ink)]"
+            }
+          >
             {targetType === ExerciseType.SetsReps
-              ? `${set.target?.reps ?? "-"} reps`
+              ? `${set.target?.reps ?? "–"} reps${typeof set.target?.weightKg === "number" ? ` · ${set.target.weightKg} kg` : ""}`
               : targetType === ExerciseType.DurationSeconds
-                ? `${set.target?.durationSeconds ?? "-"} s`
-                : `${set.target?.distanceMeters ?? "-"} m`}
-          </span>
-          {targetType === ExerciseType.SetsReps &&
-          typeof set.target?.weightKg === "number" ? (
-            <>
-              <span className="text-[var(--shell-muted)]">•</span>
-              <span>{set.target.weightKg} kg</span>
-            </>
-          ) : null}
+                ? `${set.target?.durationSeconds ?? "–"} s`
+                : `${set.target?.distanceMeters ?? "–"} m`}
+          </p>
         </div>
-        <div className="mt-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+
+        {set.target?.note?.trim() ? (
+          <p className="text-xs text-[var(--shell-muted)]">{set.target.note}</p>
+        ) : null}
+
+        {/* Actual */}
+        <div className="grid grid-cols-[5rem_1fr] items-start gap-2">
+          <p className="pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
             Actual
-          </span>
+          </p>
           {isEditable ? (
-            <div className="mt-1 flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {targetType === ExerciseType.SetsReps ? (
                 <div className="relative">
                   <input
@@ -152,10 +148,10 @@ export function WorkoutExerciseSetCard({
                     value={draft.reps}
                     onChange={(ev) => updateDraft({ reps: ev.target.value })}
                     onBlur={() => commitDraft(draft)}
-                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-xs text-[var(--shell-ink)]"
+                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-8 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual reps for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                     reps
                   </span>
                 </div>
@@ -170,10 +166,10 @@ export function WorkoutExerciseSetCard({
                       updateDraft({ durationSeconds: ev.target.value })
                     }
                     onBlur={() => commitDraft(draft)}
-                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
+                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-6 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual duration for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                     s
                   </span>
                 </div>
@@ -188,10 +184,10 @@ export function WorkoutExerciseSetCard({
                       updateDraft({ distanceMeters: ev.target.value })
                     }
                     onBlur={() => commitDraft(draft)}
-                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
+                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-6 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual distance for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                     m
                   </span>
                 </div>
@@ -205,10 +201,10 @@ export function WorkoutExerciseSetCard({
                     value={draft.weightKg}
                     onChange={(ev) => updateDraft({ weightKg: ev.target.value })}
                     onBlur={() => commitDraft(draft)}
-                    className="h-8 w-24 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-xs text-[var(--shell-ink)]"
+                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-6 text-xs text-[var(--shell-ink)]"
                     aria-label={`Actual weight for set ${setIndex + 1}`}
                   />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--shell-muted)]">
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
                     kg
                   </span>
                 </div>
@@ -218,69 +214,57 @@ export function WorkoutExerciseSetCard({
                 value={draft.note}
                 onChange={(ev) => updateDraft({ note: ev.target.value })}
                 onBlur={() => commitDraft(draft)}
-                className="h-8 min-w-[180px] flex-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-xs text-[var(--shell-ink)]"
-                placeholder="Set note (actual)"
+                className="h-7 min-w-[140px] flex-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-xs text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)]"
+                placeholder="Note"
                 aria-label={`Actual note for set ${setIndex + 1}`}
               />
             </div>
           ) : (
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--shell-ink)]">
-              <span>
-                {targetType === ExerciseType.SetsReps
-                  ? `${set.actual?.reps ?? "-"} reps`
-                  : targetType === ExerciseType.DurationSeconds
-                    ? `${set.actual?.durationSeconds ?? "-"} s`
-                    : `${set.actual?.distanceMeters ?? "-"} m`}
-              </span>
-              {targetType === ExerciseType.SetsReps ? (
-                <>
-                  <span className="text-[var(--shell-muted)]">•</span>
-                  <span>{set.actual?.weightKg ?? "-"} kg</span>
-                </>
-              ) : null}
+            <p className="pt-0.5 text-xs text-[var(--shell-ink)]">
+              {targetType === ExerciseType.SetsReps
+                ? `${set.actual?.reps ?? "–"} reps${typeof set.actual?.weightKg === "number" ? ` · ${set.actual.weightKg} kg` : ""}`
+                : targetType === ExerciseType.DurationSeconds
+                  ? `${set.actual?.durationSeconds ?? "–"} s`
+                  : `${set.actual?.distanceMeters ?? "–"} m`}
               {set.actual?.note?.trim() ? (
-                <>
-                  <span className="text-[var(--shell-muted)]">•</span>
-                  <span className="text-[var(--shell-muted)]">{set.actual.note}</span>
-                </>
+                <span className="ml-2 text-[var(--shell-muted)]">
+                  · {set.actual.note}
+                </span>
               ) : null}
-            </div>
+            </p>
           )}
         </div>
       </div>
+
+      {/* Done toggle */}
       {isEditable ? (
         <button
           type="button"
           disabled={isPending}
-          onClick={() =>
-            onToggleSetDone({
-              exerciseId,
-              setIndex,
-            })
-          }
+          onClick={() => onToggleSetDone({ exerciseId, setIndex })}
           className={
-            set.actual?.isDone
-              ? "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)] transition disabled:opacity-60"
-              : "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)] disabled:opacity-60"
+            isDone
+              ? "mt-0.5 inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition disabled:opacity-60"
+              : "mt-0.5 inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-60"
           }
-          title={set.actual?.isDone ? "Mark set incomplete" : "Mark set done"}
+          title={isDone ? "Mark set incomplete" : "Mark set done"}
         >
-          {set.actual?.isDone ? (
-            <CheckCircle2Icon className="h-3.5 w-3.5" />
+          {isDone ? (
+            <CheckCircle2Icon className="h-3 w-3" />
           ) : (
-            <CircleIcon className="h-3.5 w-3.5" />
+            <CircleIcon className="h-3 w-3" />
           )}
-          {set.actual?.isDone ? "Done" : "Mark done"}
+          {isDone ? "Done" : "Mark"}
         </button>
       ) : (
         <span
           className={
-            set.actual?.isDone
-              ? "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-surface)]"
-              : "inline-flex items-center justify-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]"
+            isDone
+              ? "mt-0.5 inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)]"
+              : "mt-0.5 inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]"
           }
         >
-          {set.actual?.isDone ? "Done" : "Not done"}
+          {isDone ? "Done" : "–"}
         </span>
       )}
     </div>
