@@ -86,6 +86,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
         {
             Text = analysisText,
             MediaUrls = mediaUrls,
+            TraineeId = request.TraineeId,
             Exercises = workout.Exercises
                 .Select(exercise => new WorkoutExerciseAnalysisInput
                 {

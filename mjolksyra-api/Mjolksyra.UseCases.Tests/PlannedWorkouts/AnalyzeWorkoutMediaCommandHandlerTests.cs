@@ -222,6 +222,7 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
         analysisAgent.Verify(
             x => x.AnalyzeAsync(
                 It.Is<WorkoutMediaAnalysisInput>(input =>
+                    input.TraineeId == traineeId &&
                     input.Text.Contains("Please review form") &&
                     input.Text.Contains("Authoritative workout log rep counts:") &&
                     input.Text.Contains("Back Squat: totalLoggedReps=5; setsWithLoggedReps=1; perSet=[set 1=5]") &&

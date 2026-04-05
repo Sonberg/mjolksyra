@@ -1,12 +1,16 @@
+using System.ClientModel;
+using System.ComponentModel;
 using System.Text.Json;
-using System.Net.Http.Headers;
-using System.Text;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using Mjolksyra.Domain.AI;
+using OpenAI;
 
 namespace Mjolksyra.Infrastructure.AI;
 
-public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : IWorkoutMediaAnalysisAgent
+public class GeminiWorkoutMediaAnalysisAgent(
+    IOptions<GeminiOptions> options,
+    IWorkoutAnalysisToolDispatcherFactory toolDispatcherFactory) : IWorkoutMediaAnalysisAgent
 {
     public async Task<WorkoutMediaAnalysis> AnalyzeAsync(WorkoutMediaAnalysisInput input, CancellationToken cancellationToken = default)
     {
@@ -15,72 +19,65 @@ public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : 
             throw new InvalidOperationException("Gemini:ApiKey is required to analyze workout media.");
         }
 
-        var prompt = BuildPrompt(input);
-        var rawResponse = await CreateCompletionAsync(prompt, cancellationToken);
-        var json = ExtractJson(rawResponse);
+        var dispatcher = toolDispatcherFactory.Create(input.TraineeId);
+
+        var clientOptions = new OpenAIClientOptions { Endpoint = new Uri(options.Value.OpenAiCompatibleEndpoint) };
+        var openAiClient = new OpenAIClient(new ApiKeyCredential(options.Value.ApiKey), clientOptions);
+
+        IChatClient chatClient = new ChatClientBuilder(
+                openAiClient.GetChatClient(options.Value.ModelName).AsIChatClient())
+            .UseFunctionInvocation()
+            .Build();
+
+        var tools = BuildTools(dispatcher, cancellationToken);
+
+        var messages = new List<ChatMessage>
+        {
+            new(ChatRole.System,
+                "You analyze athlete workout text, image, and video context. " +
+                "You have tools to query the athlete's historical workouts — use them to give progression-aware coaching feedback. " +
+                "Always respond with strict JSON only once you have gathered enough context."),
+            new(ChatRole.User, BuildPrompt(input)),
+        };
+
+        var response = await chatClient.GetResponseAsync(
+            messages,
+            new ChatOptions { Tools = tools },
+            cancellationToken);
+
+        var content = response.Text ?? string.Empty;
+        var json = ExtractJson(content);
 
         return TryParse(json) ?? new WorkoutMediaAnalysis
         {
-            Summary = string.IsNullOrWhiteSpace(rawResponse)
-                ? "No analysis content returned."
-                : rawResponse,
+            Summary = string.IsNullOrWhiteSpace(content) ? "No analysis content returned." : content,
             KeyFindings = [],
             TechniqueRisks = [],
             CoachSuggestions = [],
         };
     }
 
-    private async Task<string> CreateCompletionAsync(string prompt, CancellationToken cancellationToken)
+    private static AIFunction[] BuildTools(IWorkoutAnalysisToolDispatcher dispatcher, CancellationToken ct)
     {
-        var baseUri = new Uri(options.Value.OpenAiCompatibleEndpoint);
+        [Description("Returns the N most recently completed workouts before a given date. Use to understand training load, recovery, and progression trends across sessions.")]
+        async Task<string> GetRecentCompletedWorkouts(
+            [Description("ISO 8601 date (YYYY-MM-DD). Return workouts completed before this date.")] string before_date,
+            [Description("Number of workouts to return (1–10). Defaults to 5.")] int count = 5)
+            => await dispatcher.GetRecentCompletedWorkoutsAsync(before_date, count, ct);
 
-        using var httpClient = new HttpClient
-        {
-            BaseAddress = baseUri,
-        };
+        [Description("Returns workouts containing a specific exercise. Use before_date to review past progression, after_date to see upcoming planned sessions. Response includes a 'completed' flag per workout.")]
+        async Task<string> GetWorkoutsForExercise(
+            [Description("Exact or approximate exercise name (e.g. 'Back Squat', 'Bench Press').")] string exercise_name,
+            [Description("Number of workouts to return (1–10). Defaults to 5.")] int count = 5,
+            [Description("Optional. ISO 8601 date (YYYY-MM-DD). Return only workouts on or before this date (completed sessions).")] string? before_date = null,
+            [Description("Optional. ISO 8601 date (YYYY-MM-DD). Return workouts on or after this date, including upcoming planned sessions.")] string? after_date = null)
+            => await dispatcher.GetWorkoutsForExerciseAsync(exercise_name, count, before_date, after_date, ct);
 
-        httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", options.Value.ApiKey);
-
-        var body = JsonSerializer.Serialize(new
-        {
-            model = options.Value.ModelName,
-            messages = new[]
-            {
-                new { role = "system", content = "You analyze athlete workout text, image, and video context. Always respond with strict JSON only." },
-                new { role = "user", content = prompt },
-            }
-        });
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, "chat/completions")
-        {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
-        };
-
-        using var response = await httpClient.SendAsync(request, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(
-                $"Gemini analysis request failed with {(int)response.StatusCode} ({response.ReasonPhrase}). Body: {responseBody}");
-        }
-
-        try
-        {
-            using var document = JsonDocument.Parse(responseBody);
-            var content = document.RootElement
-                .GetProperty("choices")[0]
-                .GetProperty("message")
-                .GetProperty("content")
-                .GetString();
-
-            return content ?? string.Empty;
-        }
-        catch
-        {
-            return responseBody;
-        }
+        return
+        [
+            AIFunctionFactory.Create(GetRecentCompletedWorkouts),
+            AIFunctionFactory.Create(GetWorkoutsForExercise),
+        ];
     }
 
     private static string BuildPrompt(WorkoutMediaAnalysisInput input)
@@ -105,6 +102,7 @@ Media references:
 {mediaSection}
 
 Use the text and media references to produce a coach-friendly summary.
+Use the available tools to look up historical workouts and provide progression-aware feedback.
 If media cannot be accessed, explicitly mention that in keyFindings.
 
 Hard rules:

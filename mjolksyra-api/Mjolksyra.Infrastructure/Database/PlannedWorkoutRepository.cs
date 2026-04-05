@@ -40,6 +40,11 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
                 exercise => !exercise.IsPublished));
         }
 
+        if (cursor.CompletedOnly == true)
+        {
+            filters.Add(Builders<PlannedWorkout>.Filter.Ne(x => x.CompletedAt, null));
+        }
+
         if (cursor.SortBy is { } sortBy)
         {
             sort.AddRange(sortBy.Select(field => cursor.Order == SortOrder.Desc

@@ -7,6 +7,8 @@ public class WorkoutMediaAnalysisInput
     public ICollection<string> MediaUrls { get; set; } = [];
 
     public ICollection<WorkoutExerciseAnalysisInput> Exercises { get; set; } = [];
+
+    public Guid TraineeId { get; set; }
 }
 
 public class WorkoutExerciseAnalysisInput
