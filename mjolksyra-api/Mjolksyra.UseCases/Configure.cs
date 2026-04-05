@@ -2,13 +2,11 @@ using FluentValidation;
 using Ganss.Xss;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Mjolksyra.Domain.AI;
 using Mjolksyra.UseCases.Baseload;
 using Mjolksyra.UseCases.Behaviors;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
 using Mjolksyra.UseCases.Coaches.GetAppliedDiscountCode;
 using Mjolksyra.UseCases.Coaches.PurchaseCreditPack;
-using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 using Mjolksyra.UseCases.Trainees;
 using Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
 
@@ -24,7 +22,6 @@ public static class Configure
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SanitizationBehavior<,>));
         services.AddMediatR(opt => opt.RegisterServicesFromAssemblyContaining<UseCasesAssemblyMarker>());
         services.AddValidatorsFromAssemblyContaining<UseCasesAssemblyMarker>();
-        services.AddScoped<IWorkoutAnalysisToolDispatcherFactory, WorkoutAnalysisToolDispatcherFactory>();
         services.AddScoped<ITraineeResponseBuilder, TraineeResponseBuilder>();
         services.AddScoped<ICoachPlatformBillingStripeGateway, CoachPlatformBillingStripeGateway>();
         services.AddScoped<ICoachDiscountConfigurationStripeGateway, CoachDiscountConfigurationStripeGateway>();

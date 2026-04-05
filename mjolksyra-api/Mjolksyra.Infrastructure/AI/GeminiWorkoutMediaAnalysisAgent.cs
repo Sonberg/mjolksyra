@@ -8,9 +8,7 @@ using OpenAI;
 
 namespace Mjolksyra.Infrastructure.AI;
 
-public class GeminiWorkoutMediaAnalysisAgent(
-    IOptions<GeminiOptions> options,
-    IWorkoutAnalysisToolDispatcherFactory toolDispatcherFactory) : IWorkoutMediaAnalysisAgent
+public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : IWorkoutMediaAnalysisAgent
 {
     public async Task<WorkoutMediaAnalysis> AnalyzeAsync(WorkoutMediaAnalysisInput input, CancellationToken cancellationToken = default)
     {
@@ -18,8 +16,6 @@ public class GeminiWorkoutMediaAnalysisAgent(
         {
             throw new InvalidOperationException("Gemini:ApiKey is required to analyze workout media.");
         }
-
-        var dispatcher = toolDispatcherFactory.Create(input.TraineeId);
 
         var clientOptions = new OpenAIClientOptions { Endpoint = new Uri(options.Value.OpenAiCompatibleEndpoint) };
         var openAiClient = new OpenAIClient(new ApiKeyCredential(options.Value.ApiKey), clientOptions);
@@ -29,7 +25,7 @@ public class GeminiWorkoutMediaAnalysisAgent(
             .UseFunctionInvocation()
             .Build();
 
-        var tools = BuildTools(dispatcher, cancellationToken);
+        var tools = BuildTools(input.ToolDispatcher, cancellationToken);
 
         var messages = new List<ChatMessage>
         {

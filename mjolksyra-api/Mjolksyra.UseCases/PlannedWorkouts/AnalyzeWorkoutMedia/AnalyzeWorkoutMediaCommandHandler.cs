@@ -82,11 +82,14 @@ public class AnalyzeWorkoutMediaCommandHandler(
             .Distinct()
             .ToList();
 
+        var dispatcher = new LoggingWorkoutAnalysisToolDispatcher(
+            new WorkoutAnalysisToolDispatcher(plannedWorkoutRepository, request.TraineeId));
+
         var analysis = await workoutMediaAnalysisAgent.AnalyzeAsync(new WorkoutMediaAnalysisInput
         {
             Text = analysisText,
             MediaUrls = mediaUrls,
-            TraineeId = request.TraineeId,
+            ToolDispatcher = dispatcher,
             Exercises = workout.Exercises
                 .Select(exercise => new WorkoutExerciseAnalysisInput
                 {
@@ -125,6 +128,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
             KeyFindings = analysis.KeyFindings,
             TechniqueRisks = analysis.TechniqueRisks,
             CoachSuggestions = analysis.CoachSuggestions,
+            ToolCalls = dispatcher.Calls.ToList(),
             CreatedAt = createdAt,
         }, cancellationToken);
 

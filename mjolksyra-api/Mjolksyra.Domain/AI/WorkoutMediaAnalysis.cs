@@ -8,7 +8,7 @@ public class WorkoutMediaAnalysisInput
 
     public ICollection<WorkoutExerciseAnalysisInput> Exercises { get; set; } = [];
 
-    public Guid TraineeId { get; set; }
+    public required IWorkoutAnalysisToolDispatcher ToolDispatcher { get; set; }
 }
 
 public class WorkoutExerciseAnalysisInput
