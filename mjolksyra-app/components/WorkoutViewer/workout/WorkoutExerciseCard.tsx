@@ -1,6 +1,11 @@
-import { CheckCircle2Icon, CircleIcon } from "lucide-react";
+import { CheckCircle2Icon, CircleIcon, ClipboardListIcon } from "lucide-react";
 import { ExerciseType, formatPrescription } from "@/lib/exercisePrescription";
 import { WorkoutExerciseSetCard } from "./WorkoutExerciseSetCard";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   ToggleExerciseDoneInput,
   ToggleSetDoneInput,
@@ -58,9 +63,95 @@ export function WorkoutExerciseCard({
               {exercise.name}
             </p>
             {formatPrescription(exercise.prescription) ? (
-              <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
-                {formatPrescription(exercise.prescription)}
-              </p>
+              exercise.prescription?.sets?.length ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="mt-0.5 inline-flex items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-xs text-[var(--shell-muted)] transition hover:border-[var(--shell-ink)] hover:text-[var(--shell-ink)]"
+                    >
+                      <ClipboardListIcon className="h-3 w-3 shrink-0" />
+                      {formatPrescription(exercise.prescription)}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    side="bottom"
+                    align="start"
+                    sideOffset={6}
+                    className="w-auto min-w-[11rem] p-0"
+                  >
+                    <div className="border-b border-[var(--shell-border)] px-3 py-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                        Prescription
+                      </p>
+                    </div>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-[var(--shell-border)]">
+                          <th className="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                            Set
+                          </th>
+                          {isSetsReps ? (
+                            <>
+                              <th className="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                                Reps
+                              </th>
+                              <th className="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                                Kg
+                              </th>
+                            </>
+                          ) : isDurationSeconds ? (
+                            <th className="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                              Secs
+                            </th>
+                          ) : (
+                            <th className="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                              Meters
+                            </th>
+                          )}
+                          <th className="px-3 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                            Note
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--shell-border)]">
+                        {exercise.prescription.sets.map((set, i) => (
+                          <tr key={i}>
+                            <td className="px-3 py-1.5 font-medium text-[var(--shell-ink)]">
+                              {i + 1}
+                            </td>
+                            {isSetsReps ? (
+                              <>
+                                <td className="px-3 py-1.5 text-[var(--shell-ink)]">
+                                  {set.target?.reps ?? "—"}
+                                </td>
+                                <td className="px-3 py-1.5 text-[var(--shell-ink)]">
+                                  {set.target?.weightKg ?? "—"}
+                                </td>
+                              </>
+                            ) : isDurationSeconds ? (
+                              <td className="px-3 py-1.5 text-[var(--shell-ink)]">
+                                {set.target?.durationSeconds ?? "—"}
+                              </td>
+                            ) : (
+                              <td className="px-3 py-1.5 text-[var(--shell-ink)]">
+                                {set.target?.distanceMeters ?? "—"}
+                              </td>
+                            )}
+                            <td className="px-3 py-1.5 text-[var(--shell-muted)]">
+                              {set.target?.note ?? "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
+                  {formatPrescription(exercise.prescription)}
+                </p>
+              )
             ) : null}
           </div>
 

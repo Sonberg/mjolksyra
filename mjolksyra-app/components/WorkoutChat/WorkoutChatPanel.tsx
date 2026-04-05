@@ -92,8 +92,16 @@ export function WorkoutChatPanel({
       className="flex h-full flex-col overflow-hidden"
       data-testid="workout-chat-panel"
     >
-      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">Chat</p>
+      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
+          Chat
+        </p>
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">
+          {viewerMode === "athlete"
+            ? `Ask your ${counterpartLabel} questions, share reflections and upload media from your workout.`
+            : `Communicate with your ${counterpartLabel}, ask questions and give feedback on their workout.`}{" "}
+          Messages are visible to both parties and can be edited.
+        </p>
       </div>
 
       <div
@@ -101,7 +109,9 @@ export function WorkoutChatPanel({
         data-testid="workout-chat-messages"
       >
         {chatMessages.isLoading ? (
-          <p className="text-sm text-[var(--shell-muted)]">Loading messages...</p>
+          <p className="text-sm text-[var(--shell-muted)]">
+            Loading messages...
+          </p>
         ) : null}
 
         {!chatMessages.isLoading && (chatMessages.data?.length ?? 0) === 0 ? (
@@ -147,4 +157,3 @@ export function WorkoutChatPanel({
     </section>
   );
 }
-
