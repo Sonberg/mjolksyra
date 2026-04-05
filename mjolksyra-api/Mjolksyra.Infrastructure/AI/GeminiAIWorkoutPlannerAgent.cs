@@ -39,8 +39,11 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                 $"You need to gather: (1) start date, (2) number of weeks, (3) conflict strategy (Skip/Replace/Append) if conflicts exist. " +
                 $"Ask ONE focused question at a time. If the coach already answered something, do not ask again. " +
                 $"When you have all information, set isReadyToGenerate to true and include suggestedParams.\n\n" +
+                $"When your question has a fixed set of valid answers, include them in the 'options' array so the UI can render clickable choices. " +
+                $"Examples: conflict strategy → [\"Skip\", \"Replace\", \"Append\"], days per week → [\"2\", \"3\", \"4\", \"5\"]. " +
+                $"Leave options as [] for open-ended questions (e.g. start date in natural language).\n\n" +
                 $"Always respond with strict JSON only:\n" +
-                $"{{ \"message\": \"string\", \"isReadyToGenerate\": bool, \"suggestedParams\": {{ \"startDate\": \"YYYY-MM-DD\", \"numberOfWeeks\": int, \"conflictStrategy\": \"Skip|Replace|Append\" }} | null }}"),
+                $"{{ \"message\": \"string\", \"isReadyToGenerate\": bool, \"options\": [\"string\"], \"suggestedParams\": {{ \"startDate\": \"YYYY-MM-DD\", \"numberOfWeeks\": int, \"conflictStrategy\": \"Skip|Replace|Append\" }} | null }}"),
             new(ChatRole.User, BuildClarifyPrompt(input)),
         };
 
@@ -224,6 +227,7 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             {
                 Message = payload.Message,
                 IsReadyToGenerate = payload.IsReadyToGenerate,
+                Options = payload.Options ?? [],
                 SuggestedParams = payload.SuggestedParams is null ? null : new AIPlannerSuggestedParams
                 {
                     StartDate = payload.SuggestedParams.StartDate,
@@ -281,6 +285,8 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
         public string Message { get; set; } = string.Empty;
 
         public bool IsReadyToGenerate { get; set; }
+
+        public List<string>? Options { get; set; }
 
         public SuggestedParamsPayload? SuggestedParams { get; set; }
     }

@@ -44,6 +44,7 @@ public class ClarifyWorkoutPlanQueryHandler(
         {
             Message = output.Message,
             IsReadyToGenerate = output.IsReadyToGenerate,
+            Options = output.Options,
             SuggestedParams = output.SuggestedParams is null ? null : new ClarifyWorkoutPlanSuggestedParams
             {
                 StartDate = output.SuggestedParams.StartDate,

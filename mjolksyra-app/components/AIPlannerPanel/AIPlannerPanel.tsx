@@ -20,6 +20,7 @@ type Props = {
 type Message = {
   role: "user" | "assistant";
   content: string;
+  options?: string[];
 };
 
 type GenerationResult = GenerateWorkoutPlanResponse & { generatedAt: string };
@@ -95,7 +96,11 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
         conversationHistory: [],
       });
 
-      const aiMessage: Message = { role: "assistant", content: response.message };
+      const aiMessage: Message = {
+        role: "assistant",
+        content: response.message,
+        options: response.options?.length ? response.options : undefined,
+      };
       setMessages([...newMessages, aiMessage]);
 
       if (response.isReadyToGenerate && response.suggestedParams) {
@@ -110,13 +115,22 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     }
   }
 
+  async function handleOptionSelect(option: string) {
+    await handleSendFollowUpWithText(option);
+  }
+
   async function handleSendFollowUp() {
     if (!userInput.trim()) return;
+    await handleSendFollowUpWithText(userInput.trim());
+    setUserInput("");
+  }
 
-    const userMessage: Message = { role: "user", content: userInput.trim() };
+  async function handleSendFollowUpWithText(text: string) {
+    if (!text.trim()) return;
+
+    const userMessage: Message = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    setUserInput("");
     setIsLoading(true);
     scrollToBottom();
 
@@ -128,7 +142,11 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
         conversationHistory: newMessages.map((m) => ({ role: m.role, content: m.content })),
       });
 
-      const aiMessage: Message = { role: "assistant", content: response.message };
+      const aiMessage: Message = {
+        role: "assistant",
+        content: response.message,
+        options: response.options?.length ? response.options : undefined,
+      };
       setMessages([...newMessages, aiMessage]);
 
       if (response.isReadyToGenerate && response.suggestedParams) {
@@ -241,22 +259,43 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
       {hasStarted && (
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
           <div className="flex flex-col gap-3">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-none border px-3 py-2 text-sm leading-relaxed ${
-                    message.role === "user"
-                      ? "border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]"
-                      : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
-                  }`}
-                >
-                  {message.content}
+            {messages.map((message, index) => {
+              const isLastAi =
+                message.role === "assistant" &&
+                index === messages.findLastIndex((m) => m.role === "assistant");
+              const showOptions =
+                isLastAi && message.options?.length && !isLoading && !isReadyToGenerate;
+
+              return (
+                <div key={index} className="flex flex-col gap-1.5">
+                  <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={`max-w-[85%] rounded-none border px-3 py-2 text-sm leading-relaxed ${
+                        message.role === "user"
+                          ? "border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]"
+                          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                  {showOptions && (
+                    <div className="flex flex-wrap gap-1.5 pl-1">
+                      {message.options!.map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => void handleOptionSelect(option)}
+                          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-xs font-medium text-[var(--shell-ink)] transition hover:border-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {isLoading && (
               <div className="flex justify-start">
                 <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">

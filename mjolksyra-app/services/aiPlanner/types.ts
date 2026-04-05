@@ -18,6 +18,7 @@ export type ClarifyWorkoutPlanSuggestedParams = {
 export type ClarifyWorkoutPlanResponse = {
   message: string;
   isReadyToGenerate: boolean;
+  options: string[];
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
 };
 

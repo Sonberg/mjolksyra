@@ -34,6 +34,8 @@ public class AIPlannerClarifyOutput
     public bool IsReadyToGenerate { get; set; }
 
     public AIPlannerSuggestedParams? SuggestedParams { get; set; }
+
+    public ICollection<string> Options { get; set; } = [];
 }
 
 public class AIPlannerSuggestedParams
