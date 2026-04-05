@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { Credits } from "@/services/coaches/getCredits";
 import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
 import { formatActionName } from "./CoachCreditsSection";
+import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 
 type Props = {
   credits: Credits | null;
@@ -12,6 +14,7 @@ type Props = {
 
 export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
   const analyzeCost = creditPricing.find((x) => x.action === "AnalyzeWorkoutMedia")?.creditCost;
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   return (
     <div className="bg-[var(--shell-surface-strong)] p-4">
@@ -21,13 +24,27 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
           <p className="mt-2 text-2xl font-semibold text-[var(--shell-ink)]">{credits?.totalRemaining ?? 0}</p>
           <p className="mt-1 text-xs text-[var(--shell-muted)]">Total credits remaining</p>
         </div>
-        <Link
-          href="/app/coach/credits"
-          className="shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
-        >
-          Open credits
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPurchaseDialogOpen(true)}
+            className="border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
+          >
+            Buy credits
+          </button>
+          <Link
+            href="/app/coach/credits"
+            className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
+          >
+            Open credits
+          </Link>
+        </div>
       </div>
+
+      <PurchaseCreditsDialog
+        open={purchaseDialogOpen}
+        onOpenChange={setPurchaseDialogOpen}
+      />
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div>

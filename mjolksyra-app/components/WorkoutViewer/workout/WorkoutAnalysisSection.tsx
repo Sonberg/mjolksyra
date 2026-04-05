@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { analyzeWorkoutMedia } from "@/services/plannedWorkouts/analyzeWorkoutMedia";
 import { getLatestWorkoutMediaAnalysis } from "@/services/plannedWorkouts/getLatestWorkoutMediaAnalysis";
+import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 
 type Props = {
   traineeId: string;
@@ -149,6 +150,7 @@ export function WorkoutAnalysisSection({
 
 export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
   const queryClient = useQueryClient();
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   const analyze = useMutation({
     mutationFn: async (text: string) =>
@@ -164,6 +166,17 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
     },
   });
 
+  const isInsufficientCredits =
+    analyze.isError &&
+    analyze.error instanceof AxiosError &&
+    analyze.error.response?.status === 422;
+
+  useEffect(() => {
+    if (isInsufficientCredits) {
+      setPurchaseDialogOpen(true);
+    }
+  }, [isInsufficientCredits]);
+
   return (
     <div className="space-y-4">
       <WorkoutAnalysisSection
@@ -173,7 +186,10 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
       />
 
       {analyze.isError ? (
-        <AnalysisError error={analyze.error} />
+        <AnalysisError
+          error={analyze.error}
+          onBuyCredits={() => setPurchaseDialogOpen(true)}
+        />
       ) : null}
 
       <WorkoutAnalysisTrigger
@@ -182,20 +198,37 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
         isPending={analyze.isPending}
         onAnalyze={(text) => analyze.mutate(text)}
       />
+
+      <PurchaseCreditsDialog
+        open={purchaseDialogOpen}
+        onOpenChange={(open) => {
+          setPurchaseDialogOpen(open);
+          if (!open) analyze.reset();
+        }}
+        onPurchased={() => analyze.reset()}
+      />
     </div>
   );
 }
 
-function AnalysisError({ error }: { error: Error }) {
-  const message = useMemo(() => {
-    if (error instanceof AxiosError && error.response?.status === 422) {
-      const data = error.response.data;
-      const detail =
-        typeof data === "object" && data !== null ? (data as { error?: string }).error : null;
-      return detail ?? "Not enough credits to analyze this check-in.";
-    }
-    return "Could not analyze this check-in right now.";
-  }, [error]);
+function AnalysisError({ error, onBuyCredits }: { error: Error; onBuyCredits: () => void }) {
+  const isInsufficientCredits =
+    error instanceof AxiosError && error.response?.status === 422;
 
-  return <p className="text-xs text-red-500">{message}</p>;
+  if (isInsufficientCredits) {
+    return (
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-[var(--shell-muted)]">Not enough credits.</p>
+        <button
+          type="button"
+          onClick={onBuyCredits}
+          className="shrink-0 text-xs font-semibold text-[var(--shell-accent)] underline-offset-2 hover:underline"
+        >
+          Buy credits
+        </button>
+      </div>
+    );
+  }
+
+  return <p className="text-xs text-red-500">Could not analyze this check-in right now.</p>;
 }

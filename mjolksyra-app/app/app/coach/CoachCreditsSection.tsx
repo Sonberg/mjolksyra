@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import type { Credits } from "@/services/coaches/getCredits";
 import type { CreditLedgerItem } from "@/services/coaches/getCreditLedger";
 import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
+import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 
 type Props = {
   credits: Credits | null;
@@ -13,12 +15,28 @@ type Props = {
 };
 
 export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Props) {
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
+
   return (
     <div className="space-y-8">
-      <PageSectionHeader
-        eyebrow="Credits"
-        title="Usage and balance"
-        description="Track remaining credits, review action costs, and see how credits are spent over time."
+      <div className="flex items-start justify-between gap-4">
+        <PageSectionHeader
+          eyebrow="Credits"
+          title="Usage and balance"
+          description="Track remaining credits, review action costs, and see how credits are spent over time."
+        />
+        <button
+          type="button"
+          onClick={() => setPurchaseDialogOpen(true)}
+          className="shrink-0 border border-transparent bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
+        >
+          Buy credits
+        </button>
+      </div>
+
+      <PurchaseCreditsDialog
+        open={purchaseDialogOpen}
+        onOpenChange={setPurchaseDialogOpen}
       />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
