@@ -98,9 +98,10 @@ export function WorkoutDetail({
     <article
       id={`workout-${workout.id}`}
       data-today={displayName === "Today"}
-      className="overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+      className="flex h-full flex-col overflow-hidden bg-[var(--shell-surface)]"
     >
-      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
+      {/* Header — non-scrolling */}
+      <div className="flex-none border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-2">
@@ -178,9 +179,11 @@ export function WorkoutDetail({
           </div>
         </div>
       </div>
-      <div className="flex min-h-0 flex-col md:flex-row">
-        {/* Main content — 2/3 */}
-        <div className="min-w-0 flex-1 space-y-4 p-4 md:border-r md:border-[var(--shell-border)]">
+
+      {/* Body — two independently scrolling panels */}
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row overflow-hidden">
+        {/* Left panel: exercises + AI analysis */}
+        <div className="min-h-0 flex-[2] overflow-y-auto overscroll-contain space-y-4 p-4 md:border-r md:border-[var(--shell-border)]">
           {workout.note?.trim() ? (
             <div className="border-l-2 border-[var(--shell-accent)] pl-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
@@ -240,8 +243,8 @@ export function WorkoutDetail({
           </div>
         </div>
 
-        {/* Chat sidebar — 1/3 */}
-        <div className="flex min-h-[24rem] w-full shrink-0 flex-col border-t border-[var(--shell-border)] md:min-h-0 md:w-1/3 md:border-t-0">
+        {/* Right panel: chat */}
+        <div className="min-h-0 flex-1 flex flex-col border-t border-[var(--shell-border)] md:border-t-0 overflow-hidden">
           <WorkoutChatPanel
             traineeId={workout.traineeId}
             plannedWorkoutId={workout.id}

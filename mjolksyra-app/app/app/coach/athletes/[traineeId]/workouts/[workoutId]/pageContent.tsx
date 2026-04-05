@@ -7,7 +7,6 @@ import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWork
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
-import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import type { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import type { Trainee } from "@/services/trainees/type";
 
@@ -47,12 +46,10 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkout, ini
     : `/app/coach/athletes/${traineeId}/workouts`;
 
   return (
-    <CoachWorkspaceShell>
-      <PageSectionHeader
-        eyebrow="Workout"
-        title={athleteName}
-        titleClassName="text-xl md:text-2xl"
-        leading={
+    <CoachWorkspaceShell fullBleed>
+      <div className="flex h-[calc(100dvh-7.5rem)] min-h-[600px] w-full flex-col overflow-hidden">
+        {/* Compact page header */}
+        <div className="flex-none flex items-center gap-3 border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3 md:px-6">
           <Link
             href={backHref}
             className="inline-flex items-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
@@ -60,27 +57,33 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkout, ini
           >
             <ChevronLeftIcon className="h-4 w-4" />
           </Link>
-        }
-      />
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Workout</p>
+            <p className="truncate text-base font-semibold text-[var(--shell-ink)]">{athleteName}</p>
+          </div>
+        </div>
 
-      {workout.isLoading ? (
-        <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
-          Loading workout...
-        </section>
-      ) : null}
-      {workout.isError ? (
-        <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
-          Could not load this workout.
-        </section>
-      ) : null}
-      {workout.data ? (
-        <WorkoutDetail
-          workout={workout.data}
-          viewerMode="coach"
-          traineeId={traineeId}
-          backTab={backTab}
-        />
-      ) : null}
+        {workout.isLoading ? (
+          <div className="flex-none border-b border-[var(--shell-border)] p-4 text-sm text-[var(--shell-muted)]">
+            Loading workout...
+          </div>
+        ) : null}
+        {workout.isError ? (
+          <div className="flex-none border-b border-[var(--shell-border)] p-4 text-sm text-[var(--shell-accent)]">
+            Could not load this workout.
+          </div>
+        ) : null}
+        {workout.data ? (
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <WorkoutDetail
+              workout={workout.data}
+              viewerMode="coach"
+              traineeId={traineeId}
+              backTab={backTab}
+            />
+          </div>
+        ) : null}
+      </div>
     </CoachWorkspaceShell>
   );
 }

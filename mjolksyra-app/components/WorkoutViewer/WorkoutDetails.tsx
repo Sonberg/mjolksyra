@@ -23,27 +23,27 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
   });
 
   return (
-    <section className="grid gap-4">
+    <div className="flex h-[calc(100dvh-7.5rem)] min-h-[600px] w-full flex-col overflow-hidden">
       {isLoading ? (
-        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
+        <div className="flex-none p-4 text-sm text-[var(--shell-muted)]">
           Loading workout...
         </div>
       ) : null}
-
       {isError ? (
-        <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
+        <div className="flex-none p-4 text-sm text-[var(--shell-accent)]">
           Could not load this workout.
         </div>
       ) : null}
-
       {data ? (
-        <WorkoutDetail
-          workout={data}
-          traineeId={traineeId}
-          backTab={backTab}
-          viewerMode="athlete"
-        />
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <WorkoutDetail
+            workout={data}
+            traineeId={traineeId}
+            backTab={backTab}
+            viewerMode="athlete"
+          />
+        </div>
       ) : null}
-    </section>
+    </div>
   );
 }

@@ -114,6 +114,7 @@ export function PageContent({
 
   return (
     <PageLayout
+      fullBleed={!!detailWorkoutId}
       navigation={
         coach
           ? {
