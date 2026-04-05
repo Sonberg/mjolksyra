@@ -234,7 +234,7 @@ export function BlocksPageContent() {
             return (
               <div
                 key={block.id}
-                className="group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 transition hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)]"
+                className="group border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 transition-colors hover:bg-[var(--shell-surface-strong)]"
                 style={{ animationDelay: `${120 + index * 70}ms` }}
               >
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">

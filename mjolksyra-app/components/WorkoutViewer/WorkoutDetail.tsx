@@ -1,5 +1,4 @@
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { Card, CardHeader } from "@/components/ui/card";
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { CheckCircle2Icon, SparklesIcon } from "lucide-react";
@@ -96,12 +95,12 @@ export function WorkoutDetail({
   }
 
   return (
-    <Card
+    <article
       id={`workout-${workout.id}`}
       data-today={displayName === "Today"}
-      className="overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+      className="overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)]"
     >
-      <CardHeader className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
+      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-2">
@@ -178,7 +177,7 @@ export function WorkoutDetail({
             ) : null}
           </div>
         </div>
-      </CardHeader>
+      </div>
       <div className="flex min-h-0 flex-col md:flex-row">
         {/* Main content — 2/3 */}
         <div className="min-w-0 flex-1 space-y-4 p-4 md:border-r md:border-[var(--shell-border)]">
@@ -250,6 +249,6 @@ export function WorkoutDetail({
           />
         </div>
       </div>
-    </Card>
+    </article>
   );
 }

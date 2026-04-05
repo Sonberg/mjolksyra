@@ -233,7 +233,7 @@ export function TraineeCard({
   ];
 
   return (
-    <article className="group overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[var(--shell-surface-strong)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)]">
+    <article className="group overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-colors hover:bg-[var(--shell-surface-strong)]">
       <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
         <Avatar className="h-12 w-12 border border-[var(--shell-border)]">
           <AvatarImage src={url} alt={trainee.athlete.name} />
@@ -333,7 +333,7 @@ export function TraineeCard({
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-3 text-center"
+            className="bg-[var(--shell-surface-strong)] px-3 py-3 text-center"
           >
             <p className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
               {metric.label}

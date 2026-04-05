@@ -2,7 +2,6 @@
 
 import { useWorkout } from "@/hooks/useWorkout";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { Card, CardHeader, CardContent } from "../ui/card";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
 import { CheckCircle2Icon } from "lucide-react";
@@ -94,16 +93,16 @@ export function WorkoutCard({
   }, [isHighlighted, workout.id]);
 
   return (
-    <Card
+    <article
       id={`workout-${workout.id}`}
       data-today={displayName === "Today"}
       className={
         isHighlighted
-          ? "overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] ring-2 ring-[var(--shell-accent)]/30"
-          : "overflow-hidden rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+          ? "overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] ring-2 ring-[var(--shell-accent)]/30"
+          : "overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)]"
       }
     >
-      <CardHeader className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
+      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="min-w-0 flex gap-4">
             <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
@@ -135,8 +134,8 @@ export function WorkoutCard({
             ) : null}
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:space-y-4 sm:p-4">
+      </div>
+      <div className="space-y-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:space-y-4 sm:p-4">
         <>
           <div className="flex flex-wrap items-baseline gap-2">
             <StatusBadge variant="subtle">{totalExercises} exercises</StatusBadge>
@@ -147,7 +146,7 @@ export function WorkoutCard({
           </div>
 
           {workout.note?.trim() ? (
-            <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
+            <div className="border-l-2 border-[var(--shell-accent)] pl-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                 Coach note
               </p>
@@ -161,7 +160,7 @@ export function WorkoutCard({
             {workout.exercises.slice(0, 4).map((exercise, index) => (
               <div
                 key={exercise.id}
-                className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
+                className="bg-[var(--shell-surface-strong)] px-3 py-2"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                   Exercise {index + 1}
@@ -197,7 +196,7 @@ export function WorkoutCard({
             </span>
           ) : null}
         </>
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   );
 }
