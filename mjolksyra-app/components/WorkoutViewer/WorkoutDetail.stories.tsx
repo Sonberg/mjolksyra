@@ -92,13 +92,31 @@ export const CoachView: Story = {
 };
 
 export const AthleteView: Story = {
-    render: () => (
-      <WorkoutDetail
-        workout={baseWorkout}
-        viewerMode="athlete"
-        traineeId="trainee-1"
-        backTab="past"
-      />
-    ),
-  };
+  render: () => (
+    <WorkoutDetail
+      workout={baseWorkout}
+      viewerMode="athlete"
+      traineeId="trainee-1"
+      backTab="past"
+    />
+  ),
+};
+
+export const AthleteEmptySession: Story = {
+  render: () => (
+    <WorkoutDetail
+      workout={{
+        ...baseWorkout,
+        id: "workout-empty",
+        name: null,
+        note: null,
+        completedAt: null,
+        exercises: [],
+        plannedAt: "2026-04-10",
+      }}
+      viewerMode="athlete"
+      traineeId="trainee-1"
+    />
+  ),
+};
   

@@ -1,4 +1,4 @@
-import { CheckCircle2Icon, CircleIcon, ClipboardListIcon } from "lucide-react";
+import { CheckCircle2Icon, CircleIcon, ClipboardListIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { ExerciseType, formatPrescription } from "@/lib/exercisePrescription";
 import { WorkoutExerciseSetCard } from "./WorkoutExerciseSetCard";
 import {
@@ -7,6 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  RemoveSetRowInput,
   ToggleExerciseDoneInput,
   ToggleSetDoneInput,
   UpdateSetActualInput,
@@ -23,6 +24,9 @@ type Props = {
   onToggleExerciseDone: (input: ToggleExerciseDoneInput) => void;
   onToggleSetDone: (input: ToggleSetDoneInput) => void;
   onUpdateSetActual: (input: UpdateSetActualInput) => void;
+  onDeleteExercise?: (exerciseId: string) => void;
+  onAddSetRow?: (exerciseId: string) => void;
+  onRemoveSetRow?: (input: RemoveSetRowInput) => void;
 };
 
 const colHeaderCls =
@@ -38,6 +42,9 @@ export function WorkoutExerciseCard({
   onToggleExerciseDone,
   onToggleSetDone,
   onUpdateSetActual,
+  onDeleteExercise,
+  onAddSetRow,
+  onRemoveSetRow,
 }: Props) {
   const targetType = exercise.prescription?.type as ExerciseType | undefined;
   const isSetsReps = targetType === ExerciseType.SetsReps;
@@ -156,28 +163,40 @@ export function WorkoutExerciseCard({
           </div>
 
           {viewerMode === "athlete" && isDetailView ? (
-            <button
-              type="button"
-              disabled={isToggleExerciseDonePending}
-              onClick={() =>
-                onToggleExerciseDone({
-                  exerciseId: exercise.id,
-                  isDone: !(exercise.isDone ?? false),
-                })
-              }
-              className={
-                exercise.isDone
-                  ? "inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition disabled:opacity-60"
-                  : "inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-60"
-              }
-            >
-              {exercise.isDone ? (
-                <CheckCircle2Icon className="h-3 w-3" />
-              ) : (
-                <CircleIcon className="h-3 w-3" />
-              )}
-              {exercise.isDone ? "Done" : "Mark done"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={isToggleExerciseDonePending}
+                onClick={() =>
+                  onToggleExerciseDone({
+                    exerciseId: exercise.id,
+                    isDone: !(exercise.isDone ?? false),
+                  })
+                }
+                className={
+                  exercise.isDone
+                    ? "inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition disabled:opacity-60"
+                    : "inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-60"
+                }
+              >
+                {exercise.isDone ? (
+                  <CheckCircle2Icon className="h-3 w-3" />
+                ) : (
+                  <CircleIcon className="h-3 w-3" />
+                )}
+                {exercise.isDone ? "Done" : "Mark done"}
+              </button>
+              {onDeleteExercise ? (
+                <button
+                  type="button"
+                  onClick={() => onDeleteExercise(exercise.id)}
+                  className="inline-flex h-7 w-7 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:border-red-300 hover:text-red-500"
+                  title="Remove exercise"
+                >
+                  <Trash2Icon className="h-3.5 w-3.5" />
+                </button>
+              ) : null}
+            </div>
           ) : exercise.isDone ? (
             <span className="inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)]">
               <CheckCircle2Icon className="h-3 w-3" />
@@ -227,9 +246,38 @@ export function WorkoutExerciseCard({
                 isPending={isSetActionPending}
                 onToggleSetDone={onToggleSetDone}
                 onUpdateSetActual={onUpdateSetActual}
+                onRemoveSetRow={onRemoveSetRow}
               />
             ))}
           </div>
+
+          {/* Add set row — athlete only */}
+          {viewerMode === "athlete" && onAddSetRow ? (
+            <div className="border-t border-[var(--shell-border)] px-3 py-2 sm:px-4">
+              <button
+                type="button"
+                onClick={() => onAddSetRow(exercise.id)}
+                className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+              >
+                <PlusIcon className="h-3 w-3" />
+                Add set
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* Add set row when no sets yet — athlete only */}
+      {!hasSets && viewerMode === "athlete" && isDetailView && onAddSetRow ? (
+        <div className="border-t border-[var(--shell-border)] px-3 py-2 sm:px-4">
+          <button
+            type="button"
+            onClick={() => onAddSetRow(exercise.id)}
+            className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+          >
+            <PlusIcon className="h-3 w-3" />
+            Add set
+          </button>
         </div>
       ) : null}
     </div>

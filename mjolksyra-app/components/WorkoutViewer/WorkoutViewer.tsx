@@ -11,6 +11,8 @@ import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { useQuery } from "@tanstack/react-query";
 import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PlusIcon } from "lucide-react";
+import { NewSessionDialog } from "./NewSessionDialog";
 
 type Props = {
   traineeId: string;
@@ -84,6 +86,7 @@ export function WorkoutViewer({
         ? changes.hasNextPage
         : past.hasNextPage || completed.hasNextPage;
 
+  const [newSessionOpen, setNewSessionOpen] = useState(false);
   const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
   const [isEndIntersecting, setIsEndIntersecting] = useState(false);
   const endRef = useCallback((node: HTMLDivElement | null) => {
@@ -265,8 +268,20 @@ export function WorkoutViewer({
     router.replace(nextUrl, { scroll: false });
   }
 
+  function handleSessionCreated(workoutId: string) {
+    router.push(`/app/athlete/${traineeId}/workouts/${workoutId}`);
+  }
+
   return (
     <>
+      {viewerMode === "athlete" ? (
+        <NewSessionDialog
+          traineeId={traineeId}
+          open={newSessionOpen}
+          onOpenChange={setNewSessionOpen}
+          onCreated={handleSessionCreated}
+        />
+      ) : null}
       <PageSectionHeader
         className="mb-4"
         titleClassName="text-xl md:text-2xl"
@@ -282,34 +297,46 @@ export function WorkoutViewer({
               : "Past workouts"
         }
         actions={
-          <SelectionTabs
-            items={[
-              {
-                key: "future",
-                label: "Upcoming",
-                onSelect: () => setModeWithUrl("future"),
-              },
-              {
-                key: "past",
-                label: "Past",
-                onSelect: () => setModeWithUrl("past"),
-              },
-              ...(viewerMode === "coach"
-                ? [
+          <div className="flex w-full items-center gap-3">
+            <SelectionTabs
+              items={[
+                {
+                  key: "future",
+                  label: "Upcoming",
+                  onSelect: () => setModeWithUrl("future"),
+                },
+                {
+                  key: "past",
+                  label: "Past",
+                  onSelect: () => setModeWithUrl("past"),
+                },
+                ...(viewerMode === "coach"
+                  ? [
                       {
                         key: "changes" as const,
                         label: "Needs review",
                         onSelect: () => setModeWithUrl("changes"),
                       },
                     ]
-                : []),
-            ]}
-            activeKey={mode}
-            size="md"
-            fullWidth={viewerMode !== "coach"}
-            className="w-full max-w-[34rem]"
-            itemClassName={viewerMode === "coach" ? "px-3 text-sm" : undefined}
-          />
+                  : []),
+              ]}
+              activeKey={mode}
+              size="md"
+              fullWidth={viewerMode !== "coach"}
+              className="w-full max-w-[34rem]"
+              itemClassName={viewerMode === "coach" ? "px-3 text-sm" : undefined}
+            />
+            {viewerMode === "athlete" ? (
+              <button
+                type="button"
+                onClick={() => setNewSessionOpen(true)}
+                className="shrink-0 inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+              >
+                <PlusIcon className="h-3.5 w-3.5" />
+                New session
+              </button>
+            ) : null}
+          </div>
         }
       />
 

@@ -26,4 +26,9 @@ export type UpdateSetActualInput = {
   note: string | null;
 };
 
+export type RemoveSetRowInput = {
+  exerciseId: string;
+  setIndex: number;
+};
+
 

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logPlannedWorkout } from "@/services/plannedWorkouts/logPlannedWorkout";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { ExerciseType } from "@/lib/exercisePrescription";
 
 type UseWorkoutProps = {
   workout: PlannedWorkout;
@@ -218,11 +219,110 @@ export function useWorkout({ workout }: UseWorkoutProps) {
     },
   });
 
+  const addExercise = useMutation({
+    mutationFn: async ({
+      exercise,
+    }: {
+      exercise: PlannedWorkout["exercises"][number];
+    }) =>
+      updatePlannedWorkout({
+        plannedWorkout: {
+          ...workout,
+          exercises: [...workout.exercises, exercise],
+        },
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+    },
+  });
+
+  const removeExercise = useMutation({
+    mutationFn: async ({ exerciseId }: { exerciseId: string }) =>
+      updatePlannedWorkout({
+        plannedWorkout: {
+          ...workout,
+          exercises: workout.exercises.filter((e) => e.id !== exerciseId),
+        },
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+    },
+  });
+
+  const addSetRow = useMutation({
+    mutationFn: async ({ exerciseId }: { exerciseId: string }) => {
+      const exercise = workout.exercises.find((e) => e.id === exerciseId);
+      if (!exercise) return;
+      const type = exercise.prescription?.type ?? ExerciseType.SetsReps;
+      const existingSets = exercise.prescription?.sets ?? [];
+      return updatePlannedWorkout({
+        plannedWorkout: {
+          ...workout,
+          exercises: workout.exercises.map((e) =>
+            e.id !== exerciseId
+              ? e
+              : {
+                  ...e,
+                  prescription: {
+                    type,
+                    sets: [...existingSets, { target: null, actual: null }],
+                  },
+                },
+          ),
+        },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+    },
+  });
+
+  const removeSetRow = useMutation({
+    mutationFn: async ({
+      exerciseId,
+      setIndex,
+    }: {
+      exerciseId: string;
+      setIndex: number;
+    }) => {
+      const exercise = workout.exercises.find((e) => e.id === exerciseId);
+      if (!exercise) return;
+      const existingSets = exercise.prescription?.sets ?? [];
+      return updatePlannedWorkout({
+        plannedWorkout: {
+          ...workout,
+          exercises: workout.exercises.map((e) =>
+            e.id !== exerciseId
+              ? e
+              : {
+                  ...e,
+                  prescription: {
+                    type: e.prescription?.type ?? ExerciseType.SetsReps,
+                    sets: existingSets.filter((_, i) => i !== setIndex),
+                  },
+                },
+          ),
+        },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+    },
+  });
+
   return {
     saveCompletion,
     saveReview,
     toggleExerciseDone,
     toggleSetDone,
     updateSetWeight,
+    addExercise,
+    removeExercise,
+    addSetRow,
+    removeSetRow,
   };
 }

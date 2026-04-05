@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
-import { CheckCircle2Icon, CircleIcon } from "lucide-react";
+import { CheckCircle2Icon, CircleIcon, XIcon } from "lucide-react";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
+  RemoveSetRowInput,
   ToggleSetDoneInput,
   UpdateSetActualInput,
   WorkoutSet,
@@ -17,6 +18,7 @@ type Props = {
   isPending: boolean;
   onToggleSetDone: (input: ToggleSetDoneInput) => void;
   onUpdateSetActual: (input: UpdateSetActualInput) => void;
+  onRemoveSetRow?: (input: RemoveSetRowInput) => void;
 };
 
 function parseNullableNumber(rawValue: string): number | null | "invalid" {
@@ -50,6 +52,7 @@ export function WorkoutExerciseSetCard({
   isPending,
   onToggleSetDone,
   onUpdateSetActual,
+  onRemoveSetRow,
 }: Props) {
   const [draft, setDraft] = useState<SetActualDraft>({
     reps: toInputValue(set.actual?.reps ?? set.target?.reps ?? null),
@@ -219,6 +222,19 @@ export function WorkoutExerciseSetCard({
           {isDone ? <CheckCircle2Icon className="h-3.5 w-3.5" /> : <CircleIcon className="h-3.5 w-3.5" />}
         </span>
       )}
+
+      {/* Remove row button — athlete edit only */}
+      {isEditable && onRemoveSetRow ? (
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => onRemoveSetRow({ exerciseId, setIndex })}
+          className="ml-1 inline-flex h-9 w-7 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:border-red-300 hover:text-red-500 disabled:opacity-40"
+          title="Remove set"
+        >
+          <XIcon className="h-3 w-3" />
+        </button>
+      ) : null}
     </div>
   );
 }
