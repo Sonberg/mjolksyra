@@ -1,6 +1,7 @@
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.UseCases.Common.Contracts;
 
+
 namespace Mjolksyra.UseCases.PlannedWorkouts;
 
 public class PlannedWorkoutMediaResponse
@@ -98,6 +99,8 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public required bool IsDone { get; set; }
 
+    public ExerciseAddedBy? AddedBy { get; set; }
+
     public PlannedExercisePrescriptionResponse? Prescription { get; set; }
 
     public ExerciseLevel? Level { get; set; }
@@ -120,6 +123,7 @@ public class PlannedExerciseResponse : IExerciseResponse
             Name = exercise?.Name ?? plannedExercise.Name,
             Note = plannedExercise.Note,
             IsPublished = plannedExercise.IsPublished,
+            AddedBy = plannedExercise.AddedBy,
             IsDone = sets?.Count > 0
                 ? sets.All(s => s.Actual?.IsDone == true)
                 : isWorkoutCompleted,

@@ -2,6 +2,7 @@ using Mjolksyra.Domain.Database.Models;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts;
 
+
 public class PlannedExerciseRequest
 {
     public Guid Id { get; set; }
@@ -13,6 +14,8 @@ public class PlannedExerciseRequest
     public string? Note { get; set; }
 
     public bool IsPublished { get; set; } = true;
+
+    public ExerciseAddedBy? AddedBy { get; set; }
 
     public PlannedExercisePrescriptionRequest? Prescription { get; set; }
 }

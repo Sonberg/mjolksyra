@@ -31,6 +31,7 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isDone: true,
       isPublished: true,
+      addedBy: null,
       prescription: {
         type: ExerciseType.SetsReps,
         sets: [
@@ -52,6 +53,7 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isDone: false,
       isPublished: true,
+      addedBy: null,
       prescription: {
         type: ExerciseType.SetsReps,
         sets: [
@@ -73,6 +75,7 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isDone: false,
       isPublished: true,
+      addedBy: null,
       prescription: {
         type: ExerciseType.DistanceMeters,
         sets: [

@@ -36,19 +36,27 @@ test.describe("Athlete session management", () => {
     ).toBeVisible();
   });
 
-  test("athlete workout detail shows delete and add-set buttons per exercise", async ({
+  test("coach-added exercises do not show delete or add-set controls", async ({
     page,
   }) => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutviewer-workoutdetail--athlete-view",
     );
 
-    // Delete exercise button on first exercise
-    await expect(page.locator('[title="Remove exercise"]').first()).toBeVisible();
+    // No delete or add-set controls for coach-added exercises (addedBy: null)
+    await expect(page.locator('[title="Remove exercise"]')).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Add set" })).toHaveCount(0);
+  });
 
-    // Add set button on first exercise
-    await expect(
-      page.getByRole("button", { name: "Add set" }).first(),
-    ).toBeVisible();
+  test("athlete-added exercise shows delete and add-set controls", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutviewer-workoutdetail--athlete-with-own-exercise",
+    );
+
+    // Only the athlete-added exercise (second) should have controls
+    await expect(page.locator('[title="Remove exercise"]')).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "Add set" })).toHaveCount(1);
   });
 });

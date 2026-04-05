@@ -292,6 +292,7 @@ export function WorkoutDetail({
                   note: null,
                   isDone: false,
                   isPublished: true,
+                  addedBy: "Athlete",
                   prescription: {
                     type: prescriptionType,
                     sets: [

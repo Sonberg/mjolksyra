@@ -2,6 +2,12 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mjolksyra.Domain.Database.Models;
 
+public enum ExerciseAddedBy
+{
+    Coach,
+    Athlete
+}
+
 [BsonIgnoreExtraElements]
 public class PlannedExercise
 {
@@ -14,6 +20,11 @@ public class PlannedExercise
     public string? Note { get; set; }
 
     public bool IsPublished { get; set; } = true;
+
+    /// <summary>
+    /// Who added this exercise. Null means Coach for backwards compatibility with existing documents.
+    /// </summary>
+    public ExerciseAddedBy? AddedBy { get; set; }
 
     public ExercisePrescription? Prescription { get; set; }
 }

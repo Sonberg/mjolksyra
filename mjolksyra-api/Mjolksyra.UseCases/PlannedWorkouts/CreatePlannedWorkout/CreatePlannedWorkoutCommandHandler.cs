@@ -32,6 +32,7 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
                     Name = e.Name,
                     Note = e.Note,
                     IsPublished = e.IsPublished,
+                    AddedBy = e.AddedBy,
                     Prescription = e.Prescription is null
                         ? null
                         : new ExercisePrescription

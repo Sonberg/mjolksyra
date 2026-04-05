@@ -42,6 +42,7 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isDone: true,
       isPublished: true,
+      addedBy: null,
       prescription: {
         type: ExerciseType.SetsReps,
         sets: [
@@ -63,6 +64,7 @@ const baseWorkout: PlannedWorkout = {
       note: null,
       isDone: false,
       isPublished: true,
+      addedBy: null,
       prescription: {
         type: ExerciseType.SetsReps,
         sets: [
@@ -98,6 +100,38 @@ export const AthleteView: Story = {
       viewerMode="athlete"
       traineeId="trainee-1"
       backTab="past"
+    />
+  ),
+};
+
+export const AthleteWithOwnExercise: Story = {
+  render: () => (
+    <WorkoutDetail
+      workout={{
+        ...baseWorkout,
+        completedAt: null,
+        exercises: [
+          baseWorkout.exercises[0], // coach-added: no delete/add-set controls
+          {
+            id: "exercise-athlete-1",
+            exerciseId: "pushup",
+            name: "Push-up",
+            note: null,
+            isDone: false,
+            isPublished: true,
+            addedBy: "Athlete",
+            prescription: {
+              type: ExerciseType.SetsReps,
+              sets: [
+                { target: null, actual: null },
+                { target: null, actual: null },
+              ],
+            },
+          },
+        ],
+      }}
+      viewerMode="athlete"
+      traineeId="trainee-1"
     />
   ),
 };

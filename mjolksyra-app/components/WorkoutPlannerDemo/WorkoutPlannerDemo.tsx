@@ -19,6 +19,7 @@ function buildPlannedExercise(exercise: Exercise): PlannedExercise {
     note: null,
     isPublished: true,
     isDone: false,
+    addedBy: null,
     prescription: null,
   };
 }

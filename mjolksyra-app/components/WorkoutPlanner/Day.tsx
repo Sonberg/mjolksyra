@@ -129,6 +129,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
         note: "",
         isPublished: false,
         isDone: false,
+        addedBy: null,
         prescription: inferPrescriptionFromType(exercise.type as ExerciseType | null | undefined),
       };
 

@@ -43,6 +43,7 @@ export const exerciseSchema = z.object({
   note: z.string().nullable(),
   isPublished: z.boolean().optional().default(true),
   isDone: z.boolean().optional().default(false),
+  addedBy: z.enum(["Coach", "Athlete"]).nullable().optional().default(null),
   prescription: exercisePrescriptionSchema.nullable().optional().default(null),
   level: z.string().nullable().optional(),
   sport: z.string().nullable().optional(),

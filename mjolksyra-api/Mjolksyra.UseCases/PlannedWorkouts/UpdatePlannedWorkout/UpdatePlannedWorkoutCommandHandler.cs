@@ -38,6 +38,7 @@ public class UpdatePlannedWorkoutCommandHandler : IRequestHandler<UpdatePlannedW
                     Note = x.Note,
                     ExerciseId = x.ExerciseId,
                     IsPublished = x.IsPublished,
+                    AddedBy = existingExercise?.AddedBy ?? x.AddedBy,
                     Prescription = x.Prescription is null
                         ? null
                         : new ExercisePrescription
