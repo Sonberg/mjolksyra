@@ -1,7 +1,9 @@
+"use client";
+
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import dayjs from "dayjs";
-import { useMemo } from "react";
-import { CheckCircle2Icon, SparklesIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CheckCircle2Icon, MessageSquareIcon, SparklesIcon } from "lucide-react";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
 import {
@@ -19,6 +21,7 @@ import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 import { WorkoutAnalysisSection, WorkoutAnalysisTrigger } from "./workout/WorkoutAnalysisSection";
 import { StatusBadge } from "./StatusBadge";
 import { useWorkout } from "@/hooks/useWorkout";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type Props = {
   workout: PlannedWorkout;
@@ -41,9 +44,10 @@ export function WorkoutDetail({
     updateSetWeight,
   } = useWorkout({ workout });
 
+  const [chatOpen, setChatOpen] = useState(false);
+
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
-
     return dayjs()
       .year(Number(year))
       .month(Number(month) - 1)
@@ -53,19 +57,11 @@ export function WorkoutDetail({
   const displayName = useMemo(() => {
     const today = dayjs();
     const diff = date.diff(today, "days");
-
     switch (diff) {
-      case -1:
-        return "Yesterday";
-
-      case 0:
-        return "Today";
-
-      case 1:
-        return "Tomorrow";
-
-      default:
-        return date.format("dddd, D MMM YYYY");
+      case -1: return "Yesterday";
+      case 0:  return "Today";
+      case 1:  return "Tomorrow";
+      default: return date.format("dddd, D MMM YYYY");
     }
   }, [date]);
 
@@ -74,25 +70,20 @@ export function WorkoutDetail({
 
   function getSetTargetLabel(
     targetType: string | undefined,
-    target:
-      | {
-          reps: number | null;
-          durationSeconds: number | null;
-          distanceMeters: number | null;
-        }
-      | null
-      | undefined,
+    target: { reps: number | null; durationSeconds: number | null; distanceMeters: number | null } | null | undefined,
   ) {
-    if (targetType === ExerciseType.DurationSeconds) {
-      return `${target?.durationSeconds ?? "-"} s`;
-    }
-
-    if (targetType === ExerciseType.DistanceMeters) {
-      return `${target?.distanceMeters ?? "-"} m`;
-    }
-
+    if (targetType === ExerciseType.DurationSeconds) return `${target?.durationSeconds ?? "-"} s`;
+    if (targetType === ExerciseType.DistanceMeters) return `${target?.distanceMeters ?? "-"} m`;
     return `${target?.reps ?? "-"} reps`;
   }
+
+  const chatPanel = (
+    <WorkoutChatPanel
+      traineeId={workout.traineeId}
+      plannedWorkoutId={workout.id}
+      viewerMode={viewerMode}
+    />
+  );
 
   return (
     <article
@@ -146,17 +137,12 @@ export function WorkoutDetail({
                 {isCompleted ? "Mark incomplete" : "Complete workout"}
               </button>
             )}
-
             {viewerMode === "coach" && isCompleted ? (
               !isReviewed ? (
                 <button
                   type="button"
                   disabled={saveReview.isPending}
-                  onClick={() =>
-                    saveReview.mutate({
-                      reviewedAt: new Date(),
-                    })
-                  }
+                  onClick={() => saveReview.mutate({ reviewedAt: new Date() })}
                   className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
                 >
                   {saveReview.isPending ? "Saving..." : "Mark reviewed"}
@@ -165,33 +151,45 @@ export function WorkoutDetail({
                 <button
                   type="button"
                   disabled={saveReview.isPending}
-                  onClick={() =>
-                    saveReview.mutate({
-                      reviewedAt: null,
-                    })
-                  }
+                  onClick={() => saveReview.mutate({ reviewedAt: null })}
                   className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
                 >
                   {saveReview.isPending ? "Saving..." : "Unmark reviewed"}
                 </button>
               )
             ) : null}
+
+            {/* Chat button — mobile only */}
+            <Sheet open={chatOpen} onOpenChange={setChatOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] md:hidden"
+                  aria-label="Open chat"
+                >
+                  <MessageSquareIcon className="h-3.5 w-3.5" />
+                  Chat
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[85vw] max-w-sm p-0">
+                <SheetTitle className="sr-only">Chat</SheetTitle>
+                {chatPanel}
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
 
       {/* Body — two independently scrolling panels */}
-      <div className="flex flex-1 min-h-0 flex-col md:flex-row overflow-hidden">
-        {/* Left panel: exercises + AI analysis */}
-        <div className="min-h-0 flex-[2] overflow-y-auto overscroll-contain space-y-3 p-4 md:border-r md:border-[var(--shell-border)]">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Left panel: exercises + AI analysis — full width on mobile, 2/3 on desktop */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-3 p-4 md:flex-[2] md:border-r md:border-[var(--shell-border)]">
           {workout.note?.trim() ? (
             <div className="border-l-2 border-[var(--shell-accent)] pl-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
                 Coach note
               </p>
-              <p className="mt-1 text-sm text-[var(--shell-ink)]">
-                {workout.note}
-              </p>
+              <p className="mt-1 text-sm text-[var(--shell-ink)]">{workout.note}</p>
             </div>
           ) : null}
           {viewerMode === "coach" && isCompleted ? (
@@ -225,9 +223,7 @@ export function WorkoutDetail({
                 viewerMode={viewerMode}
                 isDetailView
                 isToggleExerciseDonePending={toggleExerciseDone.isPending}
-                isSetActionPending={
-                  toggleSetDone.isPending || updateSetWeight.isPending
-                }
+                isSetActionPending={toggleSetDone.isPending || updateSetWeight.isPending}
                 getSetTargetLabel={getSetTargetLabel}
                 onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
                   toggleExerciseDone.mutate(input)
@@ -243,13 +239,9 @@ export function WorkoutDetail({
           </div>
         </div>
 
-        {/* Right panel: chat */}
-        <div className="min-h-0 flex-1 flex flex-col border-t border-[var(--shell-border)] md:border-t-0 overflow-hidden">
-          <WorkoutChatPanel
-            traineeId={workout.traineeId}
-            plannedWorkoutId={workout.id}
-            viewerMode={viewerMode}
-          />
+        {/* Right panel: chat — desktop only */}
+        <div className="hidden min-h-0 flex-1 flex-col overflow-hidden md:flex md:flex-[1]">
+          {chatPanel}
         </div>
       </div>
     </article>
