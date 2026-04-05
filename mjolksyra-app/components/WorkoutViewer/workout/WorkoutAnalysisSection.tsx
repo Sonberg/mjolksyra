@@ -10,55 +10,47 @@ type Props = {
   plannedWorkoutId: string;
 };
 
-export function WorkoutAnalysisTrigger({ traineeId, plannedWorkoutId }: Props) {
-  const queryClient = useQueryClient();
-  const [context, setContext] = useState("");
+function AnalysisSkeleton() {
+  return (
+    <div className="space-y-3" aria-label="Loading analysis" aria-busy>
+      <div className="border-l-2 border-[var(--shell-accent)] pl-3 space-y-2">
+        <div className="h-3 w-3/4 rounded bg-[var(--shell-border)] animate-pulse" />
+        <div className="h-2.5 w-1/2 rounded bg-[var(--shell-border)] animate-pulse" />
+      </div>
+      {[3, 2, 3].map((rows, i) => (
+        <div key={i} className="space-y-1.5">
+          <div className="h-2 w-14 rounded bg-[var(--shell-border)] animate-pulse" />
+          {Array.from({ length: rows }).map((_, j) => (
+            <div
+              key={j}
+              className={`h-2 rounded bg-[var(--shell-border)] animate-pulse ${
+                j === 0 ? "w-full" : j === 1 ? "w-5/6" : "w-4/6"
+              }`}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  const analyze = useMutation({
-    mutationFn: async () =>
-      analyzeWorkoutMedia({
-        traineeId,
-        plannedWorkoutId,
-        analysis: {
-          text: context,
-        },
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
-      });
-    },
-  });
+function WorkoutAnalysisTrigger({
+  traineeId,
+  plannedWorkoutId,
+  isPending,
+  onAnalyze,
+}: Props & { isPending: boolean; onAnalyze: (text: string) => void }) {
+  const [context, setContext] = useState("");
 
   const pricing = useQuery({
     queryKey: ["coach-credit-pricing"],
     queryFn: getCreditPricing,
   });
 
-  const canAnalyze = useMemo(() => {
-    return !analyze.isPending;
-  }, [analyze.isPending]);
-
   const analyzeCost = useMemo(() => {
     const mediaAction = pricing.data?.find((item) => item.action === "AnalyzeWorkoutMedia");
     return mediaAction?.creditCost ?? null;
   }, [pricing.data]);
-  const analysisErrorMessage = useMemo(() => {
-    if (!analyze.isError) {
-      return null;
-    }
-
-    if (analyze.error instanceof AxiosError && analyze.error.response?.status === 422) {
-      const errorMessage =
-        typeof analyze.error.response.data === "object" && analyze.error.response.data !== null
-          ? (analyze.error.response.data as { error?: string }).error
-          : null;
-
-      return errorMessage ?? "Not enough credits to analyze this check-in.";
-    }
-
-    return "Could not analyze this check-in right now.";
-  }, [analyze.error, analyze.isError]);
 
   return (
     <section className="space-y-3" data-testid="workout-analysis-section">
@@ -77,26 +69,22 @@ export function WorkoutAnalysisTrigger({ traineeId, plannedWorkoutId }: Props) {
         </p>
         <button
           type="button"
-          disabled={!canAnalyze}
-          onClick={() => analyze.mutate()}
+          disabled={isPending}
+          onClick={() => onAnalyze(context)}
           className="shrink-0 border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
         >
-          {analyze.isPending ? "Analyzing..." : analyzeCost ? `Analyze (${analyzeCost} credits)` : "Analyze"}
+          {isPending ? "Analyzing..." : analyzeCost ? `Analyze (${analyzeCost} credits)` : "Analyze"}
         </button>
       </div>
-
-      {analyze.isPending ? (
-        <p className="text-xs text-[var(--shell-muted)]">Analyzing workout notes and media...</p>
-      ) : null}
-
-      {analyze.isError ? (
-        <p className="text-xs text-red-500">{analysisErrorMessage}</p>
-      ) : null}
     </section>
   );
 }
 
-export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
+export function WorkoutAnalysisSection({
+  traineeId,
+  plannedWorkoutId,
+  isPending = false,
+}: Props & { isPending?: boolean }) {
   const latestAnalysis = useQuery({
     queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
     queryFn: ({ signal }) =>
@@ -115,11 +103,10 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
         <p className="text-xs text-red-500">Could not load previous analysis.</p>
       ) : null}
 
-      {analysis ? (
-        <article
-          className="space-y-3"
-          data-testid="workout-analysis-outcome"
-        >
+      {isPending && !analysis ? (
+        <AnalysisSkeleton />
+      ) : analysis ? (
+        <article className="space-y-3" data-testid="workout-analysis-outcome">
           <div className="border-l-2 border-[var(--shell-accent)] pl-3">
             <p className="text-sm font-medium text-[var(--shell-ink)]">{analysis.summary}</p>
             <p className="mt-1 text-[11px] text-[var(--shell-muted)]" data-testid="workout-analysis-timestamp">
@@ -158,4 +145,57 @@ export function WorkoutAnalysisSection({ traineeId, plannedWorkoutId }: Props) {
       ) : null}
     </>
   );
+}
+
+export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
+  const queryClient = useQueryClient();
+
+  const analyze = useMutation({
+    mutationFn: async (text: string) =>
+      analyzeWorkoutMedia({
+        traineeId,
+        plannedWorkoutId,
+        analysis: { text },
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
+      });
+    },
+  });
+
+  return (
+    <div className="space-y-4">
+      <WorkoutAnalysisSection
+        traineeId={traineeId}
+        plannedWorkoutId={plannedWorkoutId}
+        isPending={analyze.isPending}
+      />
+
+      {analyze.isError ? (
+        <AnalysisError error={analyze.error} />
+      ) : null}
+
+      <WorkoutAnalysisTrigger
+        traineeId={traineeId}
+        plannedWorkoutId={plannedWorkoutId}
+        isPending={analyze.isPending}
+        onAnalyze={(text) => analyze.mutate(text)}
+      />
+    </div>
+  );
+}
+
+function AnalysisError({ error }: { error: Error }) {
+  const message = useMemo(() => {
+    if (error instanceof AxiosError && error.response?.status === 422) {
+      const data = error.response.data;
+      const detail =
+        typeof data === "object" && data !== null ? (data as { error?: string }).error : null;
+      return detail ?? "Not enough credits to analyze this check-in.";
+    }
+    return "Could not analyze this check-in right now.";
+  }, [error]);
+
+  return <p className="text-xs text-red-500">{message}</p>;
 }

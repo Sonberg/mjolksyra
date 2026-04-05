@@ -17,7 +17,7 @@ import {
   UpdateSetActualInput,
 } from "./workout/types";
 import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
-import { WorkoutAnalysisSection, WorkoutAnalysisTrigger } from "./workout/WorkoutAnalysisSection";
+import { WorkoutAnalysis } from "./workout/WorkoutAnalysisSection";
 import { StatusBadge } from "./StatusBadge";
 import { useWorkout } from "@/hooks/useWorkout";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -192,11 +192,7 @@ export function WorkoutDetail({
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 px-4">
-                  <WorkoutAnalysisSection
-                    traineeId={workout.traineeId}
-                    plannedWorkoutId={workout.id}
-                  />
-                  <WorkoutAnalysisTrigger
+                  <WorkoutAnalysis
                     traineeId={workout.traineeId}
                     plannedWorkoutId={workout.id}
                   />
