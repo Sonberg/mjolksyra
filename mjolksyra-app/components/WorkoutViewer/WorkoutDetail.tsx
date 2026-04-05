@@ -4,7 +4,6 @@ import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { CheckCircle2Icon, MessageSquareIcon, SparklesIcon } from "lucide-react";
-import { ExerciseType } from "@/lib/exercisePrescription";
 import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
 import {
   Accordion,
@@ -67,15 +66,6 @@ export function WorkoutDetail({
 
   const isCompleted = !!workout.completedAt;
   const isReviewed = !!workout.reviewedAt;
-
-  function getSetTargetLabel(
-    targetType: string | undefined,
-    target: { reps: number | null; durationSeconds: number | null; distanceMeters: number | null } | null | undefined,
-  ) {
-    if (targetType === ExerciseType.DurationSeconds) return `${target?.durationSeconds ?? "-"} s`;
-    if (targetType === ExerciseType.DistanceMeters) return `${target?.distanceMeters ?? "-"} m`;
-    return `${target?.reps ?? "-"} reps`;
-  }
 
   const chatPanel = (
     <WorkoutChatPanel
@@ -224,7 +214,6 @@ export function WorkoutDetail({
                 isDetailView
                 isToggleExerciseDonePending={toggleExerciseDone.isPending}
                 isSetActionPending={toggleSetDone.isPending || updateSetWeight.isPending}
-                getSetTargetLabel={getSetTargetLabel}
                 onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
                   toggleExerciseDone.mutate(input)
                 }

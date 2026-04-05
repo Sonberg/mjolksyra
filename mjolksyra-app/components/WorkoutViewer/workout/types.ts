@@ -26,12 +26,4 @@ export type UpdateSetActualInput = {
   note: string | null;
 };
 
-export type GetSetTargetLabel = (
-  targetType: ExerciseType | undefined,
-  target: {
-    reps: number | null;
-    durationSeconds: number | null;
-    distanceMeters: number | null;
-  } | null | undefined,
-) => string;
 

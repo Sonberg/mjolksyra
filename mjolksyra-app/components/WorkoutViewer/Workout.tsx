@@ -104,27 +104,6 @@ export function Workout({
         : `/app/athlete/${traineeId}/workouts/${workout.id}`
     : null;
 
-  function getSetTargetLabel(
-    targetType: string | undefined,
-    target:
-      | {
-          reps: number | null;
-          durationSeconds: number | null;
-          distanceMeters: number | null;
-        }
-      | null
-      | undefined,
-  ) {
-    if (targetType === ExerciseType.DurationSeconds) {
-      return `${target?.durationSeconds ?? "-"} s`;
-    }
-
-    if (targetType === ExerciseType.DistanceMeters) {
-      return `${target?.distanceMeters ?? "-"} m`;
-    }
-
-    return `${target?.reps ?? "-"} reps`;
-  }
 
   useEffect(() => {
     if (!isHighlighted) {
@@ -360,7 +339,6 @@ export function Workout({
                   isSetActionPending={
                     toggleSetDone.isPending || updateSetWeight.isPending
                   }
-                  getSetTargetLabel={getSetTargetLabel}
                   onToggleExerciseDone={(input: ToggleExerciseDoneInput) =>
                     toggleExerciseDone.mutate(input)
                   }

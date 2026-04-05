@@ -3,7 +3,6 @@ import { CheckCircle2Icon, CircleIcon } from "lucide-react";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
-  GetSetTargetLabel,
   ToggleSetDoneInput,
   UpdateSetActualInput,
   WorkoutSet,
@@ -16,17 +15,13 @@ type Props = {
   targetType: ExerciseType | undefined;
   isEditable: boolean;
   isPending: boolean;
-  getSetTargetLabel: GetSetTargetLabel;
   onToggleSetDone: (input: ToggleSetDoneInput) => void;
   onUpdateSetActual: (input: UpdateSetActualInput) => void;
 };
 
 function parseNullableNumber(rawValue: string): number | null | "invalid" {
   const value = rawValue.trim();
-  if (value.length === 0) {
-    return null;
-  }
-
+  if (value.length === 0) return null;
   const parsed = Number(value);
   return Number.isNaN(parsed) ? "invalid" : parsed;
 }
@@ -43,6 +38,9 @@ function toInputValue(value: number | null | undefined): string {
   return value == null ? "" : String(value);
 }
 
+const inputCls =
+  "h-9 w-[4.5rem] border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--shell-accent)]";
+
 export function WorkoutExerciseSetCard({
   exerciseId,
   set,
@@ -50,7 +48,6 @@ export function WorkoutExerciseSetCard({
   targetType,
   isEditable,
   isPending,
-  getSetTargetLabel,
   onToggleSetDone,
   onUpdateSetActual,
 }: Props) {
@@ -77,10 +74,7 @@ export function WorkoutExerciseSetCard({
         weightKg === "invalid" ||
         durationSeconds === "invalid" ||
         distanceMeters === "invalid"
-      ) {
-        return;
-      }
-
+      ) return;
       onUpdateSetActual({
         exerciseId,
         setIndex,
@@ -105,136 +99,99 @@ export function WorkoutExerciseSetCard({
   }
 
   const isDone = set.actual?.isDone;
+  const isSetsReps = targetType === ExerciseType.SetsReps;
+  const isDurationSeconds = targetType === ExerciseType.DurationSeconds;
 
   return (
-    <div className="grid grid-cols-[1fr_auto] items-start gap-3 px-3 py-3 sm:px-4">
-      <div className="min-w-0 space-y-2">
-        {/* Set label + target */}
-        <div className="grid grid-cols-[5rem_1fr] items-baseline gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-            Set {setIndex + 1}
-          </p>
+    <div className="flex items-center gap-3 px-3 py-2 sm:px-4">
+      {/* Set number badge */}
+      <div className="grid h-6 w-6 shrink-0 place-items-center border border-[var(--shell-border)] text-[10px] font-bold text-[var(--shell-muted)]">
+        {setIndex + 1}
+      </div>
+
+      {/* Primary value: reps / duration / distance */}
+      {isEditable ? (
+        <input
+          type="number"
+          min={0}
+          value={isSetsReps ? draft.reps : isDurationSeconds ? draft.durationSeconds : draft.distanceMeters}
+          onChange={(ev) =>
+            updateDraft(
+              isSetsReps
+                ? { reps: ev.target.value }
+                : isDurationSeconds
+                  ? { durationSeconds: ev.target.value }
+                  : { distanceMeters: ev.target.value },
+            )
+          }
+          onBlur={() => commitDraft(draft)}
+          className={inputCls}
+          aria-label={
+            isSetsReps
+              ? `Reps for set ${setIndex + 1}`
+              : isDurationSeconds
+                ? `Duration for set ${setIndex + 1}`
+                : `Distance for set ${setIndex + 1}`
+          }
+        />
+      ) : (
+        <p
+          className={
+            isDone
+              ? "w-[4.5rem] text-base font-semibold text-[var(--shell-muted)] line-through"
+              : "w-[4.5rem] text-base font-semibold text-[var(--shell-ink)]"
+          }
+        >
+          {isSetsReps
+            ? (set.actual?.reps ?? "–")
+            : isDurationSeconds
+              ? (set.actual?.durationSeconds ?? "–")
+              : (set.actual?.distanceMeters ?? "–")}
+        </p>
+      )}
+
+      {/* Kg column — SetsReps only */}
+      {isSetsReps ? (
+        isEditable ? (
+          <input
+            type="number"
+            min={0}
+            step="0.5"
+            value={draft.weightKg}
+            onChange={(ev) => updateDraft({ weightKg: ev.target.value })}
+            onBlur={() => commitDraft(draft)}
+            className={inputCls}
+            aria-label={`Weight for set ${setIndex + 1}`}
+          />
+        ) : (
           <p
             className={
               isDone
-                ? "text-xs text-[var(--shell-muted)] line-through"
-                : "text-xs font-medium text-[var(--shell-ink)]"
+                ? "w-[4.5rem] text-base font-semibold text-[var(--shell-muted)] line-through"
+                : "w-[4.5rem] text-base font-semibold text-[var(--shell-ink)]"
             }
           >
-            {targetType === ExerciseType.SetsReps
-              ? `${set.target?.reps ?? "–"} reps${typeof set.target?.weightKg === "number" ? ` · ${set.target.weightKg} kg` : ""}`
-              : targetType === ExerciseType.DurationSeconds
-                ? `${set.target?.durationSeconds ?? "–"} s`
-                : `${set.target?.distanceMeters ?? "–"} m`}
+            {set.actual?.weightKg ?? "–"}
           </p>
-        </div>
+        )
+      ) : null}
 
-        {set.target?.note?.trim() ? (
-          <p className="text-xs text-[var(--shell-muted)]">{set.target.note}</p>
-        ) : null}
-
-        {/* Actual */}
-        <div className="grid grid-cols-[5rem_1fr] items-start gap-2">
-          <p className="pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-            Actual
-          </p>
-          {isEditable ? (
-            <div className="flex flex-wrap items-center gap-2">
-              {targetType === ExerciseType.SetsReps ? (
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={draft.reps}
-                    onChange={(ev) => updateDraft({ reps: ev.target.value })}
-                    onBlur={() => commitDraft(draft)}
-                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-8 text-xs text-[var(--shell-ink)]"
-                    aria-label={`Actual reps for set ${setIndex + 1}`}
-                  />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
-                    reps
-                  </span>
-                </div>
-              ) : null}
-              {targetType === ExerciseType.DurationSeconds ? (
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={draft.durationSeconds}
-                    onChange={(ev) =>
-                      updateDraft({ durationSeconds: ev.target.value })
-                    }
-                    onBlur={() => commitDraft(draft)}
-                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-6 text-xs text-[var(--shell-ink)]"
-                    aria-label={`Actual duration for set ${setIndex + 1}`}
-                  />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
-                    s
-                  </span>
-                </div>
-              ) : null}
-              {targetType === ExerciseType.DistanceMeters ? (
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={draft.distanceMeters}
-                    onChange={(ev) =>
-                      updateDraft({ distanceMeters: ev.target.value })
-                    }
-                    onBlur={() => commitDraft(draft)}
-                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-6 text-xs text-[var(--shell-ink)]"
-                    aria-label={`Actual distance for set ${setIndex + 1}`}
-                  />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
-                    m
-                  </span>
-                </div>
-              ) : null}
-              {targetType === ExerciseType.SetsReps ? (
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.5"
-                    value={draft.weightKg}
-                    onChange={(ev) => updateDraft({ weightKg: ev.target.value })}
-                    onBlur={() => commitDraft(draft)}
-                    className="h-7 w-20 border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-6 text-xs text-[var(--shell-ink)]"
-                    aria-label={`Actual weight for set ${setIndex + 1}`}
-                  />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--shell-muted)]">
-                    kg
-                  </span>
-                </div>
-              ) : null}
-              <input
-                type="text"
-                value={draft.note}
-                onChange={(ev) => updateDraft({ note: ev.target.value })}
-                onBlur={() => commitDraft(draft)}
-                className="h-7 min-w-[140px] flex-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-xs text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)]"
-                placeholder="Note"
-                aria-label={`Actual note for set ${setIndex + 1}`}
-              />
-            </div>
-          ) : (
-            <p className="pt-0.5 text-xs text-[var(--shell-ink)]">
-              {targetType === ExerciseType.SetsReps
-                ? `${set.actual?.reps ?? "–"} reps${typeof set.actual?.weightKg === "number" ? ` · ${set.actual.weightKg} kg` : ""}`
-                : targetType === ExerciseType.DurationSeconds
-                  ? `${set.actual?.durationSeconds ?? "–"} s`
-                  : `${set.actual?.distanceMeters ?? "–"} m`}
-              {set.actual?.note?.trim() ? (
-                <span className="ml-2 text-[var(--shell-muted)]">
-                  · {set.actual.note}
-                </span>
-              ) : null}
-            </p>
-          )}
-        </div>
-      </div>
+      {/* Note */}
+      {isEditable ? (
+        <input
+          type="text"
+          value={draft.note}
+          onChange={(ev) => updateDraft({ note: ev.target.value })}
+          onBlur={() => commitDraft(draft)}
+          className="h-9 min-w-0 flex-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-xs text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--shell-accent)]"
+          placeholder="Note"
+          aria-label={`Note for set ${setIndex + 1}`}
+        />
+      ) : (
+        <p className="min-w-0 flex-1 truncate text-xs text-[var(--shell-muted)]">
+          {set.actual?.note?.trim() || ""}
+        </p>
+      )}
 
       {/* Done toggle */}
       {isEditable ? (
@@ -244,27 +201,22 @@ export function WorkoutExerciseSetCard({
           onClick={() => onToggleSetDone({ exerciseId, setIndex })}
           className={
             isDone
-              ? "mt-0.5 inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition disabled:opacity-60"
-              : "mt-0.5 inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-60"
+              ? "inline-flex w-[3.5rem] shrink-0 items-center justify-center gap-1 border border-transparent bg-[var(--shell-accent)] py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition disabled:opacity-60"
+              : "inline-flex w-[3.5rem] shrink-0 items-center justify-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-60"
           }
           title={isDone ? "Mark set incomplete" : "Mark set done"}
         >
-          {isDone ? (
-            <CheckCircle2Icon className="h-3 w-3" />
-          ) : (
-            <CircleIcon className="h-3 w-3" />
-          )}
-          {isDone ? "Done" : "Mark"}
+          {isDone ? <CheckCircle2Icon className="h-3.5 w-3.5" /> : <CircleIcon className="h-3.5 w-3.5" />}
         </button>
       ) : (
         <span
           className={
             isDone
-              ? "mt-0.5 inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)]"
-              : "mt-0.5 inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]"
+              ? "inline-flex w-[3.5rem] shrink-0 items-center justify-center gap-1 border border-transparent bg-[var(--shell-accent)] py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)]"
+              : "inline-flex w-[3.5rem] shrink-0 items-center justify-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] py-1.5 text-[10px] font-semibold text-[var(--shell-muted)]"
           }
         >
-          {isDone ? "Done" : "–"}
+          {isDone ? <CheckCircle2Icon className="h-3.5 w-3.5" /> : <CircleIcon className="h-3.5 w-3.5" />}
         </span>
       )}
     </div>

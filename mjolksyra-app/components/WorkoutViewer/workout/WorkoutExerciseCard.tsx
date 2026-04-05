@@ -1,11 +1,7 @@
 import { CheckCircle2Icon, CircleIcon } from "lucide-react";
-import {
-  ExerciseType,
-  formatPrescription,
-} from "@/lib/exercisePrescription";
+import { ExerciseType, formatPrescription } from "@/lib/exercisePrescription";
 import { WorkoutExerciseSetCard } from "./WorkoutExerciseSetCard";
 import {
-  GetSetTargetLabel,
   ToggleExerciseDoneInput,
   ToggleSetDoneInput,
   UpdateSetActualInput,
@@ -19,11 +15,13 @@ type Props = {
   isDetailView: boolean;
   isToggleExerciseDonePending: boolean;
   isSetActionPending: boolean;
-  getSetTargetLabel: GetSetTargetLabel;
   onToggleExerciseDone: (input: ToggleExerciseDoneInput) => void;
   onToggleSetDone: (input: ToggleSetDoneInput) => void;
   onUpdateSetActual: (input: UpdateSetActualInput) => void;
 };
+
+const colHeaderCls =
+  "text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]";
 
 export function WorkoutExerciseCard({
   exercise,
@@ -32,11 +30,15 @@ export function WorkoutExerciseCard({
   isDetailView,
   isToggleExerciseDonePending,
   isSetActionPending,
-  getSetTargetLabel,
   onToggleExerciseDone,
   onToggleSetDone,
   onUpdateSetActual,
 }: Props) {
+  const targetType = exercise.prescription?.type as ExerciseType | undefined;
+  const isSetsReps = targetType === ExerciseType.SetsReps;
+  const isDurationSeconds = targetType === ExerciseType.DurationSeconds;
+  const hasSets = isDetailView && !!exercise.prescription?.sets?.length;
+
   return (
     <div className="bg-[var(--shell-surface-strong)]">
       {/* Exercise header row */}
@@ -61,6 +63,7 @@ export function WorkoutExerciseCard({
               </p>
             ) : null}
           </div>
+
           {viewerMode === "athlete" && isDetailView ? (
             <button
               type="button"
@@ -76,7 +79,6 @@ export function WorkoutExerciseCard({
                   ? "inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition disabled:opacity-60"
                   : "inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-60"
               }
-              title={exercise.isDone ? "Undo done" : "Mark done"}
             >
               {exercise.isDone ? (
                 <CheckCircle2Icon className="h-3 w-3" />
@@ -101,27 +103,37 @@ export function WorkoutExerciseCard({
         </div>
       ) : null}
 
-      {/* Set details */}
-      {isDetailView && exercise.prescription?.sets?.length ? (
+      {/* Sets table */}
+      {hasSets ? (
         <div className="border-t border-[var(--shell-border)]">
-          <div className="px-3 py-2 sm:px-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-              Sets
-            </p>
+          {/* Column headers */}
+          <div className="flex items-center gap-3 px-3 pb-1 pt-2 sm:px-4">
+            <div className="w-6 shrink-0" />
+            {isSetsReps ? (
+              <>
+                <p className={`w-[4.5rem] shrink-0 ${colHeaderCls}`}>Reps</p>
+                <p className={`w-[4.5rem] shrink-0 ${colHeaderCls}`}>Kg</p>
+              </>
+            ) : isDurationSeconds ? (
+              <p className={`w-[4.5rem] shrink-0 ${colHeaderCls}`}>Secs</p>
+            ) : (
+              <p className={`w-[4.5rem] shrink-0 ${colHeaderCls}`}>Meters</p>
+            )}
+            <p className={`flex-1 ${colHeaderCls}`}>Note</p>
+            <div className="w-[3.5rem] shrink-0" />
           </div>
+
+          {/* Set rows */}
           <div className="divide-y divide-[var(--shell-border)]">
-            {exercise.prescription.sets.map((set, setIndex) => (
+            {exercise.prescription!.sets!.map((set, setIndex) => (
               <WorkoutExerciseSetCard
-                key={`${exercise.id}-set-target-${setIndex}-${set.actual?.reps ?? ""}-${set.actual?.weightKg ?? ""}-${set.actual?.durationSeconds ?? ""}-${set.actual?.distanceMeters ?? ""}-${set.actual?.note ?? ""}-${set.actual?.isDone ? "done" : "todo"}`}
+                key={`${exercise.id}-${setIndex}-${set.actual?.reps ?? ""}-${set.actual?.weightKg ?? ""}-${set.actual?.durationSeconds ?? ""}-${set.actual?.distanceMeters ?? ""}-${set.actual?.note ?? ""}-${set.actual?.isDone ? "done" : "todo"}`}
                 exerciseId={exercise.id}
                 set={set}
                 setIndex={setIndex}
-                targetType={
-                  exercise.prescription?.type as ExerciseType | undefined
-                }
+                targetType={targetType}
                 isEditable={viewerMode === "athlete"}
                 isPending={isSetActionPending}
-                getSetTargetLabel={getSetTargetLabel}
                 onToggleSetDone={onToggleSetDone}
                 onUpdateSetActual={onUpdateSetActual}
               />
