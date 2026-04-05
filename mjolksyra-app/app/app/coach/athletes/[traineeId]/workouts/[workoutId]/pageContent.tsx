@@ -8,17 +8,22 @@ import { getTrainee } from "@/services/trainees/getTrainee";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import type { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import type { Trainee } from "@/services/trainees/type";
 
 type Props = {
   traineeId: string;
   workoutId: string;
   backTab?: "past" | "future" | "changes";
+  initialWorkout?: PlannedWorkout | null;
+  initialTrainee?: Trainee | null;
 };
 
-export function PageContent({ traineeId, workoutId, backTab }: Props) {
+export function PageContent({ traineeId, workoutId, backTab, initialWorkout, initialTrainee }: Props) {
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "workoutReviewDetailHeader"],
     queryFn: ({ signal }) => getTrainee({ id: traineeId, signal }),
+    initialData: initialTrainee ?? undefined,
   });
 
   const workout = useQuery({
@@ -29,6 +34,7 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
         plannedWorkoutId: workoutId,
         signal,
       }),
+    initialData: initialWorkout ?? undefined,
     retry: false,
   });
 
@@ -58,12 +64,12 @@ export function PageContent({ traineeId, workoutId, backTab }: Props) {
       />
 
       {workout.isLoading ? (
-        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
+        <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-muted)]">
           Loading workout...
         </section>
       ) : null}
       {workout.isError ? (
-        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
+        <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-sm text-[var(--shell-accent)]">
           Could not load this workout.
         </section>
       ) : null}
