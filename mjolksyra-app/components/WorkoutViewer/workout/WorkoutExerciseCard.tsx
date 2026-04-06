@@ -237,7 +237,7 @@ export function WorkoutExerciseCard({
           <div className="divide-y divide-[var(--shell-border)]">
             {exercise.prescription!.sets!.map((set, setIndex) => (
               <WorkoutExerciseSetCard
-                key={`${exercise.id}-${setIndex}-${set.actual?.reps ?? ""}-${set.actual?.weightKg ?? ""}-${set.actual?.durationSeconds ?? ""}-${set.actual?.distanceMeters ?? ""}-${set.actual?.note ?? ""}-${set.actual?.isDone ? "done" : "todo"}`}
+                key={`${exercise.id}-${setIndex}`}
                 exerciseId={exercise.id}
                 set={set}
                 setIndex={setIndex}

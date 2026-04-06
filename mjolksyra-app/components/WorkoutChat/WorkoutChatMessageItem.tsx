@@ -33,9 +33,7 @@ export function WorkoutChatMessageItem({
   const hasMedia = chatMessage.media.length > 0;
 
   return (
-    <article
-      className={isSelf ? "flex justify-end" : "flex justify-start"}
-    >
+    <article className={isSelf ? "flex justify-end" : "flex justify-start"}>
       <div
         className={
           isSelf
@@ -77,7 +75,9 @@ export function WorkoutChatMessageItem({
                 </button>
                 <button
                   type="button"
-                  disabled={isEditPending || editingMessageBody.trim().length === 0}
+                  disabled={
+                    isEditPending || editingMessageBody.trim().length === 0
+                  }
                   onClick={onSaveEditing}
                   className="border border-transparent bg-[var(--shell-ink)] px-3 py-1 text-[11px] font-semibold text-[var(--shell-surface)] disabled:opacity-60"
                 >
@@ -102,11 +102,7 @@ export function WorkoutChatMessageItem({
         ) : null}
         {editingMessageId !== chatMessage.id && hasMedia ? (
           <div
-            className={
-              isSelf
-                ? "mt-2 inline-flex max-w-full text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
-                : "mt-2 inline-flex max-w-full  text-[var(--shell-ink)]"
-            }
+            className={"mt-2 inline-flex max-w-full text-[var(--shell-ink)]"}
           >
             <WorkoutMediaGallery
               media={chatMessage.media}
@@ -123,13 +119,17 @@ export function WorkoutChatMessageItem({
           }
         >
           {dayjs(chatMessage.createdAt).format("HH:mm")}
-          {dayjs(chatMessage.modifiedAt).isAfter(dayjs(chatMessage.createdAt)) ? " · edited" : ""}
+          {dayjs(chatMessage.modifiedAt).isAfter(dayjs(chatMessage.createdAt))
+            ? " · edited"
+            : ""}
         </p>
         {isSelf && editingMessageId !== chatMessage.id ? (
           <div className="mt-1 flex justify-end">
             <button
               type="button"
-              onClick={() => onStartEditing(chatMessage.id, chatMessage.message)}
+              onClick={() =>
+                onStartEditing(chatMessage.id, chatMessage.message)
+              }
               className="rounded-full px-2 py-1 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
             >
               Edit

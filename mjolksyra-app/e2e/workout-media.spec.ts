@@ -23,6 +23,25 @@ async function mockR2Upload(page: Page) {
   });
 }
 
+async function createFileDropDataTransfer(
+  page: Page,
+  {
+    name,
+    mimeType,
+    buffer,
+  }: { name: string; mimeType: string; buffer: Buffer },
+) {
+  return page.evaluateHandle(
+    async ({ name, mimeType, bytes }) => {
+      const dataTransfer = new DataTransfer();
+      const file = new File([new Uint8Array(bytes)], name, { type: mimeType });
+      dataTransfer.items.add(file);
+      return dataTransfer;
+    },
+    { name, mimeType, bytes: Array.from(buffer) },
+  );
+}
+
 function buildMockLoggedWorkoutResponse(completedAt: string | null = null) {
   return {
     id: "workout-1",
@@ -301,6 +320,56 @@ test.describe("Workout media upload", () => {
     );
   });
 
+  test("dragging files onto the default uploader uploads media", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
+    );
+
+    await mockR2Upload(page);
+
+    const pngBuffer = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+      "base64",
+    );
+    const dataTransfer = await createFileDropDataTransfer(page, {
+      name: "drop-image.png",
+      mimeType: "image/png",
+      buffer: pngBuffer,
+    });
+
+    const dropzone = page.getByTestId("workout-media-dropzone");
+    await dropzone.dispatchEvent("dragenter", { dataTransfer });
+    await expect(page.locator("label[for='workout-media-input']")).toContainText("Drop photos / videos");
+    await dropzone.dispatchEvent("drop", { dataTransfer });
+
+    await expect(page.locator("img[alt='Workout media']")).toHaveCount(1, { timeout: 30_000 });
+  });
+
+  test("dragging files onto the compact uploader uploads media", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--compact",
+    );
+
+    await mockR2Upload(page);
+
+    const pngBuffer = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+      "base64",
+    );
+    const dataTransfer = await createFileDropDataTransfer(page, {
+      name: "compact-drop-image.png",
+      mimeType: "image/png",
+      buffer: pngBuffer,
+    });
+
+    const dropzone = page.getByTestId("workout-media-dropzone");
+    await dropzone.dispatchEvent("dragenter", { dataTransfer });
+    await expect(page.locator("label[for='workout-media-input']")).toContainText("Drop to upload");
+    await dropzone.dispatchEvent("drop", { dataTransfer });
+
+    await expect(page.locator("img[alt='Workout media']")).toHaveCount(1, { timeout: 30_000 });
+  });
+
   test("AthleteWorkoutLogger shows completion action", async ({
     page,
   }) => {
@@ -375,6 +444,29 @@ test.describe("Workout media upload", () => {
     });
 
     expect(containsUpdatedReps).toBe(true);
+  });
+
+  test("AthleteWorkoutLogger keeps the active field focused after autosave", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=athleteworkoutlogger-athleteworkoutlogger--not-completed",
+    );
+
+    await page.route("**/api/trainees/*/planned-workouts/*/log", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(buildMockLoggedWorkoutResponse()),
+      });
+    });
+
+    const noteInput = page.getByLabel("Note for set 1").first();
+    await noteInput.click();
+    await noteInput.fill("@8. feels stable");
+
+    await page.waitForTimeout(900);
+
+    await expect(noteInput).toBeFocused();
+    await expect(noteInput).toHaveValue("@8. feels stable");
   });
 
   test("AthleteWorkoutLogger renders workout chat composer", async ({ page }) => {

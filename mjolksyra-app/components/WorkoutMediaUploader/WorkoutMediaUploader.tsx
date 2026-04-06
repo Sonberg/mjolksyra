@@ -2,7 +2,7 @@
 
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ImageIcon, XIcon } from "lucide-react";
+import { ImageIcon, UploadIcon, XIcon } from "lucide-react";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
 
@@ -26,6 +26,16 @@ export type PendingPreview = {
   isVideo: boolean;
   name: string;
 };
+
+const ACCEPTED_MEDIA_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "video/mp4",
+  "video/quicktime",
+] as const;
+const ACCEPTED_MEDIA_INPUT = ACCEPTED_MEDIA_TYPES.join(",");
 
 // R2 URLs have file extensions in the key (e.g. https://media.example.com/workouts/abc.mp4).
 // Keep ?ct=video branch for legacy UploadThing URLs.
@@ -62,6 +72,7 @@ export function WorkoutMediaUploader({
   );
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [dragDepth, setDragDepth] = useState(0);
 
   const IMAGE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB
   const VIDEO_MAX_BYTES = 256 * 1024 * 1024; // 256 MB
@@ -70,13 +81,27 @@ export function WorkoutMediaUploader({
     onPendingChange?.(isUploading);
   }, [isUploading, onPendingChange]);
 
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files ?? []);
-      if (!files.length) return;
+  const handleFilesSelected = useCallback(
+    async (files: File[]) => {
+      if (!files.length) {
+        return;
+      }
+
+      const validFiles = files.filter((file) =>
+        ACCEPTED_MEDIA_TYPES.includes(file.type as (typeof ACCEPTED_MEDIA_TYPES)[number]),
+      );
+
+      if (!validFiles.length) {
+        setUploadError("Only photos and videos are supported here.");
+        return;
+      }
+
+      if (validFiles.length !== files.length) {
+        setUploadError("Some files were skipped. Only photos and videos are supported here.");
+      }
 
       // Client-side size validation
-      for (const file of files) {
+      for (const file of validFiles) {
         const isVideo = file.type.startsWith("video/");
         const maxBytes = isVideo ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
         if (file.size > maxBytes) {
@@ -91,7 +116,7 @@ export function WorkoutMediaUploader({
       setUploadError(null);
 
       // Show local previews immediately
-      const previews: PendingPreview[] = files.map((f) => ({
+      const previews: PendingPreview[] = validFiles.map((f) => ({
         id: crypto.randomUUID(),
         localUrl: URL.createObjectURL(f),
         isVideo: f.type.startsWith("video/"),
@@ -103,7 +128,7 @@ export function WorkoutMediaUploader({
       if (inputRef.current) inputRef.current.value = "";
 
       try {
-        const uploaded = await uploadFiles(files, plannedWorkoutId);
+        const uploaded = await uploadFiles(validFiles, plannedWorkoutId);
         onUploadComplete([...media, ...uploaded]);
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : "Upload failed");
@@ -121,6 +146,13 @@ export function WorkoutMediaUploader({
     [IMAGE_MAX_BYTES, VIDEO_MAX_BYTES, media, onUploadComplete, plannedWorkoutId],
   );
 
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      await handleFilesSelected(Array.from(e.target.files ?? []));
+    },
+    [handleFilesSelected],
+  );
+
   const removeMedia = (item: PlannedWorkoutMedia) => {
     // Fire-and-forget: delete the raw file from R2 storage
     fetch("/api/uploads/files", {
@@ -134,9 +166,59 @@ export function WorkoutMediaUploader({
   const disabled = isPending;
   const hasItems = media.length > 0 || pendingPreviews.length > 0;
   const thumbnailSize = compact ? "xsmall" : "small";
+  const isDragActive = dragDepth > 0;
+
+  function handleDragEnter(e: React.DragEvent<HTMLDivElement>) {
+    if (disabled || !e.dataTransfer.types.includes("Files")) {
+      return;
+    }
+
+    e.preventDefault();
+    setDragDepth((value) => value + 1);
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (disabled || !e.dataTransfer.types.includes("Files")) {
+      return;
+    }
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }
+
+  function handleDragLeave(e: React.DragEvent<HTMLDivElement>) {
+    if (disabled || !e.dataTransfer.types.includes("Files")) {
+      return;
+    }
+
+    e.preventDefault();
+    setDragDepth((value) => Math.max(0, value - 1));
+  }
+
+  async function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+    if (disabled || !e.dataTransfer.files.length) {
+      return;
+    }
+
+    e.preventDefault();
+    setDragDepth(0);
+    await handleFilesSelected(Array.from(e.dataTransfer.files));
+  }
 
   return (
-    <div>
+    <div
+      data-testid="workout-media-dropzone"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={(e) => void handleDrop(e)}
+      className={[
+        "border border-dashed border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface)_86%,white_14%)] p-2 transition",
+        isDragActive
+          ? "border-[var(--shell-ink)] bg-[var(--shell-surface-strong)]"
+          : "",
+      ].join(" ")}
+    >
       {hasItems ? (
         <div className={compact ? "mt-1.5 flex flex-wrap gap-1.5" : "mt-2 flex flex-wrap gap-2"}>
           {/* Confirmed uploads */}
@@ -199,7 +281,7 @@ export function WorkoutMediaUploader({
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
+          accept={ACCEPTED_MEDIA_INPUT}
           multiple
           disabled={disabled}
           onChange={handleFileChange}
@@ -209,15 +291,35 @@ export function WorkoutMediaUploader({
         <label
           htmlFor="workout-media-input"
           className={[
+            "flex w-full cursor-pointer items-center justify-between gap-3 border bg-[var(--shell-surface)] px-3 py-3 transition hover:bg-[var(--shell-surface-strong)]",
             compact
-              ? "inline-flex cursor-pointer items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
-              : "inline-flex cursor-pointer items-center gap-2 border-2 border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]",
+              ? "border-[var(--shell-border)]"
+              : "border-2 border-[var(--shell-border)]",
+            isDragActive ? "border-[var(--shell-ink)] bg-[var(--shell-surface-strong)]" : "",
             disabled ? "cursor-not-allowed opacity-60" : "",
           ].join(" ")}
         >
-          <ImageIcon className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
-          {compact ? "Photo or video" : "Add photos / videos"}
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+              {isDragActive ? "Drop media here" : "Drag and drop media"}
+            </p>
+            <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
+              {isDragActive
+                ? "Release to upload"
+                : compact
+                  ? "Click to choose a photo or video"
+                  : "Click to choose files or drop photos and videos here"}
+            </p>
+          </div>
+          {compact ? (
+            <ImageIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+          ) : (
+            <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+          )}
         </label>
+        <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+          {compact ? "Tap or drop to add media" : "This whole area is clickable"}
+        </p>
         {uploadError && (
           <p className="mt-1 text-xs text-red-500">{uploadError}</p>
         )}

@@ -10,6 +10,7 @@ import {
   PaperclipIcon,
   CheckIcon,
   RotateCcwIcon,
+  UploadIcon,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
@@ -118,6 +119,7 @@ export function AIPlannerPanel({
   const [insufficientCredits, setInsufficientCredits] = useState(false);
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [isClearingSession, setIsClearingSession] = useState(false);
+  const [attachmentDragDepth, setAttachmentDragDepth] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -390,11 +392,57 @@ export function AIPlannerPanel({
     }
   }
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
+  async function addAttachedFiles(files: File[]) {
+    if (!files.length) {
+      return;
+    }
+
     const parsed = await Promise.all(files.map(parseFileToContent));
     setAttachedFiles((prev) => [...prev, ...parsed]);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    await addAttachedFiles(Array.from(e.target.files ?? []));
+  }
+
+  const isAttachmentDragActive = attachmentDragDepth > 0;
+
+  function handleAttachmentDragEnter(e: React.DragEvent<HTMLDivElement>) {
+    if (!e.dataTransfer.types.includes("Files")) {
+      return;
+    }
+
+    e.preventDefault();
+    setAttachmentDragDepth((value) => value + 1);
+  }
+
+  function handleAttachmentDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (!e.dataTransfer.types.includes("Files")) {
+      return;
+    }
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }
+
+  function handleAttachmentDragLeave(e: React.DragEvent<HTMLDivElement>) {
+    if (!e.dataTransfer.types.includes("Files")) {
+      return;
+    }
+
+    e.preventDefault();
+    setAttachmentDragDepth((value) => Math.max(0, value - 1));
+  }
+
+  async function handleAttachmentDrop(e: React.DragEvent<HTMLDivElement>) {
+    if (!e.dataTransfer.files.length) {
+      return;
+    }
+
+    e.preventDefault();
+    setAttachmentDragDepth(0);
+    await addAttachedFiles(Array.from(e.dataTransfer.files));
   }
 
   function removeFile(index: number) {
@@ -572,7 +620,38 @@ export function AIPlannerPanel({
       )}
 
       {!hasStarted ? (
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div
+          className={[
+            "flex-1 overflow-y-auto px-4 py-4 transition",
+            isAttachmentDragActive
+              ? "bg-[color-mix(in_srgb,var(--shell-surface)_72%,white_28%)]"
+              : "",
+          ].join(" ")}
+          data-testid="ai-planner-attachment-dropzone"
+          onDragEnter={handleAttachmentDragEnter}
+          onDragOver={handleAttachmentDragOver}
+          onDragLeave={handleAttachmentDragLeave}
+          onDrop={(e) => void handleAttachmentDrop(e)}
+        >
+          <div
+            className={[
+              "mb-4 flex items-center justify-between gap-3 border border-dashed px-3 py-2 transition",
+              isAttachmentDragActive
+                ? "border-[var(--shell-ink)] bg-[var(--shell-surface)]"
+                : "border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface)_86%,white_14%)]",
+            ].join(" ")}
+          >
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+                {isAttachmentDragActive ? "Drop files here" : "Drag and drop attachments"}
+              </p>
+              <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
+                Add notes, spreadsheets, exports, or images for planner context.
+              </p>
+            </div>
+            <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+          </div>
+
           <textarea
             className="w-full resize-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-4 text-sm leading-6 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none"
             rows={5}
@@ -597,6 +676,10 @@ export function AIPlannerPanel({
               ))}
             </div>
           )}
+
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+            {isAttachmentDragActive ? "Release to attach files" : "Tip: you can also drag files anywhere into this area"}
+          </p>
 
           <div className="mt-4 flex items-center gap-2">
             <input
@@ -629,8 +712,33 @@ export function AIPlannerPanel({
           </div>
         </div>
       ) : !isReadyToGenerate ? (
-        <div className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))] px-4 py-3">
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2">
+        <div
+          className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))] px-4 py-3"
+          data-testid="ai-planner-attachment-dropzone"
+          onDragEnter={handleAttachmentDragEnter}
+          onDragOver={handleAttachmentDragOver}
+          onDragLeave={handleAttachmentDragLeave}
+          onDrop={(e) => void handleAttachmentDrop(e)}
+        >
+          <div
+            className={[
+              "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2 transition",
+              isAttachmentDragActive
+                ? "border-dashed border-[var(--shell-ink)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_84%,white_16%)]"
+                : "",
+            ].join(" ")}
+          >
+            <div className="mb-2 flex items-center justify-between gap-3 border border-dashed border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface)_88%,white_12%)] px-2 py-2">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+                  {isAttachmentDragActive ? "Drop files here" : "Drag and drop attachments"}
+                </p>
+                <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
+                  Add context files without leaving the planner.
+                </p>
+              </div>
+              <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+            </div>
             {attachedFiles.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2 px-2 pt-2">
                 {attachedFiles.map((file, i) => (
@@ -642,6 +750,9 @@ export function AIPlannerPanel({
                 ))}
               </div>
             )}
+            <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+              {isAttachmentDragActive ? "Release to attach files" : "Tip: drag files straight into this composer"}
+            </p>
             <div className="mb-2 flex items-center justify-between gap-2 px-2">
               <input
                 ref={fileInputRef}

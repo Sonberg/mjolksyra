@@ -40,6 +40,20 @@ function toInputValue(value: number | null | undefined): string {
   return value == null ? "" : String(value);
 }
 
+function buildDraftFromSet(set: WorkoutSet): SetActualDraft {
+  return {
+    reps: toInputValue(set.actual?.reps ?? set.target?.reps ?? null),
+    weightKg: toInputValue(set.actual?.weightKg ?? set.target?.weightKg ?? null),
+    durationSeconds: toInputValue(
+      set.actual?.durationSeconds ?? set.target?.durationSeconds ?? null,
+    ),
+    distanceMeters: toInputValue(
+      set.actual?.distanceMeters ?? set.target?.distanceMeters ?? null,
+    ),
+    note: set.actual?.note ?? "",
+  };
+}
+
 const inputCls =
   "h-9 w-[4.5rem] border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--shell-accent)]";
 
@@ -54,17 +68,9 @@ export function WorkoutExerciseSetCard({
   onUpdateSetActual,
   onRemoveSetRow,
 }: Props) {
-  const [draft, setDraft] = useState<SetActualDraft>({
-    reps: toInputValue(set.actual?.reps ?? set.target?.reps ?? null),
-    weightKg: toInputValue(set.actual?.weightKg ?? set.target?.weightKg ?? null),
-    durationSeconds: toInputValue(
-      set.actual?.durationSeconds ?? set.target?.durationSeconds ?? null,
-    ),
-    distanceMeters: toInputValue(
-      set.actual?.distanceMeters ?? set.target?.distanceMeters ?? null,
-    ),
-    note: set.actual?.note ?? "",
-  });
+  const [draft, setDraft] = useState<SetActualDraft>(() => buildDraftFromSet(set));
+  const [isEditing, setIsEditing] = useState(false);
+  const visibleDraft = isEditing ? draft : buildDraftFromSet(set);
 
   const commitDraft = useCallback(
     (nextDraft: SetActualDraft) => {
@@ -117,7 +123,11 @@ export function WorkoutExerciseSetCard({
         <input
           type="number"
           min={0}
-          value={isSetsReps ? draft.reps : isDurationSeconds ? draft.durationSeconds : draft.distanceMeters}
+          value={isSetsReps ? visibleDraft.reps : isDurationSeconds ? visibleDraft.durationSeconds : visibleDraft.distanceMeters}
+          onFocus={() => {
+            setDraft(buildDraftFromSet(set));
+            setIsEditing(true);
+          }}
           onChange={(ev) =>
             updateDraft(
               isSetsReps
@@ -127,7 +137,10 @@ export function WorkoutExerciseSetCard({
                   : { distanceMeters: ev.target.value },
             )
           }
-          onBlur={() => commitDraft(draft)}
+          onBlur={() => {
+            setIsEditing(false);
+            commitDraft(draft);
+          }}
           className={inputCls}
           aria-label={
             isSetsReps
@@ -160,9 +173,16 @@ export function WorkoutExerciseSetCard({
             type="number"
             min={0}
             step="0.5"
-            value={draft.weightKg}
+            value={visibleDraft.weightKg}
+            onFocus={() => {
+              setDraft(buildDraftFromSet(set));
+              setIsEditing(true);
+            }}
             onChange={(ev) => updateDraft({ weightKg: ev.target.value })}
-            onBlur={() => commitDraft(draft)}
+            onBlur={() => {
+              setIsEditing(false);
+              commitDraft(draft);
+            }}
             className={inputCls}
             aria-label={`Weight for set ${setIndex + 1}`}
           />
@@ -183,9 +203,16 @@ export function WorkoutExerciseSetCard({
       {isEditable ? (
         <input
           type="text"
-          value={draft.note}
+          value={visibleDraft.note}
+          onFocus={() => {
+            setDraft(buildDraftFromSet(set));
+            setIsEditing(true);
+          }}
           onChange={(ev) => updateDraft({ note: ev.target.value })}
-          onBlur={() => commitDraft(draft)}
+          onBlur={() => {
+            setIsEditing(false);
+            commitDraft(draft);
+          }}
           className="h-9 min-w-0 flex-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-xs text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--shell-accent)]"
           placeholder="Note"
           aria-label={`Note for set ${setIndex + 1}`}

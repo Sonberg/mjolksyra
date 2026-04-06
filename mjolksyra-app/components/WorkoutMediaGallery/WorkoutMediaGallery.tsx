@@ -33,7 +33,7 @@ export function WorkoutMediaGallery({ media, thumbnailSize = "default", thumbnai
   }, [allMedia.length]);
 
   const next = useCallback(() => {
-    setLightboxIndex((i) => (i === null ? null : (i + 1) % allMedia.length));
+    setLightboxIndex((i) => (i === null ? null : (i + 1) % allMedia.length)); 
   }, [allMedia.length]);
 
   if (!media.length) return null;
@@ -42,8 +42,8 @@ export function WorkoutMediaGallery({ media, thumbnailSize = "default", thumbnai
 
   return (
     <>
-      <div className="grid gap-3">
-        <div className="flex flex-wrap gap-2">
+      <div className="grid gap-1">
+        <div className="flex flex-wrap gap-1">
           {allMedia.map((item, idx) => (
             <WorkoutMediaThumbnail
               key={item.url}

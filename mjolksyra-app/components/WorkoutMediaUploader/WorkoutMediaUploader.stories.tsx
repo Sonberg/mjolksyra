@@ -31,6 +31,20 @@ export const Default: Story = {
   render: () => <Controlled initial={[]} />,
 };
 
+export const Compact: Story = {
+  render: () => (
+    <div className="w-[320px] border border-gray-200 p-3">
+      <WorkoutMediaUploader
+        traineeId="trainee-1"
+        plannedWorkoutId="workout-1"
+        media={[]}
+        onUploadComplete={() => {}}
+        compact
+      />
+    </div>
+  ),
+};
+
 export const WithExistingUploads: Story = {
   render: () => (
     <Controlled

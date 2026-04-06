@@ -40,4 +40,27 @@ test.describe("AI Workout Planner", () => {
     await expect(page.getByRole("button", { name: /clear session/i })).toBeVisible();
     await expect(page.getByText("meet-notes.csv")).toBeVisible();
   });
+
+  test("idle panel accepts dragged attachments", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=aiplanpanel--idle",
+    );
+
+    const dataTransfer = await page.evaluateHandle(() => {
+      const transfer = new DataTransfer();
+      transfer.items.add(
+        new File(["goal,phase\nstrength,1"], "block-notes.csv", {
+          type: "text/csv",
+        }),
+      );
+      return transfer;
+    });
+
+    const dropzone = page.getByTestId("ai-planner-attachment-dropzone");
+    await dropzone.dispatchEvent("dragenter", { dataTransfer });
+    await expect(page.getByText("Drop files to attach")).toBeVisible();
+    await dropzone.dispatchEvent("drop", { dataTransfer });
+
+    await expect(page.getByText("block-notes.csv")).toBeVisible();
+  });
 });
