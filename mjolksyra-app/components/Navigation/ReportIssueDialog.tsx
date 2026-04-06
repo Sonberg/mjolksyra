@@ -35,7 +35,7 @@ export function ReportIssueDialog({
     "--shell-border": "var(--shell-border, #d0d0d0)",
     "--shell-ink": "var(--shell-ink, #1b1b1b)",
     "--shell-muted": "var(--shell-muted, #767676)",
-    "--shell-accent": "var(--shell-accent, #60CD18)",
+    "--shell-accent": "var(--shell-accent, #333333)",
   } as CSSProperties;
 
   const pathname = usePathname();

@@ -92,7 +92,7 @@ export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Pr
                         {entry.referenceId ? ` · ${entry.referenceId}` : ""}
                       </p>
                     </div>
-                    <p className={cn("shrink-0 text-xs font-semibold", isPositive ? "text-green-600" : "text-[var(--shell-accent)]")}>
+                    <p className={cn("shrink-0 text-xs font-semibold", isPositive ? "text-foreground" : "text-[var(--shell-accent)]")}>
                       {isPositive ? "+" : ""}{delta}
                     </p>
                   </li>

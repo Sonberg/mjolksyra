@@ -20,7 +20,7 @@ export function HeroIllustration() {
         .hi-ink-s { fill: none; stroke: #1b1b1b; }
         .hi-muted { fill: #767676; }
         .hi-deco { fill: none; stroke: #d0d0d0; }
-        .hi-accent-s { fill: none; stroke: #60CD18; }
+        .hi-accent-s { fill: none; stroke: #333333; }
         .hi-display { font-family: var(--font-display, 'Inter', Arial, sans-serif); }
         .hi-body { font-family: var(--font-body, 'Inter', Arial, sans-serif); }
 
@@ -43,8 +43,8 @@ export function HeroIllustration() {
           <stop offset="1" className="hi-bg-s2" />
         </linearGradient>
         <radialGradient id="hi-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(210 120) rotate(18) scale(430 270)">
-          <stop stopColor="#60CD18" stopOpacity="0.12" />
-          <stop offset="1" stopColor="#60CD18" stopOpacity="0" />
+          <stop stopColor="#333333" stopOpacity="0.08" />
+          <stop offset="1" stopColor="#333333" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="hi-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 780) rotate(-14) scale(500 260)">
           <stop className="hi-glow-s1" />
@@ -92,7 +92,7 @@ export function HeroIllustration() {
       <text x="104" y="524" className="hi-muted hi-body" fontSize="27">Plan sessions for runners and lifters in one workspace.</text>
 
       {/* CTA button */}
-      <rect x="104" y="566" width="292" height="62" className="hi-border" fill="#60CD18" strokeWidth="3" />
+      <rect x="104" y="566" width="292" height="62" className="hi-border" fill="#333333" strokeWidth="3" />
       <text x="140" y="606" className="hi-body" fill="#ffffff" fontSize="31" fontWeight="700">Open Planner</text>
 
       {/* Athletes button */}

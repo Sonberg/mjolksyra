@@ -66,7 +66,7 @@ export default function GlobalError({ error, reset }: Props) {
                 display: "inline-flex",
                 alignItems: "center",
                 border: "1px solid #d0d0d0",
-                background: "#60CD18",
+                background: "#333333",
                 color: "#ffffff",
                 padding: "0.5rem 1rem",
                 fontSize: "0.875rem",

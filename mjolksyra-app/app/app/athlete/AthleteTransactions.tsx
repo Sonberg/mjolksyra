@@ -134,7 +134,7 @@ export function AthleteTransactions({ coach }: Props) {
             {data.transactions.map((t) => {
               const statusColor =
                 t.status === "Succeeded"
-                  ? "text-green-600 dark:text-green-400"
+                  ? "font-semibold text-foreground"
                   : t.status === "Failed"
                     ? "text-red-600 dark:text-red-400"
                     : "text-[var(--shell-muted)]";

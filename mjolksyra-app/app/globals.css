@@ -19,9 +19,9 @@ body {
   --shell-ink: #1b1b1b;
   --shell-border: #d0d0d0;
   --shell-muted: #767676;
-  --shell-accent: #60CD18;
+  --shell-accent: #333333;
   --shell-accent-ink: #ffffff;
-  --shell-accent-hover: #40a010;
+  --shell-accent-hover: #1a1a1a;
 }
 
 .shell-dropdown {
@@ -44,9 +44,9 @@ body {
   --shell-ink: #f2f3f4;
   --shell-border: #3d3d3d;
   --shell-muted: #8a8a8a;
-  --shell-accent: #60CD18;
+  --shell-accent: #d9d9d9;
   --shell-accent-ink: #1b1b1b;
-  --shell-accent-hover: #40a010;
+  --shell-accent-hover: #f2f2f2;
 }
 
 .shell-two-canvas {
@@ -70,9 +70,9 @@ body {
     --shell-ink: #1b1b1b;
     --shell-border: #d0d0d0;
     --shell-muted: #767676;
-    --shell-accent: #60CD18;
+    --shell-accent: #333333;
     --shell-accent-ink: #ffffff;
-    --shell-accent-hover: #40a010;
+    --shell-accent-hover: #1a1a1a;
 
     --background: 210 8% 95%;
     --foreground: 0 0% 11%;
@@ -80,24 +80,24 @@ body {
     --card-foreground: 0 0% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 11%;
-    --primary: 97 66% 45%;
+    --primary: 0 0% 20%;
     --primary-foreground: 0 0% 100%;
     --secondary: 210 5% 91%;
     --secondary-foreground: 0 0% 11%;
     --muted: 210 5% 91%;
     --muted-foreground: 0 0% 46%;
-    --accent: 97 66% 45%;
+    --accent: 0 0% 20%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 82%;
     --input: 0 0% 82%;
-    --ring: 97 66% 45%;
-    --chart-1: 97 66% 45%;
-    --chart-2: 145 100% 15%;
+    --ring: 0 0% 20%;
+    --chart-1: 0 0% 20%;
+    --chart-2: 0 0% 35%;
     --chart-3: 210 8% 60%;
-    --chart-4: 97 40% 65%;
-    --chart-5: 145 60% 35%;
+    --chart-4: 0 0% 60%;
+    --chart-5: 0 0% 25%;
     --radius: var(--mjolksyra-radius-md);
   }
 
@@ -111,9 +111,9 @@ body {
     --shell-ink: #f2f3f4;
     --shell-border: #3d3d3d;
     --shell-muted: #8a8a8a;
-    --shell-accent: #60CD18;
+    --shell-accent: #d9d9d9;
     --shell-accent-ink: #1b1b1b;
-    --shell-accent-hover: #40a010;
+    --shell-accent-hover: #f2f2f2;
 
     --background: 0 0% 11%;
     --foreground: 210 8% 95%;
@@ -121,24 +121,24 @@ body {
     --card-foreground: 210 8% 95%;
     --popover: 0 0% 14%;
     --popover-foreground: 210 8% 95%;
-    --primary: 97 66% 45%;
+    --primary: 0 0% 85%;
     --primary-foreground: 0 0% 11%;
     --secondary: 0 0% 18%;
     --secondary-foreground: 210 8% 95%;
     --muted: 0 0% 18%;
     --muted-foreground: 0 0% 54%;
-    --accent: 97 66% 45%;
+    --accent: 0 0% 85%;
     --accent-foreground: 0 0% 11%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 24%;
     --input: 0 0% 24%;
-    --ring: 97 66% 45%;
-    --chart-1: 97 66% 55%;
-    --chart-2: 145 60% 35%;
+    --ring: 0 0% 85%;
+    --chart-1: 0 0% 85%;
+    --chart-2: 0 0% 65%;
     --chart-3: 210 8% 50%;
-    --chart-4: 97 40% 70%;
-    --chart-5: 145 80% 45%;
+    --chart-4: 0 0% 75%;
+    --chart-5: 0 0% 55%;
   }
 
   :root[data-theme="dark"] {
@@ -148,9 +148,9 @@ body {
     --shell-ink: #f2f3f4;
     --shell-border: #3d3d3d;
     --shell-muted: #8a8a8a;
-    --shell-accent: #60CD18;
+    --shell-accent: #d9d9d9;
     --shell-accent-ink: #1b1b1b;
-    --shell-accent-hover: #40a010;
+    --shell-accent-hover: #f2f2f2;
   }
 }
 
@@ -272,7 +272,7 @@ width ::-webkit-scrollbar {
   --home-accent: var(--shell-accent);
   --home-accent-ink: var(--shell-accent-ink);
   --home-accent-hover: var(--shell-accent-hover);
-  --home-accent-2: #004B1C;
+  --home-accent-2: #3a3a3a;
   background: var(--home-bg);
   color: var(--home-text);
   padding-bottom: 6rem;
@@ -280,20 +280,20 @@ width ::-webkit-scrollbar {
 
 .dark .home-shell,
 [data-theme="dark"] .home-shell {
-  --home-accent-2: #60CD18;
+  --home-accent-2: #c8c8c8;
 }
 
 .home-glow {
   background:
-    radial-gradient(700px 420px at 8% 0%, #60CD1815 0%, transparent 62%),
-    radial-gradient(560px 320px at 92% 12%, #004B1C0a 0%, transparent 68%);
+    radial-gradient(700px 420px at 8% 0%, #33333315 0%, transparent 62%),
+    radial-gradient(560px 320px at 92% 12%, #3333330a 0%, transparent 68%);
 }
 
 .dark .home-glow,
 [data-theme="dark"] .home-glow {
   background:
-    radial-gradient(700px 420px at 8% 0%, #60CD1825 0%, transparent 62%),
-    radial-gradient(560px 320px at 92% 12%, #60CD180a 0%, transparent 68%);
+    radial-gradient(700px 420px at 8% 0%, #33333325 0%, transparent 62%),
+    radial-gradient(560px 320px at 92% 12%, #3333330a 0%, transparent 68%);
 }
 
 @keyframes homeEnter {
