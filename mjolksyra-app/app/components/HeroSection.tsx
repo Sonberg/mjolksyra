@@ -12,22 +12,35 @@ export const HeroSection = () => {
         <div className="mr-auto place-self-center lg:col-span-7">
           <div className="mb-6 inline-flex items-center gap-2 rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--home-text)]">
             <span className="h-1.5 w-1.5 rounded-none bg-[var(--home-accent)]" />
-            Coaching Platform
+            AI-powered coaching platform
           </div>
           <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
             <span className="text-[var(--home-text)]">
-              Build and manage strength training programs for your clients
+              Build and manage strength training programs —{" "}
             </span>
+            <span style={{ color: "var(--home-accent)" }}>with AI</span>
           </h1>
-          <p className="mb-8 max-w-2xl text-[var(--home-muted)] md:text-lg lg:text-xl">
-            Plan workouts, track progression, and give feedback in one place.
-            Built for coaches in strength training, powerlifting, and functional
-            fitness.
+          <p className="mb-6 max-w-2xl text-[var(--home-muted)] md:text-lg lg:text-xl">
+            Generate full programs from a prompt, analyze athlete check-in
+            footage for technique feedback, and coach your clients — all in one
+            place.
           </p>
-          <div className="mb-8 inline-flex items-center rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-4 py-2 text-sm font-medium text-[var(--home-text)]">
-            14-day free trial. Cancel anytime.
+          <div className="mb-8 flex flex-wrap gap-2">
+            {[
+              "AI program generation",
+              "Video technique analysis",
+              "Drag-drop planner",
+              "Coach feedback",
+            ].map((label) => (
+              <span
+                key={label}
+                className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--home-muted)]"
+              >
+                {label}
+              </span>
+            ))}
           </div>
-          <div className="space-y-3 sm:flex sm:space-x-3 sm:space-y-0">
+          <div className="space-y-3 sm:flex sm:space-x-3 sm:space-y-0 sm:items-center">
             {isBeta ? (
               <SignupForm />
             ) : (
@@ -45,6 +58,9 @@ export const HeroSection = () => {
                 >
                   Try live demo
                 </a>
+                <span className="text-sm text-[var(--home-muted)]">
+                  14-day free trial. Cancel anytime.
+                </span>
               </>
             )}
           </div>
