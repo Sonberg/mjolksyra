@@ -1,7 +1,7 @@
 import { ApiClient } from "../client";
 import type {
-  AIPlannerConversationMessage,
-  AIPlannerFileContent,
+  PlannerConversationMessage,
+  PlannerFileContent,
   ClarifyWorkoutPlanSuggestedParams,
   GenerateWorkoutPlanResponse,
 } from "./types";
@@ -10,8 +10,8 @@ type Args = {
   traineeId: string;
   sessionId?: string | null;
   description: string;
-  filesContent: AIPlannerFileContent[];
-  conversationHistory: AIPlannerConversationMessage[];
+  filesContent: PlannerFileContent[];
+  conversationHistory: PlannerConversationMessage[];
   params: ClarifyWorkoutPlanSuggestedParams;
   signal?: AbortSignal;
 };

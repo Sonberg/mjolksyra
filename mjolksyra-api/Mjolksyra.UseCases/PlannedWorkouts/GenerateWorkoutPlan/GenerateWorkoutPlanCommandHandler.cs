@@ -18,7 +18,7 @@ public class GenerateWorkoutPlanCommandHandler(
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
-    IAIPlannerSessionRepository sessionRepository,
+    IPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext) : IRequestHandler<GenerateWorkoutPlanCommand, OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>>
 {
@@ -54,7 +54,7 @@ public class GenerateWorkoutPlanCommandHandler(
 
         var endDate = startDate.AddDays(request.Params.NumberOfWeeks * 7 - 1);
 
-        AIPlannerSession? session = null;
+        PlannerSession? session = null;
         if (request.SessionId.HasValue)
         {
             session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken);
@@ -187,7 +187,7 @@ public class GenerateWorkoutPlanCommandHandler(
                 session.ToolCalls.Add(call);
             }
 
-            session.GenerationResult = new AIPlannerSessionGenerationResult
+            session.GenerationResult = new PlannerSessionGenerationResult
             {
                 WorkoutsCreated = created,
                 Summary = response.Summary,

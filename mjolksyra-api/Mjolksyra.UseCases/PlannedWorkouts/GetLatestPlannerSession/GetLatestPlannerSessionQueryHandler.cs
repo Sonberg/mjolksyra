@@ -2,15 +2,15 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.UserContext;
 
-namespace Mjolksyra.UseCases.PlannedWorkouts.GetLatestAIPlannerSession;
+namespace Mjolksyra.UseCases.PlannedWorkouts.GetLatestPlannerSession;
 
-public class GetLatestAIPlannerSessionQueryHandler(
-    IAIPlannerSessionRepository sessionRepository,
+public class GetLatestPlannerSessionQueryHandler(
+    IPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<GetLatestAIPlannerSessionQuery, GetLatestAIPlannerSessionResponse?>
+    IUserContext userContext) : IRequestHandler<GetLatestPlannerSessionQuery, GetLatestPlannerSessionResponse?>
 {
-    public async Task<GetLatestAIPlannerSessionResponse?> Handle(
-        GetLatestAIPlannerSessionQuery request, CancellationToken cancellationToken)
+    public async Task<GetLatestPlannerSessionResponse?> Handle(
+        GetLatestPlannerSessionQuery request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -29,7 +29,7 @@ public class GetLatestAIPlannerSessionQueryHandler(
             return null;
         }
 
-        return new GetLatestAIPlannerSessionResponse
+        return new GetLatestPlannerSessionResponse
         {
             SessionId = session.Id,
             Description = session.Description,

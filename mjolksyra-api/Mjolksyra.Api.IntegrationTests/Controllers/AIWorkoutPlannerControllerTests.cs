@@ -5,7 +5,7 @@ using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Api.Controllers;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
-using Mjolksyra.UseCases.PlannedWorkouts.DeleteAIPlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannerSession;
 
 namespace Mjolksyra.Api.IntegrationTests.Controllers;
 
@@ -50,7 +50,7 @@ public class AIWorkoutPlannerControllerTests
     [Fact]
     public async Task DeleteSession_WhenAuthorized_ReturnsNoContent()
     {
-        _mediator.Setup(x => x.Send(It.IsAny<DeleteAIPlannerSessionCommand>(), It.IsAny<CancellationToken>()))
+        _mediator.Setup(x => x.Send(It.IsAny<DeletePlannerSessionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         var result = await _sut.DeleteSession(_traineeId, Guid.NewGuid(), CancellationToken.None);
@@ -61,7 +61,7 @@ public class AIWorkoutPlannerControllerTests
     [Fact]
     public async Task DeleteSession_WhenForbidden_ReturnsForbid()
     {
-        _mediator.Setup(x => x.Send(It.IsAny<DeleteAIPlannerSessionCommand>(), It.IsAny<CancellationToken>()))
+        _mediator.Setup(x => x.Send(It.IsAny<DeletePlannerSessionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         var result = await _sut.DeleteSession(_traineeId, Guid.NewGuid(), CancellationToken.None);

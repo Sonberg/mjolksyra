@@ -43,7 +43,7 @@ public interface IMongoDbContext
 
     IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents { get; }
 
-    IMongoCollection<AIPlannerSession> AIPlannerSessions { get; }
+    IMongoCollection<PlannerSession> PlannerSessions { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -88,7 +88,7 @@ public class MongoDbContext : IMongoDbContext
 
     public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
 
-    public IMongoCollection<AIPlannerSession> AIPlannerSessions => Database.GetCollection<AIPlannerSession>("ai-planner-sessions");
+    public IMongoCollection<PlannerSession> PlannerSessions => Database.GetCollection<PlannerSession>("ai-planner-sessions");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

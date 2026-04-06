@@ -14,7 +14,7 @@ public class ClarifyWorkoutPlanQueryHandler(
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
-    IAIPlannerSessionRepository sessionRepository,
+    IPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext) : IRequestHandler<ClarifyWorkoutPlanQuery, ClarifyWorkoutPlanResponse?>
 {
@@ -51,7 +51,7 @@ public class ClarifyWorkoutPlanQueryHandler(
         var now = DateTimeOffset.UtcNow;
 
         // Load existing session or create a new one
-        AIPlannerSession session;
+        PlannerSession session;
         if (request.SessionId.HasValue)
         {
             session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken)
@@ -70,8 +70,8 @@ public class ClarifyWorkoutPlanQueryHandler(
 
         // Sync conversation history from request + new AI turn
         session.ConversationHistory = request.ConversationHistory
-            .Select(m => new AIPlannerSessionMessage { Role = m.Role, Content = m.Content })
-            .Append(new AIPlannerSessionMessage
+            .Select(m => new PlannerSessionMessage { Role = m.Role, Content = m.Content })
+            .Append(new PlannerSessionMessage
             {
                 Role = "assistant",
                 Content = output.Message,
@@ -115,7 +115,7 @@ public class ClarifyWorkoutPlanQueryHandler(
         };
     }
 
-    private static AIPlannerSession CreateSession(Guid traineeId, Guid coachUserId, string description, DateTimeOffset now)
+    private static PlannerSession CreateSession(Guid traineeId, Guid coachUserId, string description, DateTimeOffset now)
         => new()
         {
             Id = Guid.Empty, // signals "not yet persisted"

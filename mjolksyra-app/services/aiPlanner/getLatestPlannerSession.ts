@@ -1,15 +1,15 @@
 import { ApiClient } from "../client";
-import type { LatestAIPlannerSessionResponse } from "./types";
+import type { LatestPlannerSessionResponse } from "./types";
 
 type Args = {
   traineeId: string;
   signal?: AbortSignal;
 };
 
-export async function getLatestAIPlannerSession({
+export async function getLatestPlannerSession({
   traineeId,
   signal,
-}: Args): Promise<LatestAIPlannerSessionResponse | null> {
+}: Args): Promise<LatestPlannerSessionResponse | null> {
   try {
     const response = await ApiClient.get(
       `/api/trainees/${traineeId}/ai-planner/session/latest`,

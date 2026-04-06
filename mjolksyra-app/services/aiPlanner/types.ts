@@ -1,10 +1,10 @@
-export type AIPlannerFileContent = {
+export type PlannerFileContent = {
   name: string;
   type: string;
   content: string;
 };
 
-export type AIPlannerConversationMessage = {
+export type PlannerConversationMessage = {
   role: "user" | "assistant";
   content: string;
 };
@@ -24,16 +24,16 @@ export type ClarifyWorkoutPlanResponse = {
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
 };
 
-export type LatestAIPlannerSessionMessage = {
+export type LatestPlannerSessionMessage = {
   role: "user" | "assistant";
   content: string;
   options: string[];
 };
 
-export type LatestAIPlannerSessionResponse = {
+export type LatestPlannerSessionResponse = {
   sessionId: string;
   description: string;
-  conversationHistory: LatestAIPlannerSessionMessage[];
+  conversationHistory: LatestPlannerSessionMessage[];
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
   generationResult: GenerateWorkoutPlanResponse | null;
 };

@@ -3,11 +3,11 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.PlannedWorkouts.GetLatestAIPlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.GetLatestPlannerSession;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 
-public class GetLatestAIPlannerSessionQueryHandlerTests
+public class GetLatestPlannerSessionQueryHandlerTests
 {
     [Fact]
     public async Task Handle_WhenUserIsNotCoach_ReturnsNull()
@@ -29,14 +29,14 @@ public class GetLatestAIPlannerSessionQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
 
-        var sut = new GetLatestAIPlannerSessionQueryHandler(
+        var sut = new GetLatestPlannerSessionQueryHandler(
             sessionRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new GetLatestAIPlannerSessionQuery
+        var result = await sut.Handle(new GetLatestPlannerSessionQuery
         {
             TraineeId = traineeId,
         }, CancellationToken.None);
@@ -68,10 +68,10 @@ public class GetLatestAIPlannerSessionQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
         sessionRepository
             .Setup(x => x.GetLatestByTrainee(traineeId, userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AIPlannerSession
+            .ReturnsAsync(new PlannerSession
             {
                 Id = sessionId,
                 TraineeId = traineeId,
@@ -79,12 +79,12 @@ public class GetLatestAIPlannerSessionQueryHandlerTests
                 Description = "Strength block",
             });
 
-        var sut = new GetLatestAIPlannerSessionQueryHandler(
+        var sut = new GetLatestPlannerSessionQueryHandler(
             sessionRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new GetLatestAIPlannerSessionQuery
+        var result = await sut.Handle(new GetLatestPlannerSessionQuery
         {
             TraineeId = traineeId,
         }, CancellationToken.None);

@@ -3,7 +3,7 @@ using Mjolksyra.Domain.Database.Common;
 
 namespace Mjolksyra.Domain.Database.Models;
 
-public class AIPlannerSession : IDocument
+public class PlannerSession : IDocument
 {
     public Guid Id { get; set; }
 
@@ -13,20 +13,20 @@ public class AIPlannerSession : IDocument
 
     public required string Description { get; set; }
 
-    public ICollection<AIPlannerSessionMessage> ConversationHistory { get; set; } = [];
+    public ICollection<PlannerSessionMessage> ConversationHistory { get; set; } = [];
 
     public ICollection<WorkoutAnalysisToolCall> ToolCalls { get; set; } = [];
 
     public AIPlannerSuggestedParams? SuggestedParams { get; set; }
 
-    public AIPlannerSessionGenerationResult? GenerationResult { get; set; }
+    public PlannerSessionGenerationResult? GenerationResult { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
-public class AIPlannerSessionMessage
+public class PlannerSessionMessage
 {
     public required string Role { get; set; }
 
@@ -35,7 +35,7 @@ public class AIPlannerSessionMessage
     public ICollection<string> Options { get; set; } = [];
 }
 
-public class AIPlannerSessionGenerationResult
+public class PlannerSessionGenerationResult
 {
     public int WorkoutsCreated { get; set; }
 

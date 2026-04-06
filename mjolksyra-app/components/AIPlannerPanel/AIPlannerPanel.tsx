@@ -6,16 +6,16 @@ import { isAxiosError } from "axios";
 import { SparklesIcon, SendIcon, XIcon, PaperclipIcon, CheckIcon, RotateCcwIcon } from "lucide-react";
 import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
-import { deleteAIPlannerSession } from "@/services/aiPlanner/deleteAIPlannerSession";
+import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
 import { generateWorkoutPlan } from "@/services/aiPlanner/generateWorkoutPlan";
 import { previewWorkoutPlan } from "@/services/aiPlanner/previewWorkoutPlan";
-import { getLatestAIPlannerSession } from "@/services/aiPlanner/getLatestAIPlannerSession";
+import { getLatestPlannerSession } from "@/services/aiPlanner/getLatestPlannerSession";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { WorkoutPlanPreview } from "./WorkoutPlanPreview";
 import type {
-  AIPlannerConversationMessage,
-  AIPlannerFileContent,
+  PlannerConversationMessage,
+  PlannerFileContent,
   ClarifyWorkoutPlanSuggestedParams,
   GenerateWorkoutPlanResponse,
   PreviewWorkoutPlanWorkout,
@@ -28,7 +28,7 @@ type Props = {
     sessionId?: string | null;
     description?: string;
     messages?: Message[];
-    attachedFiles?: AIPlannerFileContent[];
+    attachedFiles?: PlannerFileContent[];
     suggestedParams?: ClarifyWorkoutPlanSuggestedParams | null;
     isReadyToGenerate?: boolean;
     generationResult?: GenerationResult | null;
@@ -46,7 +46,7 @@ type GenerationResult = GenerateWorkoutPlanResponse & { generatedAt: string };
 const ACCEPTED_EXTENSIONS = ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp";
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
-async function parseFileToContent(file: File): Promise<AIPlannerFileContent> {
+async function parseFileToContent(file: File): Promise<PlannerFileContent> {
   if (IMAGE_TYPES.includes(file.type)) {
     return {
       name: file.name,
@@ -78,7 +78,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
   const [sessionId, setSessionId] = useState<string | null>(initialState?.sessionId ?? null);
   const [description, setDescription] = useState(initialState?.description ?? "");
   const [messages, setMessages] = useState<Message[]>(initialState?.messages ?? []);
-  const [attachedFiles, setAttachedFiles] = useState<AIPlannerFileContent[]>(initialState?.attachedFiles ?? []);
+  const [attachedFiles, setAttachedFiles] = useState<PlannerFileContent[]>(initialState?.attachedFiles ?? []);
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
   const [suggestedParams, setSuggestedParams] = useState<ClarifyWorkoutPlanSuggestedParams | null>(
@@ -113,12 +113,12 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
 
     async function clearPersistedSession() {
       try {
-        const session = await getLatestAIPlannerSession({ traineeId });
+        const session = await getLatestPlannerSession({ traineeId });
         if (cancelled || !session) {
           return;
         }
 
-        await deleteAIPlannerSession({ traineeId, sessionId: session.sessionId });
+        await deletePlannerSession({ traineeId, sessionId: session.sessionId });
       } catch {
         // stale session cleanup is best-effort
       } finally {
@@ -141,7 +141,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     }, 50);
   }
 
-  function buildConversationHistory(): AIPlannerConversationMessage[] {
+  function buildConversationHistory(): PlannerConversationMessage[] {
     return messages.map((m) => ({ role: m.role, content: m.content }));
   }
 
@@ -321,7 +321,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     setIsClearingSession(true);
     try {
       if (sessionId) {
-        await deleteAIPlannerSession({ traineeId, sessionId });
+        await deletePlannerSession({ traineeId, sessionId });
       }
       handleReset();
     } catch {

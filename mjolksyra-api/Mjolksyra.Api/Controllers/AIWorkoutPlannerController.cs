@@ -4,9 +4,9 @@ using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
-using Mjolksyra.UseCases.PlannedWorkouts.DeleteAIPlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannerSession;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
-using Mjolksyra.UseCases.PlannedWorkouts.GetLatestAIPlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.GetLatestPlannerSession;
 using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 namespace Mjolksyra.Api.Controllers;
@@ -19,11 +19,11 @@ public class AIWorkoutPlannerController(
     IUserContext userContext) : Controller
 {
     [HttpGet("session/latest")]
-    public async Task<ActionResult<GetLatestAIPlannerSessionResponse>> GetLatestSession(
+    public async Task<ActionResult<GetLatestPlannerSessionResponse>> GetLatestSession(
         Guid traineeId,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetLatestAIPlannerSessionQuery
+        var result = await mediator.Send(new GetLatestPlannerSessionQuery
         {
             TraineeId = traineeId,
         }, cancellationToken);
@@ -83,7 +83,7 @@ public class AIWorkoutPlannerController(
         Guid sessionId,
         CancellationToken cancellationToken)
     {
-        var deleted = await mediator.Send(new DeleteAIPlannerSessionCommand
+        var deleted = await mediator.Send(new DeletePlannerSessionCommand
         {
             TraineeId = traineeId,
             SessionId = sessionId,
@@ -184,9 +184,9 @@ public class ClarifyWorkoutPlanRequest
 
     public required string Description { get; set; }
 
-    public ICollection<AIPlannerFileContentDto> FilesContent { get; set; } = [];
+    public ICollection<PlannerFileContentDto> FilesContent { get; set; } = [];
 
-    public ICollection<AIPlannerConversationMessageDto> ConversationHistory { get; set; } = [];
+    public ICollection<PlannerConversationMessageDto> ConversationHistory { get; set; } = [];
 }
 
 public class GenerateWorkoutPlanRequest
@@ -195,9 +195,9 @@ public class GenerateWorkoutPlanRequest
 
     public required string Description { get; set; }
 
-    public ICollection<AIPlannerFileContentDto> FilesContent { get; set; } = [];
+    public ICollection<PlannerFileContentDto> FilesContent { get; set; } = [];
 
-    public ICollection<AIPlannerConversationMessageDto> ConversationHistory { get; set; } = [];
+    public ICollection<PlannerConversationMessageDto> ConversationHistory { get; set; } = [];
 
     public required GenerateWorkoutPlanParamsDto Params { get; set; }
 }
@@ -215,14 +215,14 @@ public class PreviewWorkoutPlanRequest
 {
     public required string Description { get; set; }
 
-    public ICollection<AIPlannerFileContentDto> FilesContent { get; set; } = [];
+    public ICollection<PlannerFileContentDto> FilesContent { get; set; } = [];
 
-    public ICollection<AIPlannerConversationMessageDto> ConversationHistory { get; set; } = [];
+    public ICollection<PlannerConversationMessageDto> ConversationHistory { get; set; } = [];
 
     public required GenerateWorkoutPlanParamsDto Params { get; set; }
 }
 
-public class AIPlannerFileContentDto
+public class PlannerFileContentDto
 {
     public required string Name { get; set; }
 
@@ -231,7 +231,7 @@ public class AIPlannerFileContentDto
     public required string Content { get; set; }
 }
 
-public class AIPlannerConversationMessageDto
+public class PlannerConversationMessageDto
 {
     public required string Role { get; set; }
 

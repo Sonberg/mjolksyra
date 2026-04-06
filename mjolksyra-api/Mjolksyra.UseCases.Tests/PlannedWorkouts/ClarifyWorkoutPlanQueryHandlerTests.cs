@@ -233,10 +233,10 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
         sessionRepository
             .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AIPlannerSession
+            .ReturnsAsync(new PlannerSession
             {
                 Id = sessionId,
                 TraineeId = traineeId,
@@ -265,7 +265,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<IPlannedWorkoutDeletedPublisher>? deletedPublisher = null,
-        Mock<IAIPlannerSessionRepository>? sessionRepository = null,
+        Mock<IPlannerSessionRepository>? sessionRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
     {
@@ -277,12 +277,12 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [] });
         }
 
-        var sessionRepo = sessionRepository ?? new Mock<IAIPlannerSessionRepository>();
+        var sessionRepo = sessionRepository ?? new Mock<IPlannerSessionRepository>();
         if (sessionRepository is null)
         {
             sessionRepo
-                .Setup(x => x.Create(It.IsAny<AIPlannerSession>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((AIPlannerSession s, CancellationToken _) => s);
+                .Setup(x => x.Create(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((PlannerSession s, CancellationToken _) => s);
         }
 
         return new ClarifyWorkoutPlanQueryHandler(

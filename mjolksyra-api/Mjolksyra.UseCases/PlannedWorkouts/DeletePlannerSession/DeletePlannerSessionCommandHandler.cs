@@ -2,14 +2,14 @@ using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.UserContext;
 
-namespace Mjolksyra.UseCases.PlannedWorkouts.DeleteAIPlannerSession;
+namespace Mjolksyra.UseCases.PlannedWorkouts.DeletePlannerSession;
 
-public class DeleteAIPlannerSessionCommandHandler(
-    IAIPlannerSessionRepository sessionRepository,
+public class DeletePlannerSessionCommandHandler(
+    IPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<DeleteAIPlannerSessionCommand, bool>
+    IUserContext userContext) : IRequestHandler<DeletePlannerSessionCommand, bool>
 {
-    public async Task<bool> Handle(DeleteAIPlannerSessionCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(DeletePlannerSessionCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {

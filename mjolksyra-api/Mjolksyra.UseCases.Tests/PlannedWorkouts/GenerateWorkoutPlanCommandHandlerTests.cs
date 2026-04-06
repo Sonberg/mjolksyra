@@ -165,10 +165,10 @@ public class GenerateWorkoutPlanCommandHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
         sessionRepository
             .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AIPlannerSession
+            .ReturnsAsync(new PlannerSession
             {
                 Id = sessionId,
                 TraineeId = traineeId,
@@ -513,7 +513,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<IPlannedWorkoutDeletedPublisher>? deletedPublisher = null,
-        Mock<IAIPlannerSessionRepository>? sessionRepository = null,
+        Mock<IPlannerSessionRepository>? sessionRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
     {
@@ -532,7 +532,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,
-            (sessionRepository ?? new Mock<IAIPlannerSessionRepository>()).Object,
+            (sessionRepository ?? new Mock<IPlannerSessionRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }

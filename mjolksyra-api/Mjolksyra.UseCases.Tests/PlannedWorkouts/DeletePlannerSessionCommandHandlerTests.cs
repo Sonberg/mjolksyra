@@ -3,11 +3,11 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.PlannedWorkouts.DeleteAIPlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannerSession;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 
-public class DeleteAIPlannerSessionCommandHandlerTests
+public class DeletePlannerSessionCommandHandlerTests
 {
     [Fact]
     public async Task Handle_WhenCoachHasAccess_DeletesSession()
@@ -30,10 +30,10 @@ public class DeleteAIPlannerSessionCommandHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
         sessionRepository
             .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AIPlannerSession
+            .ReturnsAsync(new PlannerSession
             {
                 Id = sessionId,
                 TraineeId = traineeId,
@@ -41,12 +41,12 @@ public class DeleteAIPlannerSessionCommandHandlerTests
                 Description = "Strength block",
             });
 
-        var sut = new DeleteAIPlannerSessionCommandHandler(
+        var sut = new DeletePlannerSessionCommandHandler(
             sessionRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new DeleteAIPlannerSessionCommand
+        var result = await sut.Handle(new DeletePlannerSessionCommand
         {
             TraineeId = traineeId,
             SessionId = sessionId,
@@ -76,14 +76,14 @@ public class DeleteAIPlannerSessionCommandHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
 
-        var sut = new DeleteAIPlannerSessionCommandHandler(
+        var sut = new DeletePlannerSessionCommandHandler(
             sessionRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new DeleteAIPlannerSessionCommand
+        var result = await sut.Handle(new DeletePlannerSessionCommand
         {
             TraineeId = traineeId,
             SessionId = Guid.NewGuid(),
@@ -114,10 +114,10 @@ public class DeleteAIPlannerSessionCommandHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
         sessionRepository
             .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AIPlannerSession
+            .ReturnsAsync(new PlannerSession
             {
                 Id = sessionId,
                 TraineeId = traineeId,
@@ -125,12 +125,12 @@ public class DeleteAIPlannerSessionCommandHandlerTests
                 Description = "Other coach session",
             });
 
-        var sut = new DeleteAIPlannerSessionCommandHandler(
+        var sut = new DeletePlannerSessionCommandHandler(
             sessionRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new DeleteAIPlannerSessionCommand
+        var result = await sut.Handle(new DeletePlannerSessionCommand
         {
             TraineeId = traineeId,
             SessionId = sessionId,
