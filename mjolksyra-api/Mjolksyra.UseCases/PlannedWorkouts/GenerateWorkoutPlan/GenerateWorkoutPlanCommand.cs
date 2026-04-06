@@ -1,9 +1,10 @@
 using MediatR;
 using Mjolksyra.Domain.AI;
+using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
-public class GenerateWorkoutPlanCommand : IRequest<GenerateWorkoutPlanResponse?>
+public class GenerateWorkoutPlanCommand : IRequest<OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>>
 {
     public required Guid TraineeId { get; set; }
 
@@ -37,3 +38,7 @@ public class GenerateWorkoutPlanResponse
 
     public required string DateTo { get; set; }
 }
+
+public record GenerateWorkoutPlanForbidden;
+
+public record GenerateWorkoutPlanInsufficientCredits(string Reason);

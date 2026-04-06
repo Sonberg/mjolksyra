@@ -96,21 +96,22 @@ public class AIWorkoutPlannerController(
             },
         }, cancellationToken);
 
-        if (result is null)
-        {
-            return Forbid();
-        }
-
-        if (await userContext.GetUserId(cancellationToken) is { } userId)
-        {
-            await userEventPublisher.Publish(
-                userId,
-                "planned-workouts.updated",
-                new { traineeId },
-                cancellationToken);
-        }
-
-        return Ok(result);
+        return await result.Match<Task<ActionResult<GenerateWorkoutPlanResponse>>>(
+            async success =>
+            {
+                if (await userContext.GetUserId(cancellationToken) is { } userId)
+                {
+                    await userEventPublisher.Publish(
+                        userId,
+                        "planned-workouts.updated",
+                        new { traineeId },
+                        cancellationToken);
+                }
+                return Ok(success);
+            },
+            _ => Task.FromResult<ActionResult<GenerateWorkoutPlanResponse>>(Forbid()),
+            insufficient => Task.FromResult<ActionResult<GenerateWorkoutPlanResponse>>(
+                UnprocessableEntity(new { error = insufficient.Reason })));
     }
 }
 

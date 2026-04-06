@@ -1,3 +1,4 @@
+using MediatR;
 using Moq;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
@@ -5,14 +6,16 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
+using OneOf;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 
 public class GenerateWorkoutPlanCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_WhenUserNotAuthenticated_ReturnsNull()
+    public async Task Handle_WhenUserNotAuthenticated_ReturnsForbidden()
     {
         var userContext = new Mock<IUserContext>();
         userContext
@@ -23,11 +26,11 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(), CancellationToken.None);
 
-        Assert.Null(result);
+        Assert.True(result.IsT1);
     }
 
     [Fact]
-    public async Task Handle_WhenNotCoach_ReturnsNull()
+    public async Task Handle_WhenNotCoach_ReturnsForbidden()
     {
         var userId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
@@ -52,7 +55,90 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId: traineeId), CancellationToken.None);
 
-        Assert.Null(result);
+        Assert.True(result.IsT1);
+    }
+
+    [Fact]
+    public async Task Handle_WhenInsufficientCredits_ReturnsInsufficientCreditsResult()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT1(new ConsumeCreditsError("Insufficient credits.")));
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+
+        var sut = CreateSut(mediator: mediator, plannerAgent: plannerAgent, traineeRepository: traineeRepository, userContext: userContext);
+
+        var result = await sut.Handle(CreateCommand(traineeId: traineeId), CancellationToken.None);
+
+        Assert.True(result.IsT2);
+        plannerAgent.Verify(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_WhenCreditsConsumed_UsesSessionIdAsReferenceId()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(20, 5)));
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        plannerAgent
+            .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var sut = CreateSut(mediator: mediator, plannerAgent: plannerAgent, traineeRepository: traineeRepository, userContext: userContext);
+
+        await sut.Handle(CreateCommand(traineeId: traineeId, sessionId: sessionId), CancellationToken.None);
+
+        mediator.Verify(x => x.Send(
+            It.Is<ConsumeCreditsCommand>(c =>
+                c.CoachUserId == userId &&
+                c.Action == CreditAction.GenerateWorkoutPlan &&
+                c.ReferenceId == sessionId.ToString()),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -112,8 +198,8 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId: traineeId, conflictStrategy: "Skip"), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(0, result.WorkoutsCreated);
+        Assert.True(result.IsT0);
+        Assert.Equal(0, result.AsT0.WorkoutsCreated);
         plannedWorkoutRepository.Verify(
             x => x.Create(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -180,8 +266,8 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId: traineeId, conflictStrategy: "Replace"), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(1, result.WorkoutsCreated);
+        Assert.True(result.IsT0);
+        Assert.Equal(1, result.AsT0.WorkoutsCreated);
         plannedWorkoutRepository.Verify(
             x => x.Delete(existingId, It.IsAny<CancellationToken>()),
             Times.Once);
@@ -254,8 +340,8 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var result = await sut.Handle(CreateCommand(traineeId: traineeId), CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(2, result.WorkoutsCreated);
+        Assert.True(result.IsT0);
+        Assert.Equal(2, result.AsT0.WorkoutsCreated);
 
         plannedWorkoutRepository.Verify(
             x => x.Create(
@@ -265,6 +351,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
     }
 
     private static GenerateWorkoutPlanCommandHandler CreateSut(
+        Mock<IMediator>? mediator = null,
         Mock<IAIWorkoutPlannerAgent>? plannerAgent = null,
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
@@ -273,7 +360,16 @@ public class GenerateWorkoutPlanCommandHandlerTests
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
     {
+        if (mediator is null)
+        {
+            mediator = new Mock<IMediator>();
+            mediator
+                .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(20, 5)));
+        }
+
         return new GenerateWorkoutPlanCommandHandler(
+            mediator.Object,
             (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
@@ -285,11 +381,13 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
     private static GenerateWorkoutPlanCommand CreateCommand(
         Guid? traineeId = null,
+        Guid? sessionId = null,
         string conflictStrategy = "Skip")
     {
         return new GenerateWorkoutPlanCommand
         {
             TraineeId = traineeId ?? Guid.NewGuid(),
+            SessionId = sessionId,
             Description = "12-week strength program",
             Params = new GenerateWorkoutPlanParams
             {

@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { SparklesIcon, SendIcon, XIcon, PaperclipIcon, CheckIcon, RotateCcwIcon } from "lucide-react";
 import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { generateWorkoutPlan } from "@/services/aiPlanner/generateWorkoutPlan";
 import { getLatestAIPlannerSession } from "@/services/aiPlanner/getLatestAIPlannerSession";
+import { getCreditPricing } from "@/services/coaches/getCreditPricing";
+import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import type {
   AIPlannerConversationMessage,
   AIPlannerFileContent,
@@ -69,8 +73,16 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
   const [isReadyToGenerate, setIsReadyToGenerate] = useState(false);
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null);
   const [userInput, setUserInput] = useState("");
+  const [insufficientCredits, setInsufficientCredits] = useState(false);
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const { data: pricing } = useQuery({
+    queryKey: ["coach-credit-pricing"],
+    queryFn: getCreditPricing,
+  });
+  const generateCost = pricing?.find((p) => p.action === "GenerateWorkoutPlan")?.creditCost ?? null;
   const hasStarted = messages.length > 0 || isLoading;
 
   useEffect(() => {
@@ -220,6 +232,7 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     if (!suggestedParams) return;
 
     setIsLoading(true);
+    setInsufficientCredits(false);
 
     try {
       const result = await generateWorkoutPlan({
@@ -233,8 +246,13 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
 
       setGenerationResult({ ...result, generatedAt: new Date().toISOString() });
       await onGenerated();
-    } catch {
-      setMessages([...messages, { role: "assistant", content: "Generation failed. Please try again." }]);
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 422) {
+        setInsufficientCredits(true);
+        setPurchaseDialogOpen(true);
+      } else {
+        setMessages([...messages, { role: "assistant", content: "Generation failed. Please try again." }]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -379,12 +397,26 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
             {isReadyToGenerate && suggestedParams && !isLoading && (
               <ConfirmCard
                 params={suggestedParams}
+                generateCost={generateCost}
                 onGenerate={handleGenerate}
                 onEdit={() => {
                   setIsReadyToGenerate(false);
                   setSuggestedParams(null);
+                  setInsufficientCredits(false);
                 }}
               />
+            )}
+            {insufficientCredits && (
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-[var(--shell-muted)]">Not enough credits.</p>
+                <button
+                  type="button"
+                  onClick={() => setPurchaseDialogOpen(true)}
+                  className="shrink-0 text-xs font-semibold text-[var(--shell-accent)] underline-offset-2 hover:underline"
+                >
+                  Buy credits
+                </button>
+              </div>
             )}
           </div>
           <div ref={bottomRef} />
@@ -484,17 +516,25 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
           <p className="mt-1.5 text-[10px] text-[var(--shell-muted)]">⌘ + Enter to send</p>
         </div>
       ) : null}
+      <PurchaseCreditsDialog
+        open={purchaseDialogOpen}
+        onOpenChange={(open) => {
+          setPurchaseDialogOpen(open);
+          if (!open) setInsufficientCredits(false);
+        }}
+      />
     </div>
   );
 }
 
 type ConfirmCardProps = {
   params: ClarifyWorkoutPlanSuggestedParams;
+  generateCost: number | null;
   onGenerate: () => void;
   onEdit: () => void;
 };
 
-function ConfirmCard({ params, onGenerate, onEdit }: ConfirmCardProps) {
+function ConfirmCard({ params, generateCost, onGenerate, onEdit }: ConfirmCardProps) {
   return (
     <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
@@ -504,6 +544,9 @@ function ConfirmCard({ params, onGenerate, onEdit }: ConfirmCardProps) {
         <Row label="Start date" value={dayjs(params.startDate).format("ddd, D MMM YYYY")} />
         <Row label="Duration" value={`${params.numberOfWeeks} week${params.numberOfWeeks !== 1 ? "s" : ""}`} />
         <Row label="Conflicts" value={params.conflictStrategy} />
+        {generateCost !== null && (
+          <Row label="Credit cost" value={`${generateCost} credits`} />
+        )}
       </dl>
       <div className="mt-3 flex items-center gap-2">
         <button
@@ -512,7 +555,7 @@ function ConfirmCard({ params, onGenerate, onEdit }: ConfirmCardProps) {
           onClick={onGenerate}
         >
           <SparklesIcon className="h-3 w-3" />
-          Generate
+          Generate{generateCost ? ` (${generateCost} cr)` : ""}
         </button>
         <button
           type="button"

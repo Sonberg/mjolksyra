@@ -5,34 +5,49 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.ConsumeCredits;
+using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
 public class GenerateWorkoutPlanCommandHandler(
+    IMediator mediator,
     IAIWorkoutPlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IAIPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<GenerateWorkoutPlanCommand, GenerateWorkoutPlanResponse?>
+    IUserContext userContext) : IRequestHandler<GenerateWorkoutPlanCommand, OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>>
 {
-    public async Task<GenerateWorkoutPlanResponse?> Handle(GenerateWorkoutPlanCommand request, CancellationToken cancellationToken)
+    public async Task<OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>> Handle(GenerateWorkoutPlanCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
-            return null;
+            return new GenerateWorkoutPlanForbidden();
         }
 
         var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
         if (trainee is null || trainee.CoachUserId != userId)
         {
-            return null;
+            return new GenerateWorkoutPlanForbidden();
         }
 
         if (!DateOnly.TryParse(request.Params.StartDate, out var startDate))
         {
-            return null;
+            return new GenerateWorkoutPlanForbidden();
+        }
+
+        var consumeResult = await mediator.Send(
+            new ConsumeCreditsCommand(
+                userId,
+                CreditAction.GenerateWorkoutPlan,
+                request.SessionId?.ToString()),
+            cancellationToken);
+
+        if (consumeResult.IsT1)
+        {
+            return new GenerateWorkoutPlanInsufficientCredits(consumeResult.AsT1.Reason);
         }
 
         var endDate = startDate.AddDays(request.Params.NumberOfWeeks * 7 - 1);

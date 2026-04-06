@@ -111,6 +111,10 @@ export function formatActionName(action: string) {
     return "Workout media analysis";
   }
 
+  if (action === "GenerateWorkoutPlan") {
+    return "AI workout plan generation";
+  }
+
   return action;
 }
 
