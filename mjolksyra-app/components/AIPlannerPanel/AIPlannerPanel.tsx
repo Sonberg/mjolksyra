@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { SparklesIcon, SendIcon, XIcon, PaperclipIcon, CheckIcon, RotateCcwIcon } from "lucide-react";
+import {
+  SparklesIcon,
+  SendIcon,
+  XIcon,
+  PaperclipIcon,
+  CheckIcon,
+  RotateCcwIcon,
+} from "lucide-react";
 import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
@@ -57,7 +64,8 @@ async function parseFileToContent(file: File): Promise<PlannerFileContent> {
 
   if (
     file.name.endsWith(".xlsx") ||
-    file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    file.type ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   ) {
     const { read, utils } = await import("xlsx");
     const buffer = await file.arrayBuffer();
@@ -74,19 +82,37 @@ async function parseFileToContent(file: File): Promise<PlannerFileContent> {
   return { name: file.name, type: file.type || "text", content: text };
 }
 
-export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) {
-  const [sessionId, setSessionId] = useState<string | null>(initialState?.sessionId ?? null);
-  const [description, setDescription] = useState(initialState?.description ?? "");
-  const [messages, setMessages] = useState<Message[]>(initialState?.messages ?? []);
-  const [attachedFiles, setAttachedFiles] = useState<PlannerFileContent[]>(initialState?.attachedFiles ?? []);
+export function AIPlannerPanel({
+  traineeId,
+  onGenerated,
+  initialState,
+}: Props) {
+  const [sessionId, setSessionId] = useState<string | null>(
+    initialState?.sessionId ?? null,
+  );
+  const [description, setDescription] = useState(
+    initialState?.description ?? "",
+  );
+  const [messages, setMessages] = useState<Message[]>(
+    initialState?.messages ?? [],
+  );
+  const [attachedFiles, setAttachedFiles] = useState<PlannerFileContent[]>(
+    initialState?.attachedFiles ?? [],
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
-  const [suggestedParams, setSuggestedParams] = useState<ClarifyWorkoutPlanSuggestedParams | null>(
-    initialState?.suggestedParams ?? null,
+  const [suggestedParams, setSuggestedParams] =
+    useState<ClarifyWorkoutPlanSuggestedParams | null>(
+      initialState?.suggestedParams ?? null,
+    );
+  const [isReadyToGenerate, setIsReadyToGenerate] = useState(
+    initialState?.isReadyToGenerate ?? false,
   );
-  const [isReadyToGenerate, setIsReadyToGenerate] = useState(initialState?.isReadyToGenerate ?? false);
-  const [generationResult, setGenerationResult] = useState<GenerationResult | null>(initialState?.generationResult ?? null);
-  const [previewData, setPreviewData] = useState<PreviewWorkoutPlanWorkout[] | null>(null);
+  const [generationResult, setGenerationResult] =
+    useState<GenerationResult | null>(initialState?.generationResult ?? null);
+  const [previewData, setPreviewData] = useState<
+    PreviewWorkoutPlanWorkout[] | null
+  >(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [insufficientCredits, setInsufficientCredits] = useState(false);
@@ -99,9 +125,15 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     queryKey: ["coach-credit-pricing"],
     queryFn: getCreditPricing,
   });
-  const generateCost = pricing?.find((p) => p.action === "GenerateWorkoutPlan")?.creditCost ?? null;
+  const generateCost =
+    pricing?.find((p) => p.action === "GenerateWorkoutPlan")?.creditCost ??
+    null;
   const hasStarted = messages.length > 0 || isLoading;
-  const hasSessionDraft = hasStarted || attachedFiles.length > 0 || !!description.trim() || !!generationResult;
+  const hasSessionDraft =
+    hasStarted ||
+    attachedFiles.length > 0 ||
+    !!description.trim() ||
+    !!generationResult;
 
   useEffect(() => {
     if (initialState) {
@@ -180,7 +212,13 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
         await onGenerated();
       }
     } catch {
-      setMessages([...newMessages, { role: "assistant", content: "Something went wrong. Please try again." }]);
+      setMessages([
+        ...newMessages,
+        {
+          role: "assistant",
+          content: "Something went wrong. Please try again.",
+        },
+      ]);
     } finally {
       setIsLoading(false);
       scrollToBottom();
@@ -212,7 +250,10 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
         sessionId,
         description,
         filesContent: attachedFiles,
-        conversationHistory: newMessages.map((m) => ({ role: m.role, content: m.content })),
+        conversationHistory: newMessages.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
       });
 
       setSessionId(response.sessionId);
@@ -232,7 +273,13 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
         await onGenerated();
       }
     } catch {
-      setMessages([...newMessages, { role: "assistant", content: "Something went wrong. Please try again." }]);
+      setMessages([
+        ...newMessages,
+        {
+          role: "assistant",
+          content: "Something went wrong. Please try again.",
+        },
+      ]);
     } finally {
       setIsLoading(false);
       scrollToBottom();
@@ -287,7 +334,13 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
         setInsufficientCredits(true);
         setPurchaseDialogOpen(true);
       } else {
-        setMessages([...messages, { role: "assistant", content: "Generation failed. Please try again." }]);
+        setMessages([
+          ...messages,
+          {
+            role: "assistant",
+            content: "Generation failed. Please try again.",
+          },
+        ]);
       }
     } finally {
       setIsLoading(false);
@@ -327,7 +380,10 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     } catch {
       setMessages((current) => [
         ...current,
-        { role: "assistant", content: "Couldn't clear this session right now. Please try again." },
+        {
+          role: "assistant",
+          content: "Couldn't clear this session right now. Please try again.",
+        },
       ]);
     } finally {
       setIsClearingSession(false);
@@ -348,11 +404,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
   if (isBootstrapping) {
     return (
       <div className="flex h-full items-center justify-center">
-        <span className="flex gap-1">
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:0ms]" />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:150ms]" />
-          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:300ms]" />
-        </span>
+        <LoadingDots />
       </div>
     );
   }
@@ -371,14 +423,21 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
 
   if (generationResult) {
     return (
-      <div className="flex h-full flex-col p-4">
-        <div className="flex items-start gap-3 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-accent)]">
+      <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(255,255,255,0.03),transparent)] p-4">
+        <div className="flex items-start gap-3 border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
             <CheckIcon className="h-3.5 w-3.5 text-[var(--shell-accent-ink)]" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-[var(--shell-ink)]">Program generated</p>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">{generationResult.summary}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              Planner complete
+            </p>
+            <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
+              Program generated
+            </p>
+            <p className="mt-1 text-sm text-[var(--shell-muted)]">
+              {generationResult.summary}
+            </p>
             <p className="mt-1 text-xs text-[var(--shell-muted)]">
               {dayjs(generationResult.dateFrom).format("MMM D")}
               {" — "}
@@ -386,14 +445,15 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
             </p>
           </div>
         </div>
-        <p className="mt-3 text-xs text-[var(--shell-muted)]">
+        <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
           Workouts were added as drafts. Review them in the{" "}
-          <span className="font-semibold text-[var(--shell-ink)]">Changes</span> tab, then publish when ready.
+          <span className="font-semibold text-[var(--shell-ink)]">Changes</span>{" "}
+          tab, then publish when ready.
         </p>
         <button
           type="button"
           disabled={isClearingSession}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+          className="mt-4 inline-flex items-center gap-1.5 self-start border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
           onClick={() => void handleClearSession()}
         >
           <RotateCcwIcon className="h-3 w-3" />
@@ -405,20 +465,24 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {/* Header */}
-      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+      <div className="border-b border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent)] px-4 py-3">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              AI Planner
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
+                AI planner
+              </p>
+            </div>
+            <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
+              Build the next block with guided prompts
             </p>
           </div>
           {hasSessionDraft && (
             <button
               type="button"
               disabled={isLoading || isClearingSession}
-              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => void handleClearSession()}
             >
               <RotateCcwIcon className="h-3 w-3" />
@@ -427,44 +491,39 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
           )}
         </div>
         {!hasStarted && (
-          <p className="mt-1 text-sm text-[var(--shell-muted)]">
-            Describe the program you want to create. Upload files or images for additional context.
+          <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
+            Describe the training goal, upload context, and let the planner
+            guide you toward a clean draft before generation.
           </p>
         )}
       </div>
 
-      {/* Chat area */}
       {hasStarted && (
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-          <div className="flex flex-col gap-3">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)] px-4 py-4">
+          <div className="flex min-h-full flex-col justify-end gap-3">
             {messages.map((message, index) => {
               const isLastAi =
                 message.role === "assistant" &&
                 index === messages.findLastIndex((m) => m.role === "assistant");
               const showOptions =
-                isLastAi && message.options?.length && !isLoading && !isReadyToGenerate;
+                isLastAi &&
+                message.options?.length &&
+                !isLoading &&
+                !isReadyToGenerate;
 
               return (
                 <div key={index} className="flex flex-col gap-1.5">
-                  <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={`max-w-[85%] rounded-none border px-3 py-2 text-sm leading-relaxed ${
-                        message.role === "user"
-                          ? "border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]"
-                          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
-                      }`}
-                    >
-                      {message.content}
-                    </div>
-                  </div>
+                  <PlannerBubble role={message.role}>
+                    {message.content}
+                  </PlannerBubble>
                   {showOptions && (
-                    <div className="flex flex-wrap gap-1.5 pl-1">
+                    <div className="flex flex-wrap gap-2 pl-1">
                       {message.options!.map((option) => (
                         <button
                           key={option}
                           type="button"
                           onClick={() => void handleOptionSelect(option)}
-                          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-xs font-medium text-[var(--shell-ink)] transition hover:border-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
+                          className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)] transition hover:border-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
                         >
                           {option}
                         </button>
@@ -476,12 +535,8 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
             })}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2">
-                  <span className="flex gap-1">
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:0ms]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:150ms]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:300ms]" />
-                  </span>
+                <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+                  <LoadingDots />
                 </div>
               </div>
             )}
@@ -498,8 +553,10 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
               />
             )}
             {insufficientCredits && (
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-[var(--shell-muted)]">Not enough credits.</p>
+              <div className="flex items-center justify-between gap-3 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+                <p className="text-xs text-[var(--shell-muted)]">
+                  Not enough credits.
+                </p>
                 <button
                   type="button"
                   onClick={() => setPurchaseDialogOpen(true)}
@@ -514,13 +571,12 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
         </div>
       )}
 
-      {/* Input area */}
       {!hasStarted ? (
-        <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           <textarea
-            className="w-full resize-none rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2.5 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none"
-            rows={4}
-            placeholder="e.g. 12-week strength block for a powerlifter, 3 days/week with progressive overload on squat, bench, and deadlift…"
+            className="w-full resize-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-4 text-sm leading-6 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none"
+            rows={5}
+            placeholder="e.g. 12-week strength block for a powerlifter, 3 days/week with progressive overload on squat, bench, and deadlift..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => {
@@ -530,28 +586,19 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
             }}
           />
 
-          {/* File chips */}
           {attachedFiles.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-3 flex flex-wrap gap-2">
               {attachedFiles.map((file, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[10px] text-[var(--shell-muted)]"
-                >
-                  {file.name}
-                  <button
-                    type="button"
-                    onClick={() => removeFile(i)}
-                    className="ml-0.5 hover:text-[var(--shell-ink)]"
-                  >
-                    <XIcon className="h-2.5 w-2.5" />
-                  </button>
-                </span>
+                <AttachmentPill
+                  key={`${file.name}-${i}`}
+                  fileName={file.name}
+                  onRemove={() => removeFile(i)}
+                />
               ))}
             </div>
           )}
 
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-4 flex items-center gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -560,89 +607,86 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
               multiple
               onChange={handleFileChange}
             />
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <PaperclipIcon className="h-3 w-3" />
-              Attach
-            </button>
-            <button
-              type="button"
-              disabled={!description.trim() || isLoading}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={() => void handleSendInitial()}
-            >
-              <SendIcon className="h-3 w-3" />
-              Start
-            </button>
+            <div className="flex gap-4 justify-end">
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <PaperclipIcon className="h-3 w-3" />
+                Attach context
+              </button>
+              <button
+                type="button"
+                disabled={!description.trim() || isLoading}
+                className="ml-auto inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => void handleSendInitial()}
+              >
+                <SendIcon className="h-3 w-3" />
+                Start planner
+              </button>
+            </div>
           </div>
         </div>
       ) : !isReadyToGenerate ? (
-        <div className="border-t border-[var(--shell-border)] px-4 py-3">
-          {attachedFiles.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-1.5">
-              {attachedFiles.map((file, i) => (
-                <span
-                  key={`${file.name}-${i}`}
-                  className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[10px] text-[var(--shell-muted)]"
-                >
-                  {file.name}
-                  <button
-                    type="button"
-                    onClick={() => removeFile(i)}
-                    className="ml-0.5 hover:text-[var(--shell-ink)]"
-                    aria-label={`Remove attachment ${file.name}`}
-                  >
-                    <XIcon className="h-2.5 w-2.5" />
-                  </button>
-                </span>
-              ))}
+        <div className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))] px-4 py-3">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2">
+            {attachedFiles.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2 px-2 pt-2">
+                {attachedFiles.map((file, i) => (
+                  <AttachmentPill
+                    key={`${file.name}-${i}`}
+                    fileName={file.name}
+                    onRemove={() => removeFile(i)}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="mb-2 flex items-center justify-between gap-2 px-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept={ACCEPTED_EXTENSIONS}
+                multiple
+                onChange={handleFileChange}
+              />
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <PaperclipIcon className="h-3 w-3" />
+                Attach
+              </button>
+              <span className="text-[10px] font-medium text-[var(--shell-muted)]">
+                Cmd/Ctrl + Enter to send
+              </span>
             </div>
-          )}
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept={ACCEPTED_EXTENSIONS}
-              multiple
-              onChange={handleFileChange}
-            />
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <PaperclipIcon className="h-3 w-3" />
-              Attach
-            </button>
+            <div className="flex items-end gap-2">
+              <textarea
+                className="min-h-[44px] flex-1 resize-none border border-transparent bg-transparent px-4 py-2.5 text-sm leading-6 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-border)] focus:bg-[var(--shell-surface)] focus:outline-none"
+                rows={2}
+                placeholder="Reply with the next detail..."
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    void handleSendFollowUp();
+                  }
+                }}
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                disabled={!userInput.trim() || isLoading}
+                className="flex h-11 w-11 shrink-0 items-center justify-center border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => void handleSendFollowUp()}
+              >
+                <SendIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-end gap-2">
-            <textarea
-              className="min-h-[36px] flex-1 resize-none rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none"
-              rows={2}
-              placeholder="Reply…"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                  void handleSendFollowUp();
-                }
-              }}
-              disabled={isLoading}
-            />
-            <button
-              type="button"
-              disabled={!userInput.trim() || isLoading}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={() => void handleSendFollowUp()}
-            >
-              <SendIcon className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <p className="mt-1.5 text-[10px] text-[var(--shell-muted)]">⌘ + Enter to send</p>
         </div>
       ) : null}
       <PurchaseCreditsDialog
@@ -663,22 +707,33 @@ type ConfirmCardProps = {
   onEdit: () => void;
 };
 
-function ConfirmCard({ params, isPreviewLoading, onPreview, onEdit }: ConfirmCardProps) {
+function ConfirmCard({
+  params,
+  isPreviewLoading,
+  onPreview,
+  onEdit,
+}: ConfirmCardProps) {
   return (
-    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
+    <div className="border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
         Ready to generate
       </p>
-      <dl className="mt-2 space-y-1 text-sm">
-        <Row label="Start date" value={dayjs(params.startDate).format("ddd, D MMM YYYY")} />
-        <Row label="Duration" value={`${params.numberOfWeeks} week${params.numberOfWeeks !== 1 ? "s" : ""}`} />
+      <dl className="mt-3 space-y-2 text-sm">
+        <Row
+          label="Start date"
+          value={dayjs(params.startDate).format("ddd, D MMM YYYY")}
+        />
+        <Row
+          label="Duration"
+          value={`${params.numberOfWeeks} week${params.numberOfWeeks !== 1 ? "s" : ""}`}
+        />
         <Row label="Conflicts" value={params.conflictStrategy} />
       </dl>
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-4 flex items-center gap-2">
         <button
           type="button"
           disabled={isPreviewLoading}
-          className="inline-flex items-center gap-1.5 rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onPreview}
         >
           <SparklesIcon className="h-3 w-3" />
@@ -687,7 +742,7 @@ function ConfirmCard({ params, isPreviewLoading, onPreview, onEdit }: ConfirmCar
         <button
           type="button"
           disabled={isPreviewLoading}
-          className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onEdit}
         >
           Edit
@@ -703,5 +758,72 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="text-[var(--shell-muted)]">{label}</dt>
       <dd className="font-medium text-[var(--shell-ink)]">{value}</dd>
     </div>
+  );
+}
+
+function AttachmentPill({
+  fileName,
+  onRemove,
+}: {
+  fileName: string;
+  onRemove: () => void;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1 text-[10px] font-medium text-[var(--shell-muted)]">
+      {fileName}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="transition hover:text-[var(--shell-ink)]"
+        aria-label={`Remove attachment ${fileName}`}
+      >
+        <XIcon className="h-3 w-3" />
+      </button>
+    </span>
+  );
+}
+
+function PlannerBubble({
+  role,
+  children,
+}: {
+  role: Message["role"];
+  children: ReactNode;
+}) {
+  const isUser = role === "user";
+
+  return (
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+      <div className="max-w-[88%] sm:max-w-[82%]">
+        <div
+          className={
+            isUser
+              ? "mb-1 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
+              : "mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
+          }
+        >
+          {isUser ? "Coach" : "Planner"}
+        </div>
+        <div
+          className={
+            isUser
+              ? "border border-[var(--shell-accent)]/30 bg-[color-mix(in_srgb,var(--shell-accent)_16%,var(--shell-surface)_84%)] px-4 py-3 text-sm leading-6 text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+              : "border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]"
+          }
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingDots() {
+  return (
+    <span className="flex gap-1">
+      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:0ms]" />
+      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:150ms]" />
+      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:300ms]" />
+    </span>
   );
 }

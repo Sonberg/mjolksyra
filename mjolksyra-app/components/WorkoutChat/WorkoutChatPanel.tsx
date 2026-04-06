@@ -92,54 +92,82 @@ export function WorkoutChatPanel({
       className="flex h-full flex-col overflow-hidden"
       data-testid="workout-chat-panel"
     >
-      <div className="border-b border-[var(--shell-border)] px-4 py-3">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
-          Chat
-        </p>
-        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          {viewerMode === "athlete"
-            ? `Ask your ${counterpartLabel} questions, share reflections and upload media from your workout.`
-            : `Communicate with your ${counterpartLabel}, ask questions and give feedback on their workout.`}{" "}
-          Messages are visible to both parties and can be edited.
-        </p>
+      <div className="border-b border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent)] px-4 py-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
+              Conversation
+            </p>
+            <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
+              {viewerMode === "coach" ? "Athlete chat" : "Coach chat"}
+            </p>
+          </div>
+          <span className="shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+            Shared thread
+          </span>
+        </div>
       </div>
 
       <div
-        className="flex-1 space-y-3 overflow-y-auto px-3 py-4 sm:px-4"
+        className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)] px-3 py-4 sm:px-4"
         data-testid="workout-chat-messages"
       >
-        {chatMessages.isLoading ? (
-          <p className="text-sm text-[var(--shell-muted)]">
-            Loading messages...
-          </p>
-        ) : null}
+        <div className="flex min-h-full flex-col justify-end">
+          {chatMessages.isLoading ? (
+            <div className="space-y-3">
+              {[0, 1, 2].map((index) => (
+                <div
+                  key={index}
+                  className={`flex ${index === 1 ? "justify-end" : "justify-start"}`}
+                >
+                  <div className="w-[78%] max-w-[320px] rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+                    <div className="h-2.5 w-24 animate-pulse rounded bg-[var(--shell-border)]" />
+                    <div className="mt-2 h-2.5 w-full animate-pulse rounded bg-[var(--shell-border)]" />
+                    <div className="mt-1.5 h-2.5 w-3/4 animate-pulse rounded bg-[var(--shell-border)]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
 
-        {!chatMessages.isLoading && (chatMessages.data?.length ?? 0) === 0 ? (
-          <p className="text-sm text-[var(--shell-muted)]">No messages yet.</p>
-        ) : null}
+          {!chatMessages.isLoading && (chatMessages.data?.length ?? 0) === 0 ? (
+            <div className="mx-auto my-6 max-w-[320px] border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-5 text-center">
+              <p className="text-sm font-semibold text-[var(--shell-ink)]">
+                Start the conversation
+              </p>
+              <p className="mt-1 text-xs leading-5 text-[var(--shell-muted)]">
+                {viewerMode === "athlete"
+                  ? `Ask your ${counterpartLabel.toLowerCase()} questions, share reflections, or upload media from this workout.`
+                  : `Use this thread to coach your ${counterpartLabel.toLowerCase()} and keep workout feedback in one place.`}
+              </p>
+            </div>
+          ) : null}
 
-        {(chatMessages.data ?? []).map((chatMessage) => {
-          return (
-            <WorkoutChatMessageItem
-              key={chatMessage.id}
-              chatMessage={chatMessage}
-              viewerMode={viewerMode}
-              editingMessageId={editingMessageId}
-              editingMessageBody={editingMessageBody}
-              isEditPending={editMessage.isPending}
-              onEditMessageBodyChange={setEditingMessageBody}
-              onStartEditing={(messageId, messageBody) => {
-                setEditingMessageId(messageId);
-                setEditingMessageBody(messageBody);
-              }}
-              onCancelEditing={() => {
-                setEditingMessageId(null);
-                setEditingMessageBody("");
-              }}
-              onSaveEditing={() => editMessage.mutate()}
-            />
-          );
-        })}
+          <div className="space-y-2.5">
+            {(chatMessages.data ?? []).map((chatMessage) => {
+              return (
+                <WorkoutChatMessageItem
+                  key={chatMessage.id}
+                  chatMessage={chatMessage}
+                  viewerMode={viewerMode}
+                  editingMessageId={editingMessageId}
+                  editingMessageBody={editingMessageBody}
+                  isEditPending={editMessage.isPending}
+                  onEditMessageBodyChange={setEditingMessageBody}
+                  onStartEditing={(messageId, messageBody) => {
+                    setEditingMessageId(messageId);
+                    setEditingMessageBody(messageBody);
+                  }}
+                  onCancelEditing={() => {
+                    setEditingMessageId(null);
+                    setEditingMessageBody("");
+                  }}
+                  onSaveEditing={() => editMessage.mutate()}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <WorkoutChatComposer

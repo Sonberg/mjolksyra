@@ -29,32 +29,49 @@ export function WorkoutChatMessageItem({
     (viewerMode === "athlete" && chatMessage.role === "Athlete") ||
     (viewerMode === "coach" && chatMessage.role === "Coach");
   const roleLabel = chatMessage.role === "Athlete" ? "Athlete" : "Coach";
+  const hasMessage = chatMessage.message.trim().length > 0;
+  const hasMedia = chatMessage.media.length > 0;
 
   return (
     <article
       className={isSelf ? "flex justify-end" : "flex justify-start"}
     >
-      <div className="max-w-[88%] sm:max-w-[76%]">
+      <div
+        className={
+          isSelf
+            ? "flex max-w-[88%] flex-col items-end sm:max-w-[76%]"
+            : "flex max-w-[88%] flex-col items-start sm:max-w-[76%]"
+        }
+      >
         <div
           className={
             isSelf
-              ? "rounded-2xl rounded-br-md border border-[var(--shell-accent)]/80 bg-[var(--shell-accent)] px-3 py-2.5 text-[var(--shell-accent-ink)]"
-              : "rounded-2xl rounded-bl-md border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2.5 text-[var(--shell-ink)]"
+              ? "mb-1 flex justify-end text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
+              : "mb-1 flex justify-start text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
           }
         >
-          {editingMessageId === chatMessage.id ? (
+          {roleLabel}
+        </div>
+        {editingMessageId === chatMessage.id ? (
+          <div
+            className={
+              isSelf
+                ? "inline-flex max-w-full flex-col bg-[color-mix(in_srgb,var(--shell-accent)_16%,var(--shell-surface)_84%)] px-3 py-2 text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+                : "inline-flex max-w-full flex-col  bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] px-3 py-2 text-[var(--shell-ink)]"
+            }
+          >
             <div className="space-y-2">
               <textarea
                 value={editingMessageBody}
                 onChange={(e) => onEditMessageBodyChange(e.target.value)}
                 rows={3}
-                className="w-full resize-y rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
+                className="w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
               />
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={onCancelEditing}
-                  className="rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-ink)]"
+                  className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1 text-[11px] font-semibold text-[var(--shell-ink)]"
                 >
                   Cancel
                 </button>
@@ -62,35 +79,50 @@ export function WorkoutChatMessageItem({
                   type="button"
                   disabled={isEditPending || editingMessageBody.trim().length === 0}
                   onClick={onSaveEditing}
-                  className="rounded-lg border border-transparent bg-[var(--shell-ink)] px-2 py-1 text-[11px] font-semibold text-[var(--shell-surface)] disabled:opacity-60"
+                  className="border border-transparent bg-[var(--shell-ink)] px-3 py-1 text-[11px] font-semibold text-[var(--shell-surface)] disabled:opacity-60"
                 >
                   {isEditPending ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>
-          ) : chatMessage.message.trim().length > 0 ? (
-            <p className="whitespace-pre-wrap break-words text-sm font-medium leading-6">
+          </div>
+        ) : null}
+        {editingMessageId !== chatMessage.id && hasMessage ? (
+          <div
+            className={
+              isSelf
+                ? "inline-flex max-w-full bg-[color-mix(in_srgb,var(--shell-accent)_16%,var(--shell-surface)_84%)] px-3 py-2 text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+                : "inline-flex max-w-full bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] px-3 py-2 text-[var(--shell-ink)]"
+            }
+          >
+            <p className="whitespace-pre-wrap break-words text-sm leading-6">
               {chatMessage.message}
             </p>
-          ) : null}
-          {chatMessage.media.length > 0 ? (
-            <div className={chatMessage.message.trim().length > 0 ? "mt-2" : ""}>
-              <WorkoutMediaGallery
-                media={chatMessage.media}
-                thumbnailSize="small"
-                thumbnailClassName="rounded-xl border-white/35 shadow-sm"
-              />
-            </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
+        {editingMessageId !== chatMessage.id && hasMedia ? (
+          <div
+            className={
+              isSelf
+                ? "mt-2 inline-flex max-w-full text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+                : "mt-2 inline-flex max-w-full  text-[var(--shell-ink)]"
+            }
+          >
+            <WorkoutMediaGallery
+              media={chatMessage.media}
+              thumbnailSize="small"
+              thumbnailClassName="border-white/20 shadow-sm"
+            />
+          </div>
+        ) : null}
         <p
           className={
             isSelf
-              ? "mt-2 text-right text-xs font-medium text-[var(--shell-muted)]"
-              : "mt-2 text-xs font-medium text-[var(--shell-muted)]"
+              ? "mt-2 text-right text-[11px] text-[var(--shell-muted)]"
+              : "mt-2 text-[11px] text-[var(--shell-muted)]"
           }
         >
-          {roleLabel} · {dayjs(chatMessage.createdAt).format("HH:mm")}
+          {dayjs(chatMessage.createdAt).format("HH:mm")}
           {dayjs(chatMessage.modifiedAt).isAfter(dayjs(chatMessage.createdAt)) ? " · edited" : ""}
         </p>
         {isSelf && editingMessageId !== chatMessage.id ? (
@@ -98,7 +130,7 @@ export function WorkoutChatMessageItem({
             <button
               type="button"
               onClick={() => onStartEditing(chatMessage.id, chatMessage.message)}
-              className="text-[11px] font-semibold text-[var(--shell-muted)] underline-offset-2 transition hover:text-[var(--shell-ink)] hover:underline"
+              className="rounded-full px-2 py-1 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
             >
               Edit
             </button>
