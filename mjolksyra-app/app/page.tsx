@@ -5,6 +5,7 @@ import { HeroSection } from "./components/HeroSection";
 import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { FeatureDemosSection } from "./components/FeatureDemosSection";
+import { AIFeaturesSection } from "./components/AIFeaturesSection";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { CalculatorSection } from "./components/CalculatorSection";
 import { BlockBuilderPreviewSection } from "./components/BlockBuilderPreviewSection";
@@ -51,6 +52,7 @@ export default async function Home() {
         <AudienceSection />
         <FeaturesSection />
         <FeatureDemosSection />
+        <AIFeaturesSection />
         <MediaUploadSection />
         <BenefitsSection plans={plans} />
         <CalculatorSection plansOverride={plans} />
