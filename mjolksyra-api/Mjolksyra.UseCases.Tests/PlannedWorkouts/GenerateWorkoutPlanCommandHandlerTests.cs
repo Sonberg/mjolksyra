@@ -334,6 +334,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
     {
         var userId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
+        var exerciseId = Guid.NewGuid();
 
         var userContext = new Mock<IUserContext>();
         userContext
@@ -358,6 +359,19 @@ public class GenerateWorkoutPlanCommandHandlerTests
         plannedWorkoutRepository
             .Setup(x => x.Create(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PlannedWorkout w, CancellationToken _) => w);
+
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.Search("Bench Press", It.IsAny<ICollection<ExerciseSport>>(), It.IsAny<ICollection<ExerciseLevel>>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new Exercise
+                {
+                    Id = exerciseId,
+                    Name = "Bench Press",
+                    Type = Domain.Database.Models.ExerciseType.SetsReps,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                },
+            ]);
 
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
         plannerAgent
@@ -388,6 +402,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
         var sut = CreateSut(
             plannerAgent: plannerAgent,
             plannedWorkoutRepository: plannedWorkoutRepository,
+            exerciseRepository: exerciseRepository,
             traineeRepository: traineeRepository,
             userContext: userContext);
 
@@ -398,9 +413,97 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         plannedWorkoutRepository.Verify(
             x => x.Create(
-                It.Is<PlannedWorkout>(w => w.Exercises.All(e => !e.IsPublished)),
+                It.Is<PlannedWorkout>(w => w.Exercises.All(e =>
+                    !e.IsPublished &&
+                    e.AddedBy == ExerciseAddedBy.Coach &&
+                    (e.Name != "Bench Press" || e.ExerciseId == exerciseId))),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task Handle_WhenGeneratedExerciseMissing_CreatesCoachOwnedExercise()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        Exercise? createdExercise = null;
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [] });
+        plannedWorkoutRepository
+            .Setup(x => x.Create(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PlannedWorkout w, CancellationToken _) => w);
+
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.Search("Tempo Goblet Squat", It.IsAny<ICollection<ExerciseSport>>(), It.IsAny<ICollection<ExerciseLevel>>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Exercise>());
+        exerciseRepository
+            .Setup(x => x.Create(It.IsAny<Exercise>(), It.IsAny<CancellationToken>()))
+            .Callback<Exercise, CancellationToken>((exercise, _) => createdExercise = exercise)
+            .ReturnsAsync((Exercise exercise, CancellationToken _) => exercise);
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        plannerAgent
+            .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new AIPlannerWorkoutOutput
+                {
+                    PlannedAt = "2026-04-14",
+                    Name = "Lower Body",
+                    Exercises =
+                    [
+                        new AIPlannerExerciseOutput
+                        {
+                            Name = "Tempo Goblet Squat",
+                            PrescriptionType = "SetsReps",
+                            Sets = [new AIPlannerSetOutput { Reps = 8, WeightKg = 24 }],
+                        },
+                    ],
+                },
+            ]);
+
+        var sut = CreateSut(
+            plannerAgent: plannerAgent,
+            plannedWorkoutRepository: plannedWorkoutRepository,
+            exerciseRepository: exerciseRepository,
+            traineeRepository: traineeRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(CreateCommand(traineeId: traineeId), CancellationToken.None);
+
+        Assert.True(result.IsT0);
+        Assert.NotNull(createdExercise);
+        Assert.Equal("Tempo Goblet Squat", createdExercise!.Name);
+        Assert.Equal(Domain.Database.Models.ExerciseType.SetsReps, createdExercise.Type);
+        Assert.Equal(userId, createdExercise.CreatedBy);
+        plannedWorkoutRepository.Verify(
+            x => x.Create(
+                It.Is<PlannedWorkout>(w =>
+                    w.Exercises.Any(e =>
+                        e.Name == "Tempo Goblet Squat" &&
+                        e.ExerciseId == createdExercise.Id &&
+                        e.AddedBy == ExerciseAddedBy.Coach)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static GenerateWorkoutPlanCommandHandler CreateSut(

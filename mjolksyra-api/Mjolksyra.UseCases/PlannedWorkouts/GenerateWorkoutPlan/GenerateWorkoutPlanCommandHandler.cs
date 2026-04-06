@@ -123,6 +123,7 @@ public class GenerateWorkoutPlanCommandHandler(
             : new Dictionary<DateOnly, PlannedWorkout?>();
 
         var created = 0;
+        var resolvedExercises = new Dictionary<string, Exercise>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var workoutOutput in workoutOutputs)
         {
@@ -139,7 +140,12 @@ public class GenerateWorkoutPlanCommandHandler(
             if (strategy == "Append" && existingByDate.TryGetValue(plannedAt, out var existingWorkout) && existingWorkout is not null)
             {
                 var mergedExercises = existingWorkout.Exercises.ToList();
-                mergedExercises.AddRange(MapExercises(workoutOutput.Exercises, isPublished: false));
+                mergedExercises.AddRange(await MapExercises(
+                    workoutOutput.Exercises,
+                    isPublished: false,
+                    createdByUserId: userId,
+                    resolvedExercises: resolvedExercises,
+                    cancellationToken: cancellationToken));
                 existingWorkout.Exercises = mergedExercises;
                 await plannedWorkoutRepository.Update(existingWorkout, cancellationToken);
                 created++;
@@ -153,7 +159,12 @@ public class GenerateWorkoutPlanCommandHandler(
                 Name = workoutOutput.Name,
                 Note = workoutOutput.Note,
                 PlannedAt = plannedAt,
-                Exercises = MapExercises(workoutOutput.Exercises, isPublished: false),
+                Exercises = await MapExercises(
+                    workoutOutput.Exercises,
+                    isPublished: false,
+                    createdByUserId: userId,
+                    resolvedExercises: resolvedExercises,
+                    cancellationToken: cancellationToken),
                 CreatedAt = DateTimeOffset.UtcNow,
             }, cancellationToken);
 
@@ -211,10 +222,16 @@ public class GenerateWorkoutPlanCommandHandler(
             .ToDictionary(g => g.Key, g => g.FirstOrDefault());
     }
 
-    private static List<PlannedExercise> MapExercises(
-        ICollection<AIPlannerExerciseOutput> exercises, bool isPublished)
+    private async Task<List<PlannedExercise>> MapExercises(
+        ICollection<AIPlannerExerciseOutput> exercises,
+        bool isPublished,
+        Guid createdByUserId,
+        IDictionary<string, Exercise> resolvedExercises,
+        CancellationToken cancellationToken)
     {
-        return exercises.Select(e =>
+        var plannedExercises = new List<PlannedExercise>(exercises.Count);
+
+        foreach (var e in exercises)
         {
             var prescriptionType = e.PrescriptionType switch
             {
@@ -225,14 +242,21 @@ public class GenerateWorkoutPlanCommandHandler(
             };
 
             var hasPrescription = e.Sets.Count > 0;
+            var resolvedExercise = await ResolveExerciseAsync(
+                e.Name,
+                prescriptionType,
+                createdByUserId,
+                resolvedExercises,
+                cancellationToken);
 
-            return new PlannedExercise
+            plannedExercises.Add(new PlannedExercise
             {
                 Id = Guid.NewGuid(),
-                ExerciseId = null,
+                ExerciseId = resolvedExercise.Id,
                 Name = e.Name,
                 Note = e.Note,
                 IsPublished = isPublished,
+                AddedBy = ExerciseAddedBy.Coach,
                 Prescription = hasPrescription ? new ExercisePrescription
                 {
                     Type = prescriptionType,
@@ -249,7 +273,45 @@ public class GenerateWorkoutPlanCommandHandler(
                         Actual = null,
                     }).ToList(),
                 } : null,
-            };
-        }).ToList();
+            });
+        }
+
+        return plannedExercises;
+    }
+
+    private async Task<Exercise> ResolveExerciseAsync(
+        string exerciseName,
+        ExerciseType exerciseType,
+        Guid createdByUserId,
+        IDictionary<string, Exercise> resolvedExercises,
+        CancellationToken cancellationToken)
+    {
+        var normalizedName = exerciseName.Trim();
+        if (resolvedExercises.TryGetValue(normalizedName, out var cached))
+        {
+            return cached;
+        }
+
+        var existing = await exerciseRepository.Search(normalizedName, [], [], null, cancellationToken);
+        var resolved = existing.FirstOrDefault(x =>
+                           string.Equals(x.Name.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase) &&
+                           x.Type == exerciseType)
+                       ?? existing.FirstOrDefault(x =>
+                           string.Equals(x.Name.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+
+        if (resolved is null)
+        {
+            resolved = await exerciseRepository.Create(new Exercise
+            {
+                Id = Guid.NewGuid(),
+                Name = normalizedName,
+                Type = exerciseType,
+                CreatedBy = createdByUserId,
+                CreatedAt = DateTimeOffset.UtcNow,
+            }, cancellationToken);
+        }
+
+        resolvedExercises[normalizedName] = resolved;
+        return resolved;
     }
 }
