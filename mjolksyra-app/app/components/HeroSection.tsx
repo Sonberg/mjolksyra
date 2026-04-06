@@ -54,7 +54,7 @@ export const HeroSection = () => {
                 />
                 <a
                   href="#planner-demo"
-                  className="inline-flex items-center justify-center rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-8 py-4 text-lg font-semibold text-[var(--home-text)] transition hover:bg-[var(--home-surface-strong)]"
+                  className="inline-flex items-center justify-center rounded-none px-2 py-4 text-sm font-medium text-[var(--home-muted)] underline-offset-4 hover:underline transition"
                 >
                   Try live demo
                 </a>
