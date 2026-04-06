@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { MessageSquareShareIcon } from "lucide-react";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { analyzeWorkoutMedia } from "@/services/plannedWorkouts/analyzeWorkoutMedia";
 import { getLatestWorkoutMediaAnalysis } from "@/services/plannedWorkouts/getLatestWorkoutMediaAnalysis";
+import { addPlannedWorkoutChatMessage } from "@/services/plannedWorkouts/addPlannedWorkoutChatMessage";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
+import { WorkoutMediaAnalysis } from "@/services/plannedWorkouts/type";
 
 type Props = {
   traineeId: string;
@@ -81,6 +84,31 @@ function WorkoutAnalysisTrigger({
   );
 }
 
+function buildAnalysisShareMessage(analysis: WorkoutMediaAnalysis) {
+  const sections = [
+    `AI workout analysis`,
+    "",
+    `Summary: ${analysis.summary}`,
+  ];
+
+  if (analysis.keyFindings.length > 0) {
+    sections.push("", "Key findings:");
+    sections.push(...analysis.keyFindings.map((item) => `- ${item}`));
+  }
+
+  if (analysis.techniqueRisks.length > 0) {
+    sections.push("", "Technique risks:");
+    sections.push(...analysis.techniqueRisks.map((item) => `- ${item}`));
+  }
+
+  if (analysis.coachSuggestions.length > 0) {
+    sections.push("", "Coach suggestions:");
+    sections.push(...analysis.coachSuggestions.map((item) => `- ${item}`));
+  }
+
+  return sections.join("\n");
+}
+
 export function WorkoutAnalysisSection({
   traineeId,
   plannedWorkoutId,
@@ -151,6 +179,7 @@ export function WorkoutAnalysisSection({
 export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
   const queryClient = useQueryClient();
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState<string | null>(null);
 
   const analyze = useMutation({
     mutationFn: async (text: string) =>
@@ -166,6 +195,41 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
     },
   });
 
+  const latestAnalysis = useQuery({
+    queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
+    queryFn: ({ signal }) =>
+      getLatestWorkoutMediaAnalysis({
+        traineeId,
+        plannedWorkoutId,
+        signal,
+      }),
+  });
+
+  const shareToChat = useMutation({
+    mutationFn: async () => {
+      const analysis = latestAnalysis.data;
+      if (!analysis) {
+        throw new Error("No analysis available to share.");
+      }
+
+      return addPlannedWorkoutChatMessage({
+        traineeId,
+        plannedWorkoutId,
+        message: {
+          message: buildAnalysisShareMessage(analysis),
+          mediaUrls: [],
+          role: "Coach",
+        },
+      });
+    },
+    onSuccess: async () => {
+      setShareSuccess("Shared in workout chat.");
+      await queryClient.invalidateQueries({
+        queryKey: ["planned-workout-chat", traineeId, plannedWorkoutId],
+      });
+    },
+  });
+
   const isInsufficientCredits =
     analyze.isError &&
     analyze.error instanceof AxiosError &&
@@ -177,6 +241,18 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
     }
   }, [isInsufficientCredits]);
 
+  useEffect(() => {
+    if (!shareSuccess) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShareSuccess(null);
+    }, 2500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [shareSuccess]);
+
   return (
     <div className="space-y-4">
       <WorkoutAnalysisSection
@@ -184,6 +260,30 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
         plannedWorkoutId={plannedWorkoutId}
         isPending={analyze.isPending}
       />
+
+      {latestAnalysis.data ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--shell-border)] pt-3">
+          <p className="text-xs text-[var(--shell-muted)]">
+            Share this analysis directly in the athlete chat for this workout.
+          </p>
+          <div className="flex items-center gap-2">
+            {shareSuccess ? (
+              <span className="text-xs font-semibold text-[var(--shell-accent)]">
+                {shareSuccess}
+              </span>
+            ) : null}
+            <button
+              type="button"
+              disabled={shareToChat.isPending}
+              onClick={() => shareToChat.mutate()}
+              className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-[11px] font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
+            >
+              <MessageSquareShareIcon className="h-3.5 w-3.5" />
+              {shareToChat.isPending ? "Sharing..." : "Share in chat"}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {analyze.isError ? (
         <AnalysisError
