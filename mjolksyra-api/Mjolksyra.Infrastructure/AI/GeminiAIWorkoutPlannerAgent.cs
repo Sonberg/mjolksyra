@@ -36,6 +36,8 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                 $"ISO week numbers: week 1 starts on the first Monday of the year. Always convert dates to YYYY-MM-DD.\n\n" +
                 $"Before asking questions, use GetUpcomingWorkouts to check the next 6 weeks of scheduled workouts. " +
                 $"This tells you what conflicts exist and shows training frequency — use this context in your response.\n\n" +
+                $"If the coach asks to remove or delete upcoming workouts, first use GetUpcomingWorkouts to confirm how many workouts would be affected. " +
+                $"Ask for explicit confirmation before deleting anything. Once the coach clearly confirms, call RemoveUpcomingWorkouts and then explain exactly what was removed.\n\n" +
                 $"You need to gather: (1) start date, (2) number of weeks, (3) conflict strategy (Skip/Replace/Append) if conflicts exist. " +
                 $"Ask ONE focused question at a time. If the coach already answered something, do not ask again. " +
                 $"When you have all information, set isReadyToGenerate to true and include suggestedParams.\n\n" +
@@ -126,7 +128,13 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             [Description("Max number of workouts to return (1–50). Use 42 to cover 6 weeks at 7 days/week.")] int count = 42)
             => await dispatcher.GetUpcomingWorkoutsAsync(after_date, count, ct);
 
-        return [AIFunctionFactory.Create(GetUpcomingWorkouts)];
+        [Description("Deletes upcoming workouts on or after a given date. Only use after the coach has explicitly confirmed the deletion.")]
+        async Task<string> RemoveUpcomingWorkouts(
+            [Description("ISO 8601 date (YYYY-MM-DD). Delete workouts from this date onwards.")] string after_date,
+            [Description("Max number of workouts to delete (1–500).")] int count = 100)
+            => await dispatcher.RemoveUpcomingWorkoutsAsync(after_date, count, ct);
+
+        return [AIFunctionFactory.Create(GetUpcomingWorkouts), AIFunctionFactory.Create(RemoveUpcomingWorkouts)];
     }
 
     private static AIFunction[] BuildGenerateTools(IAIPlannerToolDispatcher dispatcher, CancellationToken ct)

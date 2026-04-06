@@ -19,6 +19,7 @@ export type ClarifyWorkoutPlanResponse = {
   sessionId: string;
   message: string;
   isReadyToGenerate: boolean;
+  workoutsChanged: boolean;
   options: string[];
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
 };

@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using OneOf;
 
@@ -16,6 +17,7 @@ public class GenerateWorkoutPlanCommandHandler(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
+    IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
     IAIPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext) : IRequestHandler<GenerateWorkoutPlanCommand, OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>>
@@ -56,6 +58,7 @@ public class GenerateWorkoutPlanCommandHandler(
             plannedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
+            plannedWorkoutDeletedPublisher,
             request.TraineeId);
 
         var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);

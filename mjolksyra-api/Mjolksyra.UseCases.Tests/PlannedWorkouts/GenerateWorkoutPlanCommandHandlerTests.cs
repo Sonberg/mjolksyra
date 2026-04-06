@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
@@ -356,6 +357,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
+        Mock<IPlannedWorkoutDeletedPublisher>? deletedPublisher = null,
         Mock<IAIPlannerSessionRepository>? sessionRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
@@ -374,6 +376,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
+            (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,
             (sessionRepository ?? new Mock<IAIPlannerSessionRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object);

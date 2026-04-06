@@ -4,6 +4,7 @@ using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
+using Mjolksyra.UseCases.PlannedWorkouts.DeleteAIPlannerSession;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.GetLatestAIPlannerSession;
 
@@ -63,7 +64,31 @@ public class AIWorkoutPlannerController(
             return Forbid();
         }
 
+        if (result.WorkoutsChanged && await userContext.GetUserId(cancellationToken) is { } userId)
+        {
+            await userEventPublisher.Publish(
+                userId,
+                "planned-workouts.updated",
+                new { traineeId },
+                cancellationToken);
+        }
+
         return Ok(result);
+    }
+
+    [HttpDelete("session/{sessionId:guid}")]
+    public async Task<ActionResult> DeleteSession(
+        Guid traineeId,
+        Guid sessionId,
+        CancellationToken cancellationToken)
+    {
+        var deleted = await mediator.Send(new DeleteAIPlannerSessionCommand
+        {
+            TraineeId = traineeId,
+            SessionId = sessionId,
+        }, cancellationToken);
+
+        return deleted ? NoContent() : Forbid();
     }
 
     [HttpPost("generate")]

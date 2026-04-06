@@ -25,15 +25,19 @@ test.describe("AI Workout Planner", () => {
       "http://localhost:6006/iframe.html?id=aiplanpanel--ready-to-generate",
     );
 
-    const textarea = page.getByPlaceholder(/describe the program/i);
-    await textarea.fill("12-week powerlifting program, 3 days/week");
-
-    const startButton = page.getByRole("button", { name: /start/i });
-    await startButton.click();
-
     await expect(page.getByText("Ready to generate")).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("12 weeks")).toBeVisible();
     await expect(page.getByRole("button", { name: /generate/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /edit/i })).toBeVisible();
+  });
+
+  test("started session shows attach and clear session actions", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=aiplanpanel--started-session",
+    );
+
+    await expect(page.getByRole("button", { name: /attach/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /clear session/i })).toBeVisible();
+    await expect(page.getByText("meet-notes.csv")).toBeVisible();
   });
 });

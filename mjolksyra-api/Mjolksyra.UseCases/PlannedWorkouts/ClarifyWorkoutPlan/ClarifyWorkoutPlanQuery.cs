@@ -22,6 +22,8 @@ public class ClarifyWorkoutPlanResponse
 
     public bool IsReadyToGenerate { get; set; }
 
+    public bool WorkoutsChanged { get; set; }
+
     public ClarifyWorkoutPlanSuggestedParams? SuggestedParams { get; set; }
 
     public ICollection<string> Options { get; set; } = [];

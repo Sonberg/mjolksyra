@@ -10,5 +10,7 @@ public interface IAIPlannerSessionRepository
 
     Task<AIPlannerSession?> GetLatestByTrainee(Guid traineeId, CancellationToken ct);
 
+    Task Delete(Guid sessionId, CancellationToken ct);
+
     Task Update(AIPlannerSession session, CancellationToken ct);
 }

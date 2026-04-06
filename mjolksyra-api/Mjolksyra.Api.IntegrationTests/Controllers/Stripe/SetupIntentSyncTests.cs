@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using MediatR;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Api.Controllers.Stripe;
 using Mjolksyra.Domain.Database;
@@ -17,14 +18,16 @@ public class SetupIntentSyncTests
         IUserContext userContext,
         IUserRepository userRepository,
         ITraineeRepository traineeRepository,
-        IUserEventPublisher? userEvents = null)
+        IUserEventPublisher? userEvents = null,
+        IMediator? mediator = null)
     {
         return new SetupIntentController(
             stripeClient,
             userContext,
             userRepository,
             traineeRepository,
-            userEvents ?? Mock.Of<IUserEventPublisher>());
+            userEvents ?? Mock.Of<IUserEventPublisher>(),
+            mediator ?? Mock.Of<IMediator>());
     }
 
     private static User BuildAthleteUser(Guid id, string customerId = "cus_test") => new()

@@ -2,6 +2,7 @@ using MediatR;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
@@ -12,6 +13,7 @@ public class ClarifyWorkoutPlanQueryHandler(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
+    IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
     IAIPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext) : IRequestHandler<ClarifyWorkoutPlanQuery, ClarifyWorkoutPlanResponse?>
@@ -32,6 +34,7 @@ public class ClarifyWorkoutPlanQueryHandler(
             plannedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
+            plannedWorkoutDeletedPublisher,
             request.TraineeId);
 
         var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
@@ -94,6 +97,7 @@ public class ClarifyWorkoutPlanQueryHandler(
             SessionId = session.Id,
             Message = output.Message,
             IsReadyToGenerate = output.IsReadyToGenerate,
+            WorkoutsChanged = loggingDispatcher.WorkoutsChanged || output.WorkoutsChanged,
             Options = output.Options,
             SuggestedParams = output.SuggestedParams is null ? null : new ClarifyWorkoutPlanSuggestedParams
             {

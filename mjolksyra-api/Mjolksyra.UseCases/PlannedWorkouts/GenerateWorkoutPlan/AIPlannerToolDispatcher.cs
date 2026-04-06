@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
@@ -13,6 +14,7 @@ public class AIPlannerToolDispatcher(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
+    IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
     Guid traineeId) : IAIPlannerToolDispatcher
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -59,6 +61,50 @@ public class AIPlannerToolDispatcher(
         }).ToList();
 
         return JsonSerializer.Serialize(entries, JsonOptions);
+    }
+
+    public async Task<string> RemoveUpcomingWorkoutsAsync(string afterDate, int count, CancellationToken ct)
+    {
+        count = Math.Clamp(count, 1, 500);
+        var fromDate = DateOnly.TryParse(afterDate, out var parsed) ? parsed : DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var workouts = await plannedWorkoutRepository.Get(new PlannedWorkoutCursor
+        {
+            TraineeId = traineeId,
+            FromDate = fromDate,
+            ToDate = fromDate.AddYears(2),
+            SortBy = ["plannedAt"],
+            Order = SortOrder.Asc,
+            DraftOnly = false,
+            CompletedOnly = null,
+            Size = count,
+            Page = 0,
+        }, ct);
+
+        var removed = new List<RemovedWorkoutEntry>();
+
+        foreach (var workout in workouts.Data)
+        {
+            await plannedWorkoutRepository.Delete(workout.Id, ct);
+            await plannedWorkoutDeletedPublisher.Publish(new PlannedWorkoutDeletedMessage
+            {
+                Workout = workout,
+            }, ct);
+
+            removed.Add(new RemovedWorkoutEntry
+            {
+                Id = workout.Id,
+                Date = workout.PlannedAt.ToString("yyyy-MM-dd"),
+                Name = workout.Name,
+            });
+        }
+
+        return JsonSerializer.Serialize(new RemoveUpcomingWorkoutsResult
+        {
+            RemovedCount = removed.Count,
+            AfterDate = fromDate.ToString("yyyy-MM-dd"),
+            Workouts = removed,
+        }, JsonOptions);
     }
 
     public async Task<string> GetRecentWorkoutAnalysesAsync(int count, CancellationToken ct)
@@ -123,5 +169,23 @@ public class AIPlannerToolDispatcher(
         public string Name { get; set; } = string.Empty;
 
         public string Type { get; set; } = string.Empty;
+    }
+
+    private class RemoveUpcomingWorkoutsResult
+    {
+        public int RemovedCount { get; set; }
+
+        public string AfterDate { get; set; } = string.Empty;
+
+        public List<RemovedWorkoutEntry> Workouts { get; set; } = [];
+    }
+
+    private class RemovedWorkoutEntry
+    {
+        public Guid Id { get; set; }
+
+        public string Date { get; set; } = string.Empty;
+
+        public string? Name { get; set; }
     }
 }

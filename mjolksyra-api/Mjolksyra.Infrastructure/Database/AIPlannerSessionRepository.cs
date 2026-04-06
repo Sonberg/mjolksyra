@@ -27,6 +27,11 @@ public class AIPlannerSessionRepository(IMongoDbContext context) : IAIPlannerSes
             .FirstOrDefaultAsync(ct);
     }
 
+    public async Task Delete(Guid sessionId, CancellationToken ct)
+    {
+        await context.AIPlannerSessions.DeleteOneAsync(x => x.Id == sessionId, ct);
+    }
+
     public async Task Update(AIPlannerSession session, CancellationToken ct)
     {
         await context.AIPlannerSessions.ReplaceOneAsync(

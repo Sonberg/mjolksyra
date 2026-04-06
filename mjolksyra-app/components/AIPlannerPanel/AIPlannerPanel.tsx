@@ -6,6 +6,7 @@ import { isAxiosError } from "axios";
 import { SparklesIcon, SendIcon, XIcon, PaperclipIcon, CheckIcon, RotateCcwIcon } from "lucide-react";
 import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
+import { deleteAIPlannerSession } from "@/services/aiPlanner/deleteAIPlannerSession";
 import { generateWorkoutPlan } from "@/services/aiPlanner/generateWorkoutPlan";
 import { getLatestAIPlannerSession } from "@/services/aiPlanner/getLatestAIPlannerSession";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
@@ -21,6 +22,15 @@ import type {
 type Props = {
   traineeId: string;
   onGenerated: () => Promise<unknown>;
+  initialState?: {
+    sessionId?: string | null;
+    description?: string;
+    messages?: Message[];
+    attachedFiles?: AIPlannerFileContent[];
+    suggestedParams?: ClarifyWorkoutPlanSuggestedParams | null;
+    isReadyToGenerate?: boolean;
+    generationResult?: GenerationResult | null;
+  };
 };
 
 type Message = {
@@ -62,19 +72,22 @@ async function parseFileToContent(file: File): Promise<AIPlannerFileContent> {
   return { name: file.name, type: file.type || "text", content: text };
 }
 
-export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [description, setDescription] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [attachedFiles, setAttachedFiles] = useState<AIPlannerFileContent[]>([]);
+export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) {
+  const [sessionId, setSessionId] = useState<string | null>(initialState?.sessionId ?? null);
+  const [description, setDescription] = useState(initialState?.description ?? "");
+  const [messages, setMessages] = useState<Message[]>(initialState?.messages ?? []);
+  const [attachedFiles, setAttachedFiles] = useState<AIPlannerFileContent[]>(initialState?.attachedFiles ?? []);
   const [isLoading, setIsLoading] = useState(false);
-  const [isRestoringSession, setIsRestoringSession] = useState(true);
-  const [suggestedParams, setSuggestedParams] = useState<ClarifyWorkoutPlanSuggestedParams | null>(null);
-  const [isReadyToGenerate, setIsReadyToGenerate] = useState(false);
-  const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null);
+  const [isRestoringSession, setIsRestoringSession] = useState(!initialState);
+  const [suggestedParams, setSuggestedParams] = useState<ClarifyWorkoutPlanSuggestedParams | null>(
+    initialState?.suggestedParams ?? null,
+  );
+  const [isReadyToGenerate, setIsReadyToGenerate] = useState(initialState?.isReadyToGenerate ?? false);
+  const [generationResult, setGenerationResult] = useState<GenerationResult | null>(initialState?.generationResult ?? null);
   const [userInput, setUserInput] = useState("");
   const [insufficientCredits, setInsufficientCredits] = useState(false);
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
+  const [isClearingSession, setIsClearingSession] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -84,8 +97,14 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
   });
   const generateCost = pricing?.find((p) => p.action === "GenerateWorkoutPlan")?.creditCost ?? null;
   const hasStarted = messages.length > 0 || isLoading;
+  const hasSessionDraft = hasStarted || attachedFiles.length > 0 || !!description.trim() || !!generationResult;
 
   useEffect(() => {
+    if (initialState) {
+      setIsRestoringSession(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function restoreSession() {
@@ -128,7 +147,7 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [traineeId]);
+  }, [initialState, traineeId]);
 
   function scrollToBottom() {
     setTimeout(() => {
@@ -170,6 +189,9 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
       if (response.isReadyToGenerate && response.suggestedParams) {
         setIsReadyToGenerate(true);
         setSuggestedParams(response.suggestedParams);
+      }
+      if (response.workoutsChanged) {
+        await onGenerated();
       }
     } catch {
       setMessages([...newMessages, { role: "assistant", content: "Something went wrong. Please try again." }]);
@@ -220,6 +242,9 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
         setIsReadyToGenerate(true);
         setSuggestedParams(response.suggestedParams);
       }
+      if (response.workoutsChanged) {
+        await onGenerated();
+      }
     } catch {
       setMessages([...newMessages, { role: "assistant", content: "Something went wrong. Please try again." }]);
     } finally {
@@ -269,6 +294,27 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     setGenerationResult(null);
   }
 
+  async function handleClearSession() {
+    if (isLoading || isClearingSession) {
+      return;
+    }
+
+    setIsClearingSession(true);
+    try {
+      if (sessionId) {
+        await deleteAIPlannerSession({ traineeId, sessionId });
+      }
+      handleReset();
+    } catch {
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", content: "Couldn't clear this session right now. Please try again." },
+      ]);
+    } finally {
+      setIsClearingSession(false);
+    }
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     const parsed = await Promise.all(files.map(parseFileToContent));
@@ -315,11 +361,12 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
         </p>
         <button
           type="button"
+          disabled={isClearingSession}
           className="mt-4 inline-flex items-center gap-1.5 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
-          onClick={handleReset}
+          onClick={() => void handleClearSession()}
         >
           <RotateCcwIcon className="h-3 w-3" />
-          Start over
+          Clear session
         </button>
       </div>
     );
@@ -329,11 +376,24 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     <div className="flex h-full min-h-0 flex-col">
       {/* Header */}
       <div className="border-b border-[var(--shell-border)] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-            AI Planner
-          </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              AI Planner
+            </p>
+          </div>
+          {hasSessionDraft && (
+            <button
+              type="button"
+              disabled={isLoading || isClearingSession}
+              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => void handleClearSession()}
+            >
+              <RotateCcwIcon className="h-3 w-3" />
+              Clear session
+            </button>
+          )}
         </div>
         {!hasStarted && (
           <p className="mt-1 text-sm text-[var(--shell-muted)]">
@@ -490,6 +550,44 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
         </div>
       ) : !isReadyToGenerate ? (
         <div className="border-t border-[var(--shell-border)] px-4 py-3">
+          {attachedFiles.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {attachedFiles.map((file, i) => (
+                <span
+                  key={`${file.name}-${i}`}
+                  className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[10px] text-[var(--shell-muted)]"
+                >
+                  {file.name}
+                  <button
+                    type="button"
+                    onClick={() => removeFile(i)}
+                    className="ml-0.5 hover:text-[var(--shell-ink)]"
+                    aria-label={`Remove attachment ${file.name}`}
+                  >
+                    <XIcon className="h-2.5 w-2.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept={ACCEPTED_EXTENSIONS}
+              multiple
+              onChange={handleFileChange}
+            />
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <PaperclipIcon className="h-3 w-3" />
+              Attach
+            </button>
+          </div>
           <div className="flex items-end gap-2">
             <textarea
               className="min-h-[36px] flex-1 resize-none rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none"
