@@ -58,14 +58,19 @@ function WorkoutAnalysisTrigger({
 
   return (
     <section className="space-y-3" data-testid="workout-analysis-section">
-      <textarea
-        value={context}
-        onChange={(event) => setContext(event.target.value)}
-        rows={2}
-        placeholder="Optional context for analysis..."
-        data-testid="workout-analysis-context"
-        className="w-full resize-none border-b border-[var(--shell-border)] bg-transparent py-1.5 text-sm leading-5 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-      />
+      <label className="block space-y-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--shell-muted)]">
+          Analysis context
+        </span>
+        <textarea
+          value={context}
+          onChange={(event) => setContext(event.target.value)}
+          rows={4}
+          placeholder="Optional context for analysis..."
+          data-testid="workout-analysis-context"
+          className="min-h-28 w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-card)] px-3 py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)] focus:bg-[var(--shell-background)] placeholder:text-[var(--shell-muted)]"
+        />
+      </label>
 
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-[var(--shell-muted)]">
