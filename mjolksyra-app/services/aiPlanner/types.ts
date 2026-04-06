@@ -44,3 +44,29 @@ export type GenerateWorkoutPlanResponse = {
   dateFrom: string;
   dateTo: string;
 };
+
+export type PreviewWorkoutPlanSet = {
+  reps?: number;
+  weightKg?: number;
+  durationSeconds?: number;
+  distanceMeters?: number;
+  note?: string;
+};
+
+export type PreviewWorkoutPlanExercise = {
+  name: string;
+  note?: string;
+  prescriptionType?: string;
+  sets: PreviewWorkoutPlanSet[];
+};
+
+export type PreviewWorkoutPlanWorkout = {
+  plannedAt: string;
+  name?: string;
+  note?: string;
+  exercises: PreviewWorkoutPlanExercise[];
+};
+
+export type PreviewWorkoutPlanResponse = {
+  workouts: PreviewWorkoutPlanWorkout[];
+};

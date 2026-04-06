@@ -20,14 +20,14 @@ test.describe("AI Workout Planner", () => {
     await expect(startButton).toBeDisabled();
   });
 
-  test("ready-to-generate state shows confirm card with params", async ({ page }) => {
+  test("ready-to-generate state shows confirm card with preview and edit buttons", async ({ page }) => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=aiplanpanel--ready-to-generate",
     );
 
     await expect(page.getByText("Ready to generate")).toBeVisible({ timeout: 10000 });
     await expect(page.getByText("12 weeks")).toBeVisible();
-    await expect(page.getByRole("button", { name: /generate/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /preview plan/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /edit/i })).toBeVisible();
   });
 

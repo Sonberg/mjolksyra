@@ -8,14 +8,17 @@ import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { deleteAIPlannerSession } from "@/services/aiPlanner/deleteAIPlannerSession";
 import { generateWorkoutPlan } from "@/services/aiPlanner/generateWorkoutPlan";
+import { previewWorkoutPlan } from "@/services/aiPlanner/previewWorkoutPlan";
 import { getLatestAIPlannerSession } from "@/services/aiPlanner/getLatestAIPlannerSession";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
+import { WorkoutPlanPreview } from "./WorkoutPlanPreview";
 import type {
   AIPlannerConversationMessage,
   AIPlannerFileContent,
   ClarifyWorkoutPlanSuggestedParams,
   GenerateWorkoutPlanResponse,
+  PreviewWorkoutPlanWorkout,
 } from "@/services/aiPlanner/types";
 
 type Props = {
@@ -83,6 +86,8 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
   );
   const [isReadyToGenerate, setIsReadyToGenerate] = useState(initialState?.isReadyToGenerate ?? false);
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(initialState?.generationResult ?? null);
+  const [previewData, setPreviewData] = useState<PreviewWorkoutPlanWorkout[] | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [insufficientCredits, setInsufficientCredits] = useState(false);
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
@@ -234,6 +239,31 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     }
   }
 
+  async function handlePreview() {
+    if (!suggestedParams) return;
+
+    setIsPreviewLoading(true);
+    scrollToBottom();
+
+    try {
+      const result = await previewWorkoutPlan({
+        traineeId,
+        description,
+        filesContent: attachedFiles,
+        conversationHistory: buildConversationHistory(),
+        params: suggestedParams,
+      });
+      setPreviewData(result.workouts);
+    } catch {
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", content: "Preview failed. Please try again." },
+      ]);
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  }
+
   async function handleGenerate() {
     if (!suggestedParams) return;
 
@@ -264,6 +294,13 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     }
   }
 
+  async function handleRefine(feedback: string) {
+    setPreviewData(null);
+    setIsReadyToGenerate(false);
+    setSuggestedParams(null);
+    await handleSendFollowUpWithText(feedback);
+  }
+
   function handleReset() {
     setSessionId(null);
     setDescription("");
@@ -273,6 +310,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     setSuggestedParams(null);
     setIsReadyToGenerate(false);
     setGenerationResult(null);
+    setPreviewData(null);
   }
 
   async function handleClearSession() {
@@ -316,6 +354,18 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:300ms]" />
         </span>
       </div>
+    );
+  }
+
+  if (previewData !== null) {
+    return (
+      <WorkoutPlanPreview
+        workouts={previewData}
+        generateCost={generateCost}
+        isLoading={isLoading}
+        onGenerate={() => void handleGenerate()}
+        onRefine={(feedback) => void handleRefine(feedback)}
+      />
     );
   }
 
@@ -438,8 +488,8 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
             {isReadyToGenerate && suggestedParams && !isLoading && (
               <ConfirmCard
                 params={suggestedParams}
-                generateCost={generateCost}
-                onGenerate={handleGenerate}
+                isPreviewLoading={isPreviewLoading}
+                onPreview={() => void handlePreview()}
                 onEdit={() => {
                   setIsReadyToGenerate(false);
                   setSuggestedParams(null);
@@ -608,12 +658,12 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
 
 type ConfirmCardProps = {
   params: ClarifyWorkoutPlanSuggestedParams;
-  generateCost: number | null;
-  onGenerate: () => void;
+  isPreviewLoading: boolean;
+  onPreview: () => void;
   onEdit: () => void;
 };
 
-function ConfirmCard({ params, generateCost, onGenerate, onEdit }: ConfirmCardProps) {
+function ConfirmCard({ params, isPreviewLoading, onPreview, onEdit }: ConfirmCardProps) {
   return (
     <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
@@ -623,22 +673,21 @@ function ConfirmCard({ params, generateCost, onGenerate, onEdit }: ConfirmCardPr
         <Row label="Start date" value={dayjs(params.startDate).format("ddd, D MMM YYYY")} />
         <Row label="Duration" value={`${params.numberOfWeeks} week${params.numberOfWeeks !== 1 ? "s" : ""}`} />
         <Row label="Conflicts" value={params.conflictStrategy} />
-        {generateCost !== null && (
-          <Row label="Credit cost" value={`${generateCost} credits`} />
-        )}
       </dl>
       <div className="mt-3 flex items-center gap-2">
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
-          onClick={onGenerate}
+          disabled={isPreviewLoading}
+          className="inline-flex items-center gap-1.5 rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onPreview}
         >
           <SparklesIcon className="h-3 w-3" />
-          Generate{generateCost ? ` (${generateCost} cr)` : ""}
+          Preview Plan
         </button>
         <button
           type="button"
-          className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+          disabled={isPreviewLoading}
+          className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onEdit}
         >
           Edit

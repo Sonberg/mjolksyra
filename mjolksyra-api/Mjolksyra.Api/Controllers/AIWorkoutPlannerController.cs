@@ -7,6 +7,7 @@ using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.DeleteAIPlannerSession;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.GetLatestAIPlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -91,6 +92,43 @@ public class AIWorkoutPlannerController(
         return deleted ? NoContent() : Forbid();
     }
 
+    [HttpPost("preview")]
+    public async Task<ActionResult<PreviewWorkoutPlanResponse>> Preview(
+        Guid traineeId,
+        [FromBody] PreviewWorkoutPlanRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new PreviewWorkoutPlanQuery
+        {
+            TraineeId = traineeId,
+            Description = request.Description,
+            FilesContent = request.FilesContent.Select(f => new AIPlannerFileContent
+            {
+                Name = f.Name,
+                Type = f.Type,
+                Content = f.Content,
+            }).ToList(),
+            ConversationHistory = request.ConversationHistory.Select(m => new AIPlannerConversationMessage
+            {
+                Role = m.Role,
+                Content = m.Content,
+            }).ToList(),
+            Params = new PreviewWorkoutPlanParams
+            {
+                StartDate = request.Params.StartDate,
+                NumberOfWeeks = request.Params.NumberOfWeeks,
+                ConflictStrategy = request.Params.ConflictStrategy,
+            },
+        }, cancellationToken);
+
+        if (result is null)
+        {
+            return Forbid();
+        }
+
+        return Ok(result);
+    }
+
     [HttpPost("generate")]
     public async Task<ActionResult<GenerateWorkoutPlanResponse>> Generate(
         Guid traineeId,
@@ -171,6 +209,17 @@ public class GenerateWorkoutPlanParamsDto
     public int NumberOfWeeks { get; set; }
 
     public string ConflictStrategy { get; set; } = "Skip";
+}
+
+public class PreviewWorkoutPlanRequest
+{
+    public required string Description { get; set; }
+
+    public ICollection<AIPlannerFileContentDto> FilesContent { get; set; } = [];
+
+    public ICollection<AIPlannerConversationMessageDto> ConversationHistory { get; set; } = [];
+
+    public required GenerateWorkoutPlanParamsDto Params { get; set; }
 }
 
 public class AIPlannerFileContentDto
