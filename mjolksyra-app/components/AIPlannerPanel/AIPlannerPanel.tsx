@@ -16,7 +16,6 @@ import type {
   AIPlannerFileContent,
   ClarifyWorkoutPlanSuggestedParams,
   GenerateWorkoutPlanResponse,
-  LatestAIPlannerSessionMessage,
 } from "@/services/aiPlanner/types";
 
 type Props = {
@@ -78,7 +77,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
   const [messages, setMessages] = useState<Message[]>(initialState?.messages ?? []);
   const [attachedFiles, setAttachedFiles] = useState<AIPlannerFileContent[]>(initialState?.attachedFiles ?? []);
   const [isLoading, setIsLoading] = useState(false);
-  const [isRestoringSession, setIsRestoringSession] = useState(!initialState);
+  const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
   const [suggestedParams, setSuggestedParams] = useState<ClarifyWorkoutPlanSuggestedParams | null>(
     initialState?.suggestedParams ?? null,
   );
@@ -101,49 +100,31 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
 
   useEffect(() => {
     if (initialState) {
-      setIsRestoringSession(false);
+      setIsBootstrapping(false);
       return;
     }
 
     let cancelled = false;
 
-    async function restoreSession() {
+    async function clearPersistedSession() {
       try {
         const session = await getLatestAIPlannerSession({ traineeId });
-        if (cancelled || !session) return;
-
-        setSessionId(session.sessionId);
-        setDescription(session.description);
-
-        if (session.generationResult) {
-          setGenerationResult({
-            ...session.generationResult,
-            generatedAt: new Date().toISOString(),
-          });
-        } else {
-          if (session.conversationHistory.length > 0) {
-            setMessages(
-              session.conversationHistory.map((m: LatestAIPlannerSessionMessage) => ({
-                role: m.role,
-                content: m.content,
-                options: m.options.length > 0 ? m.options : undefined,
-              })),
-            );
-          }
-
-          if (session.suggestedParams) {
-            setSuggestedParams(session.suggestedParams);
-            setIsReadyToGenerate(true);
-          }
+        if (cancelled || !session) {
+          return;
         }
+
+        await deleteAIPlannerSession({ traineeId, sessionId: session.sessionId });
       } catch {
-        // no session to restore — silent
+        // stale session cleanup is best-effort
       } finally {
-        if (!cancelled) setIsRestoringSession(false);
+        if (!cancelled) {
+          handleReset();
+          setIsBootstrapping(false);
+        }
       }
     }
 
-    void restoreSession();
+    void clearPersistedSession();
     return () => {
       cancelled = true;
     };
@@ -326,7 +307,7 @@ export function AIPlannerPanel({ traineeId, onGenerated, initialState }: Props) 
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
-  if (isRestoringSession) {
+  if (isBootstrapping) {
     return (
       <div className="flex h-full items-center justify-center">
         <span className="flex gap-1">

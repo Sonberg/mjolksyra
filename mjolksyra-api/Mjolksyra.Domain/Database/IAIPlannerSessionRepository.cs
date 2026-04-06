@@ -8,7 +8,7 @@ public interface IAIPlannerSessionRepository
 
     Task<AIPlannerSession?> GetById(Guid sessionId, CancellationToken ct);
 
-    Task<AIPlannerSession?> GetLatestByTrainee(Guid traineeId, CancellationToken ct);
+    Task<AIPlannerSession?> GetLatestByTrainee(Guid traineeId, Guid coachUserId, CancellationToken ct);
 
     Task Delete(Guid sessionId, CancellationToken ct);
 

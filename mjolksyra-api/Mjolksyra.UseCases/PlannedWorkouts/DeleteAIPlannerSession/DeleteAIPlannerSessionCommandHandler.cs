@@ -16,13 +16,14 @@ public class DeleteAIPlannerSessionCommandHandler(
             return false;
         }
 
-        if (!await traineeRepository.HasAccess(request.TraineeId, userId, cancellationToken))
+        var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
+        if (trainee is null || trainee.CoachUserId != userId)
         {
             return false;
         }
 
         var session = await sessionRepository.GetById(request.SessionId, cancellationToken);
-        if (session is not null && session.TraineeId != request.TraineeId)
+        if (session is not null && (session.TraineeId != request.TraineeId || session.CoachUserId != userId))
         {
             return false;
         }

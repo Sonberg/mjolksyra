@@ -25,7 +25,8 @@ public class ClarifyWorkoutPlanQueryHandler(
             return null;
         }
 
-        if (!await traineeRepository.HasAccess(request.TraineeId, userId, cancellationToken))
+        var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
+        if (trainee is null || trainee.CoachUserId != userId)
         {
             return null;
         }
@@ -55,6 +56,12 @@ public class ClarifyWorkoutPlanQueryHandler(
         {
             session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken)
                       ?? CreateSession(request.TraineeId, userId, request.Description, now);
+
+            if (session.Id != Guid.Empty &&
+                (session.TraineeId != request.TraineeId || session.CoachUserId != userId))
+            {
+                return null;
+            }
         }
         else
         {

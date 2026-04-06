@@ -2,6 +2,7 @@ using Moq;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
@@ -39,8 +40,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
-            .Setup(x => x.HasAccess(traineeId, userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Trainee?)null);
 
         var sut = CreateSut(traineeRepository: traineeRepository, userContext: userContext);
 
@@ -62,8 +63,14 @@ public class ClarifyWorkoutPlanQueryHandlerTests
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
-            .Setup(x => x.HasAccess(traineeId, userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
 
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
         plannerAgent
@@ -97,8 +104,14 @@ public class ClarifyWorkoutPlanQueryHandlerTests
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
-            .Setup(x => x.HasAccess(traineeId, userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
 
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
         plannerAgent
@@ -140,8 +153,14 @@ public class ClarifyWorkoutPlanQueryHandlerTests
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
-            .Setup(x => x.HasAccess(traineeId, userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
 
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
         plannerAgent
@@ -189,6 +208,55 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Assert.True(result.WorkoutsChanged);
         plannedWorkoutRepository.Verify(x => x.Delete(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
         deletedPublisher.Verify(x => x.Publish(It.IsAny<PlannedWorkoutDeletedMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenSessionBelongsToAnotherCoach_ReturnsNull()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AIPlannerSession
+            {
+                Id = sessionId,
+                TraineeId = traineeId,
+                CoachUserId = Guid.NewGuid(),
+                Description = "Another coach session",
+            });
+
+        var sut = CreateSut(
+            sessionRepository: sessionRepository,
+            traineeRepository: traineeRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(new ClarifyWorkoutPlanQuery
+        {
+            TraineeId = traineeId,
+            SessionId = sessionId,
+            Description = "12-week strength program for a powerlifter",
+        }, CancellationToken.None);
+
+        Assert.Null(result);
     }
 
     private static ClarifyWorkoutPlanQueryHandler CreateSut(

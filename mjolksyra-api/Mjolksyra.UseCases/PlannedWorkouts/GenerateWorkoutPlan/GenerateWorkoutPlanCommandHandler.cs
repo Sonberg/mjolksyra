@@ -54,6 +54,16 @@ public class GenerateWorkoutPlanCommandHandler(
 
         var endDate = startDate.AddDays(request.Params.NumberOfWeeks * 7 - 1);
 
+        AIPlannerSession? session = null;
+        if (request.SessionId.HasValue)
+        {
+            session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken);
+            if (session is null || session.TraineeId != request.TraineeId || session.CoachUserId != userId)
+            {
+                return new GenerateWorkoutPlanForbidden();
+            }
+        }
+
         var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
             workoutMediaAnalysisRepository,
@@ -159,27 +169,23 @@ public class GenerateWorkoutPlanCommandHandler(
             DateTo = endDate.ToString("yyyy-MM-dd"),
         };
 
-        if (request.SessionId.HasValue)
+        if (session is not null)
         {
-            var session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken);
-            if (session is not null)
+            foreach (var call in loggingDispatcher.Calls)
             {
-                foreach (var call in loggingDispatcher.Calls)
-                {
-                    session.ToolCalls.Add(call);
-                }
-
-                session.GenerationResult = new AIPlannerSessionGenerationResult
-                {
-                    WorkoutsCreated = created,
-                    Summary = response.Summary,
-                    DateFrom = response.DateFrom,
-                    DateTo = response.DateTo,
-                    GeneratedAt = DateTimeOffset.UtcNow,
-                };
-                session.UpdatedAt = DateTimeOffset.UtcNow;
-                await sessionRepository.Update(session, cancellationToken);
+                session.ToolCalls.Add(call);
             }
+
+            session.GenerationResult = new AIPlannerSessionGenerationResult
+            {
+                WorkoutsCreated = created,
+                Summary = response.Summary,
+                DateFrom = response.DateFrom,
+                DateTo = response.DateTo,
+                GeneratedAt = DateTimeOffset.UtcNow,
+            };
+            session.UpdatedAt = DateTimeOffset.UtcNow;
+            await sessionRepository.Update(session, cancellationToken);
         }
 
         return response;

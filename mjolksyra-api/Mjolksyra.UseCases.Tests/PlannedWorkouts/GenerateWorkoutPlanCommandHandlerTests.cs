@@ -143,6 +143,58 @@ public class GenerateWorkoutPlanCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WhenSessionBelongsToAnotherCoach_ReturnsForbidden()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var sessionRepository = new Mock<IAIPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AIPlannerSession
+            {
+                Id = sessionId,
+                TraineeId = traineeId,
+                CoachUserId = Guid.NewGuid(),
+                Description = "Other coach session",
+            });
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+
+        var sut = CreateSut(
+            plannerAgent: plannerAgent,
+            sessionRepository: sessionRepository,
+            traineeRepository: traineeRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(
+            CreateCommand(traineeId: traineeId, sessionId: sessionId),
+            CancellationToken.None);
+
+        Assert.True(result.IsT1);
+        plannerAgent.Verify(
+            x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_WithSkipStrategy_DoesNotOverwriteExistingWorkouts()
     {
         var userId = Guid.NewGuid();

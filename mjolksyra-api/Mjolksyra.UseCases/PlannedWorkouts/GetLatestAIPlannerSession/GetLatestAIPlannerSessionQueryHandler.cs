@@ -17,12 +17,13 @@ public class GetLatestAIPlannerSessionQueryHandler(
             return null;
         }
 
-        if (!await traineeRepository.HasAccess(request.TraineeId, userId, cancellationToken))
+        var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
+        if (trainee is null || trainee.CoachUserId != userId)
         {
             return null;
         }
 
-        var session = await sessionRepository.GetLatestByTrainee(request.TraineeId, cancellationToken);
+        var session = await sessionRepository.GetLatestByTrainee(request.TraineeId, userId, cancellationToken);
         if (session is null)
         {
             return null;

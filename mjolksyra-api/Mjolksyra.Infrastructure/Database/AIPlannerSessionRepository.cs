@@ -19,10 +19,10 @@ public class AIPlannerSessionRepository(IMongoDbContext context) : IAIPlannerSes
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<AIPlannerSession?> GetLatestByTrainee(Guid traineeId, CancellationToken ct)
+    public async Task<AIPlannerSession?> GetLatestByTrainee(Guid traineeId, Guid coachUserId, CancellationToken ct)
     {
         return await context.AIPlannerSessions
-            .Find(x => x.TraineeId == traineeId)
+            .Find(x => x.TraineeId == traineeId && x.CoachUserId == coachUserId)
             .SortByDescending(x => x.UpdatedAt)
             .FirstOrDefaultAsync(ct);
     }
