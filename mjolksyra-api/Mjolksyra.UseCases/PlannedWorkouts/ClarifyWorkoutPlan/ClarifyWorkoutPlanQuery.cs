@@ -7,6 +7,8 @@ public class ClarifyWorkoutPlanQuery : IRequest<ClarifyWorkoutPlanResponse?>
 {
     public required Guid TraineeId { get; set; }
 
+    public Guid? SessionId { get; set; }
+
     public required string Description { get; set; }
 
     public ICollection<AIPlannerFileContent> FilesContent { get; set; } = [];
@@ -23,6 +25,8 @@ public class ClarifyWorkoutPlanResponse
     public ClarifyWorkoutPlanSuggestedParams? SuggestedParams { get; set; }
 
     public ICollection<string> Options { get; set; } = [];
+
+    public required Guid SessionId { get; set; }
 }
 
 public class ClarifyWorkoutPlanSuggestedParams

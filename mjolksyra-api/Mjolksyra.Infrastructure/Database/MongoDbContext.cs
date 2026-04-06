@@ -42,6 +42,8 @@ public interface IMongoDbContext
     IMongoCollection<CreditLedger> CreditLedger { get; }
 
     IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents { get; }
+
+    IMongoCollection<AIPlannerSession> AIPlannerSessions { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -85,6 +87,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<CreditLedger> CreditLedger => Database.GetCollection<CreditLedger>("credit-ledger");
 
     public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
+
+    public IMongoCollection<AIPlannerSession> AIPlannerSessions => Database.GetCollection<AIPlannerSession>("ai-planner-sessions");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

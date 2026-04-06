@@ -131,6 +131,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
+        Mock<IAIPlannerSessionRepository>? sessionRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
     {
@@ -139,11 +140,17 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [] });
 
+        var sessionRepo = sessionRepository ?? new Mock<IAIPlannerSessionRepository>();
+        sessionRepo
+            .Setup(x => x.Create(It.IsAny<AIPlannerSession>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AIPlannerSession s, CancellationToken _) => s);
+
         return new ClarifyWorkoutPlanQueryHandler(
             (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
             workoutRepo.Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
+            sessionRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }

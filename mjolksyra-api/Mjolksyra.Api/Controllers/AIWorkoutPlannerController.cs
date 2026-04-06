@@ -5,6 +5,7 @@ using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
+using Mjolksyra.UseCases.PlannedWorkouts.GetLatestAIPlannerSession;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -15,6 +16,24 @@ public class AIWorkoutPlannerController(
     IUserEventPublisher userEventPublisher,
     IUserContext userContext) : Controller
 {
+    [HttpGet("session/latest")]
+    public async Task<ActionResult<GetLatestAIPlannerSessionResponse>> GetLatestSession(
+        Guid traineeId,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetLatestAIPlannerSessionQuery
+        {
+            TraineeId = traineeId,
+        }, cancellationToken);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
     [HttpPost("clarify")]
     public async Task<ActionResult<ClarifyWorkoutPlanResponse>> Clarify(
         Guid traineeId,
@@ -24,6 +43,7 @@ public class AIWorkoutPlannerController(
         var result = await mediator.Send(new ClarifyWorkoutPlanQuery
         {
             TraineeId = traineeId,
+            SessionId = request.SessionId,
             Description = request.Description,
             FilesContent = request.FilesContent.Select(f => new AIPlannerFileContent
             {
@@ -55,6 +75,7 @@ public class AIWorkoutPlannerController(
         var result = await mediator.Send(new GenerateWorkoutPlanCommand
         {
             TraineeId = traineeId,
+            SessionId = request.SessionId,
             Description = request.Description,
             FilesContent = request.FilesContent.Select(f => new AIPlannerFileContent
             {
@@ -95,6 +116,8 @@ public class AIWorkoutPlannerController(
 
 public class ClarifyWorkoutPlanRequest
 {
+    public Guid? SessionId { get; set; }
+
     public required string Description { get; set; }
 
     public ICollection<AIPlannerFileContentDto> FilesContent { get; set; } = [];
@@ -104,6 +127,8 @@ public class ClarifyWorkoutPlanRequest
 
 public class GenerateWorkoutPlanRequest
 {
+    public Guid? SessionId { get; set; }
+
     public required string Description { get; set; }
 
     public ICollection<AIPlannerFileContentDto> FilesContent { get; set; } = [];

@@ -16,10 +16,25 @@ export type ClarifyWorkoutPlanSuggestedParams = {
 };
 
 export type ClarifyWorkoutPlanResponse = {
+  sessionId: string;
   message: string;
   isReadyToGenerate: boolean;
   options: string[];
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
+};
+
+export type LatestAIPlannerSessionMessage = {
+  role: "user" | "assistant";
+  content: string;
+  options: string[];
+};
+
+export type LatestAIPlannerSessionResponse = {
+  sessionId: string;
+  description: string;
+  conversationHistory: LatestAIPlannerSessionMessage[];
+  suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
+  generationResult: GenerateWorkoutPlanResponse | null;
 };
 
 export type GenerateWorkoutPlanResponse = {

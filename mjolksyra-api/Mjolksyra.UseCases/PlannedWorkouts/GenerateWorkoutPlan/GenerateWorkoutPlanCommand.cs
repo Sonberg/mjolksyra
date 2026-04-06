@@ -7,6 +7,8 @@ public class GenerateWorkoutPlanCommand : IRequest<GenerateWorkoutPlanResponse?>
 {
     public required Guid TraineeId { get; set; }
 
+    public Guid? SessionId { get; set; }
+
     public required string Description { get; set; }
 
     public ICollection<AIPlannerFileContent> FilesContent { get; set; } = [];

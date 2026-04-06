@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
@@ -11,6 +12,7 @@ public class ClarifyWorkoutPlanQueryHandler(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
+    IAIPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext) : IRequestHandler<ClarifyWorkoutPlanQuery, ClarifyWorkoutPlanResponse?>
 {
@@ -26,22 +28,70 @@ public class ClarifyWorkoutPlanQueryHandler(
             return null;
         }
 
-        var toolDispatcher = new AIPlannerToolDispatcher(
+        var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
             request.TraineeId);
+
+        var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
 
         var output = await plannerAgent.ClarifyAsync(new AIPlannerClarifyInput
         {
             Description = request.Description,
             FilesContent = request.FilesContent,
             ConversationHistory = request.ConversationHistory,
-            ToolDispatcher = toolDispatcher,
+            ToolDispatcher = loggingDispatcher,
         }, cancellationToken);
+
+        var now = DateTimeOffset.UtcNow;
+
+        // Load existing session or create a new one
+        AIPlannerSession session;
+        if (request.SessionId.HasValue)
+        {
+            session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken)
+                      ?? CreateSession(request.TraineeId, userId, request.Description, now);
+        }
+        else
+        {
+            session = CreateSession(request.TraineeId, userId, request.Description, now);
+        }
+
+        // Sync conversation history from request + new AI turn
+        session.ConversationHistory = request.ConversationHistory
+            .Select(m => new AIPlannerSessionMessage { Role = m.Role, Content = m.Content })
+            .Append(new AIPlannerSessionMessage
+            {
+                Role = "assistant",
+                Content = output.Message,
+                Options = output.Options.ToList(),
+            })
+            .ToList();
+
+        session.SuggestedParams = output.IsReadyToGenerate ? output.SuggestedParams : null;
+
+        // Append any new tool calls from this turn
+        foreach (var call in loggingDispatcher.Calls)
+        {
+            session.ToolCalls.Add(call);
+        }
+
+        session.UpdatedAt = now;
+
+        if (session.Id == Guid.Empty)
+        {
+            session.Id = Guid.NewGuid();
+            await sessionRepository.Create(session, cancellationToken);
+        }
+        else
+        {
+            await sessionRepository.Update(session, cancellationToken);
+        }
 
         return new ClarifyWorkoutPlanResponse
         {
+            SessionId = session.Id,
             Message = output.Message,
             IsReadyToGenerate = output.IsReadyToGenerate,
             Options = output.Options,
@@ -53,4 +103,15 @@ public class ClarifyWorkoutPlanQueryHandler(
             },
         };
     }
+
+    private static AIPlannerSession CreateSession(Guid traineeId, Guid coachUserId, string description, DateTimeOffset now)
+        => new()
+        {
+            Id = Guid.Empty, // signals "not yet persisted"
+            TraineeId = traineeId,
+            CoachUserId = coachUserId,
+            Description = description,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
 }

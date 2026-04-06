@@ -13,6 +13,7 @@ public class GenerateWorkoutPlanCommandHandler(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
+    IAIPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext) : IRequestHandler<GenerateWorkoutPlanCommand, GenerateWorkoutPlanResponse?>
 {
@@ -36,11 +37,13 @@ public class GenerateWorkoutPlanCommandHandler(
 
         var endDate = startDate.AddDays(request.Params.NumberOfWeeks * 7 - 1);
 
-        var toolDispatcher = new AIPlannerToolDispatcher(
+        var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
             request.TraineeId);
+
+        var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
 
         var workoutOutputs = await plannerAgent.GenerateAsync(new AIPlannerGenerateInput
         {
@@ -53,7 +56,7 @@ public class GenerateWorkoutPlanCommandHandler(
                 NumberOfWeeks = request.Params.NumberOfWeeks,
                 ConflictStrategy = request.Params.ConflictStrategy,
             },
-            ToolDispatcher = toolDispatcher,
+            ToolDispatcher = loggingDispatcher,
         }, cancellationToken);
 
         if (workoutOutputs.Count == 0)
@@ -130,13 +133,38 @@ public class GenerateWorkoutPlanCommandHandler(
         }
 
         var plural = created == 1 ? "workout" : "workouts";
-        return new GenerateWorkoutPlanResponse
+        var response = new GenerateWorkoutPlanResponse
         {
             WorkoutsCreated = created,
             Summary = $"Generated {created} {plural} from {startDate:MMM d} to {endDate:MMM d, yyyy}.",
             DateFrom = startDate.ToString("yyyy-MM-dd"),
             DateTo = endDate.ToString("yyyy-MM-dd"),
         };
+
+        if (request.SessionId.HasValue)
+        {
+            var session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken);
+            if (session is not null)
+            {
+                foreach (var call in loggingDispatcher.Calls)
+                {
+                    session.ToolCalls.Add(call);
+                }
+
+                session.GenerationResult = new AIPlannerSessionGenerationResult
+                {
+                    WorkoutsCreated = created,
+                    Summary = response.Summary,
+                    DateFrom = response.DateFrom,
+                    DateTo = response.DateTo,
+                    GeneratedAt = DateTimeOffset.UtcNow,
+                };
+                session.UpdatedAt = DateTimeOffset.UtcNow;
+                await sessionRepository.Update(session, cancellationToken);
+            }
+        }
+
+        return response;
     }
 
     private async Task<Dictionary<DateOnly, PlannedWorkout?>> GetExistingByDate(

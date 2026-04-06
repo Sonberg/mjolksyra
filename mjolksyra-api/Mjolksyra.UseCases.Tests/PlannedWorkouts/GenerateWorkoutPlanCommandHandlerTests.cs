@@ -269,6 +269,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
+        Mock<IAIPlannerSessionRepository>? sessionRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
     {
@@ -277,6 +278,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
+            (sessionRepository ?? new Mock<IAIPlannerSessionRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }

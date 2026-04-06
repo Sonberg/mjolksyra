@@ -8,6 +8,7 @@ import type {
 
 type Args = {
   traineeId: string;
+  sessionId?: string | null;
   description: string;
   filesContent: AIPlannerFileContent[];
   conversationHistory: AIPlannerConversationMessage[];
@@ -17,6 +18,7 @@ type Args = {
 
 export async function generateWorkoutPlan({
   traineeId,
+  sessionId,
   description,
   filesContent,
   conversationHistory,
@@ -25,7 +27,7 @@ export async function generateWorkoutPlan({
 }: Args): Promise<GenerateWorkoutPlanResponse> {
   const response = await ApiClient.post(
     `/api/trainees/${traineeId}/ai-planner/generate`,
-    { description, filesContent, conversationHistory, params },
+    { sessionId, description, filesContent, conversationHistory, params },
     { signal },
   );
   return response.data;

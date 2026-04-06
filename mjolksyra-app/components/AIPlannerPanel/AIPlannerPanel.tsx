@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SparklesIcon, SendIcon, XIcon, PaperclipIcon, CheckIcon, RotateCcwIcon } from "lucide-react";
 import dayjs from "dayjs";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { generateWorkoutPlan } from "@/services/aiPlanner/generateWorkoutPlan";
+import { getLatestAIPlannerSession } from "@/services/aiPlanner/getLatestAIPlannerSession";
 import type {
   AIPlannerConversationMessage,
   AIPlannerFileContent,
   ClarifyWorkoutPlanSuggestedParams,
   GenerateWorkoutPlanResponse,
+  LatestAIPlannerSessionMessage,
 } from "@/services/aiPlanner/types";
 
 type Props = {
@@ -57,10 +59,12 @@ async function parseFileToContent(file: File): Promise<AIPlannerFileContent> {
 }
 
 export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [attachedFiles, setAttachedFiles] = useState<AIPlannerFileContent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRestoringSession, setIsRestoringSession] = useState(true);
   const [suggestedParams, setSuggestedParams] = useState<ClarifyWorkoutPlanSuggestedParams | null>(null);
   const [isReadyToGenerate, setIsReadyToGenerate] = useState(false);
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null);
@@ -68,6 +72,51 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const hasStarted = messages.length > 0 || isLoading;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function restoreSession() {
+      try {
+        const session = await getLatestAIPlannerSession({ traineeId });
+        if (cancelled || !session) return;
+
+        setSessionId(session.sessionId);
+        setDescription(session.description);
+
+        if (session.generationResult) {
+          setGenerationResult({
+            ...session.generationResult,
+            generatedAt: new Date().toISOString(),
+          });
+        } else {
+          if (session.conversationHistory.length > 0) {
+            setMessages(
+              session.conversationHistory.map((m: LatestAIPlannerSessionMessage) => ({
+                role: m.role,
+                content: m.content,
+                options: m.options.length > 0 ? m.options : undefined,
+              })),
+            );
+          }
+
+          if (session.suggestedParams) {
+            setSuggestedParams(session.suggestedParams);
+            setIsReadyToGenerate(true);
+          }
+        }
+      } catch {
+        // no session to restore — silent
+      } finally {
+        if (!cancelled) setIsRestoringSession(false);
+      }
+    }
+
+    void restoreSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [traineeId]);
 
   function scrollToBottom() {
     setTimeout(() => {
@@ -91,10 +140,13 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     try {
       const response = await clarifyWorkoutPlan({
         traineeId,
+        sessionId,
         description: description.trim(),
         filesContent: attachedFiles,
         conversationHistory: [],
       });
+
+      setSessionId(response.sessionId);
 
       const aiMessage: Message = {
         role: "assistant",
@@ -137,10 +189,13 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     try {
       const response = await clarifyWorkoutPlan({
         traineeId,
+        sessionId,
         description,
         filesContent: attachedFiles,
         conversationHistory: newMessages.map((m) => ({ role: m.role, content: m.content })),
       });
+
+      setSessionId(response.sessionId);
 
       const aiMessage: Message = {
         role: "assistant",
@@ -169,6 +224,7 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
     try {
       const result = await generateWorkoutPlan({
         traineeId,
+        sessionId,
         description,
         filesContent: attachedFiles,
         conversationHistory: buildConversationHistory(),
@@ -185,6 +241,7 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
   }
 
   function handleReset() {
+    setSessionId(null);
     setDescription("");
     setMessages([]);
     setAttachedFiles([]);
@@ -203,6 +260,18 @@ export function AIPlannerPanel({ traineeId, onGenerated }: Props) {
 
   function removeFile(index: number) {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  if (isRestoringSession) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <span className="flex gap-1">
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:0ms]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:150ms]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)] [animation-delay:300ms]" />
+        </span>
+      </div>
+    );
   }
 
   if (generationResult) {

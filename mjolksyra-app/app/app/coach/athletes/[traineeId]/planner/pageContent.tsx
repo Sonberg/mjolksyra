@@ -372,7 +372,8 @@ export function PageContent({ traineeId }: Props) {
           </TabsContent>
           <TabsContent
             value="ai"
-            className="mt-0 min-h-0 flex-1 overflow-hidden"
+            forceMount
+            className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden"
           >
             <AIPlannerPanel
               traineeId={traineeId}

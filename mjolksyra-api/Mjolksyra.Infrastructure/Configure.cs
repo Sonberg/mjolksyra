@@ -79,6 +79,7 @@ public static class Configure
         services.AddScoped<ICreditLedgerRepository, CreditLedgerRepository>();
         services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
         services.AddScoped<IWorkoutMediaAnalysisRepository, WorkoutMediaAnalysisRepository>();
+        services.AddScoped<IAIPlannerSessionRepository, AIPlannerSessionRepository>();
         services.AddHostedService<PlanSeeder>();
         services.AddHostedService<CreditActionPricingSeeder>();
         services.AddHostedService<CreditPackSeeder>();
