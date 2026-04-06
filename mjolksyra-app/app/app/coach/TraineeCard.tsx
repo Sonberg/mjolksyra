@@ -416,8 +416,8 @@ export function TraineeCard({
             router.push(`/app/coach/athletes/${trainee.id}/planner`)
           }
         >
-          <DumbbellIcon className="h-4 w-4" />
-          Plan workouts
+          <ClipboardCheckIcon className="h-4 w-4" />
+          Planner
         </button>
         <button
           className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
