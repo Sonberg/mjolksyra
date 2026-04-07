@@ -135,37 +135,36 @@ const navLinks = [
 export default function DesignSystemPage() {
   return (
     <div className="h-full overflow-y-auto bg-[var(--shell-bg)]">
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        {/* header */}
-        <div className="mb-10 border-b border-[var(--shell-border)] pb-6">
-          <Eyebrow>Mjolksyra</Eyebrow>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Design System
-          </h1>
-          <p className="mt-1 text-sm text-[var(--shell-muted)]">
-            Shell tokens, shadcn components, and layout patterns. No rounded corners. No shadows.
-          </p>
-        </div>
+      {/* top bar */}
+      <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-4">
+        <Eyebrow>Mjolksyra</Eyebrow>
+        <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
+          Design System
+        </h1>
+        <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
+          Shell tokens · shadcn components · layout patterns · no rounded corners · no shadows
+        </p>
+      </div>
 
-        <div className="flex gap-12">
-          {/* sticky nav */}
-          <nav className="hidden w-40 shrink-0 lg:block">
-            <ul className="sticky top-6 space-y-0.5">
-              {navLinks.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    className="block py-1 text-xs text-[var(--shell-muted)] transition-colors hover:text-[var(--shell-ink)]"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+      <div className="flex">
+        {/* sticky nav — bg-[var(--shell-surface)] with right border */}
+        <nav className="hidden w-48 shrink-0 border-r border-[var(--shell-border)] bg-[var(--shell-surface)] lg:block">
+          <ul className="sticky top-0 space-y-0 py-6">
+            {navLinks.map((l) => (
+              <li key={l.href}>
+                <a
+                  href={l.href}
+                  className="block px-6 py-1.5 text-xs text-[var(--shell-muted)] transition-colors hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-          {/* content */}
-          <div className="min-w-0 flex-1 space-y-14">
+        {/* content — bg-[var(--shell-surface)] */}
+        <div className="min-w-0 flex-1 space-y-14 bg-[var(--shell-surface)] px-8 py-8">
 
             {/* ── Tokens ──────────────────────────────── */}
             <Section id="tokens" eyebrow="Foundation" title="Color Tokens">
@@ -392,12 +391,12 @@ export default function DesignSystemPage() {
               <div className="flex flex-col border border-[var(--shell-border)] bg-[var(--shell-surface)]">
                 <div className="flex-1 divide-y divide-[var(--shell-border)]">
                   {chatMessages.map((msg) => (
-                    <div key={msg.id} className="p-3">
+                    <div key={msg.id} className={`p-3 ${msg.own ? "flex flex-col items-end" : ""}`}>
                       <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
                         {msg.role}
                       </p>
                       {msg.own ? (
-                        <div className="mt-1.5 bg-[var(--shell-bg)] px-3 py-2">
+                        <div className="mt-1.5 max-w-[76%] bg-[var(--shell-bg)] px-3 py-2">
                           {msg.image && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -411,7 +410,7 @@ export default function DesignSystemPage() {
                           )}
                         </div>
                       ) : (
-                        <p className="mt-1.5 text-xs text-[var(--shell-ink)]">{msg.content}</p>
+                        <p className="mt-1.5 max-w-[76%] text-xs text-[var(--shell-ink)]">{msg.content}</p>
                       )}
                     </div>
                   ))}
@@ -537,9 +536,8 @@ export default function DesignSystemPage() {
               </div>
             </Section>
 
-          </div>
-        </div>
-      </div>
+        </div>{/* content */}
+      </div>{/* flex row */}
     </div>
   );
 }

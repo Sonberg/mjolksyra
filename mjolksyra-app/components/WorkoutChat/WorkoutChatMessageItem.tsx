@@ -54,8 +54,8 @@ export function WorkoutChatMessageItem({
           <div
             className={
               isSelf
-                ? "inline-flex max-w-full flex-col bg-[color-mix(in_srgb,var(--shell-accent)_16%,var(--shell-surface)_84%)] px-3 py-2 text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
-                : "inline-flex max-w-full flex-col  bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] px-3 py-2 text-[var(--shell-ink)]"
+                ? "inline-flex max-w-full flex-col bg-[var(--shell-bg)] px-3 py-2 text-[var(--shell-ink)]"
+                : "inline-flex max-w-full flex-col px-3 py-2 text-[var(--shell-ink)]"
             }
           >
             <div className="space-y-2">
@@ -91,8 +91,8 @@ export function WorkoutChatMessageItem({
           <div
             className={
               isSelf
-                ? "inline-flex max-w-full bg-[color-mix(in_srgb,var(--shell-accent)_16%,var(--shell-surface)_84%)] px-3 py-2 text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
-                : "inline-flex max-w-full bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] px-3 py-2 text-[var(--shell-ink)]"
+                ? "inline-flex max-w-full bg-[var(--shell-bg)] px-3 py-2 text-[var(--shell-ink)]"
+                : "inline-flex max-w-full px-3 py-2 text-[var(--shell-ink)]"
             }
           >
             <p className="whitespace-pre-wrap break-words text-sm leading-6">
@@ -130,7 +130,7 @@ export function WorkoutChatMessageItem({
               onClick={() =>
                 onStartEditing(chatMessage.id, chatMessage.message)
               }
-              className="rounded-full px-2 py-1 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              className="px-2 py-1 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
             >
               Edit
             </button>
