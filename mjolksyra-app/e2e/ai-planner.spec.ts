@@ -27,8 +27,9 @@ test.describe("AI Workout Planner", () => {
 
     await expect(page.getByText("Pending approval")).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/Move two Friday workouts to Saturday/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /apply changes/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /apply changes \(1 cr\)/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /discard/i })).toBeVisible();
+    await expect(page.getByText(/Rounded and capped at 5 cr/i)).toBeVisible();
   });
 
   test("pending approval session shows staged changes and clear session actions", async ({ page }) => {
@@ -49,8 +50,18 @@ test.describe("AI Workout Planner", () => {
 
     await expect(page.getByText(/Delete all 49 upcoming workouts/i)).toBeVisible();
     await expect(page.getByText("Apr 8 - Jul 16")).toBeVisible();
+    await expect(page.getByRole("button", { name: /apply changes \(5 cr\)/i })).toBeVisible();
     await expect(page.getByText(/Delete workout on 2026-04-08/i)).toBeVisible();
     await expect(page.getByText(/Delete workout on 2026-07-16/i)).toBeVisible();
+  });
+
+  test("mid-cost proposal shows rounded dynamic pricing", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=aiplanpanel--pending-mid-cost-proposal",
+    );
+
+    await expect(page.getByText(/Reshape three upcoming workouts after travel/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /apply changes \(3 cr\)/i })).toBeVisible();
   });
 
   test("idle panel accepts dragged attachments", async ({ page }) => {

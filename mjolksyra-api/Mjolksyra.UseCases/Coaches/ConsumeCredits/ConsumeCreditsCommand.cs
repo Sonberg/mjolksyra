@@ -7,4 +7,5 @@ namespace Mjolksyra.UseCases.Coaches.ConsumeCredits;
 public record ConsumeCreditsCommand(
     Guid CoachUserId,
     CreditAction Action,
-    string? ReferenceId = null) : IRequest<OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>>;
+    string? ReferenceId = null,
+    int? CreditCostOverride = null) : IRequest<OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>>;

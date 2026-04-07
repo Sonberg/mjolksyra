@@ -100,4 +100,56 @@ public class ConsumeCreditsCommandHandlerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task Handle_WhenOverrideCostIsProvided_UsesOverrideInsteadOfStaticPricing()
+    {
+        var coachId = Guid.NewGuid();
+        var pricingRepo = new Mock<ICreditActionPricingRepository>();
+        var creditsRepo = new Mock<IUserCreditsRepository>();
+        var ledgerRepo = new Mock<ICreditLedgerRepository>();
+
+        creditsRepo.Setup(r => r.GetByCoachUserId(coachId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserCredits
+            {
+                Id = Guid.NewGuid(),
+                CoachUserId = coachId,
+                IncludedRemaining = 1,
+                PurchasedRemaining = 4,
+                Version = 7,
+            });
+
+        creditsRepo.Setup(r => r.AtomicDeduct(coachId, 1, 2, 7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserCredits
+            {
+                Id = Guid.NewGuid(),
+                CoachUserId = coachId,
+                IncludedRemaining = 0,
+                PurchasedRemaining = 2,
+                Version = 8,
+            });
+
+        var handler = CreateHandler(creditsRepo, pricingRepo, ledgerRepo);
+        var result = await handler.Handle(
+            new ConsumeCreditsCommand(
+                coachId,
+                CreditAction.GenerateWorkoutPlan,
+                "proposal-1",
+                3),
+            default);
+
+        Assert.True(result.IsT0);
+        pricingRepo.Verify(
+            x => x.GetByAction(It.IsAny<CreditAction>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        ledgerRepo.Verify(
+            x => x.Append(
+                It.Is<CreditLedger>(entry =>
+                    entry.Action == CreditAction.GenerateWorkoutPlan
+                    && entry.IncludedCreditsChanged == -1
+                    && entry.PurchasedCreditsChanged == -2
+                    && entry.ReferenceId == "proposal-1"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

@@ -3,7 +3,7 @@ using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
 
-public class ApplyAIPlannerProposalCommand : IRequest<OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict>>
+public class ApplyAIPlannerProposalCommand : IRequest<OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict, ApplyAIPlannerProposalInsufficientCredits>>
 {
     public required Guid TraineeId { get; set; }
 
@@ -30,6 +30,16 @@ public class ApplyAIPlannerProposalForbidden
 public class ApplyAIPlannerProposalConflict
 {
     public ApplyAIPlannerProposalConflict(string reason)
+    {
+        Reason = reason;
+    }
+
+    public string Reason { get; }
+}
+
+public class ApplyAIPlannerProposalInsufficientCredits
+{
+    public ApplyAIPlannerProposalInsufficientCredits(string reason)
     {
         Reason = reason;
     }

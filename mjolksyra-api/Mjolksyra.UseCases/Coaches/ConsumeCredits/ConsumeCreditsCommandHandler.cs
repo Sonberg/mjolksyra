@@ -18,13 +18,17 @@ public class ConsumeCreditsCommandHandler(
         ConsumeCreditsCommand request,
         CancellationToken cancellationToken)
     {
-        var pricing = await pricingRepository.GetByAction(request.Action, cancellationToken);
-        if (pricing is null)
+        var cost = request.CreditCostOverride;
+        if (!cost.HasValue)
         {
-            return new ConsumeCreditsError("Action pricing not configured.");
-        }
+            var pricing = await pricingRepository.GetByAction(request.Action, cancellationToken);
+            if (pricing is null)
+            {
+                return new ConsumeCreditsError("Action pricing not configured.");
+            }
 
-        var cost = pricing.CreditCost;
+            cost = pricing.CreditCost;
+        }
 
         for (var attempt = 0; attempt < MaxRetries; attempt++)
         {
@@ -35,13 +39,13 @@ public class ConsumeCreditsCommandHandler(
             }
 
             var totalAvailable = credits.IncludedRemaining + credits.PurchasedRemaining;
-            if (totalAvailable < cost)
+            if (totalAvailable < cost.Value)
             {
                 return new ConsumeCreditsError("Insufficient credits.");
             }
 
-            var includedUsed = Math.Min(cost, credits.IncludedRemaining);
-            var purchasedUsed = cost - includedUsed;
+            var includedUsed = Math.Min(cost.Value, credits.IncludedRemaining);
+            var purchasedUsed = cost.Value - includedUsed;
 
             var updated = await creditsRepository.AtomicDeduct(
                 request.CoachUserId,

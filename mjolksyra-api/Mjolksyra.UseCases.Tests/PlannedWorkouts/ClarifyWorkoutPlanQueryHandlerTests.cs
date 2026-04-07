@@ -252,6 +252,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Assert.True(result.RequiresApproval);
         Assert.NotNull(result.ProposedActionSet);
         Assert.Single(result.ProposedActionSet.Actions);
+        Assert.Equal(1, result.ProposedActionSet.CreditCost);
+        Assert.Single(result.ProposedActionSet.CreditBreakdown);
         Assert.Equal(AIPlannerProposalStatus.Pending, result.ProposedActionSet.Status);
         Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateFrom);
         Assert.Equal("2026-04-11", result.ProposedActionSet.AffectedDateTo);
@@ -370,6 +372,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Assert.NotNull(result.ProposedActionSet);
         Assert.Equal("2026-04-08", result.ProposedActionSet.AffectedDateFrom);
         Assert.Equal("2026-07-16", result.ProposedActionSet.AffectedDateTo);
+        Assert.Equal(1, result.ProposedActionSet.CreditCost);
         Assert.All(result.ProposedActionSet.Actions, action =>
         {
             Assert.False(string.IsNullOrWhiteSpace(action.TargetDate));
@@ -483,6 +486,72 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Assert.Equal(openWorkoutId, result.ProposedActionSet.Actions.Single().TargetWorkoutId);
         Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateFrom);
         Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateTo);
+        Assert.Equal(1, result.ProposedActionSet.CreditCost);
+    }
+
+    [Fact]
+    public async Task Handle_WhenProposalIsLarge_CapsPriceAtFiveCredits()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        plannerAgent
+            .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AIPlannerClarifyOutput
+            {
+                Message = "I staged a large proposal.",
+                IsReadyToApply = true,
+                RequiresApproval = true,
+                ProposedActionSet = new AIPlannerActionSet
+                {
+                    Summary = "Rebuild the next block.",
+                    Actions = Enumerable.Range(0, 12).Select(index => new AIPlannerActionProposal
+                    {
+                        ActionType = AIPlannerProposalActionTypes.CreateWorkout,
+                        Summary = $"Create workout {index + 1}.",
+                        Workout = new PlannedWorkoutRequestPayload
+                        {
+                            PlannedAt = $"2026-05-{(index + 1):00}",
+                            Name = $"Workout {index + 1}",
+                            Exercises = [],
+                        },
+                    }).ToList(),
+                },
+            });
+
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.Create(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PlannerSession session, CancellationToken _) => session);
+
+        var sut = CreateSut(
+            plannerAgent: plannerAgent,
+            sessionRepository: sessionRepository,
+            traineeRepository: traineeRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(CreateQuery(traineeId: traineeId), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.ProposedActionSet);
+        Assert.Equal(5, result.ProposedActionSet.CreditCost);
     }
 
     [Fact]

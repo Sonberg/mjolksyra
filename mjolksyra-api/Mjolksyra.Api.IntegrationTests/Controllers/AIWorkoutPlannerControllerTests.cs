@@ -72,6 +72,22 @@ public class AIWorkoutPlannerControllerTests
     }
 
     [Fact]
+    public async Task ApplyProposal_WhenCreditsAreInsufficient_ReturnsUnprocessableEntity()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<ApplyAIPlannerProposalCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApplyAIPlannerProposalInsufficientCredits("Insufficient credits."));
+
+        var result = await _sut.ApplyProposal(_traineeId, Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<UnprocessableEntityObjectResult>(result.Result);
+        _publisher.Verify(x => x.Publish(
+            It.IsAny<Guid>(),
+            It.IsAny<string>(),
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task DeleteSession_WhenAuthorized_ReturnsNoContent()
     {
         _mediator.Setup(x => x.Send(It.IsAny<DeletePlannerSessionCommand>(), It.IsAny<CancellationToken>()))

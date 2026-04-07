@@ -5,6 +5,7 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
@@ -18,9 +19,9 @@ public class ApplyAIPlannerProposalCommandHandler(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<ApplyAIPlannerProposalCommand, OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict>>
+    IUserContext userContext) : IRequestHandler<ApplyAIPlannerProposalCommand, OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict, ApplyAIPlannerProposalInsufficientCredits>>
 {
-    public async Task<OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict>> Handle(
+    public async Task<OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict, ApplyAIPlannerProposalInsufficientCredits>> Handle(
         ApplyAIPlannerProposalCommand request,
         CancellationToken cancellationToken)
     {
@@ -47,6 +48,13 @@ public class ApplyAIPlannerProposalCommandHandler(
             return new ApplyAIPlannerProposalConflict("This proposal is no longer pending.");
         }
 
+        if (proposal.CreditCost <= 0 && proposal.Actions.Count > 0)
+        {
+            var pricing = AIPlannerProposalPricing.Calculate(proposal.Actions);
+            proposal.CreditCost = pricing.CreditCost;
+            proposal.CreditBreakdown = pricing.Breakdown;
+        }
+
         if (!DateOnly.TryParse(proposal.AffectedDateFrom, out var fromDate) ||
             !DateOnly.TryParse(proposal.AffectedDateTo, out var toDate))
         {
@@ -70,6 +78,19 @@ public class ApplyAIPlannerProposalCommandHandler(
         if (!string.Equals(proposal.SourceSnapshotHash, currentSnapshotHash, StringComparison.Ordinal))
         {
             return new ApplyAIPlannerProposalConflict("Planner state changed after this proposal was generated. Please ask the assistant to refresh the proposal.");
+        }
+
+        var consumeResult = await mediator.Send(
+            new ConsumeCreditsCommand(
+                userId,
+                CreditAction.GenerateWorkoutPlan,
+                request.ProposalId.ToString(),
+                proposal.CreditCost),
+            cancellationToken);
+
+        if (consumeResult.IsT1)
+        {
+            return new ApplyAIPlannerProposalInsufficientCredits(consumeResult.AsT1.Reason);
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);

@@ -85,6 +85,13 @@ export type AIPlannerActionProposal = {
   workout?: AIPlannerWorkoutDraft | null;
 };
 
+export type AIPlannerCreditBreakdownItem = {
+  actionType: AIPlannerActionType;
+  count: number;
+  unitCost: number;
+  subtotal: number;
+};
+
 export type AIPlannerActionSet = {
   id: string;
   status: "pending" | "applied" | "discarded" | "superseded";
@@ -95,6 +102,8 @@ export type AIPlannerActionSet = {
   sourceSnapshotHash?: string | null;
   createdAt: string;
   appliedAt?: string | null;
+  creditCost: number;
+  creditBreakdown: AIPlannerCreditBreakdownItem[];
   actions: AIPlannerActionProposal[];
 };
 

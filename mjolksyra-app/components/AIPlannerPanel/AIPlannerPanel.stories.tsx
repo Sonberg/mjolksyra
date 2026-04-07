@@ -8,17 +8,27 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+function StoryFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-[var(--app-bg)] p-6">
+      <div className="h-[720px] w-[400px] border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export const Idle: Story = {
   render: () => (
-    <div className="h-[600px] w-[360px] border border-gray-200">
+    <StoryFrame>
       <AIPlannerPanel traineeId="trainee-1" onGenerated={async () => {}} />
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const AskingFollowUp: Story = {
   render: () => (
-    <div className="h-[600px] w-[360px] border border-gray-200">
+    <StoryFrame>
       <AIPlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
@@ -31,13 +41,13 @@ export const AskingFollowUp: Story = {
           ],
         }}
       />
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const PendingApproval: Story = {
   render: () => (
-    <div className="h-[600px] w-[360px] border border-gray-200">
+    <StoryFrame>
       <AIPlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
@@ -63,6 +73,11 @@ export const PendingApproval: Story = {
             affectedDateFrom: "2026-04-13",
             affectedDateTo: "2026-04-26",
             createdAt: "2026-04-07T10:00:00.000Z",
+            creditCost: 1,
+            creditBreakdown: [
+              { actionType: "move_workout", count: 1, unitCost: 0.5, subtotal: 0.5 },
+              { actionType: "update_exercise", count: 1, unitCost: 0.25, subtotal: 0.25 },
+            ],
             actions: [
               {
                 actionType: "move_workout",
@@ -114,13 +129,89 @@ export const PendingApproval: Story = {
           ],
         }}
       />
-    </div>
+    </StoryFrame>
+  ),
+};
+
+export const PendingMidCostProposal: Story = {
+  render: () => (
+    <StoryFrame>
+      <AIPlannerPanel
+        traineeId="trainee-1"
+        onGenerated={async () => {}}
+        initialState={{
+          sessionId: "session-3",
+          description: "Reshape the next two weeks after travel.",
+          messages: [
+            { role: "user", content: "Move two sessions, rebuild one workout, and adjust accessories." },
+            {
+              role: "assistant",
+              content: "I staged a broader update proposal. Review the plan and price before approving.",
+            },
+          ],
+          proposedActionSet: {
+            id: "proposal-mid",
+            status: "pending",
+            summary: "Reshape three upcoming workouts after travel.",
+            explanation: "This keeps the weekly rhythm but smooths the return to heavier work.",
+            affectedDateFrom: "2026-04-21",
+            affectedDateTo: "2026-05-02",
+            createdAt: "2026-04-07T10:00:00.000Z",
+            creditCost: 3,
+            creditBreakdown: [
+              { actionType: "move_workout", count: 2, unitCost: 0.5, subtotal: 1 },
+              { actionType: "update_workout", count: 2, unitCost: 0.5, subtotal: 1 },
+              { actionType: "update_exercise", count: 2, unitCost: 0.25, subtotal: 0.5 },
+            ],
+            actions: [
+              {
+                actionType: "move_workout",
+                summary: "Move Tue Apr 21 workout to Wed Apr 22.",
+                targetWorkoutId: "workout-11",
+                previousDate: "2026-04-21",
+                targetDate: "2026-04-22",
+              },
+              {
+                actionType: "move_workout",
+                summary: "Move Fri Apr 24 workout to Sat Apr 25.",
+                targetWorkoutId: "workout-12",
+                previousDate: "2026-04-24",
+                targetDate: "2026-04-25",
+              },
+              {
+                actionType: "update_workout",
+                summary: "Reduce lower-body volume on Mon Apr 27.",
+                targetWorkoutId: "workout-13",
+                targetDate: "2026-04-27",
+                workout: {
+                  name: "Lower reset",
+                  plannedAt: "2026-04-27",
+                  exercises: [],
+                },
+              },
+              {
+                actionType: "update_workout",
+                summary: "Rebuild Sat May 2 workout as an upper primer.",
+                targetWorkoutId: "workout-14",
+                targetDate: "2026-05-02",
+                workout: {
+                  name: "Upper primer",
+                  plannedAt: "2026-05-02",
+                  exercises: [],
+                },
+              },
+            ],
+          },
+          previewWorkouts: [],
+        }}
+      />
+    </StoryFrame>
   ),
 };
 
 export const PendingFutureDelete: Story = {
   render: () => (
-    <div className="h-[600px] w-[360px] border border-gray-200">
+    <StoryFrame>
       <AIPlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
@@ -144,6 +235,10 @@ export const PendingFutureDelete: Story = {
             affectedDateFrom: "2026-04-08",
             affectedDateTo: "2026-07-16",
             createdAt: "2026-04-07T10:00:00.000Z",
+            creditCost: 5,
+            creditBreakdown: [
+              { actionType: "delete_workout", count: 49, unitCost: 0.25, subtotal: 12.25 },
+            ],
             actions: [
               {
                 actionType: "delete_workout",
@@ -162,13 +257,13 @@ export const PendingFutureDelete: Story = {
           previewWorkouts: [],
         }}
       />
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const AfterGeneration: Story = {
   render: () => (
-    <div className="h-[600px] w-[360px] border border-gray-200">
+    <StoryFrame>
       <AIPlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
@@ -185,6 +280,6 @@ export const AfterGeneration: Story = {
           },
         }}
       />
-    </div>
+    </StoryFrame>
   ),
 };

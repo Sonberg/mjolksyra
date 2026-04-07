@@ -6,6 +6,7 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
@@ -42,6 +43,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             Id = proposalId,
             Status = AIPlannerProposalStatus.Pending,
             Summary = "Create one workout and move another.",
+            CreditCost = 1,
             AffectedDateFrom = "2026-04-14",
             AffectedDateTo = "2026-04-15",
             SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint([existingWorkout]),
@@ -89,6 +91,10 @@ public class ApplyAIPlannerProposalCommandHandlerTests
         };
 
         var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf.OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(
+                new ConsumeCreditsSuccess(10, 5)));
         mediator
             .Setup(x => x.Send(It.IsAny<CreatePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PlannedWorkoutResponse
@@ -156,6 +162,12 @@ public class ApplyAIPlannerProposalCommandHandlerTests
         Assert.Equal(2, result.AsT0.ActionsApplied);
         Assert.Equal(proposalId, result.AsT0.ProposalId);
         Assert.Equal(2, result.AsT0.WorkoutIds.Count);
+        mediator.Verify(x => x.Send(
+            It.Is<ConsumeCreditsCommand>(command =>
+                command.Action == CreditAction.GenerateWorkoutPlan
+                && command.ReferenceId == proposalId.ToString()
+                && command.CreditCostOverride == 1),
+            It.IsAny<CancellationToken>()), Times.Once);
         Assert.Equal(AIPlannerProposalStatus.Applied, session.ProposedActionSet?.Status);
         Assert.NotNull(session.ProposedActionSet?.AppliedAt);
         Assert.Equal(2, session.GenerationResult?.ActionsApplied);
@@ -270,6 +282,96 @@ public class ApplyAIPlannerProposalCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WhenCreditsAreInsufficient_ReturnsInsufficientCreditsAndDoesNotMutateWorkouts()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var proposalId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.GetByProposalId(proposalId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannerSession
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = traineeId,
+                CoachUserId = userId,
+                Description = "Plan next week",
+                ProposedActionSet = new AIPlannerActionSet
+                {
+                    Id = proposalId,
+                    Status = AIPlannerProposalStatus.Pending,
+                    Summary = "Create workout",
+                    CreditCost = 3,
+                    AffectedDateFrom = "2026-04-14",
+                    AffectedDateTo = "2026-04-14",
+                    SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint([]),
+                    Actions =
+                    [
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.CreateWorkout,
+                            Summary = "Create workout",
+                            Workout = new PlannedWorkoutRequestPayload
+                            {
+                                PlannedAt = "2026-04-14",
+                                Name = "Upper",
+                                Exercises = [],
+                            },
+                        },
+                    ],
+                },
+                CreatedAt = now,
+                UpdatedAt = now,
+            });
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [] });
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
+
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf.OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT1(
+                new ConsumeCreditsError("Insufficient credits.")));
+
+        var sut = new ApplyAIPlannerProposalCommandHandler(
+            mediator.Object,
+            sessionRepository.Object,
+            plannedWorkoutRepository.Object,
+            new Mock<IExerciseRepository>().Object,
+            traineeRepository.Object,
+            userContext.Object);
+
+        var result = await sut.Handle(new ApplyAIPlannerProposalCommand
+        {
+            TraineeId = traineeId,
+            ProposalId = proposalId,
+        }, CancellationToken.None);
+
+        Assert.True(result.IsT3);
+        Assert.Equal("Insufficient credits.", result.AsT3.Reason);
+        mediator.Verify(x => x.Send(It.IsAny<CreatePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        sessionRepository.Verify(x => x.Update(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_WhenDeleteOnlyProposalHasResolvedFutureRange_DeletesAllTargetedWorkouts()
     {
         var userId = Guid.NewGuid();
@@ -313,6 +415,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                     Id = proposalId,
                     Status = AIPlannerProposalStatus.Pending,
                     Summary = "Delete all future workouts.",
+                    CreditCost = 1,
                     AffectedDateFrom = firstDate.ToString("yyyy-MM-dd"),
                     AffectedDateTo = secondDate.ToString("yyyy-MM-dd"),
                     SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint([firstWorkout, secondWorkout]),
@@ -360,6 +463,10 @@ public class ApplyAIPlannerProposalCommandHandlerTests
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
 
         var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf.OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(
+                new ConsumeCreditsSuccess(9, 4)));
         mediator
             .Setup(x => x.Send(It.IsAny<DeletePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

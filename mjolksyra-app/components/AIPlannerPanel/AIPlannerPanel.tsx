@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import {
   SparklesIcon,
@@ -17,21 +16,32 @@ import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
 dayjs.extend(isoWeek);
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
 import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
 import { discardPlannerProposal } from "@/services/aiPlanner/discardPlannerProposal";
 import { getLatestPlannerSession } from "@/services/aiPlanner/getLatestPlannerSession";
-import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import type {
-  PlannerConversationMessage,
   PlannerFileContent,
   AIPlannerActionProposal,
   AIPlannerActionSet,
+  AIPlannerCreditBreakdownItem,
   AIPlannerApplyProposalResponse,
   PreviewWorkoutPlanWorkout,
 } from "@/services/aiPlanner/types";
+import { cn } from "@/lib/utils";
 
 type Props = {
   traineeId: string;
@@ -53,7 +63,9 @@ type Message = {
   options?: string[];
 };
 
-type GenerationResult = AIPlannerApplyProposalResponse & { generatedAt: string };
+type GenerationResult = AIPlannerApplyProposalResponse & {
+  generatedAt: string;
+};
 
 const ACCEPTED_EXTENSIONS = ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp";
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
@@ -109,7 +121,9 @@ export function AIPlannerPanel({
   const [generationResult, setGenerationResult] =
     useState<GenerationResult | null>(initialState?.generationResult ?? null);
   const [proposedActionSet, setProposedActionSet] =
-    useState<AIPlannerActionSet | null>(initialState?.proposedActionSet ?? null);
+    useState<AIPlannerActionSet | null>(
+      initialState?.proposedActionSet ?? null,
+    );
   const [previewData, setPreviewData] = useState<
     PreviewWorkoutPlanWorkout[] | null
   >(initialState?.previewWorkouts ?? null);
@@ -121,14 +135,6 @@ export function AIPlannerPanel({
   const [attachmentDragDepth, setAttachmentDragDepth] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  const { data: pricing } = useQuery({
-    queryKey: ["coach-credit-pricing"],
-    queryFn: getCreditPricing,
-  });
-  const generateCost =
-    pricing?.find((p) => p.action === "GenerateWorkoutPlan")?.creditCost ??
-    null;
   const hasPendingProposal = proposedActionSet?.status === "pending";
   const hasStarted = messages.length > 0 || isLoading;
   const hasSessionDraft =
@@ -176,10 +182,6 @@ export function AIPlannerPanel({
     }, 50);
   }
 
-  function buildConversationHistory(): PlannerConversationMessage[] {
-    return messages.map((m) => ({ role: m.role, content: m.content }));
-  }
-
   async function handleSendInitial() {
     if (!description.trim()) return;
 
@@ -208,7 +210,9 @@ export function AIPlannerPanel({
       setMessages([...newMessages, aiMessage]);
 
       setProposedActionSet(response.proposedActionSet);
-      setPreviewData(response.previewWorkouts?.length ? response.previewWorkouts : null);
+      setPreviewData(
+        response.previewWorkouts?.length ? response.previewWorkouts : null,
+      );
       setProposalError(null);
     } catch {
       setMessages([
@@ -265,7 +269,9 @@ export function AIPlannerPanel({
       setMessages([...newMessages, aiMessage]);
 
       setProposedActionSet(response.proposedActionSet);
-      setPreviewData(response.previewWorkouts?.length ? response.previewWorkouts : null);
+      setPreviewData(
+        response.previewWorkouts?.length ? response.previewWorkouts : null,
+      );
       setProposalError(null);
     } catch {
       setMessages([
@@ -447,127 +453,156 @@ export function AIPlannerPanel({
 
   if (generationResult) {
     return (
-      <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(255,255,255,0.03),transparent)] p-4">
-        <div className="flex items-start gap-3 border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
-            <CheckIcon className="h-3.5 w-3.5 text-[var(--shell-accent-ink)]" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              Planner complete
+      <div className="flex h-full flex-col gap-4 bg-[var(--shell-surface)] p-4">
+        <Card className="border border-[var(--shell-border)] shadow-none">
+          <CardHeader className="border-b border-[var(--shell-border)] p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
+                <CheckIcon className="h-3.5 w-3.5 text-[var(--shell-accent-ink)]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                  Planner complete
+                </p>
+                <CardTitle className="mt-1 text-base">
+                  Changes applied
+                </CardTitle>
+                <CardDescription className="mt-1 text-sm">
+                  {generationResult.summary}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 gap-2">
+              <StatTile
+                label="Actions applied"
+                value={`${generationResult.actionsApplied}`}
+              />
+              <StatTile label="Next step" value="Review changes" />
+            </div>
+            <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
+              Planned workouts were updated. Review them in the{" "}
+              <span className="font-semibold text-[var(--shell-ink)]">
+                Changes
+              </span>{" "}
+              tab, then publish when ready.
             </p>
-            <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
-              Program generated
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              {generationResult.summary}
-            </p>
-            <p className="mt-1 text-xs text-[var(--shell-muted)]">
-              {generationResult.actionsApplied} action
-              {generationResult.actionsApplied !== 1 ? "s" : ""} applied
-            </p>
-          </div>
-        </div>
-        <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
-          Planned workouts were updated. Review them in the{" "}
-          <span className="font-semibold text-[var(--shell-ink)]">Changes</span>{" "}
-          tab, then publish when ready.
-        </p>
-        <button
-          type="button"
-          disabled={isClearingSession}
-          className="mt-4 inline-flex items-center gap-1.5 self-start border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
-          onClick={() => void handleClearSession()}
-        >
-          <RotateCcwIcon className="h-3 w-3" />
-          Clear session
-        </button>
+          </CardContent>
+          <CardFooter className="border-t border-[var(--shell-border)] p-4 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isClearingSession}
+              className="gap-1.5"
+              onClick={() => void handleClearSession()}
+            >
+              <RotateCcwIcon className="h-3 w-3" />
+              Clear session
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent)] px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-                AI planner
-              </p>
+    <div className="flex h-full min-h-0 flex-col bg-[var(--shell-surface)]">
+      <Card className="border-b border-[var(--shell-border)] border-x-0 border-t-0 shadow-none">
+        <CardHeader className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
+                  Planning assistant
+                </p>
+              </div>
+              <CardTitle className="mt-1 text-base">
+                Build, adjust, and approve the next block
+              </CardTitle>
+              <CardDescription className="mt-1 text-xs leading-5">
+                Coach the assistant with a brief, review staged changes, and
+                apply them only when you approve.
+              </CardDescription>
             </div>
-            <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
-              Build the next block with guided prompts
-            </p>
+            {hasSessionDraft && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isLoading || isClearingSession}
+                className="gap-1.5"
+                onClick={() => void handleClearSession()}
+              >
+                <RotateCcwIcon className="h-3 w-3" />
+                Clear session
+              </Button>
+            )}
           </div>
-          {hasSessionDraft && (
-            <button
-              type="button"
-              disabled={isLoading || isClearingSession}
-              className="inline-flex items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={() => void handleClearSession()}
-            >
-              <RotateCcwIcon className="h-3 w-3" />
-              Clear session
-            </button>
-          )}
-        </div>
-        {!hasStarted && (
-          <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
-            Describe the training goal, upload context, and let the planner
-            guide you toward a clean draft before generation.
-          </p>
-        )}
-      </div>
+        </CardHeader>
+      </Card>
 
       {hasStarted && (
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)] px-4 py-4">
-          <div className="flex min-h-full flex-col justify-end gap-3">
-            {messages.map((message, index) => {
-              const isLastAi =
-                message.role === "assistant" &&
-                index === messages.findLastIndex((m) => m.role === "assistant");
-              const showOptions =
-                isLastAi &&
-                message.options?.length &&
-                !isLoading &&
-                !hasPendingProposal;
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          <div className="flex min-h-full flex-col gap-4">
+            <AssistantSection
+              eyebrow="Conversation"
+              title="Planner context"
+              description="The assistant will guide the plan, ask for missing details, and stage changes for approval."
+            >
+              <div className="flex flex-col gap-3">
+                {messages.map((message, index) => {
+                  const isLastAi =
+                    message.role === "assistant" &&
+                    index ===
+                      messages.findLastIndex((m) => m.role === "assistant");
+                  const showOptions =
+                    isLastAi &&
+                    message.options?.length &&
+                    !isLoading &&
+                    !hasPendingProposal;
 
-              return (
-                <div key={index} className="flex flex-col gap-1.5">
-                  <PlannerBubble role={message.role}>
-                    {message.content}
-                  </PlannerBubble>
-                  {showOptions && (
-                    <div className="flex flex-wrap gap-2 pl-1">
-                      {message.options!.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => void handleOptionSelect(option)}
-                          className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)] transition hover:border-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
-                        >
-                          {option}
-                        </button>
-                      ))}
+                  return (
+                    <div key={index} className="flex flex-col gap-1.5">
+                      <PlannerBubble role={message.role}>
+                        {message.content}
+                      </PlannerBubble>
+                      {showOptions && (
+                        <div className="flex flex-wrap gap-2">
+                          {message.options!.map((option) => (
+                            <Button
+                              key={option}
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => void handleOptionSelect(option)}
+                            >
+                              {option}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-                  <LoadingDots />
-                </div>
+                  );
+                })}
+                {isLoading && (
+                  <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                      Planner
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
+                      <LoadingDots />
+                      <span>Thinking through the plan…</span>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </AssistantSection>
             {hasPendingProposal && proposedActionSet && (
               <ProposalReviewCard
                 proposal={proposedActionSet}
                 workouts={previewData ?? []}
-                generateCost={generateCost}
                 isLoading={isLoading}
                 error={proposalError}
                 onApply={() => void handleApplyProposal()}
@@ -575,18 +610,28 @@ export function AIPlannerPanel({
               />
             )}
             {insufficientCredits && (
-              <div className="flex items-center justify-between gap-3 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-                <p className="text-xs text-[var(--shell-muted)]">
-                  Not enough credits.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setPurchaseDialogOpen(true)}
-                  className="shrink-0 text-xs font-semibold text-[var(--shell-accent)] underline-offset-2 hover:underline"
-                >
-                  Buy credits
-                </button>
-              </div>
+              <Card className="border border-[var(--shell-border)] shadow-none">
+                <CardContent className="flex items-center justify-between gap-3 p-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-[var(--shell-ink)]">
+                      Not enough credits for this proposal.
+                    </p>
+                    <p className="text-xs text-[var(--shell-muted)]">
+                      Buy more credits and then apply this{" "}
+                      {proposedActionSet?.creditCost || 1} credit proposal
+                      again.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPurchaseDialogOpen(true)}
+                  >
+                    Buy credits
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
           <div ref={bottomRef} />
@@ -596,7 +641,7 @@ export function AIPlannerPanel({
       {!hasStarted ? (
         <div
           className={[
-            "flex-1 overflow-y-auto px-4 py-4 transition",
+            "flex flex-1 flex-col overflow-hidden transition",
             isAttachmentDragActive
               ? "bg-[color-mix(in_srgb,var(--shell-surface)_72%,white_28%)]"
               : "",
@@ -607,127 +652,113 @@ export function AIPlannerPanel({
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div
-            className={[
-              "mb-4 flex items-center justify-between gap-3 border border-dashed px-3 py-2 transition",
-              isAttachmentDragActive
-                ? "border-[var(--shell-ink)] bg-[var(--shell-surface)]"
-                : "border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface)_86%,white_14%)]",
-            ].join(" ")}
-          >
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                {isAttachmentDragActive ? "Drop files here" : "Drag and drop attachments"}
-              </p>
-              <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
-                Add notes, spreadsheets, exports, or images for planner context.
-              </p>
-            </div>
-            <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+          <div className="flex-1 overflow-y-auto px-4 py-4">
+            <AssistantSection
+              eyebrow="Kickoff brief"
+              title="Tell the assistant what you want to plan"
+              description="Use the assistant to map a new block, revise upcoming workouts, or remove future sessions before you approve any change."
+            >
+              <div className="space-y-3 text-sm leading-6 text-[var(--shell-muted)]">
+                <p>
+                  Include the goal, schedule, constraints, and any recent
+                  context the assistant should carry into the proposal.
+                </p>
+                <p>
+                  You can also ask it to move, edit, or delete future workouts.
+                  Nothing is applied until you approve the staged changes.
+                </p>
+              </div>
+            </AssistantSection>
           </div>
 
-          <textarea
-            className="w-full resize-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-4 text-sm leading-6 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none"
-            rows={5}
-            placeholder="e.g. 12-week strength block for a powerlifter, 3 days/week with progressive overload on squat, bench, and deadlift..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                void handleSendInitial();
-              }
-            }}
-          />
+          <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-4">
+            <div className="space-y-3 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
 
-          {attachedFiles.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {attachedFiles.map((file, i) => (
-                <AttachmentPill
-                  key={`${file.name}-${i}`}
-                  fileName={file.name}
-                  onRemove={() => removeFile(i)}
+              <AttachmentDropHint isActive={isAttachmentDragActive} />
+
+              {attachedFiles.length > 0 && (
+                <AttachmentStrip files={attachedFiles} onRemove={removeFile} />
+              )}
+
+              <Textarea
+                rows={5}
+                className="min-h-[160px] px-4 py-4 leading-6"
+                placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    void handleSendInitial();
+                  }
+                }}
+              />
+
+              <div className="flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+                <span>
+                  {isAttachmentDragActive
+                    ? "Release to attach files"
+                    : "Drag files here or add context below"}
+                </span>
+                <span>Cmd/Ctrl + Enter to start</span>
+              </div>
+
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept={ACCEPTED_EXTENSIONS}
+                  multiple
+                  onChange={handleFileChange}
                 />
-              ))}
-            </div>
-          )}
-
-          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-            {isAttachmentDragActive ? "Release to attach files" : "Tip: you can also drag files anywhere into this area"}
-          </p>
-
-          <div className="mt-4 flex items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept={ACCEPTED_EXTENSIONS}
-              multiple
-              onChange={handleFileChange}
-            />
-            <div className="flex gap-4 justify-end">
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <PaperclipIcon className="h-3 w-3" />
-                Attach context
-              </button>
-              <button
-                type="button"
-                disabled={!description.trim() || isLoading}
-                className="ml-auto inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => void handleSendInitial()}
-              >
-                <SendIcon className="h-3 w-3" />
-                Start planner
-              </button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <PaperclipIcon className="h-3 w-3" />
+                  Attach context
+                </Button>
+                <Button
+                  type="button"
+                  disabled={!description.trim() || isLoading}
+                  className="gap-1.5"
+                  onClick={() => void handleSendInitial()}
+                >
+                  <SendIcon className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       ) : (
         <div
-          className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))] px-4 py-3"
+          className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-4"
           data-testid="ai-planner-attachment-dropzone"
           onDragEnter={handleAttachmentDragEnter}
           onDragOver={handleAttachmentDragOver}
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div
-            className={[
-              "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-2 transition",
-              isAttachmentDragActive
-                ? "border-dashed border-[var(--shell-ink)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_84%,white_16%)]"
-                : "",
-            ].join(" ")}
+          <AssistantSection
+            eyebrow="Next instruction"
+            title={
+              hasPendingProposal
+                ? "Refine or replace the staged changes"
+                : "Continue guiding the assistant"
+            }
+            description={
+              hasPendingProposal
+                ? "Ask for revisions if you want to adjust the proposed changes before approval."
+                : "Reply with the next constraint, date, or coaching decision."
+            }
           >
-            <div className="mb-2 flex items-center justify-between gap-3 border border-dashed border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface)_88%,white_12%)] px-2 py-2">
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                  {isAttachmentDragActive ? "Drop files here" : "Drag and drop attachments"}
-                </p>
-                <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
-                  Add context files without leaving the planner.
-                </p>
-              </div>
-              <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
-            </div>
+            <AttachmentDropHint isActive={isAttachmentDragActive} />
             {attachedFiles.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-2 px-2 pt-2">
-                {attachedFiles.map((file, i) => (
-                  <AttachmentPill
-                    key={`${file.name}-${i}`}
-                    fileName={file.name}
-                    onRemove={() => removeFile(i)}
-                  />
-                ))}
-              </div>
+              <AttachmentStrip files={attachedFiles} onRemove={removeFile} />
             )}
-            <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-              {isAttachmentDragActive ? "Release to attach files" : "Tip: drag files straight into this composer"}
-            </p>
-            <div className="mb-2 flex items-center justify-between gap-2 px-2">
+            <div className="flex items-center justify-between gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -736,22 +767,23 @@ export function AIPlannerPanel({
                 multiple
                 onChange={handleFileChange}
               />
-              <button
+              <Button
                 type="button"
-                className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+                variant="outline"
+                className="gap-1.5"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <PaperclipIcon className="h-3 w-3" />
                 Attach
-              </button>
-              <span className="text-[10px] font-medium text-[var(--shell-muted)]">
+              </Button>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
                 Cmd/Ctrl + Enter to send
               </span>
             </div>
             <div className="flex items-end gap-2">
-              <textarea
-                className="min-h-[44px] flex-1 resize-none border border-transparent bg-transparent px-4 py-2.5 text-sm leading-6 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-border)] focus:bg-[var(--shell-surface)] focus:outline-none"
-                rows={2}
+              <Textarea
+                rows={3}
+                className="min-h-[96px] px-4 py-3"
                 placeholder={
                   hasPendingProposal
                     ? "Ask for changes or explain what to revise..."
@@ -766,16 +798,16 @@ export function AIPlannerPanel({
                 }}
                 disabled={isLoading}
               />
-              <button
+              <Button
                 type="button"
+                size="icon"
                 disabled={!userInput.trim() || isLoading}
-                className="flex h-11 w-11 shrink-0 items-center justify-center border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => void handleSendFollowUp()}
               >
                 <SendIcon className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </div>
-          </div>
+          </AssistantSection>
         </div>
       )}
       <PurchaseCreditsDialog
@@ -791,9 +823,93 @@ export function AIPlannerPanel({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-3">
+    <div className="flex items-baseline justify-between gap-3 text-xs">
       <dt className="text-[var(--shell-muted)]">{label}</dt>
       <dd className="font-medium text-[var(--shell-ink)]">{value}</dd>
+    </div>
+  );
+}
+
+function AssistantSection({
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="border border-[var(--shell-border)] shadow-none">
+      <CardHeader className="border-b border-[var(--shell-border)] p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+          {eyebrow}
+        </p>
+        <CardTitle className="mt-1 text-sm">{title}</CardTitle>
+        {description && (
+          <CardDescription className="mt-1 text-xs leading-5">
+            {description}
+          </CardDescription>
+        )}
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4 p-4">{children}</CardContent>
+    </Card>
+  );
+}
+
+function StatTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-medium text-[var(--shell-ink)]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function AttachmentDropHint({ isActive }: { isActive: boolean }) {
+  return (
+    <div
+      className={cn(
+        "flex items-start justify-between gap-3 border border-dashed border-[var(--shell-border)] px-3 py-3",
+        isActive &&
+          "border-[var(--shell-accent)] bg-[var(--shell-surface-strong)]",
+      )}
+    >
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+          {isActive ? "Drop files here" : "Context attachments"}
+        </p>
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">
+          Add notes, exports, spreadsheets, or images to ground the assistant.
+        </p>
+      </div>
+      <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+    </div>
+  );
+}
+
+function AttachmentStrip({
+  files,
+  onRemove,
+}: {
+  files: PlannerFileContent[];
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {files.map((file, i) => (
+        <AttachmentPill
+          key={`${file.name}-${i}`}
+          fileName={file.name}
+          onRemove={() => onRemove(i)}
+        />
+      ))}
     </div>
   );
 }
@@ -806,8 +922,13 @@ function AttachmentPill({
   onRemove: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1 text-[10px] font-medium text-[var(--shell-muted)]">
-      {fileName}
+    <Badge
+      variant="secondary"
+      className="gap-1.5 py-1 normal-case tracking-[0.04em]"
+    >
+      <span className="text-[10px] font-medium text-[var(--shell-muted)]">
+        {fileName}
+      </span>
       <button
         type="button"
         onClick={onRemove}
@@ -816,7 +937,7 @@ function AttachmentPill({
       >
         <XIcon className="h-3 w-3" />
       </button>
-    </span>
+    </Badge>
   );
 }
 
@@ -830,23 +951,23 @@ function PlannerBubble({
   const isUser = role === "user";
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className="max-w-[88%] sm:max-w-[82%]">
+    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
+      <div className="max-w-[92%]">
         <div
-          className={
-            isUser
-              ? "mb-1 text-right text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
-              : "mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
-          }
+          className={cn(
+            "mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]",
+            isUser && "text-right",
+          )}
         >
           {isUser ? "Coach" : "Planner"}
         </div>
         <div
-          className={
+          className={cn(
+            "border px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]",
             isUser
-              ? "border border-[var(--shell-accent)]/30 bg-[color-mix(in_srgb,var(--shell-accent)_16%,var(--shell-surface)_84%)] px-4 py-3 text-sm leading-6 text-[var(--shell-ink)] shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
-              : "border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]"
-          }
+              ? "border-[var(--shell-border)] bg-[var(--shell-surface)]"
+              : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
+          )}
         >
           {children}
         </div>
@@ -871,33 +992,47 @@ function groupByWeek(workouts: PreviewWorkoutPlanWorkout[]): WeekGroup[] {
   const groups: WeekGroup[] = [];
   let weekIndex = 1;
   for (const [, weekWorkouts] of map) {
-    const monday = dayjs(weekWorkouts[0].plannedAt).startOf("isoWeek" as dayjs.OpUnitType);
+    const monday = dayjs(weekWorkouts[0].plannedAt).startOf(
+      "isoWeek" as dayjs.OpUnitType,
+    );
     const sunday = monday.add(6, "day");
     groups.push({
       weekLabel: `Week ${weekIndex}`,
       weekRange: `${monday.format("MMM D")} – ${sunday.format("MMM D")}`,
-      workouts: weekWorkouts.sort((a, b) => a.plannedAt.localeCompare(b.plannedAt)),
+      workouts: weekWorkouts.sort((a, b) =>
+        a.plannedAt.localeCompare(b.plannedAt),
+      ),
     });
     weekIndex++;
   }
   return groups;
 }
 
-function formatSet(set: PreviewWorkoutPlanWorkout["exercises"][0]["sets"][0], type?: string): string {
-  if (type === "DurationSeconds" && set.durationSeconds) return `${set.durationSeconds}s`;
-  if (type === "DistanceMeters" && set.distanceMeters) return `${set.distanceMeters}m`;
+function formatSet(
+  set: PreviewWorkoutPlanWorkout["exercises"][0]["sets"][0],
+  type?: string,
+): string {
+  if (type === "DurationSeconds" && set.durationSeconds)
+    return `${set.durationSeconds}s`;
+  if (type === "DistanceMeters" && set.distanceMeters)
+    return `${set.distanceMeters}m`;
   const parts: string[] = [];
   if (set.reps) parts.push(`${set.reps}`);
   if (set.weightKg) parts.push(`${set.weightKg}kg`);
   return parts.join(" @ ");
 }
 
-function formatPrescription(exercise: PreviewWorkoutPlanWorkout["exercises"][0]): string {
+function formatPrescription(
+  exercise: PreviewWorkoutPlanWorkout["exercises"][0],
+): string {
   if (!exercise.sets.length) return "";
   const type = exercise.prescriptionType;
-  if (exercise.sets.length === 1) return formatSet(exercise.sets[0], type ?? undefined);
+  if (exercise.sets.length === 1)
+    return formatSet(exercise.sets[0], type ?? undefined);
   const first = formatSet(exercise.sets[0], type ?? undefined);
-  const allSame = exercise.sets.every((s) => formatSet(s, type ?? undefined) === first);
+  const allSame = exercise.sets.every(
+    (s) => formatSet(s, type ?? undefined) === first,
+  );
   if (allSame) return `${exercise.sets.length}×${first}`;
   return exercise.sets.map((s) => formatSet(s, type ?? undefined)).join(", ");
 }
@@ -905,7 +1040,6 @@ function formatPrescription(exercise: PreviewWorkoutPlanWorkout["exercises"][0])
 type ProposalReviewCardProps = {
   proposal: AIPlannerActionSet;
   workouts: PreviewWorkoutPlanWorkout[];
-  generateCost: number | null;
   isLoading: boolean;
   error: string | null;
   onApply: () => void;
@@ -915,50 +1049,48 @@ type ProposalReviewCardProps = {
 function ProposalReviewCard({
   proposal,
   workouts,
-  generateCost,
   isLoading,
   error,
   onApply,
   onDiscard,
 }: ProposalReviewCardProps) {
   const weeks = groupByWeek(workouts);
+  const creditCost = proposal.creditCost || 1;
+  const breakdownSummary = summarizeCreditBreakdown(proposal.creditBreakdown);
 
   return (
-    <div className="border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
-      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+    <Card className="border border-[var(--shell-border)] shadow-none">
+      <CardHeader className="border-b border-[var(--shell-border)] p-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Pending approval
         </p>
-        <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
-          {proposal.summary}
-        </p>
+        <CardTitle className="mt-1 text-base">{proposal.summary}</CardTitle>
         {proposal.explanation && (
-          <p className="mt-1 text-xs leading-5 text-[var(--shell-muted)]">
+          <CardDescription className="mt-1 text-xs leading-5">
             {proposal.explanation}
-          </p>
+          </CardDescription>
         )}
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-              Actions
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-ink)]">
-              {proposal.actions.length} staged change
-              {proposal.actions.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-              Date range
-            </p>
-            <p className="mt-1 text-sm text-[var(--shell-ink)]">
-              {formatDateRange(proposal.affectedDateFrom, proposal.affectedDateTo)}
-            </p>
-          </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <StatTile
+            label="Actions"
+            value={`${proposal.actions.length} staged change${proposal.actions.length !== 1 ? "s" : ""}`}
+          />
+          <StatTile
+            label="Date range"
+            value={formatDateRange(
+              proposal.affectedDateFrom,
+              proposal.affectedDateTo,
+            )}
+          />
+          <StatTile label="Price" value={`${creditCost} cr`} />
         </div>
-      </div>
+        <p className="mt-3 text-xs text-[var(--shell-muted)]">
+          {breakdownSummary ? `${breakdownSummary}. ` : ""}Rounded and capped at
+          5 cr.
+        </p>
+      </CardHeader>
 
-      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+      <CardContent className="border-b border-[var(--shell-border)] p-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Review changes
         </p>
@@ -970,95 +1102,114 @@ function ProposalReviewCard({
             />
           ))}
         </div>
-      </div>
+      </CardContent>
 
-      <div className="max-h-[260px] overflow-y-auto border-b border-[var(--shell-border)]">
-        <div className="px-4 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-            Preview
-          </p>
-          <p className="mt-1 text-xs text-[var(--shell-muted)]">
-            {workouts.length === 0
-              ? "No preview workouts were returned for this proposal."
-              : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
-          </p>
-        </div>
+      <CardContent className="max-h-[260px] overflow-y-auto border-b border-[var(--shell-border)] p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+          Preview
+        </p>
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">
+          {workouts.length === 0
+            ? "No preview workouts were returned for this proposal."
+            : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
+        </p>
         {workouts.length === 0 ? (
-          <p className="px-4 pb-4 text-xs text-[var(--shell-muted)]">
-            Ask the planner to refine the proposal if you want a clearer preview before approving.
+          <p className="mt-3 text-xs text-[var(--shell-muted)]">
+            Ask the planner to refine the proposal if you want a clearer preview
+            before approving.
           </p>
         ) : (
-          weeks.map((week) => (
-            <div key={week.weekLabel} className="border-t border-[var(--shell-border)] px-4 py-3">
-              <div className="mb-1.5 flex items-baseline gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
-                  {week.weekLabel}
-                </span>
-                <span className="text-[10px] text-[var(--shell-muted)]">{week.weekRange}</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                {week.workouts.map((workout) => (
-                  <div key={`${workout.plannedAt}-${workout.name ?? "workout"}`} className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
-                    <p className="text-xs font-medium text-[var(--shell-ink)]">
-                      {dayjs(workout.plannedAt).format("ddd, MMM D")}
-                      {workout.name && (
-                        <span className="ml-1.5 font-normal text-[var(--shell-muted)]">- {workout.name}</span>
-                      )}
-                    </p>
-                    {workout.note && (
-                      <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                        {workout.note}
-                      </p>
-                    )}
-                    {workout.exercises.length > 0 && (
-                      <ul className="mt-2 space-y-1">
-                        {workout.exercises.map((exercise, i) => {
-                          const prescription = formatPrescription(exercise);
-                          return (
-                            <li key={`${exercise.name}-${i}`} className="text-xs text-[var(--shell-muted)]">
-                              <span className="font-medium text-[var(--shell-ink)]">{exercise.name}</span>
-                              {prescription ? ` · ${prescription}` : ""}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
+          <div className="mt-3 flex flex-col gap-3">
+            {weeks.map((week) => (
+              <div
+                key={week.weekLabel}
+                className="border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+              >
+                <div className="border-b border-[var(--shell-border)] px-3 py-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
+                      {week.weekLabel}
+                    </span>
+                    <span className="text-[10px] text-[var(--shell-muted)]">
+                      {week.weekRange}
+                    </span>
                   </div>
-                ))}
+                </div>
+                <div className="flex flex-col gap-2 p-3">
+                  {week.workouts.map((workout) => (
+                    <div
+                      key={`${workout.plannedAt}-${workout.name ?? "workout"}`}
+                      className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
+                    >
+                      <p className="text-xs font-medium text-[var(--shell-ink)]">
+                        {dayjs(workout.plannedAt).format("ddd, MMM D")}
+                        {workout.name && (
+                          <span className="ml-1.5 font-normal text-[var(--shell-muted)]">
+                            - {workout.name}
+                          </span>
+                        )}
+                      </p>
+                      {workout.note && (
+                        <p className="mt-1 text-xs text-[var(--shell-muted)]">
+                          {workout.note}
+                        </p>
+                      )}
+                      {workout.exercises.length > 0 && (
+                        <ul className="mt-2 space-y-1">
+                          {workout.exercises.map((exercise, i) => {
+                            const prescription = formatPrescription(exercise);
+                            return (
+                              <li
+                                key={`${exercise.name}-${i}`}
+                                className="text-xs text-[var(--shell-muted)]"
+                              >
+                                <span className="font-medium text-[var(--shell-ink)]">
+                                  {exercise.name}
+                                </span>
+                                {prescription ? ` · ${prescription}` : ""}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
-      </div>
+      </CardContent>
 
-      <div className="px-4 py-3">
+      <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
         {error && (
-          <div className="mb-3 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs text-[var(--shell-ink)]">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs text-[var(--shell-ink)]">
             {error}
           </div>
         )}
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
             disabled={isLoading}
-            className="inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+            className="gap-1.5"
             onClick={onApply}
           >
             <CheckIcon className="h-3 w-3" />
-            {generateCost ? `Apply changes (${generateCost} cr)` : "Apply changes"}
-          </button>
-          <button
+            {`Apply changes (${creditCost} cr)`}
+          </Button>
+          <Button
             type="button"
+            variant="outline"
             disabled={isLoading}
-            className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
+            className="gap-1.5"
             onClick={onDiscard}
           >
             <Trash2Icon className="h-3 w-3" />
             Discard
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -1066,22 +1217,31 @@ function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
   return (
     <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-[var(--shell-ink)]">{action.summary}</p>
-        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+        <p className="text-xs font-medium text-[var(--shell-ink)]">
+          {action.summary}
+        </p>
+        <Badge variant="secondary" className="shrink-0">
           {formatActionType(action.actionType)}
-        </span>
+        </Badge>
       </div>
       <div className="mt-2 space-y-1 text-xs text-[var(--shell-muted)]">
-        {action.previousDate && action.targetDate && action.previousDate !== action.targetDate && (
+        {action.previousDate &&
+          action.targetDate &&
+          action.previousDate !== action.targetDate && (
+            <Row
+              label="Date"
+              value={`${dayjs(action.previousDate).format("MMM D")} -> ${dayjs(action.targetDate).format("MMM D")}`}
+            />
+          )}
+        {!action.previousDate && action.targetDate && (
           <Row
             label="Date"
-            value={`${dayjs(action.previousDate).format("MMM D")} -> ${dayjs(action.targetDate).format("MMM D")}`}
+            value={dayjs(action.targetDate).format("ddd, MMM D")}
           />
         )}
-        {!action.previousDate && action.targetDate && (
-          <Row label="Date" value={dayjs(action.targetDate).format("ddd, MMM D")} />
+        {action.workout?.name && (
+          <Row label="Workout" value={action.workout.name} />
         )}
-        {action.workout?.name && <Row label="Workout" value={action.workout.name} />}
         {action.workout?.exercises?.length ? (
           <Row
             label="Exercises"
@@ -1093,11 +1253,28 @@ function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
   );
 }
 
-function formatActionType(actionType: AIPlannerActionProposal["actionType"]): string {
+function formatActionType(
+  actionType: AIPlannerActionProposal["actionType"],
+): string {
   return actionType.replaceAll("_", " ");
 }
 
-function formatDateRange(dateFrom?: string | null, dateTo?: string | null): string {
+function summarizeCreditBreakdown(
+  breakdown: AIPlannerCreditBreakdownItem[],
+): string | null {
+  if (!breakdown.length) {
+    return null;
+  }
+
+  return breakdown
+    .map((item) => `${item.count} ${formatActionType(item.actionType)}`)
+    .join(" + ");
+}
+
+function formatDateRange(
+  dateFrom?: string | null,
+  dateTo?: string | null,
+): string {
   if (!dateFrom && !dateTo) {
     return "Not specified";
   }

@@ -98,7 +98,9 @@ public class AIWorkoutPlannerController(
             },
             _ => Task.FromResult<ActionResult<ApplyAIPlannerProposalResponse>>(Forbid()),
             conflict => Task.FromResult<ActionResult<ApplyAIPlannerProposalResponse>>(
-                Conflict(new { error = conflict.Reason })));
+                Conflict(new { error = conflict.Reason })),
+            insufficient => Task.FromResult<ActionResult<ApplyAIPlannerProposalResponse>>(
+                UnprocessableEntity(new { error = insufficient.Reason })));
     }
 
     [HttpPost("proposals/{proposalId:guid}/discard")]

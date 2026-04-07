@@ -1,4 +1,5 @@
 using MediatR;
+using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
@@ -28,6 +29,13 @@ public class GetLatestPlannerSessionQueryHandler(
         if (session is null)
         {
             return null;
+        }
+
+        if (session.ProposedActionSet is { CreditCost: <= 0, Actions.Count: > 0 } proposal)
+        {
+            var pricing = AIPlannerProposalPricing.Calculate(proposal.Actions);
+            proposal.CreditCost = pricing.CreditCost;
+            proposal.CreditBreakdown = pricing.Breakdown;
         }
 
         return new GetLatestPlannerSessionResponse

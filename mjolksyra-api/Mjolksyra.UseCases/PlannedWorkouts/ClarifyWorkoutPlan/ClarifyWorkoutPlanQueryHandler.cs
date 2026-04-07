@@ -186,6 +186,10 @@ public class ClarifyWorkoutPlanQueryHandler(
             return null;
         }
 
+        var pricing = AIPlannerProposalPricing.Calculate(normalized.Actions);
+        normalized.CreditCost = pricing.CreditCost;
+        normalized.CreditBreakdown = pricing.Breakdown;
+
         var affectedDates = normalized.Actions
             .SelectMany(action => new[] { action.TargetDate, action.PreviousDate, action.Workout?.PlannedAt })
             .Where(date => DateOnly.TryParse(date, out _))

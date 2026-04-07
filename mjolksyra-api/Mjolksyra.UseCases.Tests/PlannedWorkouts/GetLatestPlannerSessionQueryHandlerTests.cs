@@ -1,4 +1,5 @@
 using Moq;
+using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
@@ -91,5 +92,71 @@ public class GetLatestPlannerSessionQueryHandlerTests
 
         Assert.NotNull(result);
         Assert.Equal(sessionId, result.SessionId);
+    }
+
+    [Fact]
+    public async Task Handle_WhenPendingProposalHasNoStoredPrice_BackfillsDynamicPrice()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.GetLatestByTrainee(traineeId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannerSession
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = traineeId,
+                CoachUserId = userId,
+                Description = "Strength block",
+                ProposedActionSet = new AIPlannerActionSet
+                {
+                    Id = Guid.NewGuid(),
+                    Status = AIPlannerProposalStatus.Pending,
+                    Summary = "Move and edit",
+                    Actions =
+                    [
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.MoveWorkout,
+                            Summary = "Move workout",
+                        },
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.UpdateExercise,
+                            Summary = "Update exercise",
+                        },
+                    ],
+                },
+            });
+
+        var sut = new GetLatestPlannerSessionQueryHandler(
+            sessionRepository.Object,
+            traineeRepository.Object,
+            userContext.Object);
+
+        var result = await sut.Handle(new GetLatestPlannerSessionQuery
+        {
+            TraineeId = traineeId,
+        }, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.ProposedActionSet);
+        Assert.Equal(1, result.ProposedActionSet.CreditCost);
+        Assert.Equal(2, result.ProposedActionSet.CreditBreakdown.Count);
     }
 }

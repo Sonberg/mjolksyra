@@ -108,7 +108,22 @@ public class AIPlannerActionSet
 
     public DateTimeOffset? AppliedAt { get; set; }
 
+    public int CreditCost { get; set; }
+
+    public ICollection<AIPlannerCreditBreakdownItem> CreditBreakdown { get; set; } = [];
+
     public ICollection<AIPlannerActionProposal> Actions { get; set; } = [];
+}
+
+public class AIPlannerCreditBreakdownItem
+{
+    public required string ActionType { get; set; }
+
+    public int Count { get; set; }
+
+    public double UnitCost { get; set; }
+
+    public double Subtotal { get; set; }
 }
 
 public class AIPlannerActionProposal
@@ -173,6 +188,53 @@ public static class AIPlannerProposalStatus
     public const string Applied = "applied";
     public const string Discarded = "discarded";
     public const string Superseded = "superseded";
+}
+
+public static class AIPlannerProposalPricing
+{
+    private const int MaxCredits = 5;
+
+    private static readonly IReadOnlyDictionary<string, double> ActionWeights =
+        new Dictionary<string, double>(StringComparer.Ordinal)
+        {
+            [AIPlannerProposalActionTypes.CreateWorkout] = 0.5,
+            [AIPlannerProposalActionTypes.UpdateWorkout] = 0.5,
+            [AIPlannerProposalActionTypes.MoveWorkout] = 0.5,
+            [AIPlannerProposalActionTypes.DeleteWorkout] = 0.25,
+            [AIPlannerProposalActionTypes.AddExercise] = 0.25,
+            [AIPlannerProposalActionTypes.UpdateExercise] = 0.25,
+            [AIPlannerProposalActionTypes.DeleteExercise] = 0.25,
+        };
+
+    public static (int CreditCost, ICollection<AIPlannerCreditBreakdownItem> Breakdown) Calculate(
+        IEnumerable<AIPlannerActionProposal> actions)
+    {
+        var breakdown = actions
+            .GroupBy(action => action.ActionType)
+            .Select(group =>
+            {
+                var unitCost = ActionWeights.GetValueOrDefault(group.Key, 0.25);
+                return new AIPlannerCreditBreakdownItem
+                {
+                    ActionType = group.Key,
+                    Count = group.Count(),
+                    UnitCost = unitCost,
+                    Subtotal = group.Count() * unitCost,
+                };
+            })
+            .OrderBy(item => item.ActionType, StringComparer.Ordinal)
+            .ToList();
+
+        if (breakdown.Count == 0)
+        {
+            return (0, breakdown);
+        }
+
+        var rawScore = breakdown.Sum(item => item.Subtotal);
+        var rounded = (int)Math.Round(rawScore, MidpointRounding.AwayFromZero);
+        var creditCost = Math.Clamp(Math.Max(1, rounded), 1, MaxCredits);
+        return (creditCost, breakdown);
+    }
 }
 
 public class AIPlannerExerciseOutput
