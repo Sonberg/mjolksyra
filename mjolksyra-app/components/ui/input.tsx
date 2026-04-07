@@ -10,7 +10,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full border border-[var(--shell-border)]",
+          "flex h-8 w-full border border-[var(--shell-border)]",
           "bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] ring-offset-[var(--shell-surface)]",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "placeholder:text-[var(--shell-muted)]",
