@@ -148,7 +148,10 @@ public class AIPlannerToolDispatcher(
         };
 
         var result = await plannedWorkoutRepository.Get(cursor, ct);
-        return result.Data.ToList();
+        return result.Data
+            .Where(workout => workout.CompletedAt is null)
+            .Take(count)
+            .ToList();
     }
 
     private class UpcomingWorkoutEntry

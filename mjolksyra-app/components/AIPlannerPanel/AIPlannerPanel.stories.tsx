@@ -118,6 +118,54 @@ export const PendingApproval: Story = {
   ),
 };
 
+export const PendingFutureDelete: Story = {
+  render: () => (
+    <div className="h-[600px] w-[360px] border border-gray-200">
+      <AIPlannerPanel
+        traineeId="trainee-1"
+        onGenerated={async () => {}}
+        initialState={{
+          sessionId: "session-2",
+          description: "Delete all future workouts.",
+          messages: [
+            { role: "user", content: "Delete all future workouts." },
+            {
+              role: "assistant",
+              content:
+                "I staged the deletion proposal. Review the affected range before approving.",
+            },
+          ],
+          proposedActionSet: {
+            id: "proposal-delete",
+            status: "pending",
+            summary: "Delete all 49 upcoming workouts.",
+            explanation:
+              "This will remove all planned workouts from the athlete's calendar, starting from 2026-04-08.",
+            affectedDateFrom: "2026-04-08",
+            affectedDateTo: "2026-07-16",
+            createdAt: "2026-04-07T10:00:00.000Z",
+            actions: [
+              {
+                actionType: "delete_workout",
+                summary: "Delete workout on 2026-04-08",
+                targetWorkoutId: "workout-1",
+                targetDate: "2026-04-08",
+              },
+              {
+                actionType: "delete_workout",
+                summary: "Delete workout on 2026-07-16",
+                targetWorkoutId: "workout-49",
+                targetDate: "2026-07-16",
+              },
+            ],
+          },
+          previewWorkouts: [],
+        }}
+      />
+    </div>
+  ),
+};
+
 export const AfterGeneration: Story = {
   render: () => (
     <div className="h-[600px] w-[360px] border border-gray-200">

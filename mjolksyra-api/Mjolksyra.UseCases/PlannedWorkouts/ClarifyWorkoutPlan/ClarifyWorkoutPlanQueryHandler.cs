@@ -156,6 +156,36 @@ public class ClarifyWorkoutPlanQueryHandler(
             }).ToList(),
         };
 
+        var workoutsById = await ResolveTargetWorkoutsAsync(normalized.Actions, cancellationToken);
+
+        normalized.Actions = normalized.Actions
+            .Where(action =>
+            {
+                if (action.ActionType != AIPlannerProposalActionTypes.DeleteWorkout || !action.TargetWorkoutId.HasValue)
+                {
+                    return true;
+                }
+
+                return !workoutsById.TryGetValue(action.TargetWorkoutId.Value, out var workout) || workout.CompletedAt is null;
+            })
+            .ToList();
+
+        foreach (var action in normalized.Actions.Where(a => a.TargetWorkoutId.HasValue))
+        {
+            if (!workoutsById.TryGetValue(action.TargetWorkoutId!.Value, out var workout))
+            {
+                continue;
+            }
+
+            action.TargetDate ??= workout.PlannedAt.ToString("yyyy-MM-dd");
+            action.BeforeStateFingerprint = AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(workout);
+        }
+
+        if (normalized.Actions.Count == 0)
+        {
+            return null;
+        }
+
         var affectedDates = normalized.Actions
             .SelectMany(action => new[] { action.TargetDate, action.PreviousDate, action.Workout?.PlannedAt })
             .Where(date => DateOnly.TryParse(date, out _))
@@ -185,17 +215,39 @@ public class ClarifyWorkoutPlanQueryHandler(
 
         normalized.SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint(existing.Data);
 
-        foreach (var action in normalized.Actions.Where(a => a.TargetWorkoutId.HasValue))
+        return normalized;
+    }
+
+    private async Task<Dictionary<Guid, PlannedWorkout>> ResolveTargetWorkoutsAsync(
+        IEnumerable<AIPlannerActionProposal> actions,
+        CancellationToken cancellationToken)
+    {
+        var workoutIds = actions
+            .Where(action => action.TargetWorkoutId.HasValue)
+            .Select(action => action.TargetWorkoutId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (workoutIds.Count == 0)
         {
-            var workout = existing.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
-            if (workout is not null)
-            {
-                action.BeforeStateFingerprint = AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(workout);
-                action.TargetDate ??= workout.PlannedAt.ToString("yyyy-MM-dd");
-            }
+            return [];
         }
 
-        return normalized;
+        var resolved = await Task.WhenAll(workoutIds.Select(async workoutId =>
+        {
+            try
+            {
+                return await plannedWorkoutRepository.Get(workoutId, cancellationToken);
+            }
+            catch
+            {
+                return null;
+            }
+        }));
+
+        return resolved
+            .Where(workout => workout is not null)
+            .ToDictionary(workout => workout!.Id, workout => workout!);
     }
 
     private static PlannerSession CreateSession(Guid traineeId, Guid coachUserId, string description, DateTimeOffset now)

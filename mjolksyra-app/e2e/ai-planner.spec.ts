@@ -42,6 +42,17 @@ test.describe("AI Workout Planner", () => {
     await expect(page.getByText(/Close-Grip Bench Press/i)).toBeVisible();
   });
 
+  test("future delete proposal shows the resolved multi-day date range", async ({ page }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=aiplanpanel--pending-future-delete",
+    );
+
+    await expect(page.getByText(/Delete all 49 upcoming workouts/i)).toBeVisible();
+    await expect(page.getByText("Apr 8 - Jul 16")).toBeVisible();
+    await expect(page.getByText(/Delete workout on 2026-04-08/i)).toBeVisible();
+    await expect(page.getByText(/Delete workout on 2026-07-16/i)).toBeVisible();
+  });
+
   test("idle panel accepts dragged attachments", async ({ page }) => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=aiplanpanel--idle",

@@ -37,7 +37,10 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                 $"This assistant is approval-first: never apply planner changes yourself. " +
                 $"Inspect planner state with tools, then propose a single staged change set for coach approval.\n\n" +
                 $"Allowed scope: future planned workouts only. Completed workouts are read-only. " +
-                $"If the coach asks to change existing future workouts, use GetUpcomingWorkoutDetails to identify exact workout and exercise ids before proposing changes.\n\n" +
+                $"If the coach asks to change existing future workouts, use GetUpcomingWorkoutDetails to identify exact workout and exercise ids before proposing changes. " +
+                $"For delete_workout, move_workout, update_workout, add_exercise, update_exercise, and delete_exercise actions, include both targetWorkoutId and targetDate whenever you can resolve them from the planner tools. " +
+                $"For requests like 'delete all future workouts', interpret future as strictly after today, not including today. " +
+                $"If any referenced workout is already completed, ignore it instead of proposing a delete for it.\n\n" +
                 $"Use ConvertTimestampToWeekContext whenever the coach refers to week numbers or timestamps that need ISO week interpretation.\n\n" +
                 $"For new block creation, gather what you need: start date, number of weeks, and conflict handling if relevant. " +
                 $"Ask ONE focused question at a time. If the coach already answered something, do not ask again. " +

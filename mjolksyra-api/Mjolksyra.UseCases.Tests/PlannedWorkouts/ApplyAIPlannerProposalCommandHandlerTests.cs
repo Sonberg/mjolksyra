@@ -9,6 +9,7 @@ using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
@@ -266,5 +267,119 @@ public class ApplyAIPlannerProposalCommandHandlerTests
         Assert.True(result.IsT2);
         Assert.Contains("Planner state changed", result.AsT2.Reason);
         sessionRepository.Verify(x => x.Update(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_WhenDeleteOnlyProposalHasResolvedFutureRange_DeletesAllTargetedWorkouts()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var proposalId = Guid.NewGuid();
+        var firstWorkoutId = Guid.NewGuid();
+        var secondWorkoutId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var firstDate = today.AddDays(1);
+        var secondDate = today.AddDays(10);
+
+        var firstWorkout = new PlannedWorkout
+        {
+            Id = firstWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = firstDate,
+            Exercises = [],
+            CreatedAt = now,
+        };
+        var secondWorkout = new PlannedWorkout
+        {
+            Id = secondWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = secondDate,
+            Exercises = [],
+            CreatedAt = now,
+        };
+
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.GetByProposalId(proposalId, userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannerSession
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = traineeId,
+                CoachUserId = userId,
+                Description = "Delete future workouts",
+                ProposedActionSet = new AIPlannerActionSet
+                {
+                    Id = proposalId,
+                    Status = AIPlannerProposalStatus.Pending,
+                    Summary = "Delete all future workouts.",
+                    AffectedDateFrom = firstDate.ToString("yyyy-MM-dd"),
+                    AffectedDateTo = secondDate.ToString("yyyy-MM-dd"),
+                    SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint([firstWorkout, secondWorkout]),
+                    Actions =
+                    [
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
+                            Summary = $"Delete workout on {firstDate:yyyy-MM-dd}",
+                            TargetWorkoutId = firstWorkoutId,
+                            TargetDate = firstDate.ToString("yyyy-MM-dd"),
+                            BeforeStateFingerprint = AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(firstWorkout),
+                        },
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
+                            Summary = $"Delete workout on {secondDate:yyyy-MM-dd}",
+                            TargetWorkoutId = secondWorkoutId,
+                            TargetDate = secondDate.ToString("yyyy-MM-dd"),
+                            BeforeStateFingerprint = AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(secondWorkout),
+                        },
+                    ],
+                },
+                CreatedAt = now,
+                UpdatedAt = now,
+            });
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [firstWorkout, secondWorkout] });
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
+
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<DeletePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var sut = new ApplyAIPlannerProposalCommandHandler(
+            mediator.Object,
+            sessionRepository.Object,
+            plannedWorkoutRepository.Object,
+            new Mock<IExerciseRepository>().Object,
+            traineeRepository.Object,
+            userContext.Object);
+
+        var result = await sut.Handle(new ApplyAIPlannerProposalCommand
+        {
+            TraineeId = traineeId,
+            ProposalId = proposalId,
+        }, CancellationToken.None);
+
+        Assert.True(result.IsT0);
+        Assert.Equal(2, result.AsT0.ActionsApplied);
+        mediator.Verify(x => x.Send(It.IsAny<DeletePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 }

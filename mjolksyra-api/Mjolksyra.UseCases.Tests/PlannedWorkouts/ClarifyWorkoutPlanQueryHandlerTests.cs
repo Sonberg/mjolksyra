@@ -221,6 +221,17 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                     },
                 ],
             });
+        plannedWorkoutRepository
+            .Setup(x => x.Get(targetWorkoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannedWorkout
+            {
+                Id = targetWorkoutId,
+                TraineeId = traineeId,
+                Name = "Heavy lower",
+                PlannedAt = new DateOnly(2026, 4, 10),
+                Exercises = [],
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
 
         var sessionRepository = new Mock<IPlannerSessionRepository>();
         sessionRepository
@@ -253,6 +264,225 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 session.ProposedActionSet.Status == AIPlannerProposalStatus.Pending &&
                 session.PreviewWorkouts.Count == 1),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenDeleteProposalOnlyContainsWorkoutIds_ResolvesDateRangeFromTargetWorkouts()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var firstWorkoutId = Guid.NewGuid();
+        var lastWorkoutId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        plannerAgent
+            .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AIPlannerClarifyOutput
+            {
+                Message = "I staged the deletion proposal.",
+                IsReadyToApply = true,
+                RequiresApproval = true,
+                ProposedActionSet = new AIPlannerActionSet
+                {
+                    Summary = "Delete all future workouts.",
+                    Explanation = "This removes all planned workouts after today.",
+                    Actions =
+                    [
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
+                            Summary = "Delete workout on 2026-04-08",
+                            TargetWorkoutId = firstWorkoutId,
+                        },
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
+                            Summary = "Delete workout on 2026-07-16",
+                            TargetWorkoutId = lastWorkoutId,
+                        },
+                    ],
+                },
+            });
+
+        var firstWorkout = new PlannedWorkout
+        {
+            Id = firstWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 4, 8),
+            Exercises = [],
+            CreatedAt = now,
+        };
+        var lastWorkout = new PlannedWorkout
+        {
+            Id = lastWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 7, 16),
+            Exercises = [],
+            CreatedAt = now,
+        };
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(firstWorkoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(firstWorkout);
+        plannedWorkoutRepository
+            .Setup(x => x.Get(lastWorkoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(lastWorkout);
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout>
+            {
+                Data = [firstWorkout, lastWorkout],
+            });
+
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.Create(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PlannerSession session, CancellationToken _) => session);
+
+        var sut = CreateSut(
+            plannerAgent: plannerAgent,
+            plannedWorkoutRepository: plannedWorkoutRepository,
+            sessionRepository: sessionRepository,
+            traineeRepository: traineeRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(CreateQuery(traineeId: traineeId), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.ProposedActionSet);
+        Assert.Equal("2026-04-08", result.ProposedActionSet.AffectedDateFrom);
+        Assert.Equal("2026-07-16", result.ProposedActionSet.AffectedDateTo);
+        Assert.All(result.ProposedActionSet.Actions, action =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(action.TargetDate));
+            Assert.False(string.IsNullOrWhiteSpace(action.BeforeStateFingerprint));
+        });
+    }
+
+    [Fact]
+    public async Task Handle_WhenDeleteProposalTargetsCompletedWorkout_IgnoresThatDeleteAction()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var completedWorkoutId = Guid.NewGuid();
+        var openWorkoutId = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        plannerAgent
+            .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AIPlannerClarifyOutput
+            {
+                Message = "I staged the deletion proposal.",
+                IsReadyToApply = true,
+                RequiresApproval = true,
+                ProposedActionSet = new AIPlannerActionSet
+                {
+                    Summary = "Delete future workouts.",
+                    Actions =
+                    [
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
+                            Summary = "Delete completed workout.",
+                            TargetWorkoutId = completedWorkoutId,
+                        },
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
+                            Summary = "Delete open workout.",
+                            TargetWorkoutId = openWorkoutId,
+                        },
+                    ],
+                },
+            });
+
+        var completedWorkout = new PlannedWorkout
+        {
+            Id = completedWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 4, 8),
+            CreatedAt = now,
+            CompletedAt = now,
+            Exercises = [],
+        };
+        var openWorkout = new PlannedWorkout
+        {
+            Id = openWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 4, 10),
+            CreatedAt = now,
+            Exercises = [],
+        };
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(completedWorkoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(completedWorkout);
+        plannedWorkoutRepository
+            .Setup(x => x.Get(openWorkoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(openWorkout);
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout>
+            {
+                Data = [openWorkout],
+            });
+
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.Create(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PlannerSession session, CancellationToken _) => session);
+
+        var sut = CreateSut(
+            plannerAgent: plannerAgent,
+            plannedWorkoutRepository: plannedWorkoutRepository,
+            sessionRepository: sessionRepository,
+            traineeRepository: traineeRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(CreateQuery(traineeId: traineeId), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.ProposedActionSet);
+        Assert.Single(result.ProposedActionSet.Actions);
+        Assert.Equal(openWorkoutId, result.ProposedActionSet.Actions.Single().TargetWorkoutId);
+        Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateFrom);
+        Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateTo);
     }
 
     [Fact]
@@ -319,6 +549,9 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             workoutRepo
                 .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [] });
+            workoutRepo
+                .Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("Workout not found"));
         }
 
         var sessionRepo = sessionRepository ?? new Mock<IPlannerSessionRepository>();
