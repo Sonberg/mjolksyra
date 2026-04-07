@@ -1,10 +1,12 @@
 using MediatR;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
+using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 
@@ -80,6 +82,12 @@ public class ClarifyWorkoutPlanQueryHandler(
             .ToList();
 
         session.SuggestedParams = output.IsReadyToGenerate ? output.SuggestedParams : null;
+        session.PreviewWorkouts = output.PreviewWorkouts;
+        session.ProposedActionSet = await NormalizeProposalAsync(
+            request.TraineeId,
+            output.ProposedActionSet,
+            now,
+            cancellationToken);
 
         // Append any new tool calls from this turn
         foreach (var call in loggingDispatcher.Calls)
@@ -104,7 +112,8 @@ public class ClarifyWorkoutPlanQueryHandler(
             SessionId = session.Id,
             Message = output.Message,
             IsReadyToGenerate = output.IsReadyToGenerate,
-            WorkoutsChanged = loggingDispatcher.WorkoutsChanged || output.WorkoutsChanged,
+            IsReadyToApply = output.IsReadyToApply && session.ProposedActionSet is not null,
+            RequiresApproval = output.RequiresApproval || session.ProposedActionSet is not null,
             Options = output.Options,
             SuggestedParams = output.SuggestedParams is null ? null : new ClarifyWorkoutPlanSuggestedParams
             {
@@ -112,7 +121,81 @@ public class ClarifyWorkoutPlanQueryHandler(
                 NumberOfWeeks = output.SuggestedParams.NumberOfWeeks,
                 ConflictStrategy = output.SuggestedParams.ConflictStrategy,
             },
+            ProposedActionSet = session.ProposedActionSet,
+            PreviewWorkouts = PreviewWorkoutPlanMapper.FromOutputs(session.PreviewWorkouts),
         };
+    }
+
+    private async Task<AIPlannerActionSet?> NormalizeProposalAsync(
+        Guid traineeId,
+        AIPlannerActionSet? proposedActionSet,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        if (proposedActionSet is null || proposedActionSet.Actions.Count == 0)
+        {
+            return null;
+        }
+
+        var normalized = new AIPlannerActionSet
+        {
+            Id = Guid.NewGuid(),
+            Status = AIPlannerProposalStatus.Pending,
+            Summary = proposedActionSet.Summary,
+            Explanation = proposedActionSet.Explanation,
+            CreatedAt = now,
+            Actions = proposedActionSet.Actions.Select(action => new AIPlannerActionProposal
+            {
+                ActionType = action.ActionType,
+                Summary = action.Summary,
+                TargetWorkoutId = action.TargetWorkoutId,
+                TargetExerciseId = action.TargetExerciseId,
+                TargetDate = action.TargetDate ?? action.Workout?.PlannedAt,
+                PreviousDate = action.PreviousDate,
+                Workout = action.Workout,
+            }).ToList(),
+        };
+
+        var affectedDates = normalized.Actions
+            .SelectMany(action => new[] { action.TargetDate, action.PreviousDate, action.Workout?.PlannedAt })
+            .Where(date => DateOnly.TryParse(date, out _))
+            .Select(date => DateOnly.Parse(date!))
+            .ToList();
+
+        if (affectedDates.Count == 0)
+        {
+            affectedDates.Add(DateOnly.FromDateTime(DateTime.UtcNow));
+        }
+
+        normalized.AffectedDateFrom = affectedDates.Min().ToString("yyyy-MM-dd");
+        normalized.AffectedDateTo = affectedDates.Max().ToString("yyyy-MM-dd");
+
+        var existing = await plannedWorkoutRepository.Get(new Domain.Database.Common.PlannedWorkoutCursor
+        {
+            TraineeId = traineeId,
+            FromDate = DateOnly.Parse(normalized.AffectedDateFrom),
+            ToDate = DateOnly.Parse(normalized.AffectedDateTo),
+            SortBy = ["plannedAt"],
+            Order = SortOrder.Asc,
+            DraftOnly = false,
+            CompletedOnly = null,
+            Size = 200,
+            Page = 0,
+        }, cancellationToken);
+
+        normalized.SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint(existing.Data);
+
+        foreach (var action in normalized.Actions.Where(a => a.TargetWorkoutId.HasValue))
+        {
+            var workout = existing.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
+            if (workout is not null)
+            {
+                action.BeforeStateFingerprint = AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(workout);
+                action.TargetDate ??= workout.PlannedAt.ToString("yyyy-MM-dd");
+            }
+        }
+
+        return normalized;
     }
 
     private static PlannerSession CreateSession(Guid traineeId, Guid coachUserId, string description, DateTimeOffset now)

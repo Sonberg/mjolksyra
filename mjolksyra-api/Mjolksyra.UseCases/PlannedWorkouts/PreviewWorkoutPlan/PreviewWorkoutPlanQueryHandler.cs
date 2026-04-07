@@ -54,26 +54,7 @@ public class PreviewWorkoutPlanQueryHandler(
 
         return new PreviewWorkoutPlanResponse
         {
-            Workouts = workoutOutputs.Select(w => new PreviewWorkoutPlanWorkout
-            {
-                PlannedAt = w.PlannedAt,
-                Name = w.Name,
-                Note = w.Note,
-                Exercises = w.Exercises.Select(e => new PreviewWorkoutPlanExercise
-                {
-                    Name = e.Name,
-                    Note = e.Note,
-                    PrescriptionType = e.PrescriptionType,
-                    Sets = e.Sets.Select(s => new PreviewWorkoutPlanSet
-                    {
-                        Reps = s.Reps,
-                        WeightKg = s.WeightKg,
-                        DurationSeconds = s.DurationSeconds,
-                        DistanceMeters = s.DistanceMeters,
-                        Note = s.Note,
-                    }).ToList(),
-                }).ToList(),
-            }).ToList(),
+            Workouts = PreviewWorkoutPlanMapper.FromOutputs(workoutOutputs),
         };
     }
 }

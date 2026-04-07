@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.DiscardAIPlannerProposal;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.GetLatestPlannerSession;
 using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
@@ -65,16 +67,53 @@ public class AIWorkoutPlannerController(
             return Forbid();
         }
 
-        if (result.WorkoutsChanged && await userContext.GetUserId(cancellationToken) is { } userId)
-        {
-            await userEventPublisher.Publish(
-                userId,
-                "planned-workouts.updated",
-                new { traineeId },
-                cancellationToken);
-        }
-
         return Ok(result);
+    }
+
+    [HttpPost("proposals/{proposalId:guid}/apply")]
+    public async Task<ActionResult<ApplyAIPlannerProposalResponse>> ApplyProposal(
+        Guid traineeId,
+        Guid proposalId,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new ApplyAIPlannerProposalCommand
+        {
+            TraineeId = traineeId,
+            ProposalId = proposalId,
+        }, cancellationToken);
+
+        return await result.Match<Task<ActionResult<ApplyAIPlannerProposalResponse>>>(
+            async success =>
+            {
+                if (await userContext.GetUserId(cancellationToken) is { } userId)
+                {
+                    await userEventPublisher.Publish(
+                        userId,
+                        "planned-workouts.updated",
+                        new { traineeId },
+                        cancellationToken);
+                }
+
+                return Ok(success);
+            },
+            _ => Task.FromResult<ActionResult<ApplyAIPlannerProposalResponse>>(Forbid()),
+            conflict => Task.FromResult<ActionResult<ApplyAIPlannerProposalResponse>>(
+                Conflict(new { error = conflict.Reason })));
+    }
+
+    [HttpPost("proposals/{proposalId:guid}/discard")]
+    public async Task<ActionResult> DiscardProposal(
+        Guid traineeId,
+        Guid proposalId,
+        CancellationToken cancellationToken)
+    {
+        var discarded = await mediator.Send(new DiscardAIPlannerProposalCommand
+        {
+            TraineeId = traineeId,
+            ProposalId = proposalId,
+        }, cancellationToken);
+
+        return discarded ? NoContent() : Forbid();
     }
 
     [HttpDelete("session/{sessionId:guid}")]

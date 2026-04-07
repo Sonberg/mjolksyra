@@ -19,9 +19,12 @@ export type ClarifyWorkoutPlanResponse = {
   sessionId: string;
   message: string;
   isReadyToGenerate: boolean;
-  workoutsChanged: boolean;
+  isReadyToApply: boolean;
+  requiresApproval: boolean;
   options: string[];
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
+  proposedActionSet: AIPlannerActionSet | null;
+  previewWorkouts: PreviewWorkoutPlanWorkout[];
 };
 
 export type LatestPlannerSessionMessage = {
@@ -35,7 +38,9 @@ export type LatestPlannerSessionResponse = {
   description: string;
   conversationHistory: LatestPlannerSessionMessage[];
   suggestedParams: ClarifyWorkoutPlanSuggestedParams | null;
-  generationResult: GenerateWorkoutPlanResponse | null;
+  proposedActionSet: AIPlannerActionSet | null;
+  previewWorkouts: PreviewWorkoutPlanWorkout[];
+  generationResult: AIPlannerApplyProposalResponse | null;
 };
 
 export type GenerateWorkoutPlanResponse = {
@@ -43,6 +48,62 @@ export type GenerateWorkoutPlanResponse = {
   summary: string;
   dateFrom: string;
   dateTo: string;
+};
+
+export type AIPlannerActionType =
+  | "create_workout"
+  | "update_workout"
+  | "move_workout"
+  | "delete_workout"
+  | "add_exercise"
+  | "update_exercise"
+  | "delete_exercise";
+
+export type AIPlannerExerciseDraft = {
+  id?: string | null;
+  exerciseId?: string | null;
+  name: string;
+  note?: string | null;
+  prescriptionType?: string | null;
+  sets: PreviewWorkoutPlanSet[];
+};
+
+export type AIPlannerWorkoutDraft = {
+  name?: string | null;
+  note?: string | null;
+  plannedAt: string;
+  exercises: AIPlannerExerciseDraft[];
+};
+
+export type AIPlannerActionProposal = {
+  actionType: AIPlannerActionType;
+  summary: string;
+  targetWorkoutId?: string | null;
+  targetExerciseId?: string | null;
+  targetDate?: string | null;
+  previousDate?: string | null;
+  workout?: AIPlannerWorkoutDraft | null;
+};
+
+export type AIPlannerActionSet = {
+  id: string;
+  status: "pending" | "applied" | "discarded" | "superseded";
+  summary: string;
+  explanation?: string | null;
+  affectedDateFrom?: string | null;
+  affectedDateTo?: string | null;
+  sourceSnapshotHash?: string | null;
+  createdAt: string;
+  appliedAt?: string | null;
+  actions: AIPlannerActionProposal[];
+};
+
+export type AIPlannerApplyProposalResponse = {
+  sessionId: string;
+  proposalId: string;
+  actionsApplied: number;
+  summary: string;
+  workoutIds: string[];
 };
 
 export type PreviewWorkoutPlanSet = {

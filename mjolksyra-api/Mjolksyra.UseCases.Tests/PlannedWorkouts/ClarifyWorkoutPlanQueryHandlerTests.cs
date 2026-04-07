@@ -4,7 +4,6 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
-using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 
@@ -141,10 +140,11 @@ public class ClarifyWorkoutPlanQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenWorkoutRemovalToolRuns_MarksWorkoutsChanged()
+    public async Task Handle_WhenAgentReturnsProposal_PersistsPendingProposalWithoutMutatingWorkouts()
     {
         var userId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
+        var targetWorkoutId = Guid.NewGuid();
 
         var userContext = new Mock<IUserContext>();
         userContext
@@ -165,49 +165,94 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
-            .Returns<AIPlannerClarifyInput, CancellationToken>(async (input, ct) =>
+            .ReturnsAsync(new AIPlannerClarifyOutput
             {
-                await input.ToolDispatcher.RemoveUpcomingWorkoutsAsync("2026-04-06", 42, ct);
-                return new AIPlannerClarifyOutput
+                Message = "I staged the requested changes as a proposal.",
+                IsReadyToApply = true,
+                RequiresApproval = true,
+                ProposedActionSet = new AIPlannerActionSet
                 {
-                    Message = "Removed 1 workout.",
-                    WorkoutsChanged = true,
-                };
+                    Summary = "Move Friday to Saturday.",
+                    Explanation = "Keeps the week structure aligned with recovery.",
+                    Actions =
+                    [
+                        new AIPlannerActionProposal
+                        {
+                            ActionType = AIPlannerProposalActionTypes.MoveWorkout,
+                            Summary = "Move Fri Apr 10 workout to Sat Apr 11.",
+                            TargetWorkoutId = targetWorkoutId,
+                            PreviousDate = "2026-04-10",
+                            TargetDate = "2026-04-11",
+                            Workout = new PlannedWorkoutRequestPayload
+                            {
+                                PlannedAt = "2026-04-11",
+                                Name = "Heavy lower",
+                                Exercises = [],
+                            },
+                        },
+                    ],
+                },
+                PreviewWorkouts =
+                [
+                    new AIPlannerWorkoutOutput
+                    {
+                        PlannedAt = "2026-04-11",
+                        Name = "Heavy lower",
+                        Exercises = [],
+                    },
+                ],
             });
 
         var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
         plannedWorkoutRepository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Get(It.IsAny<Domain.Database.Common.PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Paginated<PlannedWorkout>
             {
                 Data =
                 [
                     new PlannedWorkout
                     {
-                        Id = Guid.NewGuid(),
+                        Id = targetWorkoutId,
                         TraineeId = traineeId,
-                        PlannedAt = new DateOnly(2026, 4, 7),
+                        Name = "Heavy lower",
+                        PlannedAt = new DateOnly(2026, 4, 10),
                         Exercises = [],
                         CreatedAt = DateTimeOffset.UtcNow,
                     },
                 ],
             });
 
-        var deletedPublisher = new Mock<IPlannedWorkoutDeletedPublisher>();
+        var sessionRepository = new Mock<IPlannerSessionRepository>();
+        sessionRepository
+            .Setup(x => x.Create(It.IsAny<PlannerSession>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PlannerSession session, CancellationToken _) => session);
 
         var sut = CreateSut(
             plannerAgent: plannerAgent,
             plannedWorkoutRepository: plannedWorkoutRepository,
-            deletedPublisher: deletedPublisher,
+            sessionRepository: sessionRepository,
             traineeRepository: traineeRepository,
             userContext: userContext);
 
         var result = await sut.Handle(CreateQuery(traineeId: traineeId), CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.True(result.WorkoutsChanged);
-        plannedWorkoutRepository.Verify(x => x.Delete(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
-        deletedPublisher.Verify(x => x.Publish(It.IsAny<PlannedWorkoutDeletedMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.True(result.IsReadyToApply);
+        Assert.True(result.RequiresApproval);
+        Assert.NotNull(result.ProposedActionSet);
+        Assert.Single(result.ProposedActionSet.Actions);
+        Assert.Equal(AIPlannerProposalStatus.Pending, result.ProposedActionSet.Status);
+        Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateFrom);
+        Assert.Equal("2026-04-11", result.ProposedActionSet.AffectedDateTo);
+        Assert.False(string.IsNullOrWhiteSpace(result.ProposedActionSet.SourceSnapshotHash));
+        Assert.Single(result.PreviewWorkouts);
+        plannedWorkoutRepository.Verify(x => x.Delete(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        sessionRepository.Verify(x => x.Create(
+            It.Is<PlannerSession>(session =>
+                session.ProposedActionSet != null &&
+                session.ProposedActionSet.Status == AIPlannerProposalStatus.Pending &&
+                session.PreviewWorkouts.Count == 1),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -264,7 +309,6 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
-        Mock<IPlannedWorkoutDeletedPublisher>? deletedPublisher = null,
         Mock<IPlannerSessionRepository>? sessionRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null)
@@ -290,7 +334,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             workoutRepo.Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
-            (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,
+            new Mock<Mjolksyra.Domain.Messaging.IPlannedWorkoutDeletedPublisher>().Object,
             sessionRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object);

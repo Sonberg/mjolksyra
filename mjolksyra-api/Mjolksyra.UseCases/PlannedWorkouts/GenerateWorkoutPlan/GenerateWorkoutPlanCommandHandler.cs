@@ -189,7 +189,7 @@ public class GenerateWorkoutPlanCommandHandler(
 
             session.GenerationResult = new PlannerSessionGenerationResult
             {
-                WorkoutsCreated = created,
+                ActionsApplied = created,
                 Summary = response.Summary,
                 DateFrom = response.DateFrom,
                 DateTo = response.DateTo,

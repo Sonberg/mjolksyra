@@ -4,8 +4,10 @@ using Moq;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Api.Controllers;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
 using Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannerSession;
+using Mjolksyra.UseCases.PlannedWorkouts.DiscardAIPlannerProposal;
 
 namespace Mjolksyra.Api.IntegrationTests.Controllers;
 
@@ -25,21 +27,43 @@ public class AIWorkoutPlannerControllerTests
     }
 
     [Fact]
-    public async Task Clarify_WhenWorkoutsChanged_PublishesPlannedWorkoutsUpdatedEvent()
+    public async Task Clarify_ReturnsResponseWithoutPublishingPlannerEvents()
     {
         _mediator.Setup(x => x.Send(It.IsAny<ClarifyWorkoutPlanQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ClarifyWorkoutPlanResponse
             {
                 SessionId = Guid.NewGuid(),
                 Message = "Removed 4 workouts.",
-                WorkoutsChanged = true,
             });
 
-        await _sut.Clarify(_traineeId, new ClarifyWorkoutPlanRequest
+        var result = await _sut.Clarify(_traineeId, new ClarifyWorkoutPlanRequest
         {
             Description = "Remove workouts after today",
         }, CancellationToken.None);
 
+        Assert.IsType<OkObjectResult>(result.Result);
+        _publisher.Verify(x => x.Publish(
+            It.IsAny<Guid>(),
+            It.IsAny<string>(),
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ApplyProposal_WhenSuccessful_PublishesPlannedWorkoutsUpdatedEvent()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<ApplyAIPlannerProposalCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApplyAIPlannerProposalResponse
+            {
+                SessionId = Guid.NewGuid(),
+                ProposalId = Guid.NewGuid(),
+                ActionsApplied = 2,
+                Summary = "Applied 2 changes.",
+            });
+
+        var result = await _sut.ApplyProposal(_traineeId, Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<OkObjectResult>(result.Result);
         _publisher.Verify(x => x.Publish(
             _userId,
             "planned-workouts.updated",
@@ -67,5 +91,16 @@ public class AIWorkoutPlannerControllerTests
         var result = await _sut.DeleteSession(_traineeId, Guid.NewGuid(), CancellationToken.None);
 
         Assert.IsType<ForbidResult>(result);
+    }
+
+    [Fact]
+    public async Task DiscardProposal_WhenAuthorized_ReturnsNoContent()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<DiscardAIPlannerProposalCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var result = await _sut.DiscardProposal(_traineeId, Guid.NewGuid(), CancellationToken.None);
+
+        Assert.IsType<NoContentResult>(result);
     }
 }

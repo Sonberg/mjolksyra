@@ -1,0 +1,283 @@
+using MediatR;
+using Mjolksyra.Domain.AI;
+using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
+using OneOf;
+
+namespace Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
+
+public class ApplyAIPlannerProposalCommandHandler(
+    IMediator mediator,
+    IPlannerSessionRepository sessionRepository,
+    IPlannedWorkoutRepository plannedWorkoutRepository,
+    IExerciseRepository exerciseRepository,
+    ITraineeRepository traineeRepository,
+    IUserContext userContext) : IRequestHandler<ApplyAIPlannerProposalCommand, OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict>>
+{
+    public async Task<OneOf<ApplyAIPlannerProposalResponse, ApplyAIPlannerProposalForbidden, ApplyAIPlannerProposalConflict>> Handle(
+        ApplyAIPlannerProposalCommand request,
+        CancellationToken cancellationToken)
+    {
+        if (await userContext.GetUserId(cancellationToken) is not { } userId)
+        {
+            return new ApplyAIPlannerProposalForbidden();
+        }
+
+        var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
+        if (trainee is null || trainee.CoachUserId != userId)
+        {
+            return new ApplyAIPlannerProposalForbidden();
+        }
+
+        var session = await sessionRepository.GetByProposalId(request.ProposalId, userId, cancellationToken);
+        if (session is null || session.TraineeId != request.TraineeId)
+        {
+            return new ApplyAIPlannerProposalForbidden();
+        }
+
+        var proposal = session.ProposedActionSet;
+        if (proposal is null || proposal.Id != request.ProposalId || proposal.Status != AIPlannerProposalStatus.Pending)
+        {
+            return new ApplyAIPlannerProposalConflict("This proposal is no longer pending.");
+        }
+
+        if (!DateOnly.TryParse(proposal.AffectedDateFrom, out var fromDate) ||
+            !DateOnly.TryParse(proposal.AffectedDateTo, out var toDate))
+        {
+            return new ApplyAIPlannerProposalConflict("This proposal is missing its date range.");
+        }
+
+        var currentWorkouts = await plannedWorkoutRepository.Get(new PlannedWorkoutCursor
+        {
+            TraineeId = request.TraineeId,
+            FromDate = fromDate,
+            ToDate = toDate,
+            SortBy = ["plannedAt"],
+            Order = SortOrder.Asc,
+            DraftOnly = false,
+            CompletedOnly = null,
+            Size = 200,
+            Page = 0,
+        }, cancellationToken);
+
+        var currentSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint(currentWorkouts.Data);
+        if (!string.Equals(proposal.SourceSnapshotHash, currentSnapshotHash, StringComparison.Ordinal))
+        {
+            return new ApplyAIPlannerProposalConflict("Planner state changed after this proposal was generated. Please ask the assistant to refresh the proposal.");
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var resolvedExercises = new Dictionary<string, Exercise>(StringComparer.OrdinalIgnoreCase);
+        var changedWorkoutIds = new List<Guid>();
+
+        foreach (var action in proposal.Actions)
+        {
+            switch (action.ActionType)
+            {
+                case AIPlannerProposalActionTypes.CreateWorkout:
+                    if (action.Workout is null)
+                    {
+                        return new ApplyAIPlannerProposalConflict("A create action is missing its workout payload.");
+                    }
+
+                    var created = await mediator.Send(new CreatePlannedWorkoutCommand
+                    {
+                        TraineeId = request.TraineeId,
+                        Workout = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken),
+                    }, cancellationToken);
+                    changedWorkoutIds.Add(created.Id);
+                    break;
+
+                case AIPlannerProposalActionTypes.DeleteWorkout:
+                    if (!action.TargetWorkoutId.HasValue)
+                    {
+                        return new ApplyAIPlannerProposalConflict("A delete action is missing its target workout.");
+                    }
+
+                    var workoutToDelete = currentWorkouts.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
+                    if (workoutToDelete is null || workoutToDelete.CompletedAt is not null || workoutToDelete.PlannedAt < today)
+                    {
+                        return new ApplyAIPlannerProposalConflict("A target workout can no longer be deleted.");
+                    }
+
+                    await mediator.Send(new DeletePlannedWorkoutCommand
+                    {
+                        TraineeId = request.TraineeId,
+                        PlannedWorkoutId = action.TargetWorkoutId.Value,
+                    }, cancellationToken);
+                    changedWorkoutIds.Add(action.TargetWorkoutId.Value);
+                    break;
+
+                case AIPlannerProposalActionTypes.UpdateWorkout:
+                case AIPlannerProposalActionTypes.MoveWorkout:
+                case AIPlannerProposalActionTypes.AddExercise:
+                case AIPlannerProposalActionTypes.UpdateExercise:
+                case AIPlannerProposalActionTypes.DeleteExercise:
+                    if (!action.TargetWorkoutId.HasValue || action.Workout is null)
+                    {
+                        return new ApplyAIPlannerProposalConflict("An update action is missing its target workout payload.");
+                    }
+
+                    var targetWorkout = currentWorkouts.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
+                    if (targetWorkout is null || targetWorkout.CompletedAt is not null || targetWorkout.PlannedAt < today)
+                    {
+                        return new ApplyAIPlannerProposalConflict("A target workout can no longer be changed.");
+                    }
+
+                    if (!string.Equals(action.BeforeStateFingerprint, AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(targetWorkout), StringComparison.Ordinal))
+                    {
+                        return new ApplyAIPlannerProposalConflict("A target workout changed after this proposal was generated. Please refresh the proposal.");
+                    }
+
+                    var updated = await mediator.Send(new UpdatePlannedWorkoutCommand
+                    {
+                        TraineeId = request.TraineeId,
+                        PlannedWorkoutId = action.TargetWorkoutId.Value,
+                        Workout = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken),
+                    }, cancellationToken);
+
+                    if (updated is null)
+                    {
+                        return new ApplyAIPlannerProposalConflict("A target workout could not be updated.");
+                    }
+
+                    changedWorkoutIds.Add(updated.Id);
+                    break;
+
+                default:
+                    return new ApplyAIPlannerProposalConflict($"Unsupported action type '{action.ActionType}'.");
+            }
+        }
+
+        proposal.Status = AIPlannerProposalStatus.Applied;
+        proposal.AppliedAt = DateTimeOffset.UtcNow;
+        session.GenerationResult = new PlannerSessionGenerationResult
+        {
+            ActionsApplied = proposal.Actions.Count,
+            Summary = proposal.Summary,
+            DateFrom = proposal.AffectedDateFrom ?? fromDate.ToString("yyyy-MM-dd"),
+            DateTo = proposal.AffectedDateTo ?? toDate.ToString("yyyy-MM-dd"),
+            GeneratedAt = DateTimeOffset.UtcNow,
+        };
+        session.UpdatedAt = DateTimeOffset.UtcNow;
+        await sessionRepository.Update(session, cancellationToken);
+
+        return new ApplyAIPlannerProposalResponse
+        {
+            SessionId = session.Id,
+            ProposalId = proposal.Id,
+            ActionsApplied = proposal.Actions.Count,
+            Summary = proposal.Summary,
+            WorkoutIds = changedWorkoutIds.Distinct().ToList(),
+        };
+    }
+
+    private async Task<PlannedWorkoutRequest> BuildWorkoutRequestAsync(
+        PlannedWorkoutRequestPayload workout,
+        Guid createdByUserId,
+        IDictionary<string, Exercise> resolvedExercises,
+        CancellationToken cancellationToken)
+    {
+        return new PlannedWorkoutRequest
+        {
+            Name = workout.Name,
+            Note = workout.Note,
+            PlannedAt = DateOnly.Parse(workout.PlannedAt),
+            Exercises = (await Task.WhenAll(workout.Exercises.Select(async exercise =>
+            {
+                var exerciseType = exercise.PrescriptionType switch
+                {
+                    "DurationSeconds" => ExerciseType.DurationSeconds,
+                    "DistanceMeters" => ExerciseType.DistanceMeters,
+                    _ => ExerciseType.SetsReps,
+                };
+
+                var resolved = exercise.ExerciseId.HasValue
+                    ? await ResolveExistingExerciseAsync(exercise.ExerciseId.Value, exercise.Name, exerciseType, createdByUserId, resolvedExercises, cancellationToken)
+                    : await ResolveExerciseAsync(exercise.Name, exerciseType, createdByUserId, resolvedExercises, cancellationToken);
+
+                return new PlannedExerciseRequest
+                {
+                    Id = exercise.Id ?? Guid.NewGuid(),
+                    ExerciseId = resolved.Id,
+                    Name = exercise.Name,
+                    Note = exercise.Note,
+                    IsPublished = false,
+                    AddedBy = ExerciseAddedBy.Coach,
+                    Prescription = exercise.Sets.Count == 0
+                        ? null
+                        : new PlannedExercisePrescriptionRequest
+                        {
+                            Type = exerciseType,
+                            Sets = exercise.Sets.Select(set => new ExercisePrescriptionSetRequest
+                            {
+                                Target = new ExercisePrescriptionSetTargetRequest
+                                {
+                                    Reps = set.Reps,
+                                    WeightKg = set.WeightKg,
+                                    DurationSeconds = set.DurationSeconds,
+                                    DistanceMeters = set.DistanceMeters,
+                                    Note = set.Note,
+                                },
+                            }).ToList(),
+                        },
+                };
+            }))).ToList(),
+        };
+    }
+
+    private async Task<Exercise> ResolveExistingExerciseAsync(
+        Guid exerciseId,
+        string fallbackName,
+        ExerciseType exerciseType,
+        Guid createdByUserId,
+        IDictionary<string, Exercise> resolvedExercises,
+        CancellationToken cancellationToken)
+    {
+        var existing = await exerciseRepository.GetMany([exerciseId], cancellationToken);
+        return existing.FirstOrDefault() ??
+               await ResolveExerciseAsync(fallbackName, exerciseType, createdByUserId, resolvedExercises, cancellationToken);
+    }
+
+    private async Task<Exercise> ResolveExerciseAsync(
+        string exerciseName,
+        ExerciseType exerciseType,
+        Guid createdByUserId,
+        IDictionary<string, Exercise> resolvedExercises,
+        CancellationToken cancellationToken)
+    {
+        var normalizedName = exerciseName.Trim();
+        if (resolvedExercises.TryGetValue(normalizedName, out var cached))
+        {
+            return cached;
+        }
+
+        var existing = await exerciseRepository.Search(normalizedName, [], [], null, cancellationToken);
+        var resolved = existing.FirstOrDefault(x =>
+                           string.Equals(x.Name.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase) &&
+                           x.Type == exerciseType)
+                       ?? existing.FirstOrDefault(x =>
+                           string.Equals(x.Name.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+
+        if (resolved is null)
+        {
+            resolved = await exerciseRepository.Create(new Exercise
+            {
+                Id = Guid.NewGuid(),
+                Name = normalizedName,
+                Type = exerciseType,
+                CreatedBy = createdByUserId,
+                CreatedAt = DateTimeOffset.UtcNow,
+            }, cancellationToken);
+        }
+
+        resolvedExercises[normalizedName] = resolved;
+        return resolved;
+    }
+}

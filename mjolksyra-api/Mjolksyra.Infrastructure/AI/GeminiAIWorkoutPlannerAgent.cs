@@ -34,18 +34,19 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                 $"You are a workout planning assistant helping a coach design a program for an athlete. " +
                 $"Today is {today:dddd, MMMM d, yyyy} ({today:yyyy-MM-dd}). Use this to resolve relative dates like 'monday next week', 'week 15', 'next monday'. " +
                 $"ISO week numbers: week 1 starts on the first Monday of the year. Always convert dates to YYYY-MM-DD.\n\n" +
-                $"Before asking questions, use GetUpcomingWorkouts to check the next 6 weeks of scheduled workouts. " +
-                $"This tells you what conflicts exist and shows training frequency — use this context in your response.\n\n" +
-                $"If the coach asks to remove or delete upcoming workouts, first use GetUpcomingWorkouts to confirm how many workouts would be affected. " +
-                $"Ask for explicit confirmation before deleting anything. Once the coach clearly confirms, call RemoveUpcomingWorkouts and then explain exactly what was removed.\n\n" +
-                $"You need to gather: (1) start date, (2) number of weeks, (3) conflict strategy (Skip/Replace/Append) if conflicts exist. " +
+                $"This assistant is approval-first: never apply planner changes yourself. " +
+                $"Inspect planner state with tools, then propose a single staged change set for coach approval.\n\n" +
+                $"Allowed scope: future planned workouts only. Completed workouts are read-only. " +
+                $"If the coach asks to change existing future workouts, use GetUpcomingWorkoutDetails to identify exact workout and exercise ids before proposing changes.\n\n" +
+                $"Use ConvertTimestampToWeekContext whenever the coach refers to week numbers or timestamps that need ISO week interpretation.\n\n" +
+                $"For new block creation, gather what you need: start date, number of weeks, and conflict handling if relevant. " +
                 $"Ask ONE focused question at a time. If the coach already answered something, do not ask again. " +
-                $"When you have all information, set isReadyToGenerate to true and include suggestedParams.\n\n" +
+                $"When you have enough information to stage changes, set requiresApproval=true, isReadyToApply=true, and return proposedActionSet plus previewWorkouts.\n\n" +
                 $"When your question has a fixed set of valid answers, include them in the 'options' array so the UI can render clickable choices. " +
                 $"Examples: conflict strategy → [\"Skip\", \"Replace\", \"Append\"], days per week → [\"2\", \"3\", \"4\", \"5\"]. " +
                 $"Leave options as [] for open-ended questions (e.g. start date in natural language).\n\n" +
                 $"Always respond with strict JSON only:\n" +
-                $"{{ \"message\": \"string\", \"isReadyToGenerate\": bool, \"options\": [\"string\"], \"suggestedParams\": {{ \"startDate\": \"YYYY-MM-DD\", \"numberOfWeeks\": int, \"conflictStrategy\": \"Skip|Replace|Append\" }} | null }}"),
+                $"{{ \"message\": \"string\", \"isReadyToGenerate\": bool, \"isReadyToApply\": bool, \"requiresApproval\": bool, \"options\": [\"string\"], \"suggestedParams\": {{ \"startDate\": \"YYYY-MM-DD\", \"numberOfWeeks\": int, \"conflictStrategy\": \"Skip|Replace|Append\" }} | null, \"proposedActionSet\": {{ \"summary\": \"string\", \"explanation\": \"string | null\", \"actions\": [{{ \"actionType\": \"create_workout | update_workout | move_workout | delete_workout | add_exercise | update_exercise | delete_exercise\", \"summary\": \"string\", \"targetWorkoutId\": \"guid | null\", \"targetExerciseId\": \"guid | null\", \"targetDate\": \"YYYY-MM-DD | null\", \"previousDate\": \"YYYY-MM-DD | null\", \"workout\": {{ \"name\": \"string | null\", \"note\": \"string | null\", \"plannedAt\": \"YYYY-MM-DD\", \"exercises\": [{{ \"id\": \"guid | null\", \"exerciseId\": \"guid | null\", \"name\": \"string\", \"note\": \"string | null\", \"prescriptionType\": \"SetsReps | DurationSeconds | DistanceMeters | null\", \"sets\": [{{ \"reps\": int | null, \"weightKg\": float | null, \"durationSeconds\": int | null, \"distanceMeters\": float | null, \"note\": \"string | null\" }}] }}] }} | null }}] }} | null, \"previewWorkouts\": [{{ \"name\": \"string | null\", \"note\": \"string | null\", \"plannedAt\": \"YYYY-MM-DD\", \"exercises\": [{{ \"name\": \"string\", \"note\": \"string | null\", \"prescriptionType\": \"SetsReps | DurationSeconds | DistanceMeters | null\", \"sets\": [{{ \"reps\": int | null, \"weightKg\": float | null, \"durationSeconds\": int | null, \"distanceMeters\": float | null, \"note\": \"string | null\" }}] }}] }}] }}"),
             new(ChatRole.User, BuildClarifyPrompt(input)),
         };
 
@@ -128,13 +129,29 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             [Description("Max number of workouts to return (1–50). Use 42 to cover 6 weeks at 7 days/week.")] int count = 42)
             => await dispatcher.GetUpcomingWorkoutsAsync(after_date, count, ct);
 
-        [Description("Deletes upcoming workouts on or after a given date. Only use after the coach has explicitly confirmed the deletion.")]
-        async Task<string> RemoveUpcomingWorkouts(
-            [Description("ISO 8601 date (YYYY-MM-DD). Delete workouts from this date onwards.")] string after_date,
-            [Description("Max number of workouts to delete (1–500).")] int count = 100)
-            => await dispatcher.RemoveUpcomingWorkoutsAsync(after_date, count, ct);
+        [Description("Returns upcoming workout details including workout ids, exercise ids, notes, and sets. Use this before proposing edits, moves, deletes, or exercise changes.")]
+        async Task<string> GetUpcomingWorkoutDetails(
+            [Description("ISO 8601 date (YYYY-MM-DD). Return workouts from this date onwards.")] string after_date,
+            [Description("Max number of workouts to return (1–50).")] int count = 20)
+            => await dispatcher.GetUpcomingWorkoutDetailsAsync(after_date, count, ct);
 
-        return [AIFunctionFactory.Create(GetUpcomingWorkouts), AIFunctionFactory.Create(RemoveUpcomingWorkouts)];
+        [Description("Searches the exercise library by name. Use to find canonical exercise names and IDs for proposals.")]
+        async Task<string> SearchExercises(
+            [Description("Exercise name to search for (e.g. 'squat', 'bench').")] string name)
+            => await dispatcher.SearchExercisesAsync(name, ct);
+
+        [Description("Converts a timestamp or date into ISO week context. Use for week-number reasoning in planning conversations.")]
+        async Task<string> ConvertTimestampToWeekContext(
+            [Description("A date or DateTimeOffset string, for example 2026-04-07 or 2026-04-07T05:31:21Z.")] string timestamp)
+            => await dispatcher.ConvertTimestampToWeekContextAsync(timestamp, ct);
+
+        return
+        [
+            AIFunctionFactory.Create(GetUpcomingWorkouts),
+            AIFunctionFactory.Create(GetUpcomingWorkoutDetails),
+            AIFunctionFactory.Create(SearchExercises),
+            AIFunctionFactory.Create(ConvertTimestampToWeekContext),
+        ];
     }
 
     private static AIFunction[] BuildGenerateTools(IAIPlannerToolDispatcher dispatcher, CancellationToken ct)
@@ -235,6 +252,8 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             {
                 Message = payload.Message,
                 IsReadyToGenerate = payload.IsReadyToGenerate,
+                IsReadyToApply = payload.IsReadyToApply,
+                RequiresApproval = payload.RequiresApproval,
                 Options = payload.Options ?? [],
                 SuggestedParams = payload.SuggestedParams is null ? null : new AIPlannerSuggestedParams
                 {
@@ -242,6 +261,62 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                     NumberOfWeeks = payload.SuggestedParams.NumberOfWeeks,
                     ConflictStrategy = payload.SuggestedParams.ConflictStrategy ?? "Skip",
                 },
+                ProposedActionSet = payload.ProposedActionSet is null ? null : new AIPlannerActionSet
+                {
+                    Summary = payload.ProposedActionSet.Summary,
+                    Explanation = payload.ProposedActionSet.Explanation,
+                    Actions = (payload.ProposedActionSet.Actions ?? []).Select(action => new AIPlannerActionProposal
+                    {
+                        ActionType = action.ActionType,
+                        Summary = action.Summary,
+                        TargetWorkoutId = action.TargetWorkoutId,
+                        TargetExerciseId = action.TargetExerciseId,
+                        TargetDate = action.TargetDate,
+                        PreviousDate = action.PreviousDate,
+                        Workout = action.Workout is null ? null : new PlannedWorkoutRequestPayload
+                        {
+                            Name = action.Workout.Name,
+                            Note = action.Workout.Note,
+                            PlannedAt = action.Workout.PlannedAt,
+                            Exercises = (action.Workout.Exercises ?? []).Select(exercise => new PlannedExerciseRequestPayload
+                            {
+                                Id = exercise.Id,
+                                ExerciseId = exercise.ExerciseId,
+                                Name = exercise.Name,
+                                Note = exercise.Note,
+                                PrescriptionType = exercise.PrescriptionType,
+                                Sets = (exercise.Sets ?? []).Select(set => new AIPlannerSetOutput
+                                {
+                                    Reps = set.Reps,
+                                    WeightKg = set.WeightKg,
+                                    DurationSeconds = set.DurationSeconds,
+                                    DistanceMeters = set.DistanceMeters,
+                                    Note = set.Note,
+                                }).ToList(),
+                            }).ToList(),
+                        },
+                    }).ToList(),
+                },
+                PreviewWorkouts = (payload.PreviewWorkouts ?? []).Select(p => new AIPlannerWorkoutOutput
+                {
+                    Name = p.Name,
+                    Note = p.Note,
+                    PlannedAt = p.PlannedAt,
+                    Exercises = (p.Exercises ?? []).Select(e => new AIPlannerExerciseOutput
+                    {
+                        Name = e.Name,
+                        Note = e.Note,
+                        PrescriptionType = e.PrescriptionType,
+                        Sets = (e.Sets ?? []).Select(s => new AIPlannerSetOutput
+                        {
+                            Reps = s.Reps,
+                            WeightKg = s.WeightKg,
+                            DurationSeconds = s.DurationSeconds,
+                            DistanceMeters = s.DistanceMeters,
+                            Note = s.Note,
+                        }).ToList(),
+                    }).ToList(),
+                }).ToList(),
             };
         }
         catch
@@ -294,9 +369,17 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
 
         public bool IsReadyToGenerate { get; set; }
 
+        public bool IsReadyToApply { get; set; }
+
+        public bool RequiresApproval { get; set; }
+
         public List<string>? Options { get; set; }
 
         public SuggestedParamsPayload? SuggestedParams { get; set; }
+
+        public ProposedActionSetPayload? ProposedActionSet { get; set; }
+
+        public List<WorkoutPayload>? PreviewWorkouts { get; set; }
     }
 
     private class SuggestedParamsPayload
@@ -319,8 +402,38 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
         public List<ExercisePayload>? Exercises { get; set; }
     }
 
+    private class ProposedActionSetPayload
+    {
+        public string Summary { get; set; } = string.Empty;
+
+        public string? Explanation { get; set; }
+
+        public List<ActionPayload>? Actions { get; set; }
+    }
+
+    private class ActionPayload
+    {
+        public string ActionType { get; set; } = string.Empty;
+
+        public string Summary { get; set; } = string.Empty;
+
+        public Guid? TargetWorkoutId { get; set; }
+
+        public Guid? TargetExerciseId { get; set; }
+
+        public string? TargetDate { get; set; }
+
+        public string? PreviousDate { get; set; }
+
+        public WorkoutPayload? Workout { get; set; }
+    }
+
     private class ExercisePayload
     {
+        public Guid? Id { get; set; }
+
+        public Guid? ExerciseId { get; set; }
+
         public string? Name { get; set; }
 
         public string? Note { get; set; }

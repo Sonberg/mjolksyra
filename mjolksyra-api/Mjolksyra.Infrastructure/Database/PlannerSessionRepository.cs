@@ -27,6 +27,16 @@ public class PlannerSessionRepository(IMongoDbContext context) : IPlannerSession
             .FirstOrDefaultAsync(ct);
     }
 
+    public async Task<PlannerSession?> GetByProposalId(Guid proposalId, Guid coachUserId, CancellationToken ct)
+    {
+        return await context.PlannerSessions
+            .Find(x =>
+                x.CoachUserId == coachUserId &&
+                x.ProposedActionSet != null &&
+                x.ProposedActionSet.Id == proposalId)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task Delete(Guid sessionId, CancellationToken ct)
     {
         await context.PlannerSessions.DeleteOneAsync(x => x.Id == sessionId, ct);

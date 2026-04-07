@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.AI;
+using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 
@@ -22,9 +23,15 @@ public class ClarifyWorkoutPlanResponse
 
     public bool IsReadyToGenerate { get; set; }
 
-    public bool WorkoutsChanged { get; set; }
+    public bool IsReadyToApply { get; set; }
+
+    public bool RequiresApproval { get; set; }
 
     public ClarifyWorkoutPlanSuggestedParams? SuggestedParams { get; set; }
+
+    public AIPlannerActionSet? ProposedActionSet { get; set; }
+
+    public ICollection<PreviewWorkoutPlanWorkout> PreviewWorkouts { get; set; } = [];
 
     public ICollection<string> Options { get; set; } = [];
 

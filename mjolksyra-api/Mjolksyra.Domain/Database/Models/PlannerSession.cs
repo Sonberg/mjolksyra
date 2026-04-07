@@ -19,6 +19,10 @@ public class PlannerSession : IDocument
 
     public AIPlannerSuggestedParams? SuggestedParams { get; set; }
 
+    public AIPlannerActionSet? ProposedActionSet { get; set; }
+
+    public ICollection<AIPlannerWorkoutOutput> PreviewWorkouts { get; set; } = [];
+
     public PlannerSessionGenerationResult? GenerationResult { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
@@ -37,7 +41,7 @@ public class PlannerSessionMessage
 
 public class PlannerSessionGenerationResult
 {
-    public int WorkoutsCreated { get; set; }
+    public int ActionsApplied { get; set; }
 
     public required string Summary { get; set; }
 

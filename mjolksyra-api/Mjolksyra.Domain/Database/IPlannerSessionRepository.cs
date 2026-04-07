@@ -10,6 +10,8 @@ public interface IPlannerSessionRepository
 
     Task<PlannerSession?> GetLatestByTrainee(Guid traineeId, Guid coachUserId, CancellationToken ct);
 
+    Task<PlannerSession?> GetByProposalId(Guid proposalId, Guid coachUserId, CancellationToken ct);
+
     Task Delete(Guid sessionId, CancellationToken ct);
 
     Task Update(PlannerSession session, CancellationToken ct);

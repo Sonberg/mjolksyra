@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.UserContext;
+using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GetLatestPlannerSession;
 
@@ -35,6 +36,8 @@ public class GetLatestPlannerSessionQueryHandler(
             Description = session.Description,
             ConversationHistory = session.ConversationHistory,
             SuggestedParams = session.SuggestedParams,
+            ProposedActionSet = session.ProposedActionSet,
+            PreviewWorkouts = PreviewWorkoutPlanMapper.FromOutputs(session.PreviewWorkouts),
             GenerationResult = session.GenerationResult,
         };
     }

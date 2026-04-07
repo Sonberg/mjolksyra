@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GetLatestPlannerSession;
 
@@ -18,6 +19,10 @@ public class GetLatestPlannerSessionResponse
     public ICollection<PlannerSessionMessage> ConversationHistory { get; set; } = [];
 
     public AIPlannerSuggestedParams? SuggestedParams { get; set; }
+
+    public AIPlannerActionSet? ProposedActionSet { get; set; }
+
+    public ICollection<PreviewWorkoutPlanWorkout> PreviewWorkouts { get; set; } = [];
 
     public PlannerSessionGenerationResult? GenerationResult { get; set; }
 }

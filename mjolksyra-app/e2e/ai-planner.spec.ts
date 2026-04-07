@@ -6,9 +6,9 @@ test.describe("AI Workout Planner", () => {
       "http://localhost:6006/iframe.html?id=aiplanpanel--idle",
     );
 
-    await expect(page.getByPlaceholder(/describe the program/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /attach/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /start/i })).toBeVisible();
+    await expect(page.getByPlaceholder(/12-week strength block/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /attach context/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /start planner/i })).toBeVisible();
   });
 
   test("start button is disabled when description is empty", async ({ page }) => {
@@ -20,25 +20,26 @@ test.describe("AI Workout Planner", () => {
     await expect(startButton).toBeDisabled();
   });
 
-  test("ready-to-generate state shows confirm card with preview and edit buttons", async ({ page }) => {
+  test("pending approval state shows proposal review actions", async ({ page }) => {
     await page.goto(
-      "http://localhost:6006/iframe.html?id=aiplanpanel--ready-to-generate",
+      "http://localhost:6006/iframe.html?id=aiplanpanel--pending-approval",
     );
 
-    await expect(page.getByText("Ready to generate")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("12 weeks")).toBeVisible();
-    await expect(page.getByRole("button", { name: /preview plan/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /edit/i })).toBeVisible();
+    await expect(page.getByText("Pending approval")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Move two Friday workouts to Saturday/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /apply changes/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /discard/i })).toBeVisible();
   });
 
-  test("started session shows attach and clear session actions", async ({ page }) => {
+  test("pending approval session shows staged changes and clear session actions", async ({ page }) => {
     await page.goto(
-      "http://localhost:6006/iframe.html?id=aiplanpanel--started-session",
+      "http://localhost:6006/iframe.html?id=aiplanpanel--pending-approval",
     );
 
     await expect(page.getByRole("button", { name: /attach/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /clear session/i })).toBeVisible();
     await expect(page.getByText("meet-notes.csv")).toBeVisible();
+    await expect(page.getByText(/Close-Grip Bench Press/i)).toBeVisible();
   });
 
   test("idle panel accepts dragged attachments", async ({ page }) => {
@@ -58,7 +59,7 @@ test.describe("AI Workout Planner", () => {
 
     const dropzone = page.getByTestId("ai-planner-attachment-dropzone");
     await dropzone.dispatchEvent("dragenter", { dataTransfer });
-    await expect(page.getByText("Drop files to attach")).toBeVisible();
+    await expect(page.getByText("Drop files here")).toBeVisible();
     await dropzone.dispatchEvent("drop", { dataTransfer });
 
     await expect(page.getByText("block-notes.csv")).toBeVisible();

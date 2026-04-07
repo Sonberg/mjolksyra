@@ -35,7 +35,7 @@ export const AskingFollowUp: Story = {
   ),
 };
 
-export const StartedSession: Story = {
+export const PendingApproval: Story = {
   render: () => (
     <div className="h-[600px] w-[360px] border border-gray-200">
       <AIPlannerPanel
@@ -43,47 +43,75 @@ export const StartedSession: Story = {
         onGenerated={async () => {}}
         initialState={{
           sessionId: "session-1",
-          description: "Swap out the next block after the meet.",
+          description: "Plan the next two weeks after the meet.",
           messages: [
-            { role: "user", content: "Remove all workouts after today." },
+            { role: "user", content: "Move Friday to Saturday for the next two weeks and swap bench for close-grip bench." },
             {
               role: "assistant",
-              content: "This will remove 42 workouts after today. Are you sure you want to do this?",
-              options: ["Yes, remove them"],
+              content:
+                "I staged the requested changes as one proposal. Review the summary below and approve when you are ready.",
             },
           ],
           attachedFiles: [
             { name: "meet-notes.csv", type: "text/csv", content: "date,load\n2026-04-01,heavy" },
           ],
-        }}
-      />
-    </div>
-  ),
-};
-
-export const ReadyToGenerate: Story = {
-  render: () => (
-    <div className="h-[600px] w-[360px] border border-gray-200">
-      <AIPlannerPanel
-        traineeId="trainee-1"
-        onGenerated={async () => {}}
-        initialState={{
-          sessionId: "session-1",
-          description: "12-week powerlifting program, 3 days/week",
-          messages: [
-            { role: "user", content: "12-week powerlifting program, 3 days/week" },
+          proposedActionSet: {
+            id: "proposal-1",
+            status: "pending",
+            summary: "Move two Friday workouts to Saturday and replace bench press with close-grip bench.",
+            explanation: "This keeps the training week intact while shifting the bench focus after the meet.",
+            affectedDateFrom: "2026-04-13",
+            affectedDateTo: "2026-04-26",
+            createdAt: "2026-04-07T10:00:00.000Z",
+            actions: [
+              {
+                actionType: "move_workout",
+                summary: "Move Fri Apr 17 workout to Sat Apr 18.",
+                targetWorkoutId: "workout-1",
+                previousDate: "2026-04-17",
+                targetDate: "2026-04-18",
+                workout: {
+                  name: "Heavy lower",
+                  plannedAt: "2026-04-18",
+                  exercises: [],
+                },
+              },
+              {
+                actionType: "update_exercise",
+                summary: "Replace bench press with close-grip bench on Mon Apr 20.",
+                targetWorkoutId: "workout-2",
+                targetDate: "2026-04-20",
+                workout: {
+                  name: "Upper volume",
+                  plannedAt: "2026-04-20",
+                  exercises: [
+                    {
+                      name: "Close-Grip Bench Press",
+                      sets: [{ reps: 6, weightKg: 92.5 }],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+          previewWorkouts: [
             {
-              role: "assistant",
-              content:
-                "I have all the info I need. Ready to generate your 12-week powerlifting program starting April 14.",
+              plannedAt: "2026-04-18",
+              name: "Heavy lower",
+              exercises: [
+                { name: "Back Squat", sets: [{ reps: 4, weightKg: 180 }] },
+                { name: "Romanian Deadlift", sets: [{ reps: 6, weightKg: 120 }] },
+              ],
+            },
+            {
+              plannedAt: "2026-04-20",
+              name: "Upper volume",
+              exercises: [
+                { name: "Close-Grip Bench Press", sets: [{ reps: 6, weightKg: 92.5 }] },
+                { name: "Chest Supported Row", sets: [{ reps: 10, weightKg: 60 }] },
+              ],
             },
           ],
-          suggestedParams: {
-            startDate: "2026-04-14",
-            numberOfWeeks: 12,
-            conflictStrategy: "Skip",
-          },
-          isReadyToGenerate: true,
         }}
       />
     </div>
@@ -100,10 +128,11 @@ export const AfterGeneration: Story = {
           sessionId: "session-1",
           description: "12-week powerlifting program, 3 days/week",
           generationResult: {
-            workoutsCreated: 36,
-            summary: "Generated 36 workouts from Apr 14 to Jul 13, 2026.",
-            dateFrom: "2026-04-14",
-            dateTo: "2026-07-13",
+            sessionId: "session-1",
+            proposalId: "proposal-1",
+            actionsApplied: 36,
+            summary: "Generated and applied 36 planned workouts from Apr 14 to Jul 13, 2026.",
+            workoutIds: ["workout-1", "workout-2"],
             generatedAt: "2026-04-06T09:00:00.000Z",
           },
         }}

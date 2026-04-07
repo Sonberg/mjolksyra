@@ -11,23 +11,25 @@ import {
   CheckIcon,
   RotateCcwIcon,
   UploadIcon,
+  Trash2Icon,
 } from "lucide-react";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
 dayjs.extend(isoWeek);
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
+import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
 import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
-import { generateWorkoutPlan } from "@/services/aiPlanner/generateWorkoutPlan";
-import { previewWorkoutPlan } from "@/services/aiPlanner/previewWorkoutPlan";
+import { discardPlannerProposal } from "@/services/aiPlanner/discardPlannerProposal";
 import { getLatestPlannerSession } from "@/services/aiPlanner/getLatestPlannerSession";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import type {
   PlannerConversationMessage,
   PlannerFileContent,
-  ClarifyWorkoutPlanSuggestedParams,
-  GenerateWorkoutPlanResponse,
+  AIPlannerActionProposal,
+  AIPlannerActionSet,
+  AIPlannerApplyProposalResponse,
   PreviewWorkoutPlanWorkout,
 } from "@/services/aiPlanner/types";
 
@@ -39,8 +41,8 @@ type Props = {
     description?: string;
     messages?: Message[];
     attachedFiles?: PlannerFileContent[];
-    suggestedParams?: ClarifyWorkoutPlanSuggestedParams | null;
-    isReadyToGenerate?: boolean;
+    proposedActionSet?: AIPlannerActionSet | null;
+    previewWorkouts?: PreviewWorkoutPlanWorkout[] | null;
     generationResult?: GenerationResult | null;
   };
 };
@@ -51,7 +53,7 @@ type Message = {
   options?: string[];
 };
 
-type GenerationResult = GenerateWorkoutPlanResponse & { generatedAt: string };
+type GenerationResult = AIPlannerApplyProposalResponse & { generatedAt: string };
 
 const ACCEPTED_EXTENSIONS = ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp";
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
@@ -104,23 +106,18 @@ export function AIPlannerPanel({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
-  const [suggestedParams, setSuggestedParams] =
-    useState<ClarifyWorkoutPlanSuggestedParams | null>(
-      initialState?.suggestedParams ?? null,
-    );
-  const [isReadyToGenerate, setIsReadyToGenerate] = useState(
-    initialState?.isReadyToGenerate ?? false,
-  );
   const [generationResult, setGenerationResult] =
     useState<GenerationResult | null>(initialState?.generationResult ?? null);
+  const [proposedActionSet, setProposedActionSet] =
+    useState<AIPlannerActionSet | null>(initialState?.proposedActionSet ?? null);
   const [previewData, setPreviewData] = useState<
     PreviewWorkoutPlanWorkout[] | null
-  >(null);
-  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  >(initialState?.previewWorkouts ?? null);
   const [userInput, setUserInput] = useState("");
   const [insufficientCredits, setInsufficientCredits] = useState(false);
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [isClearingSession, setIsClearingSession] = useState(false);
+  const [proposalError, setProposalError] = useState<string | null>(null);
   const [attachmentDragDepth, setAttachmentDragDepth] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -132,11 +129,13 @@ export function AIPlannerPanel({
   const generateCost =
     pricing?.find((p) => p.action === "GenerateWorkoutPlan")?.creditCost ??
     null;
+  const hasPendingProposal = proposedActionSet?.status === "pending";
   const hasStarted = messages.length > 0 || isLoading;
   const hasSessionDraft =
     hasStarted ||
     attachedFiles.length > 0 ||
     !!description.trim() ||
+    !!proposedActionSet ||
     !!generationResult;
 
   useEffect(() => {
@@ -208,13 +207,9 @@ export function AIPlannerPanel({
       };
       setMessages([...newMessages, aiMessage]);
 
-      if (response.isReadyToGenerate && response.suggestedParams) {
-        setIsReadyToGenerate(true);
-        setSuggestedParams(response.suggestedParams);
-      }
-      if (response.workoutsChanged) {
-        await onGenerated();
-      }
+      setProposedActionSet(response.proposedActionSet);
+      setPreviewData(response.previewWorkouts?.length ? response.previewWorkouts : null);
+      setProposalError(null);
     } catch {
       setMessages([
         ...newMessages,
@@ -269,13 +264,9 @@ export function AIPlannerPanel({
       };
       setMessages([...newMessages, aiMessage]);
 
-      if (response.isReadyToGenerate && response.suggestedParams) {
-        setIsReadyToGenerate(true);
-        setSuggestedParams(response.suggestedParams);
-      }
-      if (response.workoutsChanged) {
-        await onGenerated();
-      }
+      setProposedActionSet(response.proposedActionSet);
+      setPreviewData(response.previewWorkouts?.length ? response.previewWorkouts : null);
+      setProposalError(null);
     } catch {
       setMessages([
         ...newMessages,
@@ -290,59 +281,37 @@ export function AIPlannerPanel({
     }
   }
 
-  async function handlePreview() {
-    if (!suggestedParams) return;
-
-    setIsPreviewLoading(true);
-    scrollToBottom();
-
-    try {
-      const result = await previewWorkoutPlan({
-        traineeId,
-        description,
-        filesContent: attachedFiles,
-        conversationHistory: buildConversationHistory(),
-        params: suggestedParams,
-      });
-      setPreviewData(result.workouts);
-    } catch {
-      setMessages((current) => [
-        ...current,
-        { role: "assistant", content: "Preview failed. Please try again." },
-      ]);
-    } finally {
-      setIsPreviewLoading(false);
-    }
-  }
-
-  async function handleGenerate() {
-    if (!suggestedParams) return;
+  async function handleApplyProposal() {
+    if (!proposedActionSet) return;
 
     setIsLoading(true);
     setInsufficientCredits(false);
 
     try {
-      const result = await generateWorkoutPlan({
+      const result = await applyPlannerProposal({
         traineeId,
-        sessionId,
-        description,
-        filesContent: attachedFiles,
-        conversationHistory: buildConversationHistory(),
-        params: suggestedParams,
+        proposalId: proposedActionSet.id,
       });
 
       setGenerationResult({ ...result, generatedAt: new Date().toISOString() });
+      setProposedActionSet(null);
+      setPreviewData(null);
       await onGenerated();
     } catch (err) {
-      if (isAxiosError(err) && err.response?.status === 422) {
+      if (isAxiosError(err) && err.response?.status === 409) {
+        setProposalError(
+          typeof err.response?.data?.error === "string"
+            ? err.response.data.error
+            : "This proposal is stale. Ask the planner to refresh it.",
+        );
+      } else if (isAxiosError(err) && err.response?.status === 422) {
         setInsufficientCredits(true);
-        setPurchaseDialogOpen(true);
       } else {
         setMessages([
           ...messages,
           {
             role: "assistant",
-            content: "Generation failed. Please try again.",
+            content: "Applying this proposal failed. Please try again.",
           },
         ]);
       }
@@ -351,11 +320,28 @@ export function AIPlannerPanel({
     }
   }
 
-  async function handleRefine(feedback: string) {
-    setPreviewData(null);
-    setIsReadyToGenerate(false);
-    setSuggestedParams(null);
-    await handleSendFollowUpWithText(feedback);
+  async function handleDiscardProposal() {
+    if (!proposedActionSet || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      await discardPlannerProposal({
+        traineeId,
+        proposalId: proposedActionSet.id,
+      });
+      setProposedActionSet(null);
+      setPreviewData(null);
+      setProposalError(null);
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: "Proposal discarded. Tell me what you want to change next.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleReset() {
@@ -364,10 +350,10 @@ export function AIPlannerPanel({
     setMessages([]);
     setAttachedFiles([]);
     setUserInput("");
-    setSuggestedParams(null);
-    setIsReadyToGenerate(false);
     setGenerationResult(null);
+    setProposedActionSet(null);
     setPreviewData(null);
+    setProposalError(null);
   }
 
   async function handleClearSession() {
@@ -477,14 +463,13 @@ export function AIPlannerPanel({
               {generationResult.summary}
             </p>
             <p className="mt-1 text-xs text-[var(--shell-muted)]">
-              {dayjs(generationResult.dateFrom).format("MMM D")}
-              {" — "}
-              {dayjs(generationResult.dateTo).format("MMM D, YYYY")}
+              {generationResult.actionsApplied} action
+              {generationResult.actionsApplied !== 1 ? "s" : ""} applied
             </p>
           </div>
         </div>
         <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
-          Workouts were added as drafts. Review them in the{" "}
+          Planned workouts were updated. Review them in the{" "}
           <span className="font-semibold text-[var(--shell-ink)]">Changes</span>{" "}
           tab, then publish when ready.
         </p>
@@ -547,7 +532,7 @@ export function AIPlannerPanel({
                 isLastAi &&
                 message.options?.length &&
                 !isLoading &&
-                !isReadyToGenerate;
+                !hasPendingProposal;
 
               return (
                 <div key={index} className="flex flex-col gap-1.5">
@@ -578,25 +563,15 @@ export function AIPlannerPanel({
                 </div>
               </div>
             )}
-            {isReadyToGenerate && suggestedParams && !isLoading && previewData === null && (
-              <ConfirmCard
-                params={suggestedParams}
-                isPreviewLoading={isPreviewLoading}
-                onPreview={() => void handlePreview()}
-                onEdit={() => {
-                  setIsReadyToGenerate(false);
-                  setSuggestedParams(null);
-                  setInsufficientCredits(false);
-                }}
-              />
-            )}
-            {previewData !== null && !isLoading && (
-              <PreviewCard
-                workouts={previewData}
+            {hasPendingProposal && proposedActionSet && (
+              <ProposalReviewCard
+                proposal={proposedActionSet}
+                workouts={previewData ?? []}
                 generateCost={generateCost}
-                isLoading={isPreviewLoading}
-                onGenerate={() => void handleGenerate()}
-                onRefine={(feedback) => void handleRefine(feedback)}
+                isLoading={isLoading}
+                error={proposalError}
+                onApply={() => void handleApplyProposal()}
+                onDiscard={() => void handleDiscardProposal()}
               />
             )}
             {insufficientCredits && (
@@ -710,7 +685,7 @@ export function AIPlannerPanel({
             </div>
           </div>
         </div>
-      ) : !isReadyToGenerate && previewData === null ? (
+      ) : (
         <div
           className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))] px-4 py-3"
           data-testid="ai-planner-attachment-dropzone"
@@ -777,7 +752,11 @@ export function AIPlannerPanel({
               <textarea
                 className="min-h-[44px] flex-1 resize-none border border-transparent bg-transparent px-4 py-2.5 text-sm leading-6 text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-border)] focus:bg-[var(--shell-surface)] focus:outline-none"
                 rows={2}
-                placeholder="Reply with the next detail..."
+                placeholder={
+                  hasPendingProposal
+                    ? "Ask for changes or explain what to revise..."
+                    : "Reply with the next detail..."
+                }
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -798,7 +777,7 @@ export function AIPlannerPanel({
             </div>
           </div>
         </div>
-      ) : null}
+      )}
       <PurchaseCreditsDialog
         open={purchaseDialogOpen}
         onOpenChange={(open) => {
@@ -806,58 +785,6 @@ export function AIPlannerPanel({
           if (!open) setInsufficientCredits(false);
         }}
       />
-    </div>
-  );
-}
-
-type ConfirmCardProps = {
-  params: ClarifyWorkoutPlanSuggestedParams;
-  isPreviewLoading: boolean;
-  onPreview: () => void;
-  onEdit: () => void;
-};
-
-function ConfirmCard({
-  params,
-  isPreviewLoading,
-  onPreview,
-  onEdit,
-}: ConfirmCardProps) {
-  return (
-    <div className="border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-        Ready to generate
-      </p>
-      <dl className="mt-3 space-y-2 text-sm">
-        <Row
-          label="Start date"
-          value={dayjs(params.startDate).format("ddd, D MMM YYYY")}
-        />
-        <Row
-          label="Duration"
-          value={`${params.numberOfWeeks} week${params.numberOfWeeks !== 1 ? "s" : ""}`}
-        />
-        <Row label="Conflicts" value={params.conflictStrategy} />
-      </dl>
-      <div className="mt-4 flex items-center gap-2">
-        <button
-          type="button"
-          disabled={isPreviewLoading}
-          className="inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={onPreview}
-        >
-          <SparklesIcon className="h-3 w-3" />
-          Preview Plan
-        </button>
-        <button
-          type="button"
-          disabled={isPreviewLoading}
-          className="inline-flex items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={onEdit}
-        >
-          Edit
-        </button>
-      </div>
     </div>
   );
 }
@@ -975,69 +902,122 @@ function formatPrescription(exercise: PreviewWorkoutPlanWorkout["exercises"][0])
   return exercise.sets.map((s) => formatSet(s, type ?? undefined)).join(", ");
 }
 
-type PreviewCardProps = {
+type ProposalReviewCardProps = {
+  proposal: AIPlannerActionSet;
   workouts: PreviewWorkoutPlanWorkout[];
   generateCost: number | null;
   isLoading: boolean;
-  onGenerate: () => void;
-  onRefine: (feedback: string) => void;
+  error: string | null;
+  onApply: () => void;
+  onDiscard: () => void;
 };
 
-function PreviewCard({ workouts, generateCost, isLoading, onGenerate, onRefine }: PreviewCardProps) {
-  const [feedback, setFeedback] = useState("");
+function ProposalReviewCard({
+  proposal,
+  workouts,
+  generateCost,
+  isLoading,
+  error,
+  onApply,
+  onDiscard,
+}: ProposalReviewCardProps) {
   const weeks = groupByWeek(workouts);
-
-  function handleRefine() {
-    const text = feedback.trim();
-    if (!text) return;
-    onRefine(text);
-    setFeedback("");
-  }
 
   return (
     <div className="border border-[var(--shell-border)] bg-[color-mix(in_srgb,var(--shell-surface-strong)_92%,white_8%)] shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
       <div className="border-b border-[var(--shell-border)] px-4 py-3">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-          Plan Preview
+          Pending approval
         </p>
-        <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
-          {workouts.length === 0
-            ? "No workouts were generated."
-            : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
+        <p className="mt-1 text-sm font-semibold text-[var(--shell-ink)]">
+          {proposal.summary}
         </p>
+        {proposal.explanation && (
+          <p className="mt-1 text-xs leading-5 text-[var(--shell-muted)]">
+            {proposal.explanation}
+          </p>
+        )}
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+              Actions
+            </p>
+            <p className="mt-1 text-sm text-[var(--shell-ink)]">
+              {proposal.actions.length} staged change
+              {proposal.actions.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+              Date range
+            </p>
+            <p className="mt-1 text-sm text-[var(--shell-ink)]">
+              {formatDateRange(proposal.affectedDateFrom, proposal.affectedDateTo)}
+            </p>
+          </div>
+        </div>
       </div>
-      <div className="max-h-[260px] overflow-y-auto">
+
+      <div className="border-b border-[var(--shell-border)] px-4 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+          Review changes
+        </p>
+        <div className="mt-3 flex flex-col gap-2">
+          {proposal.actions.map((action, index) => (
+            <ProposalActionRow
+              key={`${action.actionType}-${action.targetWorkoutId ?? action.targetDate ?? index}`}
+              action={action}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="max-h-[260px] overflow-y-auto border-b border-[var(--shell-border)]">
+        <div className="px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+            Preview
+          </p>
+          <p className="mt-1 text-xs text-[var(--shell-muted)]">
+            {workouts.length === 0
+              ? "No preview workouts were returned for this proposal."
+              : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
+          </p>
+        </div>
         {workouts.length === 0 ? (
-          <p className="px-4 py-4 text-xs text-[var(--shell-muted)]">
-            The AI didn&apos;t return any workouts. Try refining your description.
+          <p className="px-4 pb-4 text-xs text-[var(--shell-muted)]">
+            Ask the planner to refine the proposal if you want a clearer preview before approving.
           </p>
         ) : (
           weeks.map((week) => (
-            <div key={week.weekLabel} className="border-b border-[var(--shell-border)] px-4 py-3 last:border-b-0">
+            <div key={week.weekLabel} className="border-t border-[var(--shell-border)] px-4 py-3">
               <div className="mb-1.5 flex items-baseline gap-2">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
                   {week.weekLabel}
                 </span>
                 <span className="text-[10px] text-[var(--shell-muted)]">{week.weekRange}</span>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2">
                 {week.workouts.map((workout) => (
-                  <div key={workout.plannedAt}>
+                  <div key={`${workout.plannedAt}-${workout.name ?? "workout"}`} className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
                     <p className="text-xs font-medium text-[var(--shell-ink)]">
                       {dayjs(workout.plannedAt).format("ddd, MMM D")}
                       {workout.name && (
-                        <span className="ml-1.5 font-normal text-[var(--shell-muted)]">— {workout.name}</span>
+                        <span className="ml-1.5 font-normal text-[var(--shell-muted)]">- {workout.name}</span>
                       )}
                     </p>
+                    {workout.note && (
+                      <p className="mt-1 text-xs text-[var(--shell-muted)]">
+                        {workout.note}
+                      </p>
+                    )}
                     {workout.exercises.length > 0 && (
-                      <ul className="mt-0.5 space-y-0.5 pl-3">
+                      <ul className="mt-2 space-y-1">
                         {workout.exercises.map((exercise, i) => {
                           const prescription = formatPrescription(exercise);
                           return (
-                            <li key={i} className="flex items-baseline gap-1.5 text-xs text-[var(--shell-muted)]">
-                              <span className="text-[var(--shell-ink)]">{exercise.name}</span>
-                              {prescription && <span>·</span>}
-                              {prescription && <span>{prescription}</span>}
+                            <li key={`${exercise.name}-${i}`} className="text-xs text-[var(--shell-muted)]">
+                              <span className="font-medium text-[var(--shell-ink)]">{exercise.name}</span>
+                              {prescription ? ` · ${prescription}` : ""}
                             </li>
                           );
                         })}
@@ -1050,41 +1030,87 @@ function PreviewCard({ workouts, generateCost, isLoading, onGenerate, onRefine }
           ))
         )}
       </div>
-      <div className="border-t border-[var(--shell-border)] px-4 py-3">
-        <textarea
-          className="w-full resize-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-ink)] focus:outline-none disabled:opacity-50"
-          rows={2}
-          placeholder="Give feedback to refine the plan…"
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
-          disabled={isLoading}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleRefine();
-          }}
-        />
-        <div className="mt-2 flex items-center gap-2">
+
+      <div className="px-4 py-3">
+        {error && (
+          <div className="mb-3 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs text-[var(--shell-ink)]">
+            {error}
+          </div>
+        )}
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            disabled={!feedback.trim() || isLoading}
-            className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={handleRefine}
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onApply}
           >
-            <RotateCcwIcon className="h-3 w-3" />
-            Refine
+            <CheckIcon className="h-3 w-3" />
+            {generateCost ? `Apply changes (${generateCost} cr)` : "Apply changes"}
           </button>
           <button
             type="button"
-            disabled={isLoading || workouts.length === 0}
-            className="ml-auto inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={onGenerate}
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onDiscard}
           >
-            <SparklesIcon className="h-3 w-3" />
-            {generateCost ? `Generate (${generateCost} cr)` : "Generate"}
+            <Trash2Icon className="h-3 w-3" />
+            Discard
           </button>
         </div>
       </div>
     </div>
   );
+}
+
+function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
+  return (
+    <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-medium text-[var(--shell-ink)]">{action.summary}</p>
+        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+          {formatActionType(action.actionType)}
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs text-[var(--shell-muted)]">
+        {action.previousDate && action.targetDate && action.previousDate !== action.targetDate && (
+          <Row
+            label="Date"
+            value={`${dayjs(action.previousDate).format("MMM D")} -> ${dayjs(action.targetDate).format("MMM D")}`}
+          />
+        )}
+        {!action.previousDate && action.targetDate && (
+          <Row label="Date" value={dayjs(action.targetDate).format("ddd, MMM D")} />
+        )}
+        {action.workout?.name && <Row label="Workout" value={action.workout.name} />}
+        {action.workout?.exercises?.length ? (
+          <Row
+            label="Exercises"
+            value={`${action.workout.exercises.length} exercise${action.workout.exercises.length !== 1 ? "s" : ""}`}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function formatActionType(actionType: AIPlannerActionProposal["actionType"]): string {
+  return actionType.replaceAll("_", " ");
+}
+
+function formatDateRange(dateFrom?: string | null, dateTo?: string | null): string {
+  if (!dateFrom && !dateTo) {
+    return "Not specified";
+  }
+
+  if (dateFrom && dateTo) {
+    if (dateFrom === dateTo) {
+      return dayjs(dateFrom).format("ddd, MMM D");
+    }
+
+    return `${dayjs(dateFrom).format("MMM D")} - ${dayjs(dateTo).format("MMM D")}`;
+  }
+
+  return dayjs(dateFrom ?? dateTo ?? "").format("ddd, MMM D");
 }
 
 function LoadingDots() {

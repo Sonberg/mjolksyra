@@ -34,26 +34,11 @@ public class AIPlannerToolDispatcher(
 
     public async Task<string> GetUpcomingWorkoutsAsync(string afterDate, int count, CancellationToken ct)
     {
-        count = Math.Clamp(count, 1, 50);
-        var fromDate = DateOnly.TryParse(afterDate, out var parsed) ? parsed : DateOnly.FromDateTime(DateTime.UtcNow);
+        var workouts = await GetUpcomingWorkoutEntriesAsync(afterDate, count, ct);
 
-        var cursor = new PlannedWorkoutCursor
+        var entries = workouts.Select(w => new UpcomingWorkoutEntry
         {
-            TraineeId = traineeId,
-            FromDate = fromDate,
-            ToDate = fromDate.AddDays(count * 7),
-            SortBy = ["plannedAt"],
-            Order = SortOrder.Asc,
-            DraftOnly = false,
-            CompletedOnly = null,
-            Size = count,
-            Page = 0,
-        };
-
-        var result = await plannedWorkoutRepository.Get(cursor, ct);
-
-        var entries = result.Data.Select(w => new UpcomingWorkoutEntry
-        {
+            Id = w.Id,
             Date = w.PlannedAt.ToString("yyyy-MM-dd"),
             Name = w.Name,
             ExerciseCount = w.Exercises.Count,
@@ -63,48 +48,35 @@ public class AIPlannerToolDispatcher(
         return JsonSerializer.Serialize(entries, JsonOptions);
     }
 
-    public async Task<string> RemoveUpcomingWorkoutsAsync(string afterDate, int count, CancellationToken ct)
+    public async Task<string> GetUpcomingWorkoutDetailsAsync(string afterDate, int count, CancellationToken ct)
     {
-        count = Math.Clamp(count, 1, 500);
-        var fromDate = DateOnly.TryParse(afterDate, out var parsed) ? parsed : DateOnly.FromDateTime(DateTime.UtcNow);
+        var workouts = await GetUpcomingWorkoutEntriesAsync(afterDate, count, ct);
 
-        var workouts = await plannedWorkoutRepository.Get(new PlannedWorkoutCursor
+        var entries = workouts.Select(workout => new UpcomingWorkoutDetailsEntry
         {
-            TraineeId = traineeId,
-            FromDate = fromDate,
-            ToDate = fromDate.AddYears(2),
-            SortBy = ["plannedAt"],
-            Order = SortOrder.Asc,
-            DraftOnly = false,
-            CompletedOnly = null,
-            Size = count,
-            Page = 0,
-        }, ct);
-
-        var removed = new List<RemovedWorkoutEntry>();
-
-        foreach (var workout in workouts.Data)
-        {
-            await plannedWorkoutRepository.Delete(workout.Id, ct);
-            await plannedWorkoutDeletedPublisher.Publish(new PlannedWorkoutDeletedMessage
+            Id = workout.Id,
+            PlannedAt = workout.PlannedAt.ToString("yyyy-MM-dd"),
+            Name = workout.Name,
+            Note = workout.Note,
+            Exercises = workout.Exercises.Select(exercise => new UpcomingWorkoutExerciseEntry
             {
-                Workout = workout,
-            }, ct);
+                Id = exercise.Id,
+                ExerciseId = exercise.ExerciseId,
+                Name = exercise.Name,
+                Note = exercise.Note,
+                Sets = exercise.Prescription?.Sets?.Select((set, index) => new UpcomingWorkoutSetEntry
+                {
+                    SetNumber = index + 1,
+                    Reps = set.Target?.Reps,
+                    WeightKg = set.Target?.WeightKg,
+                    DurationSeconds = set.Target?.DurationSeconds,
+                    DistanceMeters = set.Target?.DistanceMeters,
+                    Note = set.Target?.Note,
+                }).ToList() ?? [],
+            }).ToList(),
+        }).ToList();
 
-            removed.Add(new RemovedWorkoutEntry
-            {
-                Id = workout.Id,
-                Date = workout.PlannedAt.ToString("yyyy-MM-dd"),
-                Name = workout.Name,
-            });
-        }
-
-        return JsonSerializer.Serialize(new RemoveUpcomingWorkoutsResult
-        {
-            RemovedCount = removed.Count,
-            AfterDate = fromDate.ToString("yyyy-MM-dd"),
-            Workouts = removed,
-        }, JsonOptions);
+        return JsonSerializer.Serialize(entries, JsonOptions);
     }
 
     public async Task<string> GetRecentWorkoutAnalysesAsync(int count, CancellationToken ct)
@@ -138,8 +110,51 @@ public class AIPlannerToolDispatcher(
         return JsonSerializer.Serialize(entries, JsonOptions);
     }
 
+    public Task<string> ConvertTimestampToWeekContextAsync(string timestamp, CancellationToken ct)
+    {
+        var parsed = DateTimeOffset.TryParse(timestamp, out var dateTimeOffset)
+            ? dateTimeOffset
+            : DateTimeOffset.UtcNow;
+
+        var week = System.Globalization.ISOWeek.GetWeekOfYear(parsed.UtcDateTime);
+        var isoYear = System.Globalization.ISOWeek.GetYear(parsed.UtcDateTime);
+
+        return Task.FromResult(JsonSerializer.Serialize(new WeekContextEntry
+        {
+            Timestamp = parsed.ToString("O"),
+            Date = DateOnly.FromDateTime(parsed.UtcDateTime).ToString("yyyy-MM-dd"),
+            IsoWeek = week,
+            IsoYear = isoYear,
+            WeekLabel = $"W{week:00} {isoYear}",
+        }, JsonOptions));
+    }
+
+    private async Task<List<PlannedWorkout>> GetUpcomingWorkoutEntriesAsync(string afterDate, int count, CancellationToken ct)
+    {
+        count = Math.Clamp(count, 1, 50);
+        var fromDate = DateOnly.TryParse(afterDate, out var parsed) ? parsed : DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var cursor = new PlannedWorkoutCursor
+        {
+            TraineeId = traineeId,
+            FromDate = fromDate,
+            ToDate = fromDate.AddDays(count * 7),
+            SortBy = ["plannedAt"],
+            Order = SortOrder.Asc,
+            DraftOnly = false,
+            CompletedOnly = null,
+            Size = count,
+            Page = 0,
+        };
+
+        var result = await plannedWorkoutRepository.Get(cursor, ct);
+        return result.Data.ToList();
+    }
+
     private class UpcomingWorkoutEntry
     {
+        public Guid Id { get; set; }
+
         public string Date { get; set; } = string.Empty;
 
         public string? Name { get; set; }
@@ -147,6 +162,47 @@ public class AIPlannerToolDispatcher(
         public int ExerciseCount { get; set; }
 
         public List<string> ExerciseNames { get; set; } = [];
+    }
+
+    private class UpcomingWorkoutDetailsEntry
+    {
+        public Guid Id { get; set; }
+
+        public string PlannedAt { get; set; } = string.Empty;
+
+        public string? Name { get; set; }
+
+        public string? Note { get; set; }
+
+        public List<UpcomingWorkoutExerciseEntry> Exercises { get; set; } = [];
+    }
+
+    private class UpcomingWorkoutExerciseEntry
+    {
+        public Guid Id { get; set; }
+
+        public Guid? ExerciseId { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? Note { get; set; }
+
+        public List<UpcomingWorkoutSetEntry> Sets { get; set; } = [];
+    }
+
+    private class UpcomingWorkoutSetEntry
+    {
+        public int SetNumber { get; set; }
+
+        public int? Reps { get; set; }
+
+        public double? WeightKg { get; set; }
+
+        public int? DurationSeconds { get; set; }
+
+        public double? DistanceMeters { get; set; }
+
+        public string? Note { get; set; }
     }
 
     private class AnalysisSummary
@@ -171,21 +227,16 @@ public class AIPlannerToolDispatcher(
         public string Type { get; set; } = string.Empty;
     }
 
-    private class RemoveUpcomingWorkoutsResult
+    private class WeekContextEntry
     {
-        public int RemovedCount { get; set; }
-
-        public string AfterDate { get; set; } = string.Empty;
-
-        public List<RemovedWorkoutEntry> Workouts { get; set; } = [];
-    }
-
-    private class RemovedWorkoutEntry
-    {
-        public Guid Id { get; set; }
+        public string Timestamp { get; set; } = string.Empty;
 
         public string Date { get; set; } = string.Empty;
 
-        public string? Name { get; set; }
+        public int IsoWeek { get; set; }
+
+        public int IsoYear { get; set; }
+
+        public string WeekLabel { get; set; } = string.Empty;
     }
 }

@@ -10,8 +10,6 @@ public class LoggingAIPlannerToolDispatcher(IAIPlannerToolDispatcher inner) : IA
 
     public IReadOnlyList<WorkoutAnalysisToolCall> Calls => _calls;
 
-    public bool WorkoutsChanged { get; private set; }
-
     public async Task<string> GetRecentCompletedWorkoutsAsync(string beforeDate, int count, CancellationToken ct)
     {
         var result = await inner.GetRecentCompletedWorkoutsAsync(beforeDate, count, ct);
@@ -33,11 +31,10 @@ public class LoggingAIPlannerToolDispatcher(IAIPlannerToolDispatcher inner) : IA
         return result;
     }
 
-    public async Task<string> RemoveUpcomingWorkoutsAsync(string afterDate, int count, CancellationToken ct)
+    public async Task<string> GetUpcomingWorkoutDetailsAsync(string afterDate, int count, CancellationToken ct)
     {
-        var result = await inner.RemoveUpcomingWorkoutsAsync(afterDate, count, ct);
-        WorkoutsChanged = true;
-        Log("remove_upcoming_workouts", new { after_date = afterDate, count }, result);
+        var result = await inner.GetUpcomingWorkoutDetailsAsync(afterDate, count, ct);
+        Log("get_upcoming_workout_details", new { after_date = afterDate, count }, result);
         return result;
     }
 
@@ -52,6 +49,13 @@ public class LoggingAIPlannerToolDispatcher(IAIPlannerToolDispatcher inner) : IA
     {
         var result = await inner.SearchExercisesAsync(name, ct);
         Log("search_exercises", new { name }, result);
+        return result;
+    }
+
+    public async Task<string> ConvertTimestampToWeekContextAsync(string timestamp, CancellationToken ct)
+    {
+        var result = await inner.ConvertTimestampToWeekContextAsync(timestamp, ct);
+        Log("convert_timestamp_to_week_context", new { timestamp }, result);
         return result;
     }
 

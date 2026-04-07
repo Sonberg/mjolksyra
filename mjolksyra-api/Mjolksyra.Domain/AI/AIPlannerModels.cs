@@ -33,9 +33,15 @@ public class AIPlannerClarifyOutput
 
     public bool IsReadyToGenerate { get; set; }
 
-    public bool WorkoutsChanged { get; set; }
+    public bool IsReadyToApply { get; set; }
+
+    public bool RequiresApproval { get; set; }
 
     public AIPlannerSuggestedParams? SuggestedParams { get; set; }
+
+    public AIPlannerActionSet? ProposedActionSet { get; set; }
+
+    public ICollection<AIPlannerWorkoutOutput> PreviewWorkouts { get; set; } = [];
 
     public ICollection<string> Options { get; set; } = [];
 }
@@ -80,6 +86,93 @@ public class AIPlannerWorkoutOutput
     public required string PlannedAt { get; set; }
 
     public ICollection<AIPlannerExerciseOutput> Exercises { get; set; } = [];
+}
+
+public class AIPlannerActionSet
+{
+    public Guid Id { get; set; }
+
+    public string Status { get; set; } = AIPlannerProposalStatus.Pending;
+
+    public required string Summary { get; set; }
+
+    public string? Explanation { get; set; }
+
+    public string? AffectedDateFrom { get; set; }
+
+    public string? AffectedDateTo { get; set; }
+
+    public string? SourceSnapshotHash { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; }
+
+    public DateTimeOffset? AppliedAt { get; set; }
+
+    public ICollection<AIPlannerActionProposal> Actions { get; set; } = [];
+}
+
+public class AIPlannerActionProposal
+{
+    public required string ActionType { get; set; }
+
+    public required string Summary { get; set; }
+
+    public Guid? TargetWorkoutId { get; set; }
+
+    public Guid? TargetExerciseId { get; set; }
+
+    public string? TargetDate { get; set; }
+
+    public string? PreviousDate { get; set; }
+
+    public string? BeforeStateFingerprint { get; set; }
+
+    public PlannedWorkoutRequestPayload? Workout { get; set; }
+}
+
+public class PlannedWorkoutRequestPayload
+{
+    public string? Name { get; set; }
+
+    public string? Note { get; set; }
+
+    public required string PlannedAt { get; set; }
+
+    public ICollection<PlannedExerciseRequestPayload> Exercises { get; set; } = [];
+}
+
+public class PlannedExerciseRequestPayload
+{
+    public Guid? Id { get; set; }
+
+    public Guid? ExerciseId { get; set; }
+
+    public required string Name { get; set; }
+
+    public string? Note { get; set; }
+
+    public string? PrescriptionType { get; set; }
+
+    public ICollection<AIPlannerSetOutput> Sets { get; set; } = [];
+}
+
+public static class AIPlannerProposalActionTypes
+{
+    public const string CreateWorkout = "create_workout";
+    public const string UpdateWorkout = "update_workout";
+    public const string MoveWorkout = "move_workout";
+    public const string DeleteWorkout = "delete_workout";
+    public const string AddExercise = "add_exercise";
+    public const string UpdateExercise = "update_exercise";
+    public const string DeleteExercise = "delete_exercise";
+}
+
+public static class AIPlannerProposalStatus
+{
+    public const string Pending = "pending";
+    public const string Applied = "applied";
+    public const string Discarded = "discarded";
+    public const string Superseded = "superseded";
 }
 
 public class AIPlannerExerciseOutput
