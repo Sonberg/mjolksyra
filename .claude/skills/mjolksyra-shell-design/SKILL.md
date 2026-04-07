@@ -214,6 +214,240 @@ Use this structure for any data-rich page (transactions, credits, dashboard, set
 
 ---
 
+## Component Reference
+
+These are the authoritative patterns for shadcn-based components in the shell. All rounded corners and shadows have been removed from the base components; use these exactly.
+
+### Button
+Import from `@/components/ui/button`. Use the `Button` component — never write bare `<button>` for primary actions.
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+// Primary action
+<Button variant="default">Save</Button>
+
+// Secondary / cancel
+<Button variant="outline">Cancel</Button>
+
+// Quiet background action
+<Button variant="secondary">Export</Button>
+
+// Icon-only
+<Button variant="ghost" size="icon"><TrashIcon className="h-4 w-4" /></Button>
+
+// Destructive
+<Button variant="destructive">Delete</Button>
+
+// Sizes: "sm" | "default" | "lg" | "icon"
+<Button size="sm" variant="outline">Small</Button>
+```
+
+Rules:
+- Never add `rounded-*` to a Button
+- `variant="default"` = filled accent — use for the single primary CTA per form/section
+- `variant="outline"` = bordered, surface bg — use for secondary actions alongside a primary
+- `variant="ghost"` = no background — use for icon buttons and in-table actions
+- `variant="secondary"` = surface-strong fill — use for neutral group actions (filters, exports)
+- Loading state: pass `disabled` + replace children with `"Saving…"` (no spinner component needed)
+
+---
+
+### Card
+Import from `@/components/ui/card`. The `<Card>` component is for **structured, compound content** (title + description + content + footer). For simple metric blocks or info rows, use plain `div` with `bg-[var(--shell-surface-strong)]`.
+
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+
+<Card>
+  <CardHeader className="p-4 pb-0">
+    <CardTitle className="text-base font-semibold text-[var(--shell-ink)]">Title</CardTitle>
+    <CardDescription>Supporting description text.</CardDescription>
+  </CardHeader>
+  <CardContent className="p-4">
+    {/* content */}
+  </CardContent>
+  <CardFooter className="border-t border-[var(--shell-border)] p-4">
+    <Button variant="outline" size="sm">Action</Button>
+  </CardFooter>
+</Card>
+```
+
+Rules:
+- The Card base now uses `bg-[var(--shell-surface-strong)]` — no border, no shadow
+- Add `border border-[var(--shell-border)]` only when the card needs explicit separation from a same-color background
+- Use `CardFooter` with `border-t border-[var(--shell-border)]` for footer actions
+- Override padding via className on CardHeader/CardContent/CardFooter (`p-4` instead of default `p-6`)
+
+---
+
+### Input
+Import from `@/components/ui/input`. Always pair with `<Label>`.
+
+```tsx
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+<div className="space-y-1.5">
+  <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
+    Email
+  </Label>
+  <Input id="email" type="email" placeholder="you@example.com" />
+</div>
+
+// Error state
+<div className="space-y-1.5">
+  <Label htmlFor="email">Email</Label>
+  <Input id="email" className="border-red-500 focus-visible:ring-red-500" />
+  <p className="text-xs text-red-500">Invalid email address.</p>
+</div>
+```
+
+Rules:
+- Never hardcode `border-gray-200` or `text-black` — the component now uses shell tokens
+- Error state: add `border-red-500 focus-visible:ring-red-500` via className
+- Disabled: just pass `disabled` prop — opacity is handled
+
+---
+
+### Textarea
+Import from `@/components/ui/textarea`. Same pairing rules as Input.
+
+```tsx
+import { Textarea } from "@/components/ui/textarea";
+
+<div className="space-y-1.5">
+  <Label htmlFor="notes">Notes</Label>
+  <Textarea id="notes" placeholder="Add a note…" rows={4} />
+</div>
+```
+
+Rules:
+- No `rounded-*` — removed from base
+- Use `rows` prop to control height rather than `min-h-*` className
+
+---
+
+### Select
+Import from `@/components/ui/select`.
+
+```tsx
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
+<Select value={value} onValueChange={setValue}>
+  <SelectTrigger>
+    <SelectValue placeholder="Choose…" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="a">Option A</SelectItem>
+    <SelectItem value="b">Option B</SelectItem>
+  </SelectContent>
+</Select>
+```
+
+Rules:
+- No `rounded-*` on trigger or content — removed from base
+- Dropdown uses `bg-[var(--shell-surface)]` with `border-[var(--shell-border)]`
+
+---
+
+### Tabs
+Import from `@/components/ui/tabs`.
+
+```tsx
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+<Tabs defaultValue="overview">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="history">History</TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">…</TabsContent>
+  <TabsContent value="history">…</TabsContent>
+</Tabs>
+```
+
+Rules:
+- Active tab: `bg-[var(--shell-surface)]` pill within a `bg-[var(--shell-surface-strong)]` list — flat, no shadows
+- Prefer `TabsList` with 2–4 tabs max; use a nav sidebar for more
+
+---
+
+### Dialog
+Import from `@/components/ui/dialog`.
+
+```tsx
+import {
+  Dialog, DialogTrigger, DialogContent,
+  DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose
+} from "@/components/ui/dialog";
+
+<Dialog>
+  <DialogTrigger asChild>
+    <Button variant="outline">Open</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader className="border-b border-[var(--shell-border)] pb-4">
+      <DialogTitle>Dialog Title</DialogTitle>
+      <DialogDescription>Supporting description.</DialogDescription>
+    </DialogHeader>
+    {/* form content */}
+    <DialogFooter className="border-t border-[var(--shell-border)] pt-4">
+      <DialogClose asChild>
+        <Button variant="outline">Cancel</Button>
+      </DialogClose>
+      <Button variant="default">Confirm</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+Rules:
+- `DialogContent` now uses `bg-[var(--shell-surface)]` with `border-[var(--shell-border)]`
+- Add `border-b` to DialogHeader and `border-t` to DialogFooter for clear section separation
+- Max width is `max-w-lg` by default; override with `className="max-w-sm"` etc.
+
+---
+
+### Chat
+No shadcn component — use the `WorkoutChatPanel` feature component or build custom:
+
+```tsx
+{/* Chat layout */}
+<div className="flex flex-col">
+  {/* Message list — grows upward */}
+  <div className="flex-1 overflow-y-auto">
+    {messages.map((msg) => (
+      <div key={msg.id} className="py-3 border-b border-[var(--shell-border)]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
+          {msg.role}
+        </p>
+        <p className="mt-1 text-sm text-[var(--shell-ink)]">{msg.content}</p>
+        {msg.isOwn && (
+          <div className="mt-1 bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)]">
+            {msg.content}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+  {/* Composer — pinned to bottom */}
+  <div className="border-t border-[var(--shell-border)] p-3 flex items-end gap-2">
+    <Textarea placeholder="Write a message…" rows={1} className="flex-1" />
+    <Button variant="default" size="sm">Send</Button>
+  </div>
+</div>
+```
+
+Rules:
+- Composer always at bottom with `border-t`
+- Role label above each message in eyebrow style (`text-[10px] uppercase tracking-[0.1em]`)
+- Own messages: `bg-[var(--shell-surface-strong)]` background
+- Other messages: no background
+- No chat bubbles, no rounded message containers
+
+---
+
 ## What NOT to do
 
 | Don't | Do instead |
@@ -221,7 +455,7 @@ Use this structure for any data-rich page (transactions, credits, dashboard, set
 | `rounded-lg` / `rounded-md` | No `rounded-*` at all |
 | `shadow-*` | No shadows |
 | `border border-[...] p-4` as card | `bg-[var(--shell-surface-strong)] p-4` |
-| `Card` / `CardContent` from shadcn | Plain `div` with surface-strong |
+| `Card` from shadcn for simple metrics | Plain `div` with `bg-[var(--shell-surface-strong)] p-4` |
 | `justify-between` for multi-column rows | `grid grid-cols-[1fr_auto]` + fixed widths |
 | Large page headers in bordered boxes | `PageSectionHeader` with no wrapper |
 | Back buttons with border/background | Bare `ChevronLeftIcon` link |
