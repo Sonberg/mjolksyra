@@ -1,4 +1,37 @@
-import { SparklesIcon, ScanSearchIcon } from "lucide-react";
+import { PaperclipIcon, SparklesIcon, ScanSearchIcon } from "lucide-react";
+
+const proposalWeeks = [
+  {
+    week: "Week 1",
+    focus: "Accumulation",
+    sessions: [
+      { day: "Mon", name: "Squat + Bench", count: 8 },
+      { day: "Wed", name: "Deadlift + OHP", count: 7 },
+      { day: "Fri", name: "Squat + Bench", count: 8 },
+      { day: "Sat", name: "Accessory", count: 6 },
+    ],
+  },
+  {
+    week: "Week 2",
+    focus: "Accumulation",
+    sessions: [
+      { day: "Mon", name: "Squat + Bench", count: 8 },
+      { day: "Wed", name: "Deadlift + OHP", count: 7 },
+      { day: "Fri", name: "Squat + Bench", count: 8 },
+      { day: "Sat", name: "Accessory", count: 6 },
+    ],
+  },
+  {
+    week: "Week 3",
+    focus: "Intensification",
+    sessions: [
+      { day: "Mon", name: "Squat + Bench", count: 7 },
+      { day: "Wed", name: "Deadlift + OHP", count: 6 },
+      { day: "Fri", name: "Heavy Squat", count: 5 },
+      { day: "Sat", name: "Bench + Pull", count: 6 },
+    ],
+  },
+];
 
 export function AIFeaturesSection() {
   return (
@@ -26,16 +59,20 @@ export function AIFeaturesSection() {
             </div>
 
             <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3 space-y-2">
-              {/* User message */}
-              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2 text-xs text-[var(--home-text)]">
-                "Build a 6-week powerlifting peaking block for an intermediate athlete, 4 days/week."
+              {/* User message with file attachment hint */}
+              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2 text-xs text-[var(--home-text)] space-y-1.5">
+                <p>"Build a 6-week powerlifting peaking block for an intermediate athlete, 4 days/week."</p>
+                <div className="flex items-center gap-1.5 text-[10px] text-[var(--home-muted)]">
+                  <PaperclipIcon className="h-3 w-3 shrink-0" />
+                  <span className="font-semibold uppercase tracking-[0.08em]">athlete_history.xlsx</span>
+                  <span className="opacity-60">attached</span>
+                </div>
               </div>
 
-              {/* AI response */}
+              {/* AI clarifying response */}
               <div className="border border-[var(--home-border)] bg-[var(--home-accent)] px-2.5 py-2 text-xs text-[var(--home-accent-ink)] space-y-1">
-                <p className="font-semibold">Got it. A few quick questions:</p>
-                <p>Should I keep existing scheduled sessions or replace them?</p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
+                <p className="font-semibold">Got it. Should I keep existing sessions or replace them?</p>
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {["Keep existing", "Replace all", "Append only"].map((opt) => (
                     <span
                       key={opt}
@@ -47,35 +84,62 @@ export function AIFeaturesSection() {
                 </div>
               </div>
 
-              {/* Confirmation card */}
-              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2 text-[11px] space-y-1.5">
-                <p className="font-semibold uppercase tracking-[0.08em] text-[var(--home-muted)]">
-                  Ready to generate
-                </p>
-                <div className="grid grid-cols-3 gap-2 text-[var(--home-text)]">
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-widest text-[var(--home-muted)]">Start</span>
-                    <span>May 5</span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-widest text-[var(--home-muted)]">Weeks</span>
-                    <span>6</span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-widest text-[var(--home-muted)]">Conflicts</span>
-                    <span>Replace</span>
+              {/* Proposal review */}
+              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2.5 space-y-2.5">
+                {/* Header row */}
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--home-muted)]">
+                    Proposed plan
+                  </p>
+                  <div className="flex items-center gap-3 text-[10px] text-[var(--home-muted)]">
+                    <span className="font-semibold uppercase tracking-[0.08em]">6 weeks</span>
+                    <span className="font-mono font-semibold text-[var(--home-text)]">2.5 cr</span>
                   </div>
                 </div>
-                <div className="pt-1 flex justify-end">
+
+                {/* Week rows */}
+                <div className="space-y-1.5">
+                  {proposalWeeks.map((w) => (
+                    <div key={w.week} className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-2.5 py-2">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--home-text)]">
+                          {w.week}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-widest text-[var(--home-muted)]">
+                          {w.focus}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+                        {w.sessions.map((s) => (
+                          <div key={s.day} className="flex items-center justify-between text-[10px]">
+                            <span className="font-semibold uppercase tracking-[0.06em] text-[var(--home-muted)] w-6 shrink-0">{s.day}</span>
+                            <span className="text-[var(--home-text)] flex-1 truncate px-1">{s.name}</span>
+                            <span className="font-mono text-[var(--home-muted)] shrink-0">{s.count}ex</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {/* Remaining weeks indicator */}
+                  <div className="px-2.5 py-1.5 text-[10px] text-[var(--home-muted)] text-center uppercase tracking-widest border border-dashed border-[var(--home-border)]">
+                    + 3 more weeks
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-2 pt-0.5">
+                  <span className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-muted)]">
+                    Discard
+                  </span>
                   <span className="border border-transparent bg-[var(--home-accent)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--home-accent-ink)]">
-                    Generate plan
+                    Apply plan
                   </span>
                 </div>
               </div>
             </div>
 
             <p className="mt-3 text-sm text-[var(--home-muted)]">
-              Describe a program in plain language. The AI asks clarifying questions and generates a full plan in seconds.
+              Describe a program in plain language, attach context files, and review the full plan before it&apos;s applied — one session at a time or all at once.
             </p>
           </article>
 
