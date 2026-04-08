@@ -229,8 +229,8 @@ public class AnalyzeWorkoutMediaCommandHandlerTests
                     input.Text.Contains("Use these logged rep counts as source of truth.") &&
                     input.Text.Contains("[Athlete] Felt strong today") &&
                     input.Text.Contains("[Coach] Keep elbows under the bar") &&
-                    input.MediaUrls.Count == 1 &&
-                    input.MediaUrls.Contains("https://media.example.com/workouts/athlete-chat.mov") &&
+                    input.VideoUrls.Count == 1 &&
+                    input.VideoUrls.Contains("https://media.example.com/workouts/athlete-chat.mov") &&
                     input.Exercises.Count == 1 &&
                     input.Exercises.First().Name == "Back Squat"),
                 It.IsAny<CancellationToken>()),

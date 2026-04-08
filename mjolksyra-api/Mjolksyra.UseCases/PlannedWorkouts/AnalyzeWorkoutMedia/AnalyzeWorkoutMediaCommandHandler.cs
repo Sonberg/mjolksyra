@@ -75,11 +75,20 @@ public class AnalyzeWorkoutMediaCommandHandler(
             analysisText = $"{analysisText}\n\nWorkout chat history:\n{chatHistory}";
         }
 
-        var mediaUrls = chatMessages
+        var allMedia = chatMessages
             .SelectMany(x => x.Media)
-            .Select(x => x.CompressedUrl ?? x.RawUrl)
-            .Where(url => !string.IsNullOrWhiteSpace(url))
-            .Distinct()
+            .Where(m => !string.IsNullOrWhiteSpace(m.CompressedUrl ?? m.RawUrl))
+            .DistinctBy(m => m.CompressedUrl ?? m.RawUrl)
+            .ToList();
+
+        var imageUrls = allMedia
+            .Where(m => m.Type == PlannedWorkoutMediaType.Image)
+            .Select(m => m.CompressedUrl ?? m.RawUrl!)
+            .ToList();
+
+        var videoUrls = allMedia
+            .Where(m => m.Type == PlannedWorkoutMediaType.Video)
+            .Select(m => m.CompressedUrl ?? m.RawUrl!)
             .ToList();
 
         var dispatcher = new LoggingWorkoutAnalysisToolDispatcher(
@@ -88,7 +97,8 @@ public class AnalyzeWorkoutMediaCommandHandler(
         var analysis = await workoutMediaAnalysisAgent.AnalyzeAsync(new WorkoutMediaAnalysisInput
         {
             Text = analysisText,
-            MediaUrls = mediaUrls,
+            ImageUrls = imageUrls,
+            VideoUrls = videoUrls,
             ToolDispatcher = dispatcher,
             Exercises = workout.Exercises
                 .Select(exercise => new WorkoutExerciseAnalysisInput
@@ -123,7 +133,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
             PlannedWorkoutId = request.PlannedWorkoutId,
             RequestedByUserId = userId,
             Text = request.Analysis.Text.Trim(),
-            MediaUrls = mediaUrls,
+            MediaUrls = [..imageUrls, ..videoUrls],
             Summary = analysis.Summary,
             KeyFindings = analysis.KeyFindings,
             TechniqueRisks = analysis.TechniqueRisks,

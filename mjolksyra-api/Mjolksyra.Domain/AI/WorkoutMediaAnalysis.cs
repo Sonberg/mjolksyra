@@ -4,7 +4,9 @@ public class WorkoutMediaAnalysisInput
 {
     public required string Text { get; set; }
 
-    public ICollection<string> MediaUrls { get; set; } = [];
+    public ICollection<string> ImageUrls { get; set; } = [];
+
+    public ICollection<string> VideoUrls { get; set; } = [];
 
     public ICollection<WorkoutExerciseAnalysisInput> Exercises { get; set; } = [];
 

@@ -78,9 +78,12 @@ public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : 
 
     private static string BuildPrompt(WorkoutMediaAnalysisInput input)
     {
-        var mediaSection = input.MediaUrls.Count == 0
+        var totalMediaCount = input.ImageUrls.Count + input.VideoUrls.Count;
+        var mediaSection = totalMediaCount == 0
             ? "No media URLs were provided."
-            : string.Join('\n', input.MediaUrls.Select(url => $"- [{GetMediaType(url)}] {url}"));
+            : string.Join('\n',
+                input.ImageUrls.Select(url => $"- [image] {url}")
+                    .Concat(input.VideoUrls.Select(url => $"- [video] {url}")));
 
         var exerciseSection = input.Exercises.Count == 0
             ? "No exercise data was provided."
@@ -136,15 +139,6 @@ Return ONLY JSON with this exact shape:
 
     private static string FormatBool(bool? value)
         => value.HasValue ? value.Value.ToString().ToLowerInvariant() : "null";
-
-    private static string GetMediaType(string url)
-    {
-        return url.Contains(".mp4", StringComparison.OrdinalIgnoreCase)
-               || url.Contains(".mov", StringComparison.OrdinalIgnoreCase)
-               || url.Contains("ct=video", StringComparison.OrdinalIgnoreCase)
-            ? "video"
-            : "image";
-    }
 
     private static string ExtractJson(string value)
     {
