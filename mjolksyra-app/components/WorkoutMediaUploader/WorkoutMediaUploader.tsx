@@ -32,6 +32,8 @@ const ACCEPTED_MEDIA_TYPES = [
   "image/png",
   "image/gif",
   "image/webp",
+  "image/heic",
+  "image/heif",
   "video/mp4",
   "video/quicktime",
 ] as const;
