@@ -65,11 +65,18 @@ type GenerationResult = AIPlannerApplyProposalResponse & {
   generatedAt: string;
 };
 
-const ACCEPTED_EXTENSIONS = ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp";
-const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+const ACCEPTED_EXTENSIONS = ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif";
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/jpg", "image/heic", "image/heif"]);
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"]);
+
+function isImageFile(file: File): boolean {
+  if (IMAGE_TYPES.has(file.type)) return true;
+  const ext = "." + (file.name.split(".").pop()?.toLowerCase() ?? "");
+  return IMAGE_EXTENSIONS.has(ext);
+}
 
 async function parseFileToContent(file: File): Promise<PlannerFileContent> {
-  if (IMAGE_TYPES.includes(file.type)) {
+  if (isImageFile(file)) {
     return {
       name: file.name,
       type: "image",
