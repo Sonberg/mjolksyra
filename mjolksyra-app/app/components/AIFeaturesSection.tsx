@@ -42,11 +42,12 @@ export function AIFeaturesSection() {
             AI coaching tools
           </p>
           <h2 className="font-[var(--font-display)] text-3xl text-[var(--home-text)] md:text-4xl">
-            Let the AI do the heavy lifting
+            AI tools for workout planning and athlete review
           </h2>
           <p className="mt-3 max-w-2xl text-[var(--home-muted)]">
-            Generate complete programs from a prompt, and analyze check-in
-            footage to give athletes better feedback, faster.
+            Use an approval-first AI workout planner to stage block changes,
+            then review athlete check-in media with structured feedback and
+            coaching cues.
           </p>
         </div>
 
@@ -61,7 +62,7 @@ export function AIFeaturesSection() {
             <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3 space-y-2">
               {/* User message with file attachment hint */}
               <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2 text-xs text-[var(--home-text)] space-y-1.5">
-                <p>"Build a 6-week powerlifting peaking block for an intermediate athlete, 4 days/week."</p>
+                <p>&quot;Build a 6-week powerlifting peaking block for an intermediate athlete, 4 days/week.&quot;</p>
                 <div className="flex items-center gap-1.5 text-[10px] text-[var(--home-muted)]">
                   <PaperclipIcon className="h-3 w-3 shrink-0" />
                   <span className="font-semibold uppercase tracking-[0.08em]">athlete_history.xlsx</span>
@@ -180,7 +181,7 @@ export function AIFeaturesSection() {
                   <span className="font-semibold uppercase tracking-widest text-[var(--home-text)]">Suggestions</span>
                   <ul className="mt-1 list-disc pl-4 space-y-0.5">
                     <li>Add tempo squats (3-1-1) to reinforce depth habit</li>
-                    <li>Cue "elbows in" on bench descent for 2 sessions</li>
+                    <li>Cue &quot;elbows in&quot; on bench descent for 2 sessions</li>
                   </ul>
                 </div>
               </div>

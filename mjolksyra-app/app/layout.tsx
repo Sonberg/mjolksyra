@@ -26,18 +26,19 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Mjolksyra | Coaching Platform for Athletes and Coaches",
+    default: "Mjolksyra | AI Coaching Software for Strength Coaches",
     template: "%s | Mjolksyra",
   },
   description:
-    "Mjolksyra helps coaches manage athletes, build training blocks, and deliver structured programming.",
+    "Mjolksyra is AI coaching software for strength coaches. Plan workouts, manage athletes, review training video, and deliver feedback in one platform.",
   applicationName: "Mjolksyra",
   keywords: [
-    "coaching platform",
-    "athlete coaching",
-    "training blocks",
-    "workout planner",
+    "ai coaching software",
     "strength coach software",
+    "online strength coaching platform",
+    "ai workout planner",
+    "workout video analysis",
+    "powerlifting coach software",
   ],
   alternates: {
     canonical: "/",
@@ -46,9 +47,9 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "Mjolksyra",
-    title: "Mjolksyra | Coaching Platform for Athletes and Coaches",
+    title: "Mjolksyra | AI Coaching Software for Strength Coaches",
     description:
-      "Manage athletes, build training blocks, and deliver structured coaching in one workspace.",
+      "Plan workouts, manage athletes, and use AI to stage programs and review check-in video in one coaching workspace.",
     images: [
       {
         url: "/images/og/mjolksyra-og.svg",
@@ -60,9 +61,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mjolksyra | Coaching Platform for Athletes and Coaches",
+    title: "Mjolksyra | AI Coaching Software for Strength Coaches",
     description:
-      "Manage athletes, build training blocks, and deliver structured coaching in one workspace.",
+      "Plan workouts, manage athletes, and use AI to stage programs and review check-in video in one coaching workspace.",
     images: ["/images/og/mjolksyra-og.svg"],
   },
   icons: {

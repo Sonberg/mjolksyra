@@ -8,7 +8,17 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/app", "/api", "/account"],
+        disallow: ["/app", "/api", "/account", "/design-system", "/sign-in", "/sign-up", "/waitlist"],
+      },
+      {
+        userAgent: "OAI-SearchBot",
+        allow: "/",
+        disallow: ["/app", "/api", "/account", "/design-system", "/sign-in", "/sign-up", "/waitlist"],
+      },
+      {
+        userAgent: "GPTBot",
+        allow: "/",
+        disallow: ["/app", "/api", "/account", "/design-system", "/sign-in", "/sign-up", "/waitlist"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,

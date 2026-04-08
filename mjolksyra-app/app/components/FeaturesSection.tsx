@@ -23,8 +23,8 @@ const features: Point[] = [
     icon: DumbbellIcon,
   },
   {
-    title: "Unlimited athletes",
-    text: "Coach as many athletes as you want, with no restrictions.",
+    title: "Plans that scale with your roster",
+    text: "Start with included athlete capacity and add more active athletes as your coaching business grows.",
     icon: UsersIcon,
   },
 ];

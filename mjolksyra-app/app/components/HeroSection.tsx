@@ -16,21 +16,21 @@ export const HeroSection = () => {
           </div>
           <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
             <span className="text-[var(--home-text)]">
-              Build and manage strength training programs —{" "}
+              Coaching software for strength coaches —{" "}
             </span>
             <span style={{ color: "var(--home-accent)" }}>with AI</span>
           </h1>
           <p className="mb-6 max-w-2xl text-[var(--home-muted)] md:text-lg lg:text-xl">
-            Generate full programs from a prompt, analyze athlete check-in
-            footage for technique feedback, and coach your clients — all in one
-            place.
+            Mjolksyra helps online strength coaches build training blocks,
+            manage athletes, analyze workout video, and deliver structured
+            feedback from one workspace.
           </p>
           <div className="mb-8 flex flex-wrap gap-2">
             {[
-              "AI program generation",
-              "Video technique analysis",
-              "Drag-drop planner",
-              "Coach feedback",
+              "AI workout planner",
+              "Workout video analysis",
+              "Drag-and-drop block builder",
+              "Athlete chat and feedback",
             ].map((label) => (
               <span
                 key={label}

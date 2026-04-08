@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,6 +33,14 @@ import {
 } from "lucide-react";
 import { TabsDemo } from "./TabsDemo";
 import { DialogDemo } from "./DialogDemo";
+
+export const metadata: Metadata = {
+  title: "Design System",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 
@@ -398,7 +407,6 @@ export default function DesignSystemPage() {
                       {msg.own ? (
                         <div className="mt-1.5 max-w-[76%] bg-[var(--shell-bg)] px-3 py-2">
                           {msg.image && (
-                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={msg.image}
                               alt="Attached"

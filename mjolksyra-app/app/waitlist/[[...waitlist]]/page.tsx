@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import { Waitlist } from "@clerk/nextjs";
+
+export const metadata: Metadata = {
+  title: "Waitlist",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function WaitlistPage() {
   return (
