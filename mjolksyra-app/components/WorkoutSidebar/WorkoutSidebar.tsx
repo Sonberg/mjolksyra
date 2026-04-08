@@ -114,7 +114,7 @@ export function WorkoutSidebar() {
           {showYear(x) ? (
             <div
               key={x.format("YYYY")}
-              className="text-base font-bold mt-8 py-2 px-6 sticky top-0 bg-background shadow-lg z-10"
+              className="text-base font-bold mt-8 py-2 px-6 sticky top-0 bg-[var(--shell-surface)] border-b border-[var(--shell-border)] z-10"
             >
               {x.format("YYYY")}
             </div>

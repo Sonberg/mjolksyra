@@ -249,7 +249,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
               <div
                 onClick={() => (canPlan ? setIsQuickSearchOpen(true) : null)}
                 className={cn(
-                  "grid  h-full min-h-32 place-items-center rounded-none px-4 text-center text-sm text-[var(--shell-muted)] transition-all ",
+                  "grid h-full min-h-32 place-items-center px-4 text-center text-sm text-[var(--shell-muted)] transition-[opacity,background-color,border-color,color] duration-[150ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
                   canPlan
                     ? "border cursor-pointer border-dashed border-[var(--shell-border)] opacity-60 hover:opacity-100 hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)] hover:border-[var(--shell-ink)]"
                     : "opacity-30",

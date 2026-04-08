@@ -103,7 +103,7 @@ export function ExerciseQuickSearchOverlay({
 
         <div className="max-h-[50vh] overflow-y-auto">
           <div
-            className={`transition-all duration-200 ease-out ${
+            className={`transition-[opacity,transform] duration-[200ms] ease-[cubic-bezier(0.23,1,0.32,1)] ${
               shouldShowBody
                 ? "translate-y-0 opacity-100"
                 : "pointer-events-none -translate-y-1 opacity-0"

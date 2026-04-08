@@ -143,7 +143,7 @@ export function AthleteOnboardingFlow({
   };
 
   return (
-    <div className="bg-background">
+    <div className="bg-[var(--shell-surface)]">
       {isSyncingReturn ? (
         <div className="mb-4 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3 text-sm text-[var(--shell-muted)]">
           Finalizing your payment method setup...
@@ -154,7 +154,7 @@ export function AthleteOnboardingFlow({
           {returnError}
         </div>
       ) : null}
-      <div className="transition-all duration-300">
+      <div className="transition-[opacity,transform] duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]">
         {steps[currentStep].component}
       </div>
     </div>

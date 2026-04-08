@@ -36,22 +36,22 @@ function Calendar({
         month_grid: "w-full border-collapse space-y-1",
         weekdays: "flex",
         weekday:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+          "text-[var(--shell-muted)] w-9 font-normal text-[0.8rem]",
         week: "flex w-full mt-2",
-        day: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        day: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-outside)]:bg-[var(--shell-surface-strong)] [&:has([aria-selected])]:bg-[var(--shell-surface-strong)] focus-within:relative focus-within:z-20",
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
         ),
         range_end: "day-range-end",
         selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        today: "bg-accent text-accent-foreground",
+          "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent)] hover:text-[var(--shell-accent-ink)] focus:bg-[var(--shell-accent)] focus:text-[var(--shell-accent-ink)]",
+        today: "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         outside:
-          "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
-        disabled: "text-muted-foreground opacity-50",
+          "day-outside text-[var(--shell-muted)] aria-selected:bg-[var(--shell-surface-strong)] aria-selected:text-[var(--shell-muted)]",
+        disabled: "text-[var(--shell-muted)] opacity-50",
         range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          "aria-selected:bg-[var(--shell-surface-strong)] aria-selected:text-[var(--shell-ink)]",
         hidden: "invisible",
         ...classNames,
       }}

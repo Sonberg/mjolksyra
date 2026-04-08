@@ -12,7 +12,7 @@ type Props = {
 
 export function AthleteCoach({ coach, isSelected, href, onSelect }: Props) {
   const classNames = cn({
-    "flex items-center gap-3 rounded-none border p-3 transition-all": true,
+    "flex items-center gap-3 border p-3 transition-[background-color] duration-[150ms] ease-[cubic-bezier(0.23,1,0.32,1)]": true,
     "cursor-pointer border-[var(--shell-border)] bg-[var(--shell-surface)] hover:bg-[var(--shell-surface-strong)]":
       !isSelected,
     "border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": isSelected,

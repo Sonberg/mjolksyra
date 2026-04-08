@@ -78,7 +78,7 @@ export function BlockDay({
         ) : (
           <div
             onClick={onAddExercise}
-            className="grid h-full min-h-32 cursor-pointer place-items-center rounded-none border border-dashed border-[var(--shell-border)] px-4 text-center text-xs text-[var(--shell-muted)] opacity-30 transition-all hover:opacity-100"
+            className="grid h-full min-h-32 cursor-pointer place-items-center border border-dashed border-[var(--shell-border)] px-4 text-center text-xs text-[var(--shell-muted)] opacity-30 transition-[opacity] duration-[150ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:opacity-100"
           >
             <div className="select-none">Drag &amp; drop exercises or click to add</div>
           </div>

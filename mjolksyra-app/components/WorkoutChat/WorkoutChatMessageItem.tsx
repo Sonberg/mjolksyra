@@ -107,7 +107,7 @@ export function WorkoutChatMessageItem({
             <WorkoutMediaGallery
               media={chatMessage.media}
               thumbnailSize="small"
-              thumbnailClassName="border-white/20 shadow-sm"
+              thumbnailClassName="border-white/20"
             />
           </div>
         ) : null}

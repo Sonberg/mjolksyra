@@ -8,7 +8,7 @@ type Props = {
 
 export function TraineeInvitationCard({ invitation }: Props) {
   return (
-    <div className="group rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 transition-all duration-300 hover:bg-[var(--shell-surface-strong)] hover:-translate-y-0.5">
+    <div className="group border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 transition-[background-color,transform] duration-[200ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-[var(--shell-surface-strong)] hover:-translate-y-0.5">
       <div className="flex items-center gap-4">
         <Avatar className="h-10 w-10 border border-[var(--shell-border)]">
           <AvatarFallback className="bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
@@ -16,7 +16,7 @@ export function TraineeInvitationCard({ invitation }: Props) {
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h3 className="truncate text-sm text-[var(--shell-ink)] transition-colors">
+          <h3 className="truncate text-sm text-[var(--shell-ink)]">
             {invitation.email}
           </h3>
           <p className="mt-1 text-xs text-[var(--shell-muted)]">

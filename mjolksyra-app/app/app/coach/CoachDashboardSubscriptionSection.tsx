@@ -190,7 +190,7 @@ export function CoachDashboardSubscriptionSection({
               </Button>
             </div>
             {discountMessage && (
-              <p className={cn("mt-2 text-xs", discountMessage.type === "success" ? "text-foreground font-semibold" : "text-[var(--shell-accent)]")}>
+              <p className={cn("mt-2 text-xs", discountMessage.type === "success" ? "text-[var(--shell-ink)] font-semibold" : "text-[var(--shell-accent)]")}>
                 {discountMessage.text}
               </p>
             )}
