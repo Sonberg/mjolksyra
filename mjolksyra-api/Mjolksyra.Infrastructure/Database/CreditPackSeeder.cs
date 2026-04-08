@@ -16,7 +16,7 @@ public class CreditPackSeeder(IServiceProvider serviceProvider) : IHostedService
         {
             Id = new Guid("20000000-0000-0000-0000-000000000001"),
             Name = "Small",
-            Credits = 50,
+            Credits = 100,
             PriceSek = 99,
             IsActive = true,
         }, cancellationToken);
@@ -25,7 +25,7 @@ public class CreditPackSeeder(IServiceProvider serviceProvider) : IHostedService
         {
             Id = new Guid("20000000-0000-0000-0000-000000000002"),
             Name = "Medium",
-            Credits = 150,
+            Credits = 300,
             PriceSek = 249,
             IsActive = true,
         }, cancellationToken);
@@ -34,7 +34,7 @@ public class CreditPackSeeder(IServiceProvider serviceProvider) : IHostedService
         {
             Id = new Guid("20000000-0000-0000-0000-000000000003"),
             Name = "Large",
-            Credits = 400,
+            Credits = 800,
             PriceSek = 599,
             IsActive = true,
         }, cancellationToken);
