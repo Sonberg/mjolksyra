@@ -35,11 +35,11 @@ function SheetContent({
 }) {
   const sideStyles = {
     right:
-      "inset-y-0 right-0 h-full w-[85vw] max-w-sm data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
-    left: "inset-y-0 left-0 h-full w-[85vw] max-w-sm data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left",
-    top: "inset-x-0 top-0 w-full data-[state=open]:slide-in-from-top data-[state=closed]:slide-out-to-top",
+      "inset-y-0 right-0 h-full w-[85vw] max-w-sm border-l border-[var(--shell-border)] data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
+    left: "inset-y-0 left-0 h-full w-[85vw] max-w-sm border-r border-[var(--shell-border)] data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left",
+    top: "inset-x-0 top-0 w-full border-b border-[var(--shell-border)] data-[state=open]:slide-in-from-top data-[state=closed]:slide-out-to-top",
     bottom:
-      "inset-x-0 bottom-0 w-full data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
+      "inset-x-0 bottom-0 w-full border-t border-[var(--shell-border)] data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
   };
 
   return (
@@ -47,7 +47,7 @@ function SheetContent({
       <SheetOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed z-50 flex flex-col bg-[var(--shell-surface)] shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200",
+          "fixed z-50 flex flex-col bg-[var(--shell-surface)] duration-[300ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-[200ms]",
           sideStyles[side],
           className,
         )}

@@ -57,12 +57,18 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .font-data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
 }
 
 @layer base {
   :root {
-    --font-display: var(--font-inter), "Inter", system-ui, sans-serif;
-    --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+    --font-display: var(--font-geist), "Geist", system-ui, sans-serif;
+    --font-body: var(--font-geist), "Geist", system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
 
     --shell-bg: #f2f3f4;
     --shell-surface: #ffffff;
@@ -73,6 +79,14 @@ body {
     --shell-accent: #333333;
     --shell-accent-ink: #ffffff;
     --shell-accent-hover: #1a1a1a;
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    --duration-fast: 120ms;
+    --duration-base: 200ms;
+    --duration-slow: 300ms;
 
     --background: 210 8% 95%;
     --foreground: 0 0% 11%;
@@ -102,8 +116,9 @@ body {
   }
 
   .dark {
-    --font-display: var(--font-inter), "Inter", system-ui, sans-serif;
-    --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+    --font-display: var(--font-geist), "Geist", system-ui, sans-serif;
+    --font-body: var(--font-geist), "Geist", system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
 
     --shell-bg: #1b1b1b;
     --shell-surface: #242424;
@@ -179,7 +194,6 @@ width ::-webkit-scrollbar {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: var(--shell-muted);
-  border-radius: 5px;
 }
 
 /* Handle on hover */
@@ -242,7 +256,7 @@ width ::-webkit-scrollbar {
 }
 
 .blocks-rise {
-  animation: blocks-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: blocks-rise 0.5s var(--ease-out) both;
 }
 
 .blocks-pulse {
@@ -253,12 +267,42 @@ width ::-webkit-scrollbar {
   animation: bell-ring 0.8s cubic-bezier(0.25, 0.7, 0.25, 1);
 }
 
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--shell-surface-strong) 25%,
+    var(--shell-border)         50%,
+    var(--shell-surface-strong) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s var(--ease-in-out) infinite;
+}
+
+.stagger-children > * {
+  animation: blocks-rise 0.5s var(--ease-out) both;
+}
+.stagger-children > *:nth-child(1) { animation-delay:   0ms; }
+.stagger-children > *:nth-child(2) { animation-delay:  40ms; }
+.stagger-children > *:nth-child(3) { animation-delay:  80ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 160ms; }
+
 @media (prefers-reduced-motion: reduce) {
   .blocks-rise,
   .blocks-pulse,
   .animate-bell-ring,
-  .home-content {
+  .home-content,
+  .stagger-children > *,
+  .skeleton {
     animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
   }
 }
 

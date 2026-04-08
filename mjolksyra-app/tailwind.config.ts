@@ -11,6 +11,15 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-geist)', 'system-ui', 'sans-serif'],
+  			mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+  		},
+  		transitionTimingFunction: {
+  			'shell-out':    'cubic-bezier(0.23, 1, 0.32, 1)',
+  			'shell-in-out': 'cubic-bezier(0.77, 0, 0.175, 1)',
+  			'shell-drawer': 'cubic-bezier(0.32, 0.72, 0, 1)',
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -60,25 +69,22 @@ const config: Config = {
   		},
   		keyframes: {
   			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-accordion-content-height)' }
   			},
   			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			}
+  				from: { height: 'var(--radix-accordion-content-height)' },
+  				to: { height: '0' }
+  			},
+  			shimmer: {
+  				from: { backgroundPosition: '-200% 0' },
+  				to:   { backgroundPosition:  '200% 0' },
+  			},
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'shimmer': 'shimmer 1.4s cubic-bezier(0.77, 0, 0.175, 1) infinite',
   		}
   	}
   },

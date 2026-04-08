@@ -16,6 +16,21 @@ Use whitespace, typography hierarchy, and flat filled surfaces to create visual 
 
 ---
 
+## Typography
+
+**Font:** Geist (sans) + Geist Mono (data/numbers) — loaded as local variable fonts.
+
+- Body and headings use `var(--font-geist)` via `--font-body` / `--font-display`
+- Numeric data (credits, costs, transaction amounts) use `font-data` utility class or `font-mono` Tailwind class
+- `font-mono` in Tailwind resolves to Geist Mono automatically
+
+```tsx
+{/* Numeric data with tabular alignment */}
+<p className="font-data text-2xl font-semibold text-[var(--shell-ink)]">$142.50</p>
+```
+
+---
+
 ## CSS Design Tokens
 
 All tokens are CSS variables defined in the shell theme:
@@ -29,6 +44,20 @@ All tokens are CSS variables defined in the shell theme:
 | `var(--shell-muted)` | Secondary text, eyebrows, labels |
 | `var(--shell-accent)` | Accent color (e.g. left-border callouts, active state) |
 | `var(--shell-accent-ink)` | Text on accent backgrounds |
+| `var(--font-mono)` | Geist Mono — use for numeric/code content |
+
+### Motion tokens
+
+| Token | Value | Use |
+|---|---|---|
+| `var(--ease-out)` | `cubic-bezier(0.23, 1, 0.32, 1)` | UI enter animations, button hover |
+| `var(--ease-in-out)` | `cubic-bezier(0.77, 0, 0.175, 1)` | On-screen movement, skeleton shimmer |
+| `var(--ease-drawer)` | `cubic-bezier(0.32, 0.72, 0, 1)` | Drawers, sliding panels |
+| `var(--duration-fast)` | `120ms` | Button press, tooltip |
+| `var(--duration-base)` | `200ms` | Dialog open, dropdown |
+| `var(--duration-slow)` | `300ms` | Page transitions |
+
+Or use the Tailwind extension classes: `ease-shell-out`, `ease-shell-in-out`, `ease-shell-drawer`.
 
 ---
 
@@ -448,6 +477,35 @@ Rules:
 
 ---
 
+## Animation Utilities
+
+### Skeleton / loading state
+Use the `.skeleton` class on any placeholder element:
+```tsx
+<div className="skeleton h-4 w-32" />
+<div className="skeleton h-8 w-full" />
+```
+The shimmer uses `var(--shell-border)` as the highlight color so it adapts to light/dark themes automatically.
+
+### List stagger reveal
+Wrap a list in `.stagger-children` to cascade-animate children on mount:
+```tsx
+<ul className="stagger-children divide-y divide-[var(--shell-border)]">
+  {items.map((item) => (
+    <li key={item.id} className="py-3">…</li>
+  ))}
+</ul>
+```
+Delays: `0 / 40 / 80 / 120 / 160ms` for the first 5 children. Beyond 5 children all animate together. Respects `prefers-reduced-motion`.
+
+### Page entry animation
+Use `.blocks-rise` for section-level enter animations:
+```tsx
+<div className="blocks-rise">…</div>
+```
+
+---
+
 ## What NOT to do
 
 | Don't | Do instead |
@@ -461,6 +519,10 @@ Rules:
 | Back buttons with border/background | Bare `ChevronLeftIcon` link |
 | Inline color strings like `#fff` | CSS vars only |
 | `text-gray-500` / Tailwind color utilities | `text-[var(--shell-muted)]` |
+| `transition-colors` on `<Button>` | Already handled — base CVA includes proper `transition-[background-color,transform,opacity]` with `active:scale-[0.97]` |
+| `transition: all` | Always specify exact properties |
+| Raw numbers without monospace | Use `font-data` class or `font-mono` for credits, costs, metrics |
+| `Inter` font | Geist (sans) + Geist Mono (numbers) |
 
 ---
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Navigation } from "@/components/Navigation";
 import { getUserMe } from "@/services/users/getUserMe";
@@ -7,10 +7,17 @@ import { getUserMe } from "@/services/users/getUserMe";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const interFont = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+const geistFont = localFont({
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-geist",
+  weight: "100 900",
+  display: "swap",
+});
+
+const geistMonoFont = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
   display: "swap",
 });
 
@@ -104,12 +111,12 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${geistFont.variable} ${geistMonoFont.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('mjolksyra-theme');var d=document.documentElement;var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){d.classList.add('dark');d.dataset.theme='dark';}else{d.dataset.theme='light';}}catch(e){}})()` }} />
       </head>
       <body
-        className={`${interFont.variable} antialiased flex h-[100dvh] flex-col overflow-hidden`}
+        className="antialiased flex h-[100dvh] flex-col overflow-hidden"
       >
         <a
           href="#main-content"
