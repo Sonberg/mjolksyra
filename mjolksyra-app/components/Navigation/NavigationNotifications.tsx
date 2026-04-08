@@ -123,7 +123,9 @@ export function NavigationNotifications({
     try {
       const accessToken = await auth.getAccessToken();
       await markAllNotificationsRead({ accessToken });
-      setItems((prev) => prev.map((x) => ({ ...x, readAt: x.readAt ?? new Date() })));
+      setItems((prev) =>
+        prev.map((x) => ({ ...x, readAt: x.readAt ?? new Date() })),
+      );
       setUnreadCount(0);
     } finally {
       setIsMarkingAll(false);
@@ -145,18 +147,32 @@ export function NavigationNotifications({
     const content = (
       <div
         className={cn(
-          "flex gap-3 px-4 py-3 transition hover:bg-[var(--shell-surface-strong)]",
+          "px-4 py-3 transition hover:bg-[var(--shell-surface-strong)]",
           !item.readAt && "bg-[var(--shell-surface-strong)]",
         )}
       >
-        {/* unread accent bar */}
-        <div className={cn("mt-1 w-0.5 shrink-0 self-stretch", !item.readAt ? "bg-[var(--shell-accent)]" : "bg-transparent")} />
-        <div className="min-w-0 flex-1">
-          <p className={cn("text-sm leading-snug", item.readAt ? "text-[var(--shell-muted)]" : "font-semibold text-[var(--shell-ink)]")}>
+        <div
+          className={cn(
+            "min-w-0",
+            !item.readAt
+              ? "border-l-2 border-[var(--shell-accent)] pl-3"
+              : "pl-0",
+          )}
+        >
+          <p
+            className={cn(
+              "text-sm leading-snug",
+              item.readAt
+                ? "text-[var(--shell-muted)]"
+                : "font-semibold text-[var(--shell-ink)]",
+            )}
+          >
             {item.title}
           </p>
           {item.body ? (
-            <p className="mt-0.5 text-xs text-[var(--shell-muted)]">{item.body}</p>
+            <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
+              {item.body}
+            </p>
           ) : null}
           <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--shell-muted)]">
             {formattedDates.get(item.id)}
@@ -204,7 +220,10 @@ export function NavigationNotifications({
           aria-label="Open notifications"
         >
           <BellIcon
-            className={cn("h-4 w-4 origin-top", showBellRing ? "animate-bell-ring" : "")}
+            className={cn(
+              "h-4 w-4 origin-top",
+              showBellRing ? "animate-bell-ring" : "",
+            )}
           />
           {unreadCount > 0 ? (
             <span className="absolute right-1 top-1 inline-flex h-2.5 w-2.5">
@@ -218,7 +237,7 @@ export function NavigationNotifications({
             </span>
           ) : null}
           {unreadCount > 0 ? (
-            <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-1.5 text-[10px] font-bold text-[var(--shell-surface)]">
+            <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-none border bg-[var(--shell-ink)] px-1.5 text-[10px] font-bold text-[var(--shell-surface)]">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           ) : null}
@@ -227,10 +246,10 @@ export function NavigationNotifications({
       <DropdownMenuContent
         align="end"
         style={dropdownVars}
-        className="w-80 overflow-hidden rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)]"
+        className="w-80 overflow-hidden rounded-none border bg-[var(--shell-surface)] p-0 text-[var(--shell-ink)]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[var(--shell-border)] px-4 py-3">
+        <div className="flex items-center justify-between border-b px-4 py-3">
           <DropdownMenuLabel className="p-0 text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
             Notifications
           </DropdownMenuLabel>
@@ -254,7 +273,9 @@ export function NavigationNotifications({
             </div>
           ) : items.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <p className="text-sm text-[var(--shell-muted)]">No notifications yet.</p>
+              <p className="text-sm text-[var(--shell-muted)]">
+                No notifications yet.
+              </p>
             </div>
           ) : (
             <>
@@ -263,19 +284,20 @@ export function NavigationNotifications({
                   <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
                     New
                   </p>
-                  <ul className="divide-y divide-[var(--shell-border)]">
-                    {unread.map(renderItem)}
-                  </ul>
+                  <ul className="divide-y">{unread.map(renderItem)}</ul>
                 </>
               )}
               {read.length > 0 && (
                 <>
-                  <p className={cn("px-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]", unread.length > 0 ? "border-t border-[var(--shell-border)] pt-3 mt-1" : "pt-3")}>
+                  <p
+                    className={cn(
+                      "px-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]",
+                      unread.length > 0 ? "border-t pt-3 mt-1" : "pt-3",
+                    )}
+                  >
                     Earlier
                   </p>
-                  <ul className="divide-y divide-[var(--shell-border)]">
-                    {read.map(renderItem)}
-                  </ul>
+                  <ul className="divide-y">{read.map(renderItem)}</ul>
                 </>
               )}
             </>

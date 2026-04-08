@@ -59,10 +59,10 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+          className="inline-flex h-10 items-center gap-2 rounded-none bg-transparent px-2 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
           aria-label="Open user menu"
         >
-          <Avatar className="h-8 w-8 border border-[var(--shell-border)]">
+          <Avatar className="h-8 w-8">
             <AvatarImage src={url} alt={resolvedUser.name ?? "User"} />
             <AvatarFallback className="rounded-none bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
               {initial.toUpperCase()}
