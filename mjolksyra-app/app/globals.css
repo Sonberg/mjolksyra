@@ -307,6 +307,8 @@ width ::-webkit-scrollbar {
 }
 
 .home-shell {
+  --font-display: var(--font-geist), "Geist", "Helvetica Neue", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: var(--font-geist), "Geist", "Avenir Next", "Segoe UI", sans-serif;
   --home-bg: var(--shell-bg);
   --home-surface: var(--shell-surface);
   --home-surface-strong: var(--shell-surface-strong);
@@ -319,7 +321,28 @@ width ::-webkit-scrollbar {
   --home-accent-2: #3a3a3a;
   background: var(--home-bg);
   color: var(--home-text);
+  font-family: var(--font-body);
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
   padding-bottom: 6rem;
+}
+
+.home-shell h1,
+.home-shell h2,
+.home-shell h3,
+.home-shell h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+}
+
+.home-shell p,
+.home-shell li,
+.home-shell a,
+.home-shell button,
+.home-shell input,
+.home-shell textarea,
+.home-shell label {
+  font-family: var(--font-body);
 }
 
 .dark .home-shell,

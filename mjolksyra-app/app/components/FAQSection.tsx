@@ -17,7 +17,7 @@ export const FAQSection = ({ plans = [] }: FAQSectionProps) => {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-screen-xl px-4">
-        <h2 className="mb-12 text-center text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
+        <h2 className="font-[var(--font-display)] mb-12 text-center text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
           Frequently Asked Questions
         </h2>
         <div className="mx-auto max-w-3xl border-t border-[var(--home-border)]">
@@ -27,7 +27,7 @@ export const FAQSection = ({ plans = [] }: FAQSectionProps) => {
                 onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                 className="flex w-full items-center justify-between gap-4 py-5 text-left"
               >
-                <span className="text-base font-semibold text-[var(--home-text)]">
+                <span className="font-[var(--font-display)] text-base font-semibold text-[var(--home-text)]">
                   {faq.question}
                 </span>
                 <ChevronDownIcon

@@ -35,14 +35,18 @@ export function AudienceSection() {
               key={audience.title}
               className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] p-6 transition-colors hover:bg-[var(--home-surface-strong)]"
             >
-              <div className="mb-4 inline-flex rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
+              <div className="mb-4 inline-flex rounded-none bg-[var(--home-surface-strong)] p-2.5">
                 <audience.icon className="h-5 w-5 text-[var(--home-text)]" />
               </div>
-              <h3 className="text-xl text-[var(--home-text)]">{audience.title}</h3>
+              <h3 className="text-xl text-[var(--home-text)]">
+                {audience.title}
+              </h3>
               <p className="mt-1 text-sm font-medium text-[var(--home-muted)]">
                 {audience.subtitle}
               </p>
-              <p className="mt-4 text-[var(--home-muted)]">{audience.description}</p>
+              <p className="mt-4 text-[var(--home-muted)]">
+                {audience.description}
+              </p>
             </article>
           ))}
         </div>

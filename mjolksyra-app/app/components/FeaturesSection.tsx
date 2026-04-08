@@ -43,7 +43,7 @@ export const FeaturesSection = () => {
               className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] p-6 transition-colors hover:bg-[var(--home-surface-strong)]"
             >
               {feature.icon && (
-                <div className="mb-4 inline-flex rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-2.5">
+                <div className="mb-4 inline-flex rounded-none bg-[var(--home-surface-strong)] p-2.5">
                   <feature.icon className="h-5 w-5 text-[var(--home-text)]" />
                 </div>
               )}

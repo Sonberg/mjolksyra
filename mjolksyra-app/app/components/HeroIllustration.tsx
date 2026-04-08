@@ -9,133 +9,222 @@ export function HeroIllustration() {
       aria-hidden="true"
     >
       <style>{`
-        .hi-bg-s1 { stop-color: #f2f3f4; }
-        .hi-bg-s2 { stop-color: #e8e9ea; }
-        .hi-glow-s1 { stop-color: #d0d0d0; stop-opacity: 0.3; }
-        .hi-glow-s2 { stop-color: #d0d0d0; stop-opacity: 0; }
+        .hi-bg { fill: #f3f3f2; }
         .hi-surface { fill: #ffffff; }
-        .hi-surface-strong { fill: #e8e9ea; }
-        .hi-border { stroke: #d0d0d0; }
-        .hi-ink { fill: #1b1b1b; }
-        .hi-ink-s { fill: none; stroke: #1b1b1b; }
-        .hi-muted { fill: #767676; }
-        .hi-deco { fill: none; stroke: #d0d0d0; }
-        .hi-accent-s { fill: none; stroke: #333333; }
-        .hi-display { font-family: var(--font-display, 'Inter', Arial, sans-serif); }
-        .hi-body { font-family: var(--font-body, 'Inter', Arial, sans-serif); }
+        .hi-surface-strong { fill: #ecebea; }
+        .hi-surface-accent { fill: #1f1f1f; }
+        .hi-border { stroke: #d5d2cf; }
+        .hi-border-soft { stroke: #e3e0dd; }
+        .hi-ink { fill: #1f1f1f; }
+        .hi-muted { fill: #77716a; }
+        .hi-soft { fill: #98918a; }
+        .hi-line { fill: none; stroke: #d5d2cf; }
+        .hi-line-strong { fill: none; stroke: #1f1f1f; }
+        .hi-display { font-family: var(--font-display, 'Geist', 'Helvetica Neue', 'Avenir Next', system-ui, sans-serif); }
+        .hi-body { font-family: var(--font-body, 'Geist', 'Helvetica Neue', 'Avenir Next', system-ui, sans-serif); }
 
-        .dark .hi-bg-s1, [data-theme="dark"] .hi-bg-s1 { stop-color: #1b1b1b; }
-        .dark .hi-bg-s2, [data-theme="dark"] .hi-bg-s2 { stop-color: #242424; }
-        .dark .hi-glow-s1, [data-theme="dark"] .hi-glow-s1 { stop-color: #f2f3f4; stop-opacity: 0.04; }
-        .dark .hi-glow-s2, [data-theme="dark"] .hi-glow-s2 { stop-color: #f2f3f4; stop-opacity: 0; }
-        .dark .hi-surface, [data-theme="dark"] .hi-surface { fill: #242424; }
-        .dark .hi-surface-strong, [data-theme="dark"] .hi-surface-strong { fill: #2e2e2e; }
-        .dark .hi-border, [data-theme="dark"] .hi-border { stroke: #3d3d3d; }
-        .dark .hi-ink, [data-theme="dark"] .hi-ink { fill: #f2f3f4; }
-        .dark .hi-ink-s, [data-theme="dark"] .hi-ink-s { stroke: #f2f3f4; }
-        .dark .hi-muted, [data-theme="dark"] .hi-muted { fill: #8a8a8a; }
-        .dark .hi-deco, [data-theme="dark"] .hi-deco { stroke: #3d3d3d; }
+        .dark .hi-bg, [data-theme="dark"] .hi-bg { fill: #171717; }
+        .dark .hi-surface, [data-theme="dark"] .hi-surface { fill: #1f1f1f; }
+        .dark .hi-surface-strong, [data-theme="dark"] .hi-surface-strong { fill: #262626; }
+        .dark .hi-surface-accent, [data-theme="dark"] .hi-surface-accent { fill: #f3f3f2; }
+        .dark .hi-border, [data-theme="dark"] .hi-border { stroke: #3a3a3a; }
+        .dark .hi-border-soft, [data-theme="dark"] .hi-border-soft { stroke: #313131; }
+        .dark .hi-ink, [data-theme="dark"] .hi-ink { fill: #f3f3f2; }
+        .dark .hi-muted, [data-theme="dark"] .hi-muted { fill: #b0aaa3; }
+        .dark .hi-soft, [data-theme="dark"] .hi-soft { fill: #8f8a84; }
+        .dark .hi-line, [data-theme="dark"] .hi-line { stroke: #3a3a3a; }
+        .dark .hi-line-strong, [data-theme="dark"] .hi-line-strong { stroke: #f3f3f2; }
       `}</style>
 
-      <defs>
-        <linearGradient id="hi-bg" x1="0" y1="0" x2="1200" y2="900" gradientUnits="userSpaceOnUse">
-          <stop offset="0" className="hi-bg-s1" />
-          <stop offset="1" className="hi-bg-s2" />
-        </linearGradient>
-        <radialGradient id="hi-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(210 120) rotate(18) scale(430 270)">
-          <stop stopColor="#333333" stopOpacity="0.08" />
-          <stop offset="1" stopColor="#333333" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="hi-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 780) rotate(-14) scale(500 260)">
-          <stop className="hi-glow-s1" />
-          <stop offset="1" className="hi-glow-s2" />
-        </radialGradient>
-      </defs>
+      <rect width="1200" height="900" className="hi-bg" />
 
-      {/* Background */}
-      <rect width="1200" height="900" fill="url(#hi-bg)" />
-      <rect width="1200" height="900" fill="url(#hi-glowA)" />
-      <rect width="1200" height="900" fill="url(#hi-glowB)" />
+      <rect x="28" y="28" width="1144" height="844" className="hi-surface hi-border" strokeWidth="3" />
 
-      {/* Main card */}
-      <rect x="36" y="32" width="1128" height="836" className="hi-surface hi-border" strokeWidth="4" />
-
-      {/* Header bar */}
-      <rect x="72" y="64" width="1056" height="86" className="hi-surface hi-border" strokeWidth="3" />
-      {/* Logo — milk carton scaled to 48×46 box */}
-      <g transform="translate(95, 84) scale(0.36)" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4">
-        <rect className="hi-ink-s" height="74" width="68" x="19" y="50" />
-        <polygon className="hi-ink-s" points="109 116 87 124 87 50 109 42 109 116" />
-        <polyline className="hi-ink-s" points="54.94 22 27 22 19 50 87 50 95 22 65.12 22" />
-        <polyline className="hi-ink-s" points="109 42 95 22 95 12 78.05 12" />
-        <polyline className="hi-ink-s" points="27 22 27 12 65.25 12" />
-        <path className="hi-ink-s" d="M19,68s13-11,34,0,34,0,34,0A58.29,58.29,0,0,0,98,58c5-6,11-5,11-5" />
-        <path className="hi-ink-s" d="M19,108.1s13-11,34,0,34,0,34,0a58.41,58.41,0,0,0,11-10c5-6,11-5,11-5" />
-        <path className="hi-ink-s" d="M31,96.12l.11-7.29.06-3.68c0-.64,0-1.29,0-1.93a3.57,3.57,0,0,1,.25-1.81c.4-.62,1-.34,1.25.23.76,2.13,1.59,4.24,2.41,6.35a1,1,0,0,0,1.6.29A9.16,9.16,0,0,0,38.49,85c.39-1.09.66-2.84,1.61-3.75a.73.73,0,0,1,1.21.48c.22,2.18.1,4.4.12,6.59q0,4-.11,7.92" />
-        <path className="hi-ink-s" d="M47.13,81V96.2" />
-        <path className="hi-ink-s" d="M52.71,81c.21,4.77-.4,9.59.49,14.3a.73.73,0,0,0,.19.44,1.16,1.16,0,0,0,.6.2,36,36,0,0,0,7.19.15" />
-        <path className="hi-ink-s" d="M65.63,81q-.22,7.65.23,15.31a22.34,22.34,0,0,1,.32-4.54,7,7,0,0,1,.91-2.89,9.13,9.13,0,0,1,1.84-2c2-1.69,4.13-3.25,6.27-4.81a39.33,39.33,0,0,0-4.18,3,5.32,5.32,0,0,0-1.55,1.55,3.07,3.07,0,0,0-.34,1.7c.15,2.17,2,4,3.69,5.62L76,97" />
-        <path className="hi-ink-s" d="M53.81,27.27A9,9,0,0,0,56,45a9.33,9.33,0,0,0,2-.22,9,9,0,0,0,3.25-16.09" />
-        <path className="hi-ink-s" d="M58,44.78l3.25-16.09.89-4.37,2.8-2.17.19-.15L78.05,12l1.18-.91,0,0" />
-        <path className="hi-ink-s" d="M75,4.44c1.25-1,3.23-.29,4.41,1.54s1.13,4.08-.12,5.06l0,0a2.2,2.2,0,0,1-.25.17,2,2,0,0,1-.34.13,1.09,1.09,0,0,1-.3.07,2.05,2.05,0,0,1-.7,0l-.17,0a2,2,0,0,1-.33-.08,3.44,3.44,0,0,1-1.22-.67c-.13-.11-.26-.22-.38-.34a5.1,5.1,0,0,1-.68-.84,4.11,4.11,0,0,1-.37-.68,4.59,4.59,0,0,1-.27-.7,4.26,4.26,0,0,1-.07-2.39,2.46,2.46,0,0,1,.14-.38,1.15,1.15,0,0,1,.14-.27.86.86,0,0,1,.1-.16,1.92,1.92,0,0,1,.18-.22A1.73,1.73,0,0,1,75,4.44L65.25,12l-9.93,7.69,0,0-.28,1.72-.12.55-1.13,5.27L50.42,43.05" />
-        <path className="hi-ink-s" d="M79.3,11c-1.26,1-3.23.29-4.42-1.54S73.75,5.42,75,4.44,78.24,4.16,79.42,6,80.55,10.06,79.3,11Z" />
+      <rect x="28" y="28" width="1144" height="72" className="hi-surface hi-border" strokeWidth="3" />
+      <g transform="translate(56 47) scale(0.22)" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4">
+        <rect className="hi-line-strong" height="74" width="68" x="19" y="50" />
+        <polygon className="hi-line-strong" points="109 116 87 124 87 50 109 42 109 116" />
+        <polyline className="hi-line-strong" points="54.94 22 27 22 19 50 87 50 95 22 65.12 22" />
+        <polyline className="hi-line-strong" points="109 42 95 22 95 12 78.05 12" />
+        <polyline className="hi-line-strong" points="27 22 27 12 65.25 12" />
+        <path className="hi-line-strong" d="M19,68s13-11,34,0,34,0,34,0A58.29,58.29,0,0,0,98,58c5-6,11-5,11-5" />
+        <path className="hi-line-strong" d="M19,108.1s13-11,34,0,34,0,34,0a58.41,58.41,0,0,0,11-10c5-6,11-5,11-5" />
       </g>
-      <text x="162" y="116" className="hi-ink hi-display" fontSize="42" letterSpacing="0.4">mjölksyra</text>
-      <text x="842" y="116" className="hi-muted hi-body" fontSize="20" fontWeight="700" letterSpacing="3">TRAINING SYSTEM</text>
+      <text x="98" y="71" className="hi-ink hi-display" fontSize="26" fontWeight="700">
+        mjolksyra
+      </text>
+      <text x="872" y="71" className="hi-muted hi-body" fontSize="12" fontWeight="700" letterSpacing="2.4">
+        COACH TRAINING SYSTEM
+      </text>
 
-      {/* Coach view panel */}
-      <rect x="72" y="182" width="670" height="648" className="hi-surface hi-border" strokeWidth="3" />
-      <text x="104" y="236" className="hi-muted hi-body" fontSize="18" fontWeight="700" letterSpacing="2.8">COACH VIEW</text>
-      <text x="104" y="312" className="hi-ink hi-display" fontSize="86">Run.</text>
-      <text x="104" y="392" className="hi-ink hi-display" fontSize="86">Lift.</text>
-      <text x="104" y="472" className="hi-ink hi-display" fontSize="86">Progress.</text>
-      <text x="104" y="524" className="hi-muted hi-body" fontSize="27">Plan sessions for runners and lifters in one workspace.</text>
+      <rect x="28" y="100" width="166" height="772" className="hi-surface hi-border" strokeWidth="3" />
+      <text x="52" y="144" className="hi-muted hi-body" fontSize="11" fontWeight="700" letterSpacing="2.2">
+        WORKSPACE
+      </text>
+      <rect x="48" y="168" width="126" height="42" className="hi-surface-accent hi-border" strokeWidth="2" />
+      <text x="75" y="194" fill="#ffffff" className="hi-body" fontSize="14" fontWeight="700">
+        Dashboard
+      </text>
+      <rect x="48" y="222" width="126" height="42" className="hi-surface hi-border-soft" strokeWidth="2" />
+      <rect x="48" y="276" width="126" height="42" className="hi-surface hi-border-soft" strokeWidth="2" />
+      <rect x="48" y="330" width="126" height="42" className="hi-surface hi-border-soft" strokeWidth="2" />
+      <text x="78" y="248" className="hi-muted hi-body" fontSize="14" fontWeight="600">
+        Athletes
+      </text>
+      <text x="88" y="302" className="hi-muted hi-body" fontSize="14" fontWeight="600">
+        Blocks
+      </text>
+      <text x="82" y="356" className="hi-muted hi-body" fontSize="14" fontWeight="600">
+        Credits
+      </text>
 
-      {/* CTA button */}
-      <rect x="104" y="566" width="292" height="62" className="hi-border" fill="#333333" strokeWidth="3" />
-      <text x="140" y="606" className="hi-body" fill="#ffffff" fontSize="31" fontWeight="700">Open Planner</text>
+      <rect x="194" y="100" width="654" height="772" className="hi-surface hi-border" strokeWidth="3" />
+      <rect x="194" y="100" width="654" height="84" className="hi-surface hi-border" strokeWidth="3" />
+      <text x="226" y="136" className="hi-muted hi-body" fontSize="11" fontWeight="700" letterSpacing="2.2">
+        COACH DASHBOARD
+      </text>
+      <text x="226" y="164" className="hi-ink hi-display" fontSize="26" fontWeight="700">
+        Plan sessions. Review form. Keep athletes moving.
+      </text>
 
-      {/* Athletes button */}
-      <rect x="410" y="566" width="230" height="62" className="hi-surface-strong hi-border" strokeWidth="3" />
-      <text x="450" y="606" className="hi-ink hi-body" fontSize="31" fontWeight="600">Athletes</text>
+      <rect x="226" y="214" width="182" height="118" className="hi-surface-strong hi-border" strokeWidth="2" />
+      <rect x="430" y="214" width="182" height="118" className="hi-surface-strong hi-border" strokeWidth="2" />
+      <rect x="634" y="214" width="182" height="118" className="hi-surface-strong hi-border" strokeWidth="2" />
 
-      {/* Weekly Focus */}
-      <rect x="104" y="662" width="536" height="152" className="hi-surface-strong hi-border" strokeWidth="3" />
-      <text x="126" y="702" className="hi-ink hi-body" fontSize="25" fontWeight="700">Weekly Focus</text>
-      <text x="126" y="738" className="hi-muted hi-body" fontSize="23">{"Mon: Intervals"}</text>
-      <text x="126" y="768" className="hi-muted hi-body" fontSize="23">{"Wed: Strength"}</text>
-      <text x="126" y="798" className="hi-muted hi-body" fontSize="23">{"Sat: Long Run"}</text>
+      <text x="244" y="244" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        ACTIVE ATHLETES
+      </text>
+      <text x="244" y="292" className="hi-ink hi-display" fontSize="40" fontWeight="700">
+        24
+      </text>
+      <text x="448" y="244" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        THIS WEEK
+      </text>
+      <text x="448" y="292" className="hi-ink hi-display" fontSize="40" fontWeight="700">
+        61
+      </text>
+      <text x="652" y="244" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        AI ACTIONS
+      </text>
+      <text x="652" y="292" className="hi-ink hi-display" fontSize="40" fontWeight="700">
+        12
+      </text>
 
-      {/* Athlete snapshot panel */}
-      <rect x="770" y="182" width="358" height="648" className="hi-surface hi-border" strokeWidth="3" />
-      <text x="796" y="236" className="hi-muted hi-body" fontSize="18" fontWeight="700" letterSpacing="2.8">ATHLETE SNAPSHOT</text>
+      <rect x="226" y="362" width="590" height="212" className="hi-surface hi-border" strokeWidth="2" />
+      <text x="246" y="394" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        UPCOMING BLOCKS
+      </text>
+      <rect x="246" y="418" width="168" height="132" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <rect x="436" y="418" width="168" height="132" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <rect x="626" y="418" width="170" height="132" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <text x="264" y="447" className="hi-ink hi-body" fontSize="16" fontWeight="700">
+        Base Build
+      </text>
+      <text x="264" y="472" className="hi-soft hi-body" fontSize="12">
+        4 weeks · strength
+      </text>
+      <text x="454" y="447" className="hi-ink hi-body" fontSize="16" fontWeight="700">
+        Race Prep
+      </text>
+      <text x="454" y="472" className="hi-soft hi-body" fontSize="12">
+        3 weeks · running
+      </text>
+      <text x="644" y="447" className="hi-ink hi-body" fontSize="16" fontWeight="700">
+        Deload
+      </text>
+      <text x="644" y="472" className="hi-soft hi-body" fontSize="12">
+        1 week · recovery
+      </text>
+      <path d="M264 505H394" className="hi-line" strokeWidth="2" />
+      <path d="M454 505H584" className="hi-line" strokeWidth="2" />
+      <path d="M644 505H774" className="hi-line" strokeWidth="2" />
+      <path d="M264 525H368" className="hi-line" strokeWidth="2" />
+      <path d="M454 525H564" className="hi-line" strokeWidth="2" />
+      <path d="M644 525H748" className="hi-line" strokeWidth="2" />
 
-      {/* Running Block */}
-      <rect x="796" y="266" width="306" height="158" className="hi-surface-strong hi-border" strokeWidth="3" />
-      <text x="822" y="306" className="hi-ink hi-body" fontSize="24" fontWeight="700">Running Block</text>
-      <path d="M824 366H1076" className="hi-deco" strokeWidth="3" />
-      <path d="M824 382C850 350 876 412 902 382C928 350 954 412 980 382C1006 350 1032 412 1058 382" className="hi-accent-s" strokeWidth="4" />
+      <rect x="226" y="604" width="590" height="236" className="hi-surface hi-border" strokeWidth="2" />
+      <text x="246" y="636" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        ATHLETE CONVERSATION
+      </text>
+      <rect x="246" y="662" width="328" height="48" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <text x="262" y="691" className="hi-ink hi-body" fontSize="15" fontWeight="600">
+        Bench felt heavy on the last two sets.
+      </text>
+      <rect x="412" y="728" width="384" height="48" className="hi-surface hi-border-soft" strokeWidth="2" />
+      <text x="430" y="757" className="hi-muted hi-body" fontSize="15" fontWeight="600">
+        Review video and shift Friday bench to Saturday.
+      </text>
+      <rect x="246" y="794" width="550" height="26" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <text x="264" y="811" className="hi-soft hi-body" fontSize="11" fontWeight="700" letterSpacing="1.8">
+        WRITE A MESSAGE...
+      </text>
 
-      {/* Strength Block */}
-      <rect x="796" y="444" width="306" height="178" className="hi-surface-strong hi-border" strokeWidth="3" />
-      <text x="822" y="486" className="hi-ink hi-body" fontSize="24" fontWeight="700">Strength Block</text>
-      <rect x="822" y="516" width="28" height="40" className="hi-ink" />
-      <rect x="848" y="526" width="54" height="20" className="hi-ink" />
-      <rect x="900" y="516" width="28" height="40" className="hi-ink" />
-      <rect x="968" y="516" width="28" height="40" className="hi-ink" />
-      <rect x="994" y="526" width="54" height="20" className="hi-ink" />
-      <rect x="1046" y="516" width="28" height="40" className="hi-ink" />
+      <rect x="848" y="100" width="324" height="772" className="hi-surface hi-border" strokeWidth="3" />
+      <rect x="848" y="100" width="324" height="84" className="hi-surface hi-border" strokeWidth="3" />
+      <text x="872" y="136" className="hi-muted hi-body" fontSize="11" fontWeight="700" letterSpacing="2.2">
+        AI ASSISTANT
+      </text>
+      <text x="872" y="164" className="hi-ink hi-display" fontSize="24" fontWeight="700">
+        Next step
+      </text>
 
-      {/* Runner Form */}
-      <rect x="796" y="642" width="306" height="158" className="hi-surface-strong hi-border" strokeWidth="3" />
-      <text x="822" y="684" className="hi-ink hi-body" fontSize="24" fontWeight="700">Runner Form</text>
-      <circle cx="904" cy="723" r="16" className="hi-ink" />
-      <path d="M904 742L936 764L918 792" className="hi-ink-s" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M904 742L876 772L850 760" className="hi-ink-s" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M914 752L946 736" className="hi-ink-s" strokeWidth="10" strokeLinecap="round" />
+      <rect x="872" y="214" width="276" height="162" className="hi-surface-strong hi-border" strokeWidth="2" />
+      <text x="892" y="244" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        REVIEW
+      </text>
+      <text x="892" y="279" className="hi-ink hi-body" fontSize="19" fontWeight="700">
+        Move Friday bench to Saturday
+      </text>
+      <text x="892" y="309" className="hi-soft hi-body" fontSize="13">
+        Update 3 upcoming workouts and keep
+      </text>
+      <text x="892" y="329" className="hi-soft hi-body" fontSize="13">
+        the current volume progression.
+      </text>
+      <rect x="892" y="346" width="100" height="22" className="hi-surface hi-border-soft" strokeWidth="2" />
+      <text x="909" y="361" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="1.7">
+        2 CR
+      </text>
 
-      {/* Bottom line */}
-      <path d="M98 844H1104" className="hi-deco" strokeWidth="1.8" opacity="0.45" />
+      <rect x="872" y="404" width="276" height="170" className="hi-surface hi-border" strokeWidth="2" />
+      <text x="892" y="434" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        STAGED CHANGES
+      </text>
+      <rect x="892" y="454" width="236" height="34" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <rect x="892" y="500" width="236" height="34" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <rect x="892" y="546" width="236" height="34" className="hi-surface-strong hi-border-soft" strokeWidth="2" />
+      <text x="908" y="476" className="hi-ink hi-body" fontSize="13" fontWeight="600">
+        Move workout · Apr 12 → Apr 13
+      </text>
+      <text x="908" y="522" className="hi-ink hi-body" fontSize="13" fontWeight="600">
+        Update note · bench variation
+      </text>
+      <text x="908" y="568" className="hi-ink hi-body" fontSize="13" fontWeight="600">
+        Keep accessories unchanged
+      </text>
+
+      <rect x="872" y="606" width="276" height="234" className="hi-surface-strong hi-border" strokeWidth="2" />
+      <text x="892" y="636" className="hi-muted hi-body" fontSize="10" fontWeight="700" letterSpacing="2.1">
+        ASSISTANT INPUT
+      </text>
+      <rect x="892" y="660" width="236" height="108" className="hi-surface hi-border-soft" strokeWidth="2" />
+      <text x="910" y="691" className="hi-soft hi-body" fontSize="16">
+        Adjust next week after
+      </text>
+      <text x="910" y="718" className="hi-soft hi-body" fontSize="16">
+        the athlete feedback and
+      </text>
+      <text x="910" y="745" className="hi-soft hi-body" fontSize="16">
+        keep lower-body volume.
+      </text>
+      <rect x="892" y="788" width="110" height="34" className="hi-surface hi-border" strokeWidth="2" />
+      <rect x="1018" y="788" width="110" height="34" className="hi-surface-accent hi-border" strokeWidth="2" />
+      <text x="916" y="809" className="hi-muted hi-body" fontSize="12" fontWeight="700" letterSpacing="1.6">
+        ATTACH
+      </text>
+      <text x="1042" y="809" fill="#ffffff" className="hi-body" fontSize="12" fontWeight="700" letterSpacing="1.6">
+        APPLY
+      </text>
     </svg>
   );
 }

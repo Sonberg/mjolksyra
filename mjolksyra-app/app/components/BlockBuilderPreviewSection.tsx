@@ -49,7 +49,7 @@ export function BlockBuilderPreviewSection() {
                   <h3 className="text-base text-[var(--home-text)]">
                     {item.week}
                   </h3>
-                  <span className="rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--home-muted)]">
+                  <span className="rounded-none bg-[var(--home-surface)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--home-muted)]">
                     {item.focus}
                   </span>
                 </div>
