@@ -75,8 +75,8 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
         var visibleWorkouts = isAthleteViewer
             ? workouts.Data
+                .Where(x => x.Exercises.Count == 0 || x.Exercises.Any(e => e.IsPublished))
                 .Select(FilterPublishedExercises)
-                .Where(x => x.Exercises.Count > 0)
                 .ToList()
             : workouts.Data;
 

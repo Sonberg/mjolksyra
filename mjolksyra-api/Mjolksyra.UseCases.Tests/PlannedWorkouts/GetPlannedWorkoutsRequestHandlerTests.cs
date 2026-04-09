@@ -245,6 +245,82 @@ public class GetPlannedWorkoutsRequestHandlerTests
         Assert.True(exercise.IsPublished);
     }
 
+    [Fact]
+    public async Task Handle_WhenAthleteViewer_IncludesEmptyWorkouts()
+    {
+        var athleteUserId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var emptyWorkoutId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(athleteUserId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository.Setup(x => x.HasAccess(traineeId, athleteUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        traineeRepository.Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                AthleteUserId = athleteUserId,
+                CoachUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active
+            });
+
+        var emptyWorkout = new PlannedWorkout
+        {
+            Id = emptyWorkoutId,
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 3, 1),
+            CreatedAt = DateTimeOffset.UtcNow,
+            Exercises = []
+        };
+
+        var draftOnlyWorkout = new PlannedWorkout
+        {
+            Id = Guid.NewGuid(),
+            TraineeId = traineeId,
+            PlannedAt = new DateOnly(2026, 3, 2),
+            CreatedAt = DateTimeOffset.UtcNow,
+            Exercises =
+            [
+                new PlannedExercise
+                {
+                    Id = Guid.NewGuid(),
+                    ExerciseId = Guid.NewGuid(),
+                    Name = "Draft only",
+                    IsPublished = false
+                }
+            ]
+        };
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout>
+            {
+                Data = [emptyWorkout, draftOnlyWorkout],
+                Cursor = null
+            });
+
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var sut = new GetPlannedWorkoutsRequestHandler(
+            plannedWorkoutRepository.Object,
+            exerciseRepository.Object,
+            traineeRepository.Object,
+            userContext.Object);
+
+        var result = await sut.Handle(CreateRequest(traineeId), CancellationToken.None);
+
+        var workout = Assert.Single(result.Data);
+        Assert.Equal(emptyWorkoutId, workout.Id);
+        Assert.Empty(workout.Exercises);
+    }
+
     private static GetPlannedWorkoutsRequest CreateRequest(Guid? traineeId = null, bool draftOnly = false)
     {
         return new GetPlannedWorkoutsRequest

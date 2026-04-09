@@ -280,6 +280,59 @@ public class GetPlannedWorkoutRequestHandlerTests
         Assert.Null(result);
     }
 
+    [Fact]
+    public async Task Handle_WhenAthleteViewerAndWorkoutHasNoExercises_ReturnsWorkout()
+    {
+        var athleteUserId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var workoutId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(athleteUserId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.HasAccess(traineeId, athleteUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                AthleteUserId = athleteUserId,
+                CoachUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active
+            });
+
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository
+            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannedWorkout
+            {
+                Id = workoutId,
+                TraineeId = traineeId,
+                PlannedAt = new DateOnly(2026, 2, 28),
+                Exercises = [],
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+
+        var exerciseRepository = new Mock<IExerciseRepository>();
+        exerciseRepository
+            .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var sut = new GetPlannedWorkoutRequestHandler(
+            plannedWorkoutRepository.Object,
+            exerciseRepository.Object,
+            traineeRepository.Object,
+            userContext.Object);
+
+        var result = await sut.Handle(CreateRequest(traineeId, workoutId), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Empty(result.Exercises);
+    }
+
     private static GetPlannedWorkoutRequest CreateRequest(Guid? traineeId = null, Guid? plannedWorkoutId = null)
     {
         return new GetPlannedWorkoutRequest

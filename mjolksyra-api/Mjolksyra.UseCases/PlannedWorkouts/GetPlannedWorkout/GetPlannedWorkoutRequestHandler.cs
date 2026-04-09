@@ -33,11 +33,12 @@ public class GetPlannedWorkoutRequestHandler(
 
         if (isAthleteViewer)
         {
+            var hadExercises = workout.Exercises.Count > 0;
             workout.Exercises = workout.Exercises
                 .Where(x => x.IsPublished)
                 .ToList();
 
-            if (workout.Exercises.Count == 0)
+            if (hadExercises && workout.Exercises.Count == 0)
             {
                 return null;
             }
