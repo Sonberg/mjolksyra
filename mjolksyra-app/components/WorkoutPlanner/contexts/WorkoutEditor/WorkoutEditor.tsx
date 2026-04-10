@@ -30,9 +30,10 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
   const isPastDay = dayjs(plannedWorkout?.plannedAt)
     .startOf("day")
     .isBefore(dayjs().startOf("day"));
-  const isPast = !!plannedWorkout?.completedAt || isPastDay;
+  const isPast = isPastDay;
   const isLocked = isPast;
-  const hasDraftExercises = !!plannedWorkout?.exercises.some((x) => !x.isPublished);
+  const currentDraftExercises = plannedWorkout?.draftExercises ?? plannedWorkout?.publishedExercises ?? [];
+  const hasDraftExercises = currentDraftExercises.some((x) => !x.isPublished);
 
   async function onPublish() {
     if (!plannedWorkout) {
@@ -41,10 +42,11 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
 
     const publishedWorkout = {
       ...plannedWorkout,
-      exercises: plannedWorkout.exercises.map((exercise) => ({
+      publishedExercises: currentDraftExercises.map((exercise) => ({
         ...exercise,
         isPublished: true,
       })),
+      draftExercises: null,
     };
 
     await update({ plannedWorkout: publishedWorkout });
@@ -62,7 +64,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       return;
     }
 
-    const publishedOnly = plannedWorkout.exercises.filter((exercise) => exercise.isPublished);
+    const publishedOnly = plannedWorkout.publishedExercises.filter((exercise) => exercise.isPublished);
 
     if (publishedOnly.length === 0) {
       await deleteWorkout({ plannedWorkout });
@@ -79,7 +81,8 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
 
     const revertedWorkout = {
       ...plannedWorkout,
-      exercises: publishedOnly,
+      publishedExercises: publishedOnly,
+      draftExercises: null,
     };
 
     await update({ plannedWorkout: revertedWorkout });
@@ -143,7 +146,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       </div>
       <div className="overflow-y-auto flex-1">
         <div className="flex flex-col gap-8 px-6 py-8">
-          {plannedWorkout.exercises.map((x) => (
+          {currentDraftExercises.map((x) => (
             <WorkoutEditorExercise
               key={x.id}
               plannedExercise={x}

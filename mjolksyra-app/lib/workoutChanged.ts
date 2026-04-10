@@ -20,12 +20,15 @@ export function workoutChanged(
     return true;
   }
 
-  if (workout.exercises.length !== oldWorkout.exercises.length) {
+  const exercises = workout.draftExercises ?? workout.publishedExercises;
+  const oldExercises = oldWorkout.draftExercises ?? oldWorkout.publishedExercises;
+
+  if (exercises.length !== oldExercises.length) {
     return true;
   }
 
-  for (const exercise of workout.exercises) {
-    const oldExercise = oldWorkout.exercises.find((x) => x.id == exercise.id);
+  for (const exercise of exercises) {
+    const oldExercise = oldExercises.find((x) => x.id == exercise.id);
 
     if (!oldExercise) {
       return true;

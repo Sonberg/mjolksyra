@@ -36,7 +36,7 @@ public class PlannedWorkoutDeletedConsumerTests
                 TraineeId = traineeId,
                 PlannedAt = DateOnly.FromDateTime(DateTime.UtcNow),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = [],
+                PublishedExercises = [],
             }
         });
         context.SetupGet(x => x.CancellationToken).Returns(CancellationToken.None);

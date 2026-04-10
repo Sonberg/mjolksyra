@@ -1,7 +1,8 @@
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 
 export function workoutEmpty(workout: PlannedWorkout) {
-  if (workout.exercises.length) {
+  const exercises = workout.draftExercises ?? workout.publishedExercises;
+  if (exercises.length) {
     return false;
   }
 

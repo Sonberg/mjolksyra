@@ -1,6 +1,5 @@
 "use client";
 
-import { useWorkout } from "@/hooks/useWorkout";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
@@ -25,8 +24,6 @@ export function WorkoutCard({
   traineeId,
   backTab,
 }: Props) {
-  const { saveCompletion, saveReview } = useWorkout({ workout });
-
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
 
@@ -55,17 +52,18 @@ export function WorkoutCard({
     }
   }, [date]);
 
-  const isCompleted = !!workout.completedAt;
-  const isReviewed = !!workout.reviewedAt;
-  const totalExercises = workout.exercises.length;
-  const doneExercises = workout.exercises.filter(
+  const isCompleted = false;
+  const isReviewed = false;
+  const exercises = workout.publishedExercises;
+  const totalExercises = exercises.length;
+  const doneExercises = exercises.filter(
     (exercise) => exercise.isDone,
   ).length;
-  const totalSets = workout.exercises.reduce(
+  const totalSets = exercises.reduce(
     (count, exercise) => count + (exercise.prescription?.sets?.length ?? 0),
     0,
   );
-  const doneSets = workout.exercises.reduce(
+  const doneSets = exercises.reduce(
     (count, exercise) =>
       count +
       (exercise.prescription?.sets?.filter((set) => set.actual?.isDone)
@@ -157,7 +155,7 @@ export function WorkoutCard({
           ) : null}
 
           <div className="grid gap-2 sm:grid-cols-2">
-            {workout.exercises.slice(0, 4).map((exercise, index) => (
+            {exercises.slice(0, 4).map((exercise, index) => (
               <div
                 key={exercise.id}
                 className="bg-[var(--shell-surface-strong)] px-3 py-2"
@@ -178,22 +176,11 @@ export function WorkoutCard({
             ))}
           </div>
 
-          {workout.exercises.length > 4 ? (
+          {exercises.length > 4 ? (
             <p className="text-xs text-[var(--shell-muted)]">
-              +{workout.exercises.length - 4} more exercise
-              {workout.exercises.length - 4 > 1 ? "s" : ""}
+              +{exercises.length - 4} more exercise
+              {exercises.length - 4 > 1 ? "s" : ""}
             </p>
-          ) : null}
-
-          {workout.completedAt ? (
-            <span className="text-xs text-[var(--shell-muted)]">
-              Completed {new Date(workout.completedAt).toLocaleString()}
-            </span>
-          ) : null}
-          {viewerMode === "coach" && workout.reviewedAt ? (
-            <span className="text-xs text-[var(--shell-muted)]">
-              Reviewed {new Date(workout.reviewedAt).toLocaleString()}
-            </span>
           ) : null}
         </>
       </div>

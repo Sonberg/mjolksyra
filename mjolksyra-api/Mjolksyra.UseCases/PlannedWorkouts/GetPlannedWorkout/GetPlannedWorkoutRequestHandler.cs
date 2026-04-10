@@ -31,25 +31,26 @@ public class GetPlannedWorkoutRequestHandler(
             return null;
         }
 
-        if (isAthleteViewer)
+        // Athletes only see workouts that have published exercises
+        if (isAthleteViewer && workout.PublishedExercises.Count == 0)
         {
-            workout.Exercises = workout.Exercises
-                .Where(x => x.IsPublished)
-                .ToList();
-
-            if (workout.Exercises.Count == 0)
-            {
-                return null;
-            }
+            return null;
         }
 
-        var exerciseIds = workout.Exercises
+        var exerciseIds = workout.PublishedExercises
+            .Concat(workout.DraftExercises ?? [])
             .Select(x => x.ExerciseId)
             .OfType<Guid>()
             .ToList();
 
         var exercises = await exerciseRepository.GetMany(exerciseIds, cancellationToken);
 
-        return PlannedWorkoutResponse.From(workout, exercises);
+        var response = PlannedWorkoutResponse.From(workout, exercises);
+        if (isAthleteViewer)
+        {
+            response.DraftExercises = null;
+        }
+
+        return response;
     }
 }

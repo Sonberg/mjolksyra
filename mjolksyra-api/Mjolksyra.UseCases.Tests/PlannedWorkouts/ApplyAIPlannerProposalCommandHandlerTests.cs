@@ -34,7 +34,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             TraineeId = traineeId,
             Name = "Upper",
             PlannedAt = new DateOnly(2026, 4, 14),
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = now,
         };
 
@@ -103,7 +103,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                 TraineeId = traineeId,
                 Name = "Lower",
                 Note = null,
-                Exercises = [],
+                PublishedExercises = [],
                 PlannedAt = new DateOnly(2026, 4, 15),
                 CreatedAt = now,
             });
@@ -115,7 +115,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                 TraineeId = traineeId,
                 Name = "Upper",
                 Note = null,
-                Exercises = [],
+                PublishedExercises = [],
                 PlannedAt = new DateOnly(2026, 4, 15),
                 CreatedAt = now,
             });
@@ -191,7 +191,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             TraineeId = traineeId,
             Name = "Upper",
             PlannedAt = new DateOnly(2026, 4, 14),
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = now,
         };
 
@@ -201,7 +201,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             TraineeId = traineeId,
             Name = "Upper changed",
             PlannedAt = new DateOnly(2026, 4, 14),
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = now,
         };
 
@@ -389,7 +389,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             Id = firstWorkoutId,
             TraineeId = traineeId,
             PlannedAt = firstDate,
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = now,
         };
         var secondWorkout = new PlannedWorkout
@@ -397,7 +397,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             Id = secondWorkoutId,
             TraineeId = traineeId,
             PlannedAt = secondDate,
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = now,
         };
 

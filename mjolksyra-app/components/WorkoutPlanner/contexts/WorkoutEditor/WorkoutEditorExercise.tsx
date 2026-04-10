@@ -24,19 +24,20 @@ export function WorkoutEditorExercise({
   update,
 }: Props) {
   const { dispatch } = useWorkouts();
+  const draftExercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
   const index = useMemo(
     () =>
-      plannedWorkout.exercises.findIndex((x) => x.id === plannedExercise.id),
-    [plannedExercise, plannedWorkout],
+      draftExercises.findIndex((x) => x.id === plannedExercise.id),
+    [plannedExercise, draftExercises],
   );
 
   const canMoveUp = index !== 0;
-  const canMoveDown = index !== plannedWorkout.exercises.length - 1;
+  const canMoveDown = index !== draftExercises.length - 1;
 
   async function onMoveUp() {
     const updatedWorkout = {
       ...plannedWorkout,
-      exercises: arrayMove(plannedWorkout.exercises, index, index - 1),
+      draftExercises: arrayMove(draftExercises, index, index - 1),
     };
 
     update(updatedWorkout);
@@ -52,7 +53,7 @@ export function WorkoutEditorExercise({
   async function onMoveDown() {
     const updatedWorkout = {
       ...plannedWorkout,
-      exercises: arrayMove(plannedWorkout.exercises, index, index + 1),
+      draftExercises: arrayMove(draftExercises, index, index + 1),
     };
 
     update(updatedWorkout);
@@ -68,7 +69,7 @@ export function WorkoutEditorExercise({
   async function onUpdateNote(value: string) {
     const updatedWorkout = {
       ...plannedWorkout,
-      exercises: plannedWorkout.exercises.map((x) =>
+      draftExercises: draftExercises.map((x) =>
         x.id == plannedExercise.id
           ? {
               ...x,
@@ -92,7 +93,7 @@ export function WorkoutEditorExercise({
   ) {
     const updatedWorkout = {
       ...plannedWorkout,
-      exercises: plannedWorkout.exercises.map((x) =>
+      draftExercises: draftExercises.map((x) =>
         x.id == plannedExercise.id
           ? {
               ...x,

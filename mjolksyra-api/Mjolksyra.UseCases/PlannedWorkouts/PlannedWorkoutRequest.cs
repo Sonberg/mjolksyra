@@ -6,11 +6,5 @@ public class PlannedWorkoutRequest
 
     public string? Note { get; set; }
 
-    public required ICollection<PlannedExerciseRequest> Exercises { get; set; }
-
     public DateOnly PlannedAt { get; set; }
-
-    public DateTimeOffset? CompletedAt { get; set; }
-
-    public DateTimeOffset? ReviewedAt { get; set; }
 }

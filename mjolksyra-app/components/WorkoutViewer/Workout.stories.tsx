@@ -18,18 +18,15 @@ const baseWorkout: PlannedWorkout = {
   name: "Lower Body Strength",
   note: "Keep rest around 2 minutes and lock in your squat depth.",
   plannedAt: "2026-04-02",
-  completedAt: null,
-  reviewedAt: null,
-  media: [],
   createdAt: new Date("2026-04-01"),
   appliedBlock: null,
-  exercises: [
+  publishedExercises: [
     {
       id: "exercise-1",
       exerciseId: "squat",
       name: "Back Squat",
       note: null,
-      isDone: true,
+      isDone: false,
       isPublished: true,
       addedBy: null,
       prescription: {
@@ -37,11 +34,11 @@ const baseWorkout: PlannedWorkout = {
         sets: [
           {
             target: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 100, note: null },
-            actual: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 100, note: null, isDone: true },
+            actual: null,
           },
           {
             target: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 100, note: null },
-            actual: { reps: 5, durationSeconds: null, distanceMeters: null, weightKg: 102.5, note: null, isDone: true },
+            actual: null,
           },
         ],
       },
@@ -59,7 +56,7 @@ const baseWorkout: PlannedWorkout = {
         sets: [
           {
             target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 70, note: null },
-            actual: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 70, note: null, isDone: true },
+            actual: null,
           },
           {
             target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 70, note: null },
@@ -87,6 +84,7 @@ const baseWorkout: PlannedWorkout = {
       },
     },
   ],
+  draftExercises: null,
 };
 
 export const AthleteUpcomingCard: Story = {
@@ -103,10 +101,7 @@ export const AthleteUpcomingCard: Story = {
 export const AthleteCompletedCard: Story = {
   render: () => (
     <Workout
-      workout={{
-        ...baseWorkout,
-        completedAt: new Date("2026-04-02T11:15:00Z"),
-      }}
+      workout={baseWorkout}
       viewerMode="athlete"
       traineeId="trainee-1"
       backTab="past"
@@ -117,13 +112,39 @@ export const AthleteCompletedCard: Story = {
 export const CoachNeedsReviewCard: Story = {
   render: () => (
     <Workout
-      workout={{
-        ...baseWorkout,
-        completedAt: new Date("2026-04-02T11:15:00Z"),
-      }}
+      workout={baseWorkout}
       viewerMode="coach"
       traineeId="trainee-1"
       backTab="changes"
+    />
+  ),
+};
+
+export const WithDraftExercises: Story = {
+  render: () => (
+    <Workout
+      workout={{
+        ...baseWorkout,
+        draftExercises: [
+          {
+            id: "draft-1",
+            exerciseId: "bench",
+            name: "Bench Press",
+            note: "Staged by coach",
+            isDone: false,
+            isPublished: false,
+            addedBy: "Coach",
+            prescription: {
+              type: ExerciseType.SetsReps,
+              sets: [
+                { target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 60, note: null }, actual: null },
+              ],
+            },
+          },
+        ],
+      }}
+      viewerMode="coach"
+      traineeId="trainee-1"
     />
   ),
 };

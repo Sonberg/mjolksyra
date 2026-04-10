@@ -1,0 +1,15 @@
+using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.Domain.Database.Models;
+
+namespace Mjolksyra.Domain.Database;
+
+public interface ICompletedWorkoutRepository
+{
+    Task<CompletedWorkout?> GetByPlannedWorkoutId(Guid plannedWorkoutId, CancellationToken cancellationToken);
+
+    Task<CompletedWorkout> Create(CompletedWorkout workout, CancellationToken cancellationToken);
+
+    Task Update(CompletedWorkout workout, CancellationToken cancellationToken);
+
+    Task<Paginated<CompletedWorkout>> Get(CompletedWorkoutCursor cursor, CancellationToken cancellationToken);
+}

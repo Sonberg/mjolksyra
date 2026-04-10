@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { addPlannedWorkoutChatMessage } from "@/services/plannedWorkouts/addPlannedWorkoutChatMessage";
 import { getPlannedWorkoutChatMessages } from "@/services/plannedWorkouts/getPlannedWorkoutChatMessages";
 import { updatePlannedWorkoutChatMessage } from "@/services/plannedWorkouts/updatePlannedWorkoutChatMessage";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutChatComposer } from "@/components/WorkoutChat/WorkoutChatComposer";
 import { WorkoutChatMessageItem } from "@/components/WorkoutChat/WorkoutChatMessageItem";
 
@@ -22,7 +22,7 @@ export function WorkoutChatPanel({
 }: Props) {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
-  const [media, setMedia] = useState<PlannedWorkout["media"]>([]);
+  const [media, setMedia] = useState<NonNullable<CompletedWorkout["media"]>>([]);
   const [isMediaPending, setIsMediaPending] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingMessageBody, setEditingMessageBody] = useState("");

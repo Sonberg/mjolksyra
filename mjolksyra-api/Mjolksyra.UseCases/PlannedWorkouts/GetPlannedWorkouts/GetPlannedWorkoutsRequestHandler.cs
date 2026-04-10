@@ -75,12 +75,12 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
         var visibleWorkouts = isAthleteViewer
             ? workouts.Data
-                .Select(FilterPublishedExercises)
-                .Where(x => x.Exercises.Count > 0)
+                .Where(x => x.PublishedExercises.Count > 0)
                 .ToList()
             : workouts.Data;
 
-        var exerciseIds = visibleWorkouts.SelectMany(x => x.Exercises)
+        var exerciseIds = visibleWorkouts
+            .SelectMany(x => x.PublishedExercises.Concat(x.DraftExercises ?? []))
             .Select(x => x.ExerciseId)
             .OfType<Guid>()
             .ToList();
@@ -91,26 +91,16 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
         {
             Next = workouts.Cursor,
             Data = visibleWorkouts
-                .Select(x => PlannedWorkoutResponse.From(x, exercises))
+                .Select(x =>
+                {
+                    var response = PlannedWorkoutResponse.From(x, exercises);
+                    if (isAthleteViewer)
+                    {
+                        response.DraftExercises = null;
+                    }
+                    return response;
+                })
                 .ToList(),
-        };
-    }
-
-    private static Domain.Database.Models.PlannedWorkout FilterPublishedExercises(
-        Domain.Database.Models.PlannedWorkout workout)
-    {
-        return new Domain.Database.Models.PlannedWorkout
-        {
-            Id = workout.Id,
-            TraineeId = workout.TraineeId,
-            Name = workout.Name,
-            Note = workout.Note,
-            PlannedAt = workout.PlannedAt,
-            CreatedAt = workout.CreatedAt,
-            AppliedBlock = workout.AppliedBlock,
-            Exercises = workout.Exercises
-                .Where(e => e.IsPublished)
-                .ToList()
         };
     }
 }

@@ -44,7 +44,7 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = [],
+                PublishedExercises = [],
             });
 
         var analysisRepository = new Mock<IWorkoutMediaAnalysisRepository>();
@@ -116,7 +116,7 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = [],
+                PublishedExercises = [],
             });
 
         var analysisRepository = new Mock<IWorkoutMediaAnalysisRepository>();

@@ -2,6 +2,13 @@ using Mjolksyra.Domain.Database.Models;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts;
 
+public class PlannedWorkoutMediaResponse
+{
+    public required string RawUrl { get; set; }
+    public string? CompressedUrl { get; set; }
+    public PlannedWorkoutMediaType Type { get; set; }
+}
+
 public class PlannedWorkoutChatMessageResponse
 {
     public required Guid Id { get; set; }

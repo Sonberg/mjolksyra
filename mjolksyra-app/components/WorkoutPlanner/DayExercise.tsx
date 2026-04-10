@@ -86,9 +86,10 @@ export function DayExercise({
       return;
     }
 
+    const currentDraft = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
     const newPlannedWorkout = {
       ...plannedWorkout,
-      exercises: plannedWorkout.exercises.filter(
+      draftExercises: currentDraft.filter(
         (x) => x.id !== plannedExercise.id,
       ),
     };

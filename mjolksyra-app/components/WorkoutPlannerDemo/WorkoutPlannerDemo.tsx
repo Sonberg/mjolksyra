@@ -48,15 +48,13 @@ function createInitialPlannedWorkouts(exercises: Exercise[]): PlannedWorkout[] {
       traineeId: "",
       name: index % 2 === 0 ? "Strength day" : "Mixed day",
       note: index % 2 === 0 ? "Focus on controlled tempo." : null,
-      media: [],
       plannedAt: plannedAt.format("YYYY-MM-DD"),
-      completedAt: null,
-      reviewedAt: null,
-      exercises: [
+      publishedExercises: [
         buildPlannedExercise(first),
         buildPlannedExercise(second),
         buildPlannedExercise(third),
       ],
+      draftExercises: null,
       createdAt: new Date(),
       appliedBlock: null,
     };

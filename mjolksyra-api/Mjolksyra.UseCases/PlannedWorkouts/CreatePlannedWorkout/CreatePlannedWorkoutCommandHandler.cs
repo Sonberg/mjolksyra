@@ -24,48 +24,10 @@ public class CreatePlannedWorkoutCommandHandler : IRequestHandler<CreatePlannedW
             Name = request.Workout.Name,
             Note = request.Workout.Note,
             PlannedAt = request.Workout.PlannedAt,
-            Exercises = request.Workout.Exercises
-                .Select(e => new PlannedExercise
-                {
-                    Id = e.Id,
-                    ExerciseId = e.ExerciseId,
-                    Name = e.Name,
-                    Note = e.Note,
-                    IsPublished = e.IsPublished,
-                    AddedBy = e.AddedBy,
-                    Prescription = e.Prescription is null
-                        ? null
-                        : new ExercisePrescription
-                        {
-                            Type = e.Prescription.Type,
-                            Sets = e.Prescription.Sets
-                                ?.Select(x => new ExercisePrescriptionSet
-                                {
-                                    Target = x.Target is null ? null : new ExercisePrescriptionSetTarget
-                                    {
-                                        Reps = x.Target.Reps,
-                                        DurationSeconds = x.Target.DurationSeconds,
-                                        DistanceMeters = x.Target.DistanceMeters,
-                                        WeightKg = e.Prescription.Type == ExerciseType.SetsReps
-                                            ? x.Target.WeightKg
-                                            : null,
-                                        Note = x.Target.Note,
-                                    },
-                                    Actual = null
-                                })
-                                .ToList()
-                        }
-                }).ToList(),
+            PublishedExercises = [],
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
 
-        var exerciseIds = plannedWorkout.Exercises
-            .Select(x => x.ExerciseId)
-            .OfType<Guid>()
-            .ToList();
-
-        var exercises = await _exerciseRepository.GetMany(exerciseIds, cancellationToken);
-
-        return PlannedWorkoutResponse.From(plannedWorkout, exercises);
+        return PlannedWorkoutResponse.From(plannedWorkout, []);
     }
 }

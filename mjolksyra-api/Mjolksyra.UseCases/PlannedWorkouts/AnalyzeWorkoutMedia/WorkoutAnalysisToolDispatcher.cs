@@ -9,7 +9,7 @@ using Mjolksyra.Domain.Database.Models;
 namespace Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 
 public class WorkoutAnalysisToolDispatcher(
-    IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     Guid traineeId) : IWorkoutAnalysisToolDispatcher
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -23,20 +23,19 @@ public class WorkoutAnalysisToolDispatcher(
         count = Math.Clamp(count, 1, 10);
         var toDate = DateOnly.Parse(beforeDate).AddDays(-1);
 
-        var cursor = new PlannedWorkoutCursor
+        var cursor = new CompletedWorkoutCursor
         {
             TraineeId = traineeId,
             FromDate = null,
             ToDate = toDate,
             SortBy = ["plannedAt"],
             Order = SortOrder.Desc,
-            DraftOnly = false,
             CompletedOnly = true,
             Size = count,
             Page = 0,
         };
 
-        var result = await plannedWorkoutRepository.Get(cursor, ct);
+        var result = await completedWorkoutRepository.Get(cursor, ct);
         return JsonSerializer.Serialize(MapToProgressionEntries(result.Data), JsonOptions);
     }
 
@@ -47,27 +46,26 @@ public class WorkoutAnalysisToolDispatcher(
         var toDate = beforeDate is not null ? DateOnly.Parse(beforeDate) : (DateOnly?)null;
         var fromDate = afterDate is not null ? DateOnly.Parse(afterDate) : (DateOnly?)null;
 
-        // For future/upcoming workouts (afterDate set), include incomplete workouts.
+        // For future/upcoming workouts (afterDate set), include incomplete sessions.
         // For past-only queries, restrict to completed.
         var completedOnly = fromDate is null ? true : (bool?)null;
 
         // Past workouts most recent first; upcoming workouts soonest first.
         var order = fromDate is not null ? SortOrder.Asc : SortOrder.Desc;
 
-        var cursor = new PlannedWorkoutCursor
+        var cursor = new CompletedWorkoutCursor
         {
             TraineeId = traineeId,
             FromDate = fromDate,
             ToDate = toDate,
             SortBy = ["plannedAt"],
             Order = order,
-            DraftOnly = false,
             CompletedOnly = completedOnly,
             Size = 20,
             Page = 0,
         };
 
-        var result = await plannedWorkoutRepository.Get(cursor, ct);
+        var result = await completedWorkoutRepository.Get(cursor, ct);
 
         var matching = result.Data
             .Where(w => w.Exercises.Any(e =>
@@ -78,25 +76,25 @@ public class WorkoutAnalysisToolDispatcher(
         return JsonSerializer.Serialize(MapToProgressionEntries(matching), JsonOptions);
     }
 
-    private static List<WorkoutProgressionEntry> MapToProgressionEntries(IEnumerable<PlannedWorkout> workouts)
+    private static List<WorkoutProgressionEntry> MapToProgressionEntries(IEnumerable<CompletedWorkout> sessions)
     {
-        return workouts.Select(w => new WorkoutProgressionEntry
+        return sessions.Select(s => new WorkoutProgressionEntry
         {
-            Date = w.PlannedAt,
-            Completed = w.CompletedAt.HasValue,
-            Exercises = w.Exercises
+            Date = s.PlannedAt,
+            Completed = s.CompletedAt.HasValue,
+            Exercises = s.Exercises
                 .Select(e => new WorkoutProgressionExercise
                 {
                     Name = e.Name,
                     Sets = (e.Prescription?.Sets ?? [])
-                        .Select((s, i) => new WorkoutProgressionSet
+                        .Select((set, i) => new WorkoutProgressionSet
                         {
                             SetNumber = i + 1,
-                            TargetReps = s.Target?.Reps,
-                            TargetWeightKg = s.Target?.WeightKg,
-                            ActualReps = s.Actual?.Reps,
-                            ActualWeightKg = s.Actual?.WeightKg,
-                            ActualIsDone = s.Actual?.IsDone,
+                            TargetReps = set.Target?.Reps,
+                            TargetWeightKg = set.Target?.WeightKg,
+                            ActualReps = set.Actual?.Reps,
+                            ActualWeightKg = set.Actual?.WeightKg,
+                            ActualIsDone = set.Actual?.IsDone,
                         })
                         .ToList(),
                 })

@@ -4,13 +4,6 @@ using Mjolksyra.UseCases.Common.Contracts;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts;
 
-public class PlannedWorkoutMediaResponse
-{
-    public required string RawUrl { get; set; }
-    public string? CompressedUrl { get; set; }
-    public PlannedWorkoutMediaType Type { get; set; }
-}
-
 public class PlannedWorkoutResponse
 {
     public required Guid Id { get; set; }
@@ -21,17 +14,13 @@ public class PlannedWorkoutResponse
 
     public required string? Note { get; set; }
 
-    public required ICollection<PlannedExerciseResponse> Exercises { get; set; }
+    public required ICollection<PlannedExerciseResponse> PublishedExercises { get; set; }
+
+    public ICollection<PlannedExerciseResponse>? DraftExercises { get; set; }
 
     public required DateOnly PlannedAt { get; set; }
 
     public required DateTimeOffset CreatedAt { get; set; }
-
-    public DateTimeOffset? CompletedAt { get; set; }
-
-    public DateTimeOffset? ReviewedAt { get; set; }
-
-    public ICollection<PlannedWorkoutMediaResponse> Media { get; set; } = [];
 
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
@@ -43,20 +32,13 @@ public class PlannedWorkoutResponse
             TraineeId = workout.TraineeId,
             Name = workout.Name,
             Note = workout.Note,
-            Exercises = workout.Exercises
-                .Select(x => PlannedExerciseResponse.From(x, exercises, workout.CompletedAt is not null))
+            PublishedExercises = workout.PublishedExercises
+                .Select(x => PlannedExerciseResponse.From(x, exercises))
+                .ToList(),
+            DraftExercises = workout.DraftExercises?
+                .Select(x => PlannedExerciseResponse.From(x, exercises))
                 .ToList(),
             CreatedAt = workout.CreatedAt,
-            CompletedAt = workout.CompletedAt,
-            ReviewedAt = workout.ReviewedAt,
-            Media = workout.Media
-                .Select(x => new PlannedWorkoutMediaResponse
-                {
-                    RawUrl = x.RawUrl,
-                    CompressedUrl = x.CompressedUrl,
-                    Type = x.Type,
-                })
-                .ToList(),
             PlannedAt = workout.PlannedAt,
             AppliedBlock = workout.AppliedBlock is null
                 ? null
@@ -97,8 +79,6 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public required bool IsPublished { get; set; }
 
-    public required bool IsDone { get; set; }
-
     public ExerciseAddedBy? AddedBy { get; set; }
 
     public PlannedExercisePrescriptionResponse? Prescription { get; set; }
@@ -109,11 +89,9 @@ public class PlannedExerciseResponse : IExerciseResponse
 
     public static PlannedExerciseResponse From(
         PlannedExercise plannedExercise,
-        ICollection<Exercise> exercises,
-        bool isWorkoutCompleted)
+        ICollection<Exercise> exercises)
     {
         var exercise = exercises.FirstOrDefault(e => e.Id == plannedExercise.ExerciseId);
-        var sets = plannedExercise.Prescription?.Sets;
         var targetType = plannedExercise.Prescription?.Type;
 
         return new PlannedExerciseResponse
@@ -124,9 +102,6 @@ public class PlannedExerciseResponse : IExerciseResponse
             Note = plannedExercise.Note,
             IsPublished = plannedExercise.IsPublished,
             AddedBy = plannedExercise.AddedBy,
-            IsDone = sets?.Count > 0
-                ? sets.All(s => s.Actual?.IsDone == true)
-                : isWorkoutCompleted,
             Prescription = plannedExercise.Prescription is null
                 ? null
                 : new PlannedExercisePrescriptionResponse
@@ -145,17 +120,6 @@ public class PlannedExerciseResponse : IExerciseResponse
                                     : null,
                                 Note = x.Target.Note,
                             },
-                            Actual = x.Actual is null ? null : new ExercisePrescriptionSetActualResponse
-                            {
-                                Reps = x.Actual.Reps,
-                                WeightKg = targetType == ExerciseType.SetsReps
-                                    ? x.Actual.WeightKg
-                                    : null,
-                                DurationSeconds = x.Actual.DurationSeconds,
-                                DistanceMeters = x.Actual.DistanceMeters,
-                                Note = x.Actual.Note,
-                                IsDone = x.Actual.IsDone,
-                            }
                         })
                         .ToList()
                 },
@@ -175,8 +139,6 @@ public class PlannedExercisePrescriptionResponse
 public class ExercisePrescriptionSetResponse
 {
     public ExercisePrescriptionSetTargetResponse? Target { get; set; }
-
-    public ExercisePrescriptionSetActualResponse? Actual { get; set; }
 }
 
 public class ExercisePrescriptionSetTargetResponse
@@ -190,19 +152,4 @@ public class ExercisePrescriptionSetTargetResponse
     public double? WeightKg { get; set; }
 
     public string? Note { get; set; }
-}
-
-public class ExercisePrescriptionSetActualResponse
-{
-    public int? Reps { get; set; }
-
-    public double? WeightKg { get; set; }
-
-    public int? DurationSeconds { get; set; }
-
-    public double? DistanceMeters { get; set; }
-
-    public string? Note { get; set; }
-
-    public bool IsDone { get; set; }
 }

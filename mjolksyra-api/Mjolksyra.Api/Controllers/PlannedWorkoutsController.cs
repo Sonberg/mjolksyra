@@ -11,12 +11,13 @@ using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkoutChatMessages;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
-using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkoutChatMessage;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
 using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 using Mjolksyra.UseCases.PlannedWorkouts.GetLatestWorkoutMediaAnalysis;
+using Mjolksyra.UseCases.PlannedWorkouts.UpdateDraftExercises;
+using Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -116,19 +117,49 @@ public class PlannedWorkoutsController : Controller
             await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
         }
 
-        return Ok(result);
+        return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpPut("{plannedWorkoutId:guid}/log")]
-    public async Task<ActionResult<PlannedWorkoutResponse>> Log(
-        Guid traineeId, Guid plannedWorkoutId, [FromBody] LogPlannedWorkoutRequest request)
+    [HttpPut("{plannedWorkoutId:guid}/exercises/draft")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> UpdateDraftExercises(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        [FromBody] UpdateDraftExercisesRequest request,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new LogPlannedWorkoutCommand
+        var result = await _mediator.Send(new UpdateDraftExercisesCommand
         {
             TraineeId = traineeId,
             PlannedWorkoutId = plannedWorkoutId,
-            Log = request
-        });
+            Exercises = request.Exercises
+        }, cancellationToken);
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost("{plannedWorkoutId:guid}/exercises/publish")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> PublishDraftExercises(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new PublishDraftExercisesCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId,
+        }, cancellationToken);
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -259,4 +290,9 @@ public class PlannedWorkoutsController : Controller
             DraftOnly = draftOnly
         };
     }
+}
+
+public class UpdateDraftExercisesRequest
+{
+    public required ICollection<PlannedExerciseRequest> Exercises { get; set; }
 }

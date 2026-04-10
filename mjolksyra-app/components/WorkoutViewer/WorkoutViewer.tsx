@@ -130,38 +130,30 @@ export function WorkoutViewer({
         ).filter((x) => {
           const plannedAt = dayjs(x.plannedAt).startOf("day");
           const isBeforeToday = plannedAt.isBefore(startOfToday);
-          const isCompleted = !!x.completedAt;
+          const isCompleted = false;
 
           if (focusWorkoutId && x.id === focusWorkoutId) {
             return true;
           }
 
           if (mode === "changes") {
-            if (viewerMode === "coach") {
-              return !!x.completedAt && !x.reviewedAt;
-            }
-
-            return !!(x.completedAt || x.reviewedAt);
+            // Without session data on PlannedWorkout, changes tab shows all past workouts for now
+            return isBeforeToday;
           }
 
           if (mode === "future") {
-            return !isCompleted && !isBeforeToday;
+            return !isBeforeToday;
           }
 
-          if (mode === "past" && !(isCompleted || isBeforeToday)) {
+          if (mode === "past" && !isBeforeToday) {
             return false;
           }
 
           const visible =
-            x.exercises.length > 0 ||
-            !!x.note?.trim() ||
-            !!x.completedAt;
+            x.publishedExercises.length > 0 ||
+            !!x.note?.trim();
 
           if (!visible) {
-            return false;
-          }
-
-          if (viewerMode === "coach" && !x.completedAt) {
             return false;
           }
 

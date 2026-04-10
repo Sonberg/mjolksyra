@@ -3,10 +3,10 @@
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageIcon, UploadIcon, XIcon } from "lucide-react";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
 
-type PlannedWorkoutMedia = PlannedWorkout["media"][number];
+type PlannedWorkoutMedia = NonNullable<CompletedWorkout["media"]>[number];
 
 type Props = {
   traineeId: string;

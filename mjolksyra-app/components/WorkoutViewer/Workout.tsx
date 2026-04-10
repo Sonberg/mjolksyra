@@ -46,7 +46,7 @@ export function Workout({
     toggleExerciseDone,
     toggleSetDone,
     updateSetWeight,
-  } = useWorkout({ workout });
+  } = useWorkout({ workout, session: null });
 
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
@@ -76,17 +76,18 @@ export function Workout({
     }
   }, [date]);
 
-  const isCompleted = !!workout.completedAt;
-  const isReviewed = !!workout.reviewedAt;
-  const totalExercises = workout.exercises.length;
-  const doneExercises = workout.exercises.filter(
+  const isCompleted = false;
+  const isReviewed = false;
+  const exercises = workout.publishedExercises;
+  const totalExercises = exercises.length;
+  const doneExercises = exercises.filter(
     (exercise) => exercise.isDone,
   ).length;
-  const totalSets = workout.exercises.reduce(
+  const totalSets = exercises.reduce(
     (count, exercise) => count + (exercise.prescription?.sets?.length ?? 0),
     0,
   );
-  const doneSets = workout.exercises.reduce(
+  const doneSets = exercises.reduce(
     (count, exercise) =>
       count +
       (exercise.prescription?.sets?.filter((set) => set.actual?.isDone)
@@ -128,18 +129,6 @@ export function Workout({
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
             <div className="flex flex-wrap items-baseline gap-x-2">
-              {workout.completedAt ? (
-                <span className="text-xs text-[var(--shell-muted)]">
-                  Completed{" "}
-                  {dayjs(workout.completedAt).format("YYYY-MM-DD HH:mm:ss")}
-                </span>
-              ) : null}
-              {viewerMode === "coach" && workout.reviewedAt ? (
-                <span className="text-xs text-[var(--shell-muted)]">
-                  Reviewed{" "}
-                  {dayjs(workout.reviewedAt).format("YYYY-MM-DD HH:mm:ss")}
-                </span>
-              ) : null}
             </div>
             <div className="flex items-baseline gap-2">
               <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
@@ -244,7 +233,7 @@ export function Workout({
             ) : null}
 
             <div className="grid gap-2 sm:grid-cols-2">
-              {workout.exercises.slice(0, 4).map((exercise, index) => (
+              {exercises.slice(0, 4).map((exercise, index) => (
                 <div
                   key={exercise.id}
                   className="bg-[var(--shell-surface-strong)] px-3 py-2"
@@ -265,10 +254,10 @@ export function Workout({
               ))}
             </div>
 
-            {workout.exercises.length > 4 ? (
+            {exercises.length > 4 ? (
               <p className="text-xs text-[var(--shell-muted)]">
-                +{workout.exercises.length - 4} more exercise
-                {workout.exercises.length - 4 > 1 ? "s" : ""}
+                +{exercises.length - 4} more exercise
+                {exercises.length - 4 > 1 ? "s" : ""}
               </p>
             ) : null}
           </>
@@ -328,7 +317,7 @@ export function Workout({
               </AccordionItem>
             </Accordion>
             <div className="grid grid-cols-1 gap-3">
-              {workout.exercises.map((exercise, index) => (
+              {exercises.map((exercise, index) => (
                 <WorkoutExerciseCard
                   key={exercise.id}
                   exercise={exercise}

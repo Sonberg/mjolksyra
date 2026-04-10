@@ -67,11 +67,12 @@ export function PlannerProvider({
 
       if (cloning) {
         if (cloning.targetWorkout) {
+          const targetDraft = cloning.targetWorkout.draftExercises ?? cloning.targetWorkout.publishedExercises;
           await plannedWorkouts.update({
             plannedWorkout: {
               ...cloning.targetWorkout,
-              exercises: insertAt(
-                cloning.targetWorkout.exercises,
+              draftExercises: insertAt(
+                targetDraft,
                 cloning.index,
                 cloning.exercise
               ),
@@ -81,14 +82,13 @@ export function PlannerProvider({
           await plannedWorkouts.create({
             plannedWorkout: {
               id: v4(),
-                traineeId,
-                name: null,
-                note: null,
-                media: [],
-                exercises: [cloning.exercise],
-                plannedAt: cloning.targetDate,
-                createdAt: null,
-                completedAt: null,
+              traineeId,
+              name: null,
+              note: null,
+              publishedExercises: [],
+              draftExercises: [cloning.exercise],
+              plannedAt: cloning.targetDate,
+              createdAt: null,
               appliedBlock: null,
             },
           });

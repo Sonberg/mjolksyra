@@ -249,6 +249,7 @@ public class PreviewWorkoutPlanQueryHandlerTests
         return new PreviewWorkoutPlanQueryHandler(
             (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
+            new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,

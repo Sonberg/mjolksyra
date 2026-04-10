@@ -27,21 +27,23 @@ public class PlannedWorkout : IDocument
 
     public string? Note { get; set; }
 
-    public required ICollection<PlannedExercise> Exercises { get; set; }
+    /// <summary>
+    /// The official plan visible to the athlete.
+    /// </summary>
+    public ICollection<PlannedExercise> PublishedExercises { get; set; } = [];
+
+    /// <summary>
+    /// Coach's staged changes. Null means no pending draft.
+    /// </summary>
+    public ICollection<PlannedExercise>? DraftExercises { get; set; }
 
     public DateOnly PlannedAt { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
 
-    public DateTimeOffset? CompletedAt { get; set; }
-
-    public DateTimeOffset? ReviewedAt { get; set; }
-
-    public ICollection<PlannedWorkoutMedia> Media { get; set; } = [];
-
     public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }
 
-    public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && Exercises.Count == 0;
+    public bool IsEmpty => string.IsNullOrEmpty(Note) && string.IsNullOrEmpty(Name) && PublishedExercises.Count == 0;
 }
 
 [BsonIgnoreExtraElements]

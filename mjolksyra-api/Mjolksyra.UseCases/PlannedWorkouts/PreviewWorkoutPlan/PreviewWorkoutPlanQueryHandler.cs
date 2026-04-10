@@ -10,6 +10,7 @@ namespace Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 public class PreviewWorkoutPlanQueryHandler(
     IAIWorkoutPlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
@@ -31,6 +32,7 @@ public class PreviewWorkoutPlanQueryHandler(
 
         var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
+            completedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,

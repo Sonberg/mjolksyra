@@ -222,7 +222,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             Id = Guid.NewGuid(),
             TraineeId = traineeId,
             PlannedAt = existingDate,
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -287,7 +287,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             Id = existingId,
             TraineeId = traineeId,
             PlannedAt = plannedDate,
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -413,10 +413,17 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         plannedWorkoutRepository.Verify(
             x => x.Create(
-                It.Is<PlannedWorkout>(w => w.Exercises.All(e =>
-                    !e.IsPublished &&
-                    e.AddedBy == ExerciseAddedBy.Coach &&
-                    (e.Name != "Bench Press" || e.ExerciseId == exerciseId))),
+                It.Is<PlannedWorkout>(w => w.PublishedExercises.Count == 0),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+
+        plannedWorkoutRepository.Verify(
+            x => x.Update(
+                It.Is<PlannedWorkout>(w =>
+                    w.DraftExercises != null &&
+                    w.DraftExercises.All(e =>
+                        e.AddedBy == ExerciseAddedBy.Coach &&
+                        (e.Name != "Bench Press" || e.ExerciseId == exerciseId))),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(2));
     }
@@ -497,8 +504,14 @@ public class GenerateWorkoutPlanCommandHandlerTests
         Assert.Equal(userId, createdExercise.CreatedBy);
         plannedWorkoutRepository.Verify(
             x => x.Create(
+                It.Is<PlannedWorkout>(w => w.PublishedExercises.Count == 0),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        plannedWorkoutRepository.Verify(
+            x => x.Update(
                 It.Is<PlannedWorkout>(w =>
-                    w.Exercises.Any(e =>
+                    w.DraftExercises != null &&
+                    w.DraftExercises.Any(e =>
                         e.Name == "Tempo Goblet Squat" &&
                         e.ExerciseId == createdExercise.Id &&
                         e.AddedBy == ExerciseAddedBy.Coach)),
@@ -529,6 +542,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             mediator.Object,
             (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
+            new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,

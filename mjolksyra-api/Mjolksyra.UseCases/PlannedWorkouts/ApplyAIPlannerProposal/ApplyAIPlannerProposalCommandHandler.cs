@@ -9,6 +9,7 @@ using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.UpdateDraftExercises;
 using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
@@ -69,7 +70,6 @@ public class ApplyAIPlannerProposalCommandHandler(
             SortBy = ["plannedAt"],
             Order = SortOrder.Asc,
             DraftOnly = false,
-            CompletedOnly = null,
             Size = 200,
             Page = 0,
         }, cancellationToken);
@@ -107,10 +107,17 @@ public class ApplyAIPlannerProposalCommandHandler(
                         return new ApplyAIPlannerProposalConflict("A create action is missing its workout payload.");
                     }
 
+                    var (createMetadata, createExercises) = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
                     var created = await mediator.Send(new CreatePlannedWorkoutCommand
                     {
                         TraineeId = request.TraineeId,
-                        Workout = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken),
+                        Workout = createMetadata,
+                    }, cancellationToken);
+                    await mediator.Send(new UpdateDraftExercisesCommand
+                    {
+                        TraineeId = request.TraineeId,
+                        PlannedWorkoutId = created.Id,
+                        Exercises = createExercises,
                     }, cancellationToken);
                     changedWorkoutIds.Add(created.Id);
                     break;
@@ -122,7 +129,7 @@ public class ApplyAIPlannerProposalCommandHandler(
                     }
 
                     var workoutToDelete = currentWorkouts.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
-                    if (workoutToDelete is null || workoutToDelete.CompletedAt is not null || workoutToDelete.PlannedAt < today)
+                    if (workoutToDelete is null || workoutToDelete.PlannedAt < today)
                     {
                         return new ApplyAIPlannerProposalConflict("A target workout can no longer be deleted.");
                     }
@@ -146,7 +153,7 @@ public class ApplyAIPlannerProposalCommandHandler(
                     }
 
                     var targetWorkout = currentWorkouts.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
-                    if (targetWorkout is null || targetWorkout.CompletedAt is not null || targetWorkout.PlannedAt < today)
+                    if (targetWorkout is null || targetWorkout.PlannedAt < today)
                     {
                         return new ApplyAIPlannerProposalConflict("A target workout can no longer be changed.");
                     }
@@ -156,11 +163,18 @@ public class ApplyAIPlannerProposalCommandHandler(
                         return new ApplyAIPlannerProposalConflict("A target workout changed after this proposal was generated. Please refresh the proposal.");
                     }
 
+                    var (updateMetadata, updateExercises) = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
                     var updated = await mediator.Send(new UpdatePlannedWorkoutCommand
                     {
                         TraineeId = request.TraineeId,
                         PlannedWorkoutId = action.TargetWorkoutId.Value,
-                        Workout = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken),
+                        Workout = updateMetadata,
+                    }, cancellationToken);
+                    await mediator.Send(new UpdateDraftExercisesCommand
+                    {
+                        TraineeId = request.TraineeId,
+                        PlannedWorkoutId = action.TargetWorkoutId.Value,
+                        Exercises = updateExercises,
                     }, cancellationToken);
 
                     if (updated is null)
@@ -199,58 +213,59 @@ public class ApplyAIPlannerProposalCommandHandler(
         };
     }
 
-    private async Task<PlannedWorkoutRequest> BuildWorkoutRequestAsync(
+    private async Task<(PlannedWorkoutRequest Metadata, ICollection<PlannedExerciseRequest> Exercises)> BuildWorkoutRequestAsync(
         PlannedWorkoutRequestPayload workout,
         Guid createdByUserId,
         IDictionary<string, Exercise> resolvedExercises,
         CancellationToken cancellationToken)
     {
-        return new PlannedWorkoutRequest
+        var exercises = (await Task.WhenAll(workout.Exercises.Select(async exercise =>
+        {
+            var exerciseType = exercise.PrescriptionType switch
+            {
+                "DurationSeconds" => ExerciseType.DurationSeconds,
+                "DistanceMeters" => ExerciseType.DistanceMeters,
+                _ => ExerciseType.SetsReps,
+            };
+
+            var resolved = exercise.ExerciseId.HasValue
+                ? await ResolveExistingExerciseAsync(exercise.ExerciseId.Value, exercise.Name, exerciseType, createdByUserId, resolvedExercises, cancellationToken)
+                : await ResolveExerciseAsync(exercise.Name, exerciseType, createdByUserId, resolvedExercises, cancellationToken);
+
+            return new PlannedExerciseRequest
+            {
+                Id = exercise.Id ?? Guid.NewGuid(),
+                ExerciseId = resolved.Id,
+                Name = exercise.Name,
+                Note = exercise.Note,
+                IsPublished = false,
+                AddedBy = ExerciseAddedBy.Coach,
+                Prescription = exercise.Sets.Count == 0
+                    ? null
+                    : new PlannedExercisePrescriptionRequest
+                    {
+                        Type = exerciseType,
+                        Sets = exercise.Sets.Select(set => new ExercisePrescriptionSetRequest
+                        {
+                            Target = new ExercisePrescriptionSetTargetRequest
+                            {
+                                Reps = set.Reps,
+                                WeightKg = set.WeightKg,
+                                DurationSeconds = set.DurationSeconds,
+                                DistanceMeters = set.DistanceMeters,
+                                Note = set.Note,
+                            },
+                        }).ToList(),
+                    },
+            };
+        }))).ToList();
+
+        return (new PlannedWorkoutRequest
         {
             Name = workout.Name,
             Note = workout.Note,
             PlannedAt = DateOnly.Parse(workout.PlannedAt),
-            Exercises = (await Task.WhenAll(workout.Exercises.Select(async exercise =>
-            {
-                var exerciseType = exercise.PrescriptionType switch
-                {
-                    "DurationSeconds" => ExerciseType.DurationSeconds,
-                    "DistanceMeters" => ExerciseType.DistanceMeters,
-                    _ => ExerciseType.SetsReps,
-                };
-
-                var resolved = exercise.ExerciseId.HasValue
-                    ? await ResolveExistingExerciseAsync(exercise.ExerciseId.Value, exercise.Name, exerciseType, createdByUserId, resolvedExercises, cancellationToken)
-                    : await ResolveExerciseAsync(exercise.Name, exerciseType, createdByUserId, resolvedExercises, cancellationToken);
-
-                return new PlannedExerciseRequest
-                {
-                    Id = exercise.Id ?? Guid.NewGuid(),
-                    ExerciseId = resolved.Id,
-                    Name = exercise.Name,
-                    Note = exercise.Note,
-                    IsPublished = false,
-                    AddedBy = ExerciseAddedBy.Coach,
-                    Prescription = exercise.Sets.Count == 0
-                        ? null
-                        : new PlannedExercisePrescriptionRequest
-                        {
-                            Type = exerciseType,
-                            Sets = exercise.Sets.Select(set => new ExercisePrescriptionSetRequest
-                            {
-                                Target = new ExercisePrescriptionSetTargetRequest
-                                {
-                                    Reps = set.Reps,
-                                    WeightKg = set.WeightKg,
-                                    DurationSeconds = set.DurationSeconds,
-                                    DistanceMeters = set.DistanceMeters,
-                                    Note = set.Note,
-                                },
-                            }).ToList(),
-                        },
-                };
-            }))).ToList(),
-        };
+        }, exercises);
     }
 
     private async Task<Exercise> ResolveExistingExerciseAsync(

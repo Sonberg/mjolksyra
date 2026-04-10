@@ -14,18 +14,18 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetRecentCompletedWorkouts_BuildsCursorWithCompletedOnlyAndCorrectToDate()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout>());
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout>());
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
         await sut.GetRecentCompletedWorkoutsAsync("2026-04-05", 3, CancellationToken.None);
 
         repository.Verify(x => x.Get(
-            It.Is<PlannedWorkoutCursor>(c =>
+            It.Is<CompletedWorkoutCursor>(c =>
                 c.TraineeId == traineeId &&
                 c.CompletedOnly == true &&
                 c.ToDate == new DateOnly(2026, 4, 4) &&
@@ -38,20 +38,21 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetRecentCompletedWorkouts_ReturnsSerializedProgressionEntries()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
-        var workouts = new List<PlannedWorkout>
+        var sessions = new List<CompletedWorkout>
         {
             new()
             {
                 Id = Guid.NewGuid(),
+                PlannedWorkoutId = Guid.NewGuid(),
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 3, 30),
-                CreatedAt = DateTimeOffset.UtcNow,
                 CompletedAt = DateTimeOffset.UtcNow.AddDays(-1),
+                CreatedAt = DateTimeOffset.UtcNow,
                 Exercises =
                 [
-                    new PlannedExercise
+                    new CompletedExercise
                     {
                         Id = Guid.NewGuid(),
                         Name = "Bench Press",
@@ -72,8 +73,8 @@ public class WorkoutAnalysisToolDispatcherTests
         };
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = workouts });
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout> { Data = sessions });
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
@@ -93,18 +94,18 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetWorkoutsForExercise_FiltersToMatchingExercisesCaseInsensitive()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
-        var workouts = new List<PlannedWorkout>
+        var sessions = new List<CompletedWorkout>
         {
-            BuildWorkout(traineeId, "Back Squat"),
-            BuildWorkout(traineeId, "Bench Press"),
-            BuildWorkout(traineeId, "back squat"),
+            BuildSession(traineeId, "Back Squat"),
+            BuildSession(traineeId, "Bench Press"),
+            BuildSession(traineeId, "back squat"),
         };
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = workouts });
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout> { Data = sessions });
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
@@ -119,15 +120,15 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetWorkoutsForExercise_RespectsCountCap()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
-        var workouts = Enumerable.Range(0, 20)
-            .Select(_ => BuildWorkout(traineeId, "Deadlift"))
+        var sessions = Enumerable.Range(0, 20)
+            .Select(_ => BuildSession(traineeId, "Deadlift"))
             .ToList();
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = workouts });
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout> { Data = sessions });
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
@@ -142,18 +143,18 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetWorkoutsForExercise_WithBeforeDate_QueriesCompletedOnlyWithToDate()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout>());
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout>());
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
         await sut.GetWorkoutsForExerciseAsync("Bench Press", 5, "2026-04-05", null, CancellationToken.None);
 
         repository.Verify(x => x.Get(
-            It.Is<PlannedWorkoutCursor>(c =>
+            It.Is<CompletedWorkoutCursor>(c =>
                 c.ToDate == new DateOnly(2026, 4, 5) &&
                 c.FromDate == null &&
                 c.CompletedOnly == true &&
@@ -165,18 +166,18 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetWorkoutsForExercise_WithAfterDate_QueriesAllWorkoutsAscending()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout>());
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout>());
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
         await sut.GetWorkoutsForExerciseAsync("Squat", 5, null, "2026-04-06", CancellationToken.None);
 
         repository.Verify(x => x.Get(
-            It.Is<PlannedWorkoutCursor>(c =>
+            It.Is<CompletedWorkoutCursor>(c =>
                 c.FromDate == new DateOnly(2026, 4, 6) &&
                 c.ToDate == null &&
                 c.CompletedOnly == null &&
@@ -188,17 +189,17 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetWorkoutsForExercise_ResponseIncludesCompletedFlag()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
-        var workouts = new List<PlannedWorkout>
+        var sessions = new List<CompletedWorkout>
         {
-            BuildWorkout(traineeId, "Squat", completed: true),
-            BuildWorkout(traineeId, "Squat", completed: false),
+            BuildSession(traineeId, "Squat", completed: true),
+            BuildSession(traineeId, "Squat", completed: false),
         };
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = workouts });
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout> { Data = sessions });
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
@@ -214,33 +215,34 @@ public class WorkoutAnalysisToolDispatcherTests
     public async Task GetRecentCompletedWorkouts_RespectsCountCap()
     {
         var traineeId = Guid.NewGuid();
-        var repository = new Mock<IPlannedWorkoutRepository>();
+        var repository = new Mock<ICompletedWorkoutRepository>();
 
         repository
-            .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Paginated<PlannedWorkout>());
+            .Setup(x => x.Get(It.IsAny<CompletedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<CompletedWorkout>());
 
         var sut = new WorkoutAnalysisToolDispatcher(repository.Object, traineeId);
 
         await sut.GetRecentCompletedWorkoutsAsync("2026-04-05", 99, CancellationToken.None);
 
         repository.Verify(x => x.Get(
-            It.Is<PlannedWorkoutCursor>(c => c.Size == 10),
+            It.Is<CompletedWorkoutCursor>(c => c.Size == 10),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private static PlannedWorkout BuildWorkout(Guid traineeId, string exerciseName, bool completed = true)
+    private static CompletedWorkout BuildSession(Guid traineeId, string exerciseName, bool completed = true)
     {
-        return new PlannedWorkout
+        return new CompletedWorkout
         {
             Id = Guid.NewGuid(),
+            PlannedWorkoutId = Guid.NewGuid(),
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 3, 1),
-            CreatedAt = DateTimeOffset.UtcNow,
             CompletedAt = completed ? DateTimeOffset.UtcNow : null,
+            CreatedAt = DateTimeOffset.UtcNow,
             Exercises =
             [
-                new PlannedExercise
+                new CompletedExercise
                 {
                     Id = Guid.NewGuid(),
                     Name = exerciseName,

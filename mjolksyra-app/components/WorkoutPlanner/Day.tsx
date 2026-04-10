@@ -49,7 +49,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
     () => date.startOf("day").isBefore(dayjs().startOf("day")),
     [date],
   );
-  const isCompleted = !!plannedWorkout?.completedAt;
+  const isCompleted = false;
   const isPast = isPastDay || isCompleted;
   const isLocked = isPast;
   const canPlan = !isPast;
@@ -89,7 +89,9 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
     return dayjs().format(DATE_FORMAT) === date?.format(DATE_FORMAT);
   }, [date]);
   const exercises = useMemo<Exercise[]>(() => {
-    const data = plannedWorkout?.exercises ?? [];
+    const data = plannedWorkout
+      ? (plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises)
+      : [];
 
     if (!cloning) {
       return data;
@@ -112,7 +114,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
       ...cloning.exercise,
       isGhost: true,
     });
-  }, [cloning, date, plannedWorkout?.exercises]);
+  }, [cloning, date, plannedWorkout?.draftExercises, plannedWorkout?.publishedExercises]);
 
   const isOverContainer = useMemo(
     () =>
@@ -134,9 +136,10 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
       };
 
       if (plannedWorkout) {
+        const currentDraft = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
         const updatedWorkout: PlannedWorkout = {
           ...plannedWorkout,
-          exercises: [...plannedWorkout.exercises, newExercise],
+          draftExercises: [...currentDraft, newExercise],
         };
 
         await actions.update({ plannedWorkout: updatedWorkout });
@@ -155,11 +158,9 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
         traineeId: workouts.traineeId,
         name: null,
         note: null,
-        media: [],
         plannedAt: date.format(PLANNED_AT),
-        completedAt: null,
-        reviewedAt: null,
-        exercises: [newExercise],
+        publishedExercises: [],
+        draftExercises: [newExercise],
         createdAt: null,
         appliedBlock: null,
       };
@@ -230,7 +231,7 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
             {exercises.length ? (
               <SortableContext
                 strategy={verticalListSortingStrategy}
-                items={plannedWorkout?.exercises.map((x) => x.id) ?? []}
+                items={(plannedWorkout ? (plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises) : []).map((x) => x.id)}
               >
                 {exercises.map((x, index) => (
                   <DayExercise

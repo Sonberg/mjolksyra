@@ -6,14 +6,15 @@ import { inferPrescriptionFromType, ExerciseType } from "@/lib/exercisePrescript
 
 export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
   const workoutExists = (): TransformResult => {
+    const targetDraft = action.targetWorkout!.draftExercises ?? action.targetWorkout!.publishedExercises;
     return {
       create: [],
       delete: [],
       update: [
         {
           ...action.targetWorkout!,
-          exercises: [
-            ...action.targetWorkout!.exercises,
+          draftExercises: [
+            ...targetDraft,
             {
               id: v4(),
               exerciseId: action.exercise.id,
@@ -43,8 +44,8 @@ export function addFromLibrary(traineeId: string, action: AddExerciseAction) {
           createdAt: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
           appliedBlock: null,
-          media: [],
-          exercises: [
+          publishedExercises: [],
+          draftExercises: [
             {
               id: v4(),
               exerciseId: action.exercise.id,

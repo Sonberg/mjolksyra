@@ -19,7 +19,7 @@ public static class AIPlannerProposalFingerprint
                     PlannedAt = w.PlannedAt.ToString("yyyy-MM-dd"),
                     w.Name,
                     w.Note,
-                    Exercises = w.Exercises
+                    Exercises = w.PublishedExercises
                         .OrderBy(e => e.Id)
                         .Select(e => new
                         {

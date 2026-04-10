@@ -48,7 +48,7 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = []
+                PublishedExercises = []
             });
 
         PlannedWorkoutChatMessage? saved = null;
@@ -120,7 +120,7 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = []
+                PublishedExercises = []
             });
 
         var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
@@ -177,7 +177,7 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = []
+                PublishedExercises = []
             });
 
         PlannedWorkoutChatMessage? saved = null;

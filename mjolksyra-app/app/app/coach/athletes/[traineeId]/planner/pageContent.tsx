@@ -77,12 +77,14 @@ function PlannerChangesPanel({
     setIsSaving(true);
     try {
       for (const workout of draftWorkouts) {
+        const currentDraft = workout.draftExercises ?? workout.publishedExercises;
         const publishedWorkout: PlannedWorkout = {
           ...workout,
-          exercises: workout.exercises.map((exercise) => ({
+          publishedExercises: currentDraft.map((exercise) => ({
             ...exercise,
             isPublished: true,
           })),
+          draftExercises: null,
         };
 
         await update({ plannedWorkout: publishedWorkout });
@@ -108,7 +110,7 @@ function PlannerChangesPanel({
     setIsSaving(true);
     try {
       for (const workout of draftWorkouts) {
-        const publishedOnly = workout.exercises.filter(
+        const publishedOnly = workout.publishedExercises.filter(
           (exercise) => exercise.isPublished,
         );
 
@@ -126,7 +128,8 @@ function PlannerChangesPanel({
 
         const revertedWorkout: PlannedWorkout = {
           ...workout,
-          exercises: publishedOnly,
+          publishedExercises: publishedOnly,
+          draftExercises: null,
         };
 
         await update({ plannedWorkout: revertedWorkout });
@@ -186,7 +189,7 @@ function PlannerChangesPanel({
             </div>
           ) : (
             draftWorkouts.map((workout) => {
-              const draftExercises = workout.exercises.filter(
+              const draftExercises = (workout.draftExercises ?? workout.publishedExercises).filter(
                 (exercise) => !exercise.isPublished,
               );
               return (

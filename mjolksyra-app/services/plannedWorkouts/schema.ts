@@ -55,19 +55,8 @@ export const workoutSchema = z.object({
   name: z.string().nullable(),
   note: z.string().nullable(),
   plannedAt: z.string(),
-  completedAt: z.coerce.date().nullable().optional(),
-  reviewedAt: z.coerce.date().nullable().optional(),
-  media: z
-    .array(
-      z.object({
-        rawUrl: z.string(),
-        compressedUrl: z.string().nullable().optional(),
-        type: z.enum(["Image", "Video"]),
-      }),
-    )
-    .optional()
-    .default([]),
-  exercises: z.array(exerciseSchema),
+  publishedExercises: z.array(exerciseSchema),
+  draftExercises: z.array(exerciseSchema).nullable().optional().default(null),
   createdAt: z.coerce.date().nullable(),
   appliedBlock: z
     .object({

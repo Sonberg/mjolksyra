@@ -27,6 +27,7 @@ import { ExerciseType } from "@/lib/exercisePrescription";
 
 type Props = {
   workout: PlannedWorkout;
+  session?: import("@/services/completedWorkouts/type").CompletedWorkout | null;
   viewerMode?: "athlete" | "coach";
   traineeId: string;
   backTab?: "past" | "future" | "changes";
@@ -34,11 +35,13 @@ type Props = {
 
 export function WorkoutDetail({
   workout,
+  session = null,
   viewerMode = "athlete",
   traineeId,
   backTab,
 }: Props) {
   const {
+    startSession,
     saveCompletion,
     saveReview,
     toggleExerciseDone,
@@ -48,7 +51,7 @@ export function WorkoutDetail({
     removeExercise,
     addSetRow,
     removeSetRow,
-  } = useWorkout({ workout });
+  } = useWorkout({ workout, session });
 
   const [chatOpen, setChatOpen] = useState(false);
   const [addExerciseOpen, setAddExerciseOpen] = useState(false);
@@ -72,8 +75,9 @@ export function WorkoutDetail({
     }
   }, [date]);
 
-  const isCompleted = !!workout.completedAt;
-  const isReviewed = !!workout.reviewedAt;
+  const isCompleted = !!session?.completedAt;
+  const isReviewed = !!session?.reviewedAt;
+  const exercises = session?.exercises ?? workout.publishedExercises;
 
   const chatPanel = (
     <WorkoutChatPanel
@@ -97,14 +101,14 @@ export function WorkoutDetail({
               {displayName}
             </p>
             <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-              {workout.completedAt ? (
+              {session?.completedAt ? (
                 <span className="text-[11px] text-[var(--shell-muted)]">
-                  Completed {new Date(workout.completedAt).toLocaleString()}
+                  Completed {new Date(session.completedAt).toLocaleString()}
                 </span>
               ) : null}
-              {viewerMode === "coach" && workout.reviewedAt ? (
+              {viewerMode === "coach" && session?.reviewedAt ? (
                 <span className="text-[11px] text-[var(--shell-muted)]">
-                  Reviewed {new Date(workout.reviewedAt).toLocaleString()}
+                  Reviewed {new Date(session.reviewedAt).toLocaleString()}
                 </span>
               ) : null}
             </div>
@@ -219,7 +223,7 @@ export function WorkoutDetail({
             </Accordion>
           ) : null}
           <div className="space-y-2">
-            {workout.exercises.length === 0 && viewerMode === "athlete" ? (
+            {exercises.length === 0 && viewerMode === "athlete" ? (
               <div className="border border-dashed border-[var(--shell-border)] px-6 py-8 text-center">
                 <p className="text-sm font-semibold text-[var(--shell-ink)]">No exercises yet</p>
                 <p className="mt-1 text-xs text-[var(--shell-muted)]">
@@ -235,7 +239,7 @@ export function WorkoutDetail({
                 </button>
               </div>
             ) : null}
-            {workout.exercises.map((exercise, index) => (
+            {exercises.map((exercise, index) => (
               <WorkoutExerciseCard
                 key={exercise.id}
                 exercise={exercise}

@@ -7,7 +7,8 @@ import { insertAt } from "@/lib/insertAt";
 export function moveExercise(traineeId: string, action: MoveExerciseAction) {
   const sourceWorkout = action.sourceWorkout;
   const targetWorkout = action.targetWorkout;
-  const existingExercise = sourceWorkout!.exercises.find(
+  const sourceDraft = sourceWorkout!.draftExercises ?? sourceWorkout!.publishedExercises;
+  const existingExercise = sourceDraft.find(
     (x) => x.id === action.plannedExercise.id,
   )!;
 
@@ -20,16 +21,17 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
     ? sourceWorkout
     : {
         ...sourceWorkout,
-        exercises: sourceWorkout.exercises.filter(
+        draftExercises: sourceDraft.filter(
           (x) => x.id !== existingExercise.id,
         ),
       };
 
   const targetExists = (): TransformResult => {
+    const targetDraft = targetWorkout!.draftExercises ?? targetWorkout!.publishedExercises;
     const updatedTargetWorkout = {
       ...targetWorkout!,
-      exercises: insertAt(
-        targetWorkout!.exercises.filter((x) => x.id !== existingExercise.id),
+      draftExercises: insertAt(
+        targetDraft.filter((x) => x.id !== existingExercise.id),
         action.index,
         exercise,
       ),
@@ -59,9 +61,9 @@ export function moveExercise(traineeId: string, action: MoveExerciseAction) {
           name: null,
           note: null,
           plannedAt: action.targetDate.format(PLANNED_AT),
-          exercises: [exercise],
+          publishedExercises: [],
+          draftExercises: [exercise],
           appliedBlock: null,
-          media: [],
           createdAt: null,
         },
       ],

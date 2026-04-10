@@ -26,7 +26,7 @@ public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 2),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = [],
+                PublishedExercises = [],
             });
 
         var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
@@ -100,7 +100,7 @@ public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 2),
                 CreatedAt = DateTimeOffset.UtcNow,
-                Exercises = [],
+                PublishedExercises = [],
             });
 
         var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();

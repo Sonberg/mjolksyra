@@ -6,12 +6,14 @@ using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using OneOf;
+using CompletedExercise = Mjolksyra.Domain.Database.Models.CompletedExercise;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 
 public class AnalyzeWorkoutMediaCommandHandler(
     IMediator mediator,
     IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     IPlannedWorkoutChatMessageRepository plannedWorkoutChatMessageRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext,
@@ -59,9 +61,13 @@ public class AnalyzeWorkoutMediaCommandHandler(
             request.PlannedWorkoutId,
             cancellationToken);
 
+        // Load session exercises (which carry actual logged data) for AI context
+        var session = await completedWorkoutRepository.GetByPlannedWorkoutId(request.PlannedWorkoutId, cancellationToken);
+        var sessionExercises = session?.Exercises ?? (ICollection<CompletedExercise>)[];
+
         var analysisText = request.Analysis.Text.Trim();
 
-        var loggedRepEvidence = BuildLoggedRepEvidence(workout.Exercises);
+        var loggedRepEvidence = BuildLoggedRepEvidence(sessionExercises);
         if (!string.IsNullOrWhiteSpace(loggedRepEvidence))
         {
             analysisText =
@@ -92,7 +98,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
             .ToList();
 
         var dispatcher = new LoggingWorkoutAnalysisToolDispatcher(
-            new WorkoutAnalysisToolDispatcher(plannedWorkoutRepository, request.TraineeId));
+            new WorkoutAnalysisToolDispatcher(completedWorkoutRepository, request.TraineeId));
 
         var analysis = await workoutMediaAnalysisAgent.AnalyzeAsync(new WorkoutMediaAnalysisInput
         {
@@ -100,7 +106,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
             ImageUrls = imageUrls,
             VideoUrls = videoUrls,
             ToolDispatcher = dispatcher,
-            Exercises = workout.Exercises
+            Exercises = sessionExercises
                 .Select(exercise => new WorkoutExerciseAnalysisInput
                 {
                     Name = exercise.Name,
@@ -145,7 +151,7 @@ public class AnalyzeWorkoutMediaCommandHandler(
         return WorkoutMediaAnalysisResponse.From(analysis, createdAt);
     }
 
-    private static string BuildLoggedRepEvidence(ICollection<PlannedExercise> exercises)
+    private static string BuildLoggedRepEvidence(ICollection<CompletedExercise> exercises)
     {
         var lines = exercises
             .Select(exercise =>
