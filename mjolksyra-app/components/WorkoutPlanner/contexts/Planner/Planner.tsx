@@ -19,6 +19,7 @@ import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWo
 import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { ApplyBlock } from "@/services/blocks/applyBlock";
+import { updateDraftExercises } from "@/services/plannedWorkouts/updateDraftExercises";
 import { useWorkouts } from "../Workouts";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { DraggingExercise } from "@/components/DraggingExercise";
@@ -68,15 +69,10 @@ export function PlannerProvider({
       if (cloning) {
         if (cloning.targetWorkout) {
           const targetDraft = cloning.targetWorkout.draftExercises ?? cloning.targetWorkout.publishedExercises;
-          await plannedWorkouts.update({
-            plannedWorkout: {
-              ...cloning.targetWorkout,
-              draftExercises: insertAt(
-                targetDraft,
-                cloning.index,
-                cloning.exercise
-              ),
-            },
+          await updateDraftExercises({
+            traineeId: cloning.targetWorkout.traineeId,
+            plannedWorkoutId: cloning.targetWorkout.id,
+            exercises: insertAt(targetDraft, cloning.index, cloning.exercise),
           });
         } else {
           await plannedWorkouts.create({
@@ -142,11 +138,17 @@ export function PlannerProvider({
       );
 
       await Promise.all(
-        result.update.map((plannedWorkout) =>
-          workoutEmpty(plannedWorkout)
-            ? plannedWorkouts.delete({ plannedWorkout })
-            : plannedWorkouts.update({ plannedWorkout })
-        )
+        result.update.map((plannedWorkout) => {
+          if (workoutEmpty(plannedWorkout)) {
+            return plannedWorkouts.delete({ plannedWorkout });
+          }
+          const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+          return updateDraftExercises({
+            traineeId: plannedWorkout.traineeId,
+            plannedWorkoutId: plannedWorkout.id,
+            exercises,
+          });
+        })
       );
 
       await Promise.all(

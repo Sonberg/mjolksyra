@@ -71,10 +71,7 @@ export function WorkoutEditorExercise({
       ...plannedWorkout,
       draftExercises: draftExercises.map((x) =>
         x.id == plannedExercise.id
-          ? {
-              ...x,
-              note: value,
-            }
+          ? { ...x, note: value, isPublished: false }
           : x,
       ),
     };
@@ -95,10 +92,7 @@ export function WorkoutEditorExercise({
       ...plannedWorkout,
       draftExercises: draftExercises.map((x) =>
         x.id == plannedExercise.id
-          ? {
-              ...x,
-              prescription,
-            }
+          ? { ...x, prescription, isPublished: false }
           : x,
       ),
     };

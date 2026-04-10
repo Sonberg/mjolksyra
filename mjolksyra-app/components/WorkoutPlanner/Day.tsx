@@ -23,6 +23,7 @@ import { monthId } from "@/lib/monthId";
 import { ExerciseQuickSearchOverlay } from "../ExerciseLibrary/ExerciseQuickSearchOverlay";
 import type { Exercise as LibraryExercise } from "@/services/exercises/type";
 import { inferPrescriptionFromType, ExerciseType } from "@/lib/exercisePrescription";
+import { updateDraftExercises } from "@/services/plannedWorkouts/updateDraftExercises";
 import { v4 } from "uuid";
 import { DayHeader } from "./DayHeader";
 import type { SearchExercises } from "@/services/exercises/searchExercises";
@@ -137,17 +138,17 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
 
       if (plannedWorkout) {
         const currentDraft = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
-        const updatedWorkout: PlannedWorkout = {
-          ...plannedWorkout,
-          draftExercises: [...currentDraft, newExercise],
-        };
-
-        await actions.update({ plannedWorkout: updatedWorkout });
+        const exercises = [...currentDraft, newExercise];
+        const updated = await updateDraftExercises({
+          traineeId: plannedWorkout.traineeId,
+          plannedWorkoutId: plannedWorkout.id,
+          exercises,
+        });
         workouts.dispatch({
           type: "SET_WORKOUT",
           payload: {
             monthId: monthId(plannedWorkout.plannedAt),
-            plannedWorkout: updatedWorkout,
+            plannedWorkout: updated,
           },
         });
         return;
@@ -165,12 +166,17 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
         appliedBlock: null,
       };
 
-      await actions.create({ plannedWorkout: newWorkout });
+      const created = await actions.create({ plannedWorkout: newWorkout });
+      const withExercises = await updateDraftExercises({
+        traineeId: created.traineeId,
+        plannedWorkoutId: created.id,
+        exercises: [newExercise],
+      });
       workouts.dispatch({
         type: "SET_MONTH",
         payload: {
           monthId: monthId(date),
-          workouts: [...(workouts.data[monthId(date)] ?? []), newWorkout],
+          workouts: [...(workouts.data[monthId(date)] ?? []), withExercises],
         },
       });
     },

@@ -27,6 +27,12 @@ export function workoutChanged(
     return true;
   }
 
+  const exerciseIdOrder = exercises.map((x) => x.id).join(",");
+  const oldExerciseIdOrder = oldExercises.map((x) => x.id).join(",");
+  if (exerciseIdOrder !== oldExerciseIdOrder) {
+    return true;
+  }
+
   for (const exercise of exercises) {
     const oldExercise = oldExercises.find((x) => x.id == exercise.id);
 

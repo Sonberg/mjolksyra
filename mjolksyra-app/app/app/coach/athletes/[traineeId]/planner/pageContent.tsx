@@ -23,7 +23,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
 import { AIPlannerPanel } from "@/components/AIPlannerPanel";
-import { ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatPrescription, ExercisePrescription } from "@/lib/exercisePrescription";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -57,6 +59,46 @@ function PlannerChangesTabLabel({
   );
 }
 
+type ExerciseDiffEntry = {
+  id: string;
+  name: string;
+  status: "added" | "removed" | "modified";
+  prescription: ExercisePrescription | null;
+};
+
+function buildDiff(workout: PlannedWorkout): ExerciseDiffEntry[] {
+  const draft = workout.draftExercises ?? workout.publishedExercises;
+  const published = workout.publishedExercises;
+
+  const publishedById = new Map(published.map((e) => [e.id, e]));
+  const draftById = new Map(draft.map((e) => [e.id, e]));
+
+  const entries: ExerciseDiffEntry[] = [];
+
+  for (const [id, draftEx] of draftById) {
+    const pub = publishedById.get(id);
+    if (!pub) {
+      entries.push({ id, name: draftEx.name, status: "added", prescription: draftEx.prescription });
+    } else {
+      const changed =
+        pub.name !== draftEx.name ||
+        pub.note !== draftEx.note ||
+        JSON.stringify(pub.prescription) !== JSON.stringify(draftEx.prescription);
+      if (changed) {
+        entries.push({ id, name: draftEx.name, status: "modified", prescription: draftEx.prescription });
+      }
+    }
+  }
+
+  for (const [id, pubEx] of publishedById) {
+    if (!draftById.has(id)) {
+      entries.push({ id, name: pubEx.name, status: "removed", prescription: pubEx.prescription });
+    }
+  }
+
+  return entries;
+}
+
 type PlannerChangesPanelProps = {
   draftWorkouts: PlannedWorkout[];
   onDraftsChanged: () => Promise<unknown>;
@@ -69,6 +111,7 @@ function PlannerChangesPanel({
   const { dispatch } = useWorkouts();
   const { update, delete: deleteWorkout } = usePlannedWorkoutActions();
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
 
   async function onPublishAll() {
     if (isSaving) {
@@ -191,17 +234,77 @@ function PlannerChangesPanel({
                   key={workout.id}
                   className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3"
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-2 text-left"
+                    onClick={() =>
+                      setExpandedWorkoutId(
+                        expandedWorkoutId === workout.id ? null : workout.id,
+                      )
+                    }
+                  >
                     <p className="text-sm font-semibold text-[var(--shell-ink)]">
                       {dayjs(workout.plannedAt).format("ddd, D MMM YYYY")}
                     </p>
-                    <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
-                      {draftExercises.length} draft
-                    </span>
-                  </div>
-                  <p className="mt-2 truncate text-xs text-[var(--shell-muted)]">
-                    {draftExercises.map((exercise) => exercise.name).join(", ")}
-                  </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+                        {draftExercises.length} draft
+                      </span>
+                      <ChevronDownIcon
+                        className={cn(
+                          "h-3.5 w-3.5 text-[var(--shell-muted)] transition-transform",
+                          expandedWorkoutId === workout.id && "rotate-180",
+                        )}
+                      />
+                    </div>
+                  </button>
+                  {expandedWorkoutId !== workout.id && (
+                    <p className="mt-2 truncate text-xs text-[var(--shell-muted)]">
+                      {draftExercises.map((exercise) => exercise.name).join(", ")}
+                    </p>
+                  )}
+                  {expandedWorkoutId === workout.id && (
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {buildDiff(workout).map((entry) => (
+                        <div key={entry.id} className="flex items-start gap-2">
+                          <span
+                            className={cn(
+                              "mt-0.5 shrink-0 rounded-none px-1 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]",
+                              entry.status === "added" &&
+                                "bg-emerald-900/40 text-emerald-400",
+                              entry.status === "removed" &&
+                                "bg-red-900/40 text-red-400",
+                              entry.status === "modified" &&
+                                "bg-amber-900/40 text-amber-400",
+                            )}
+                          >
+                            {entry.status === "added"
+                              ? "new"
+                              : entry.status === "removed"
+                                ? "del"
+                                : "mod"}
+                          </span>
+                          <div className="min-w-0">
+                            <p
+                              className={cn(
+                                "text-xs font-medium text-[var(--shell-ink)]",
+                                entry.status === "removed" &&
+                                  "line-through opacity-50",
+                              )}
+                            >
+                              {entry.name}
+                            </p>
+                            {entry.prescription &&
+                              formatPrescription(entry.prescription) && (
+                                <p className="text-[10px] text-[var(--shell-muted)]">
+                                  {formatPrescription(entry.prescription)}
+                                </p>
+                              )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })

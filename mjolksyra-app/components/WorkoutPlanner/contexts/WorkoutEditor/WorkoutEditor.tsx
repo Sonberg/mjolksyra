@@ -5,6 +5,7 @@ import { WorkoutEditorExercise } from "./WorkoutEditorExercise";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePlannedWorkoutActions } from "../PlannedWorkoutActions";
+import { updateDraftExercises } from "@/services/plannedWorkouts/updateDraftExercises";
 import dayjs from "dayjs";
 import { RotateCcwIcon, UploadIcon } from "lucide-react";
 import { monthId } from "@/lib/monthId";
@@ -24,8 +25,20 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       .find((x) => x.id == plannedWorkoutId);
   }, [data, plannedWorkoutId]);
 
-  const updateDebounce = useDebounce(async (plannedWorkout: PlannedWorkout) => {
-    await update({ plannedWorkout });
+  const updateDraftExercisesDebounce = useDebounce(async (plannedWorkout: PlannedWorkout) => {
+    const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+    const updated = await updateDraftExercises({
+      traineeId: plannedWorkout.traineeId,
+      plannedWorkoutId: plannedWorkout.id,
+      exercises,
+    });
+    dispatch({
+      type: "SET_WORKOUT",
+      payload: {
+        monthId: monthId(plannedWorkout.plannedAt),
+        plannedWorkout: updated,
+      },
+    });
   }, 600);
   const isPastDay = dayjs(plannedWorkout?.plannedAt)
     .startOf("day")
@@ -151,7 +164,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
               key={x.id}
               plannedExercise={x}
               plannedWorkout={plannedWorkout}
-              update={updateDebounce}
+              update={updateDraftExercisesDebounce}
             />
           ))}
         </div>
