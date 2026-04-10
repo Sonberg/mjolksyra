@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateWorkoutSession } from "@/services/completedWorkouts/updateWorkoutSession";
+import { restoreWorkoutSession } from "@/services/completedWorkouts/restoreWorkoutSession";
 import { CompletedExercise, CompletedWorkout } from "@/services/completedWorkouts/type";
 import { ExerciseType } from "@/lib/exercisePrescription";
 
@@ -274,6 +275,15 @@ export function useWorkout({ workout }: UseWorkoutProps) {
     onSuccess: invalidate,
   });
 
+  const restore = useMutation({
+    mutationFn: () =>
+      restoreWorkoutSession({
+        traineeId: workout.traineeId,
+        workoutId: workout.id,
+      }),
+    onSuccess: invalidate,
+  });
+
   return {
     saveCompletion,
     toggleExerciseDone,
@@ -283,5 +293,6 @@ export function useWorkout({ workout }: UseWorkoutProps) {
     removeExercise,
     addSetRow,
     removeSetRow,
+    restore,
   };
 }

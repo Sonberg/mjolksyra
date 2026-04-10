@@ -1,5 +1,6 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
@@ -29,17 +30,55 @@ public class PublishDraftExercisesCommandHandler(
             return null;
         }
 
-        if (workout.DraftExercises is null)
+        if (request.Exercises != null)
+        {
+            workout.DraftExercises = request.Exercises
+                .Select(x => new PlannedExercise
+                {
+                    Id = x.Id == Guid.Empty ? Guid.NewGuid() : x.Id,
+                    ExerciseId = x.ExerciseId,
+                    Name = x.Name,
+                    Note = x.Note,
+                    IsPublished = false,
+                    AddedBy = ExerciseAddedBy.Coach,
+                    Prescription = x.Prescription is null
+                        ? null
+                        : new ExercisePrescription
+                        {
+                            Type = x.Prescription.Type,
+                            Sets = x.Prescription.Sets
+                                ?.Select(s => new ExercisePrescriptionSet
+                                {
+                                    Target = s.Target is null ? null : new ExercisePrescriptionSetTarget
+                                    {
+                                        Reps = s.Target.Reps,
+                                        DurationSeconds = s.Target.DurationSeconds,
+                                        DistanceMeters = s.Target.DistanceMeters,
+                                        WeightKg = x.Prescription.Type == ExerciseType.SetsReps
+                                            ? s.Target.WeightKg
+                                            : null,
+                                        Note = s.Target.Note,
+                                    },
+                                    Actual = null,
+                                })
+                                .ToList()
+                        }
+                })
+                .ToList();
+        }
+
+        var draftExercises = workout.DraftExercises;
+        if (draftExercises is null)
         {
             return PlannedWorkoutResponse.From(workout, []);
         }
 
-        foreach (var exercise in workout.DraftExercises)
+        foreach (var exercise in draftExercises)
         {
             exercise.IsPublished = true;
         }
 
-        workout.PublishedExercises = workout.DraftExercises;
+        workout.PublishedExercises = draftExercises;
         workout.DraftExercises = null;
 
         await plannedWorkoutRepository.Update(workout, cancellationToken);

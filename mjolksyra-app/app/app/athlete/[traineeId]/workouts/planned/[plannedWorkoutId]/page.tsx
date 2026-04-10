@@ -1,10 +1,9 @@
 import { getAuth } from "@/context/Auth";
 import { getUserMe } from "@/services/users/getUserMe";
-import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeftIcon } from "lucide-react";
-import { PlannedWorkoutDetail } from "@/components/WorkoutViewer/PlannedWorkoutDetail";
+import { PlannedWorkoutLoader } from "@/components/WorkoutViewer/PlannedWorkoutLoader";
 
 type Props = {
   params: Promise<{ traineeId: string; plannedWorkoutId: string }>;
@@ -30,15 +29,6 @@ export default async function Page({ params, searchParams }: Props) {
         ? query.workoutTab
         : "planned";
 
-  const workout = await getPlannedWorkoutById({
-    traineeId: routeParams.traineeId,
-    plannedWorkoutId: routeParams.plannedWorkoutId,
-  }).catch(() => null);
-
-  if (!workout) {
-    notFound();
-  }
-
   return (
     <div className="flex h-[calc(100dvh-7.5rem)] min-h-[600px] w-full flex-col overflow-hidden">
       <div className="flex items-center gap-3 border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
@@ -55,7 +45,11 @@ export default async function Page({ params, searchParams }: Props) {
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
-        <PlannedWorkoutDetail workout={workout} viewerMode="athlete" />
+        <PlannedWorkoutLoader
+          traineeId={routeParams.traineeId}
+          plannedWorkoutId={routeParams.plannedWorkoutId}
+          viewerMode="athlete"
+        />
       </div>
     </div>
   );

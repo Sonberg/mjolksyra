@@ -6,6 +6,7 @@ import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePlannedWorkoutActions } from "../PlannedWorkoutActions";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { publishDraftExercises } from "@/services/plannedWorkouts/publishDraftExercises";
 import dayjs from "dayjs";
 import { RotateCcwIcon, UploadIcon } from "lucide-react";
 import { monthId } from "@/lib/monthId";
@@ -51,21 +52,17 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       return;
     }
 
-    const publishedWorkout = {
-      ...plannedWorkout,
-      publishedExercises: currentDraftExercises.map((exercise) => ({
-        ...exercise,
-        isPublished: true,
-      })),
-      draftExercises: null,
-    };
+    const published = await publishDraftExercises({
+      traineeId: plannedWorkout.traineeId,
+      plannedWorkoutId: plannedWorkout.id,
+      exercises: currentDraftExercises,
+    });
 
-    await update({ plannedWorkout: publishedWorkout });
     dispatch({
       type: "SET_WORKOUT",
       payload: {
         monthId: monthId(plannedWorkout.plannedAt),
-        plannedWorkout: publishedWorkout,
+        plannedWorkout: published,
       },
     });
   }

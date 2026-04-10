@@ -1,10 +1,8 @@
 import { getAuth } from "@/context/Auth";
-import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
-import { notFound } from "next/navigation";
 import { CoachWorkspaceShell } from "../../../../../CoachWorkspaceShell";
 import Link from "next/link";
 import { ChevronLeftIcon } from "lucide-react";
-import { PlannedWorkoutDetail } from "@/components/WorkoutViewer/PlannedWorkoutDetail";
+import { PlannedWorkoutLoader } from "@/components/WorkoutViewer/PlannedWorkoutLoader";
 import { schema as traineeSchema } from "@/services/trainees/schema";
 
 type Props = {
@@ -18,20 +16,10 @@ export default async function Page({ params, searchParams }: Props) {
   const query = (await searchParams) ?? {};
   const backTab = query.tab === "planned" || query.tab === "completed" ? query.tab : "planned";
 
-  const [workout, traineeRes] = await Promise.all([
-    getPlannedWorkoutById({
-      traineeId: routeParams.traineeId,
-      plannedWorkoutId: routeParams.plannedWorkoutId,
-    }).catch(() => null),
-    fetch(`${process.env.API_URL}/api/trainees/${routeParams.traineeId}`, {
-      headers: { Authorization: `Bearer ${auth!.accessToken}` },
-      cache: "no-store",
-    }),
-  ]);
-
-  if (!workout) {
-    notFound();
-  }
+  const traineeRes = await fetch(`${process.env.API_URL}/api/trainees/${routeParams.traineeId}`, {
+    headers: { Authorization: `Bearer ${auth!.accessToken}` },
+    cache: "no-store",
+  });
 
   const traineeJson = traineeRes.ok ? await traineeRes.json() : null;
   const traineeParsed = traineeJson ? await traineeSchema.safeParseAsync(traineeJson) : null;
@@ -60,7 +48,11 @@ export default async function Page({ params, searchParams }: Props) {
           </div>
         </div>
         <div className="flex-1 min-h-0 overflow-hidden">
-          <PlannedWorkoutDetail workout={workout} viewerMode="coach" />
+          <PlannedWorkoutLoader
+            traineeId={routeParams.traineeId}
+            plannedWorkoutId={routeParams.plannedWorkoutId}
+            viewerMode="coach"
+          />
         </div>
       </div>
     </CoachWorkspaceShell>

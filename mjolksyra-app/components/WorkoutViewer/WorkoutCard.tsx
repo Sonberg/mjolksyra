@@ -4,6 +4,9 @@ import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { startWorkoutSession } from "@/services/completedWorkouts/startWorkoutSession";
 import { StatusBadge } from "./StatusBadge";
 
 type Props = {
@@ -21,6 +24,18 @@ export function WorkoutCard({
   traineeId,
   backTab,
 }: Props) {
+  const router = useRouter();
+
+  const startSessionMutation = useMutation({
+    mutationFn: () =>
+      startWorkoutSession({
+        traineeId: traineeId!,
+        plannedWorkoutId: workout.id,
+      }),
+    onSuccess: (created) => {
+      router.push(`/app/athlete/${traineeId}/workouts/${created.id}?tab=completed`);
+    },
+  });
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
 
@@ -66,14 +81,10 @@ export function WorkoutCard({
     0,
   );
 
-  const detailHref = traineeId
-    ? viewerMode === "coach"
-      ? backTab
-        ? `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}?tab=${backTab}`
-        : `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}`
-      : backTab
-      ? `/app/athlete/${traineeId}/workouts/planned/${workout.id}?tab=${backTab}`
-      : `/app/athlete/${traineeId}/workouts/planned/${workout.id}`
+  const coachDetailHref = traineeId
+    ? backTab
+      ? `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}?tab=${backTab}`
+      : `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}`
     : null;
 
   useEffect(() => {
@@ -106,13 +117,22 @@ export function WorkoutCard({
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {detailHref ? (
+            {viewerMode === "coach" && coachDetailHref ? (
               <Link
-                href={detailHref}
+                href={coachDetailHref}
                 className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:brightness-95"
               >
-                {viewerMode === "coach" ? "Open" : "Start session"}
+                Open
               </Link>
+            ) : viewerMode === "athlete" && traineeId ? (
+              <button
+                type="button"
+                onClick={() => startSessionMutation.mutate()}
+                disabled={startSessionMutation.isPending}
+                className="inline-flex items-center rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+              >
+                {startSessionMutation.isPending ? "Starting..." : "Start session"}
+              </button>
             ) : null}
           </div>
         </div>

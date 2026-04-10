@@ -118,12 +118,14 @@ public class PlannedWorkoutsController : Controller
     public async Task<ActionResult<PlannedWorkoutResponse>> PublishDraftExercises(
         Guid traineeId,
         Guid plannedWorkoutId,
+        [FromBody] PublishDraftExercisesRequest? request,
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new PublishDraftExercisesCommand
         {
             TraineeId = traineeId,
             PlannedWorkoutId = plannedWorkoutId,
+            Exercises = request?.Exercises,
         }, cancellationToken);
 
         var userId = await _userContext.GetUserId(cancellationToken);

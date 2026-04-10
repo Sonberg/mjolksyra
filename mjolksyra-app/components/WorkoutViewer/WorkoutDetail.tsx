@@ -33,6 +33,7 @@ export function WorkoutDetail({
     removeExercise,
     addSetRow,
     removeSetRow,
+    restore,
   } = useWorkout({ workout });
 
   const [chatOpen, setChatOpen] = useState(false);
@@ -116,6 +117,16 @@ export function WorkoutDetail({
                   <PlusIcon className="h-3.5 w-3.5" />
                   Add exercise
                 </button>
+                {workout.plannedWorkoutId ? (
+                  <button
+                    type="button"
+                    disabled={restore.isPending}
+                    onClick={() => restore.mutate()}
+                    className="inline-flex items-center border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+                  >
+                    Restore to planned
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   disabled={saveCompletion.isPending}
