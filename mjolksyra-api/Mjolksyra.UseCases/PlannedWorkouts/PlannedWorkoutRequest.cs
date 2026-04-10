@@ -7,4 +7,6 @@ public class PlannedWorkoutRequest
     public string? Note { get; set; }
 
     public DateOnly PlannedAt { get; set; }
+
+    public ICollection<PlannedExerciseRequest>? DraftExercises { get; set; }
 }

@@ -172,7 +172,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
         Assert.NotNull(session.ProposedActionSet?.AppliedAt);
         Assert.Equal(2, session.GenerationResult?.ActionsApplied);
         mediator.Verify(x => x.Send(It.IsAny<CreatePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-        mediator.Verify(x => x.Send(It.IsAny<UpdatePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Verify(x => x.Send(It.IsAny<UpdatePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         sessionRepository.Verify(x => x.Update(session, It.IsAny<CancellationToken>()), Times.Once);
     }
 

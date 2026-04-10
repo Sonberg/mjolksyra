@@ -9,7 +9,6 @@ using Mjolksyra.UseCases.Coaches.ConsumeCredits;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
-using Mjolksyra.UseCases.PlannedWorkouts.UpdateDraftExercises;
 using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.ApplyAIPlannerProposal;
@@ -115,17 +114,17 @@ public class ApplyAIPlannerProposalCommandHandler(
                     // Skip creates that have no workout data (LLM omitted the payload).
                     if (action.Workout is null) break;
 
-                    var (createMetadata, createExercises) = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
+                    var createRequest = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
                     var created = await mediator.Send(new CreatePlannedWorkoutCommand
                     {
                         TraineeId = request.TraineeId,
-                        Workout = createMetadata,
+                        Workout = createRequest,
                     }, cancellationToken);
-                    await mediator.Send(new UpdateDraftExercisesCommand
+                    await mediator.Send(new UpdatePlannedWorkoutCommand
                     {
                         TraineeId = request.TraineeId,
                         PlannedWorkoutId = created.Id,
-                        Exercises = createExercises,
+                        Workout = createRequest,
                     }, cancellationToken);
                     changedWorkoutIds.Add(created.Id);
                     actionsApplied++;
@@ -163,18 +162,12 @@ public class ApplyAIPlannerProposalCommandHandler(
                     // Skip if the workout changed since the proposal was staged (stale fingerprint).
                     if (!string.Equals(action.BeforeStateFingerprint, AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(targetWorkout), StringComparison.Ordinal)) break;
 
-                    var (updateMetadata, updateExercises) = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
+                    var updateRequest = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
                     var updated = await mediator.Send(new UpdatePlannedWorkoutCommand
                     {
                         TraineeId = request.TraineeId,
                         PlannedWorkoutId = action.TargetWorkoutId.Value,
-                        Workout = updateMetadata,
-                    }, cancellationToken);
-                    await mediator.Send(new UpdateDraftExercisesCommand
-                    {
-                        TraineeId = request.TraineeId,
-                        PlannedWorkoutId = action.TargetWorkoutId.Value,
-                        Exercises = updateExercises,
+                        Workout = updateRequest,
                     }, cancellationToken);
 
                     if (updated is not null)
@@ -212,7 +205,7 @@ public class ApplyAIPlannerProposalCommandHandler(
         };
     }
 
-    private async Task<(PlannedWorkoutRequest Metadata, ICollection<PlannedExerciseRequest> Exercises)> BuildWorkoutRequestAsync(
+    private async Task<PlannedWorkoutRequest> BuildWorkoutRequestAsync(
         PlannedWorkoutRequestPayload workout,
         Guid createdByUserId,
         IDictionary<string, Exercise> resolvedExercises,
@@ -259,12 +252,13 @@ public class ApplyAIPlannerProposalCommandHandler(
             };
         }))).ToList();
 
-        return (new PlannedWorkoutRequest
+        return new PlannedWorkoutRequest
         {
             Name = workout.Name,
             Note = workout.Note,
             PlannedAt = DateOnly.Parse(workout.PlannedAt),
-        }, exercises);
+            DraftExercises = exercises,
+        };
     }
 
     private async Task<Exercise> ResolveExistingExerciseAsync(

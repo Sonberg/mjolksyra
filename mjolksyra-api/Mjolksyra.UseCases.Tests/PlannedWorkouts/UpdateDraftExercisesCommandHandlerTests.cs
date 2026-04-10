@@ -4,21 +4,45 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts;
-using Mjolksyra.UseCases.PlannedWorkouts.UpdateDraftExercises;
+using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 
-public class UpdateDraftExercisesCommandHandlerTests
+public class UpdatePlannedWorkoutWithExercisesCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_WhenUserNotAuthenticated_ReturnsNull()
+    public async Task Handle_WhenUserNotAuthenticated_AndDraftExercisesProvided_ReturnsNull()
     {
+        var traineeId = Guid.NewGuid();
+        var workoutId = Guid.NewGuid();
+
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync((Guid?)null);
 
-        var sut = CreateSut(userContext: userContext);
+        var workout = new PlannedWorkout
+        {
+            Id = workoutId,
+            TraineeId = traineeId,
+            PublishedExercises = [],
+            PlannedAt = new DateOnly(2026, 5, 1),
+            CreatedAt = DateTimeOffset.UtcNow
+        };
 
-        var result = await sut.Handle(CreateCommand(), CancellationToken.None);
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository.Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>())).ReturnsAsync(workout);
+
+        var sut = CreateSut(plannedWorkoutRepository: plannedWorkoutRepository, userContext: userContext);
+
+        var result = await sut.Handle(new UpdatePlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = workoutId,
+            Workout = new PlannedWorkoutRequest
+            {
+                PlannedAt = new DateOnly(2026, 5, 1),
+                DraftExercises = []
+            }
+        }, CancellationToken.None);
 
         Assert.Null(result);
     }
@@ -28,6 +52,7 @@ public class UpdateDraftExercisesCommandHandlerTests
     {
         var userId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
+        var workoutId = Guid.NewGuid();
 
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
@@ -40,16 +65,32 @@ public class UpdateDraftExercisesCommandHandlerTests
                 Id = traineeId,
                 AthleteUserId = Guid.NewGuid(),
                 CoachUserId = Guid.NewGuid(), // different coach
-                Status = Domain.Database.Enum.TraineeStatus.Active
+                Status = TraineeStatus.Active
             });
 
-        var sut = CreateSut(traineeRepository: traineeRepository, userContext: userContext);
+        var workout = new PlannedWorkout
+        {
+            Id = workoutId,
+            TraineeId = traineeId,
+            PublishedExercises = [],
+            PlannedAt = new DateOnly(2026, 5, 1),
+            CreatedAt = DateTimeOffset.UtcNow
+        };
 
-        var result = await sut.Handle(new UpdateDraftExercisesCommand
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository.Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>())).ReturnsAsync(workout);
+
+        var sut = CreateSut(plannedWorkoutRepository: plannedWorkoutRepository, traineeRepository: traineeRepository, userContext: userContext);
+
+        var result = await sut.Handle(new UpdatePlannedWorkoutCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = Guid.NewGuid(),
-            Exercises = []
+            PlannedWorkoutId = workoutId,
+            Workout = new PlannedWorkoutRequest
+            {
+                PlannedAt = new DateOnly(2026, 5, 1),
+                DraftExercises = []
+            }
         }, CancellationToken.None);
 
         Assert.Null(result);
@@ -73,7 +114,7 @@ public class UpdateDraftExercisesCommandHandlerTests
                 Id = traineeId,
                 AthleteUserId = Guid.NewGuid(),
                 CoachUserId = userId,
-                Status = Domain.Database.Enum.TraineeStatus.Active
+                Status = TraineeStatus.Active
             });
 
         var publishedExercise = new PlannedExercise
@@ -103,28 +144,32 @@ public class UpdateDraftExercisesCommandHandlerTests
 
         var sut = CreateSut(plannedWorkoutRepository: plannedWorkoutRepository, traineeRepository: traineeRepository, userContext: userContext);
 
-        var result = await sut.Handle(new UpdateDraftExercisesCommand
+        var result = await sut.Handle(new UpdatePlannedWorkoutCommand
         {
             TraineeId = traineeId,
             PlannedWorkoutId = workoutId,
-            Exercises =
-            [
-                new PlannedExerciseRequest
-                {
-                    Name = "Draft Squat",
-                    Prescription = new PlannedExercisePrescriptionRequest
+            Workout = new PlannedWorkoutRequest
+            {
+                PlannedAt = new DateOnly(2026, 5, 1),
+                DraftExercises =
+                [
+                    new PlannedExerciseRequest
                     {
-                        Type = ExerciseType.SetsReps,
-                        Sets =
-                        [
-                            new ExercisePrescriptionSetRequest
-                            {
-                                Target = new ExercisePrescriptionSetTargetRequest { Reps = 5, WeightKg = 100 }
-                            }
-                        ]
+                        Name = "Draft Squat",
+                        Prescription = new PlannedExercisePrescriptionRequest
+                        {
+                            Type = ExerciseType.SetsReps,
+                            Sets =
+                            [
+                                new ExercisePrescriptionSetRequest
+                                {
+                                    Target = new ExercisePrescriptionSetTargetRequest { Reps = 5, WeightKg = 100 }
+                                }
+                            ]
+                        }
                     }
-                }
-            ]
+                ]
+            }
         }, CancellationToken.None);
 
         Assert.NotNull(result);
@@ -148,40 +193,71 @@ public class UpdateDraftExercisesCommandHandlerTests
     [Fact]
     public async Task Handle_WhenWorkoutNotFound_ReturnsNull()
     {
-        var userId = Guid.NewGuid();
-        var traineeId = Guid.NewGuid();
-
-        var userContext = new Mock<IUserContext>();
-        userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
-
-        var traineeRepository = new Mock<ITraineeRepository>();
-        traineeRepository
-            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Trainee
-            {
-                Id = traineeId,
-                AthleteUserId = Guid.NewGuid(),
-                CoachUserId = userId,
-                Status = Domain.Database.Enum.TraineeStatus.Active
-            });
-
         var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
         plannedWorkoutRepository.Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((PlannedWorkout?)null);
 
-        var sut = CreateSut(plannedWorkoutRepository: plannedWorkoutRepository, traineeRepository: traineeRepository, userContext: userContext);
+        var sut = CreateSut(plannedWorkoutRepository: plannedWorkoutRepository);
 
-        var result = await sut.Handle(new UpdateDraftExercisesCommand
+        var result = await sut.Handle(new UpdatePlannedWorkoutCommand
         {
-            TraineeId = traineeId,
+            TraineeId = Guid.NewGuid(),
             PlannedWorkoutId = Guid.NewGuid(),
-            Exercises = []
+            Workout = new PlannedWorkoutRequest
+            {
+                PlannedAt = new DateOnly(2026, 5, 1),
+                DraftExercises = []
+            }
         }, CancellationToken.None);
 
         Assert.Null(result);
         plannedWorkoutRepository.Verify(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private static UpdateDraftExercisesCommandHandler CreateSut(
+    [Fact]
+    public async Task Handle_WhenNoDraftExercises_SkipsAuthAndUpdatesMetadata()
+    {
+        var workoutId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+
+        var workout = new PlannedWorkout
+        {
+            Id = workoutId,
+            TraineeId = traineeId,
+            PublishedExercises = [],
+            PlannedAt = new DateOnly(2026, 5, 1),
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        PlannedWorkout? updatedWorkout = null;
+        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepository.Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>())).ReturnsAsync(workout);
+        plannedWorkoutRepository
+            .Setup(x => x.Update(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
+            .Callback<PlannedWorkout, CancellationToken>((w, _) => updatedWorkout = w);
+
+        var sut = CreateSut(plannedWorkoutRepository: plannedWorkoutRepository);
+
+        var result = await sut.Handle(new UpdatePlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = workoutId,
+            Workout = new PlannedWorkoutRequest
+            {
+                Name = "Updated Name",
+                Note = "Updated Note",
+                PlannedAt = new DateOnly(2026, 6, 1),
+                DraftExercises = null
+            }
+        }, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.NotNull(updatedWorkout);
+        Assert.Equal("Updated Name", updatedWorkout!.Name);
+        Assert.Equal("Updated Note", updatedWorkout.Note);
+        Assert.Equal(new DateOnly(2026, 6, 1), updatedWorkout.PlannedAt);
+    }
+
+    private static UpdatePlannedWorkoutCommandHandler CreateSut(
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
@@ -192,20 +268,10 @@ public class UpdateDraftExercisesCommandHandlerTests
             .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        return new UpdateDraftExercisesCommandHandler(
+        return new UpdatePlannedWorkoutCommandHandler(
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object);
-    }
-
-    private static UpdateDraftExercisesCommand CreateCommand()
-    {
-        return new UpdateDraftExercisesCommand
-        {
-            TraineeId = Guid.NewGuid(),
-            PlannedWorkoutId = Guid.NewGuid(),
-            Exercises = []
-        };
     }
 }

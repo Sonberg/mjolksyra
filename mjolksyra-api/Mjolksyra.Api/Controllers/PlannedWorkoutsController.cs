@@ -16,7 +16,6 @@ using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
 using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
 using Mjolksyra.UseCases.PlannedWorkouts.GetLatestWorkoutMediaAnalysis;
-using Mjolksyra.UseCases.PlannedWorkouts.UpdateDraftExercises;
 using Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
 
 namespace Mjolksyra.Api.Controllers;
@@ -109,29 +108,6 @@ public class PlannedWorkoutsController : Controller
             TraineeId = traineeId,
             PlannedWorkoutId = plannedWorkoutId,
             Workout = request
-        }, cancellationToken);
-
-        var userId = await _userContext.GetUserId(cancellationToken);
-        if (userId.HasValue)
-        {
-            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
-        }
-
-        return result is null ? NotFound() : Ok(result);
-    }
-
-    [HttpPut("{plannedWorkoutId:guid}/exercises/draft")]
-    public async Task<ActionResult<PlannedWorkoutResponse>> UpdateDraftExercises(
-        Guid traineeId,
-        Guid plannedWorkoutId,
-        [FromBody] UpdateDraftExercisesRequest request,
-        CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new UpdateDraftExercisesCommand
-        {
-            TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
-            Exercises = request.Exercises
         }, cancellationToken);
 
         var userId = await _userContext.GetUserId(cancellationToken);
@@ -268,6 +244,7 @@ public class PlannedWorkoutsController : Controller
         return result is null ? NotFound() : Ok(result);
     }
 
+
     private static GetPlannedWorkoutsRequest CreateGetRequest(
         Guid traineeId,
         DateOnly? from,
@@ -290,9 +267,4 @@ public class PlannedWorkoutsController : Controller
             DraftOnly = draftOnly
         };
     }
-}
-
-public class UpdateDraftExercisesRequest
-{
-    public required ICollection<PlannedExerciseRequest> Exercises { get; set; }
 }

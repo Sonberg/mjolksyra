@@ -23,7 +23,7 @@ import { monthId } from "@/lib/monthId";
 import { ExerciseQuickSearchOverlay } from "../ExerciseLibrary/ExerciseQuickSearchOverlay";
 import type { Exercise as LibraryExercise } from "@/services/exercises/type";
 import { inferPrescriptionFromType, ExerciseType } from "@/lib/exercisePrescription";
-import { updateDraftExercises } from "@/services/plannedWorkouts/updateDraftExercises";
+import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { v4 } from "uuid";
 import { DayHeader } from "./DayHeader";
 import type { SearchExercises } from "@/services/exercises/searchExercises";
@@ -139,10 +139,8 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
       if (plannedWorkout) {
         const currentDraft = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
         const exercises = [...currentDraft, newExercise];
-        const updated = await updateDraftExercises({
-          traineeId: plannedWorkout.traineeId,
-          plannedWorkoutId: plannedWorkout.id,
-          exercises,
+        const updated = await updatePlannedWorkout({
+          plannedWorkout: { ...plannedWorkout, draftExercises: exercises },
         });
         workouts.dispatch({
           type: "SET_WORKOUT",
@@ -167,10 +165,8 @@ export function Day({ date, plannedWorkout, searchExercisesFn }: Props) {
       };
 
       const created = await actions.create({ plannedWorkout: newWorkout });
-      const withExercises = await updateDraftExercises({
-        traineeId: created.traineeId,
-        plannedWorkoutId: created.id,
-        exercises: [newExercise],
+      const withExercises = await updatePlannedWorkout({
+        plannedWorkout: { ...created, draftExercises: [newExercise] },
       });
       workouts.dispatch({
         type: "SET_MONTH",

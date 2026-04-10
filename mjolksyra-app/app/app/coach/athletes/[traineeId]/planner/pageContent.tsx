@@ -228,7 +228,7 @@ function PlannerChangesPanel({
                         <div key={entry.plannedExerciseId} className="flex items-start gap-2">
                           <span
                             className={cn(
-                              "mt-0.5 shrink-0 rounded-none px-1 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]",
+                              "shrink-0 rounded-none px-1 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]",
                               entry.status === "Added" && "bg-emerald-900/40 text-emerald-400",
                               entry.status === "Removed" && "bg-red-900/40 text-red-400",
                               entry.status === "Modified" && "bg-amber-900/40 text-amber-400",

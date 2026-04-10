@@ -16,10 +16,9 @@ import { parse, Payload } from "./parse";
 import { transform } from "./transformers";
 import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
 import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
-import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { UpdatePlannedWorkout, updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { ApplyBlock } from "@/services/blocks/applyBlock";
-import { updateDraftExercises } from "@/services/plannedWorkouts/updateDraftExercises";
 import { useWorkouts } from "../Workouts";
 import { PLANNED_AT } from "@/constants/dateFormats";
 import { DraggingExercise } from "@/components/DraggingExercise";
@@ -69,16 +68,16 @@ export function PlannerProvider({
       if (cloning) {
         if (cloning.targetWorkout) {
           const targetDraft = cloning.targetWorkout.draftExercises ?? cloning.targetWorkout.publishedExercises;
-          await updateDraftExercises({
-            traineeId: cloning.targetWorkout.traineeId,
-            plannedWorkoutId: cloning.targetWorkout.id,
-            exercises: insertAt(targetDraft, cloning.index, cloning.exercise),
+          await updatePlannedWorkout({
+            plannedWorkout: {
+              ...cloning.targetWorkout,
+              draftExercises: insertAt(targetDraft, cloning.index, cloning.exercise),
+            },
           });
         } else {
-          const newId = v4();
-          await plannedWorkouts.create({
+          const created = await plannedWorkouts.create({
             plannedWorkout: {
-              id: newId,
+              id: v4(),
               traineeId,
               name: null,
               note: null,
@@ -89,10 +88,8 @@ export function PlannerProvider({
               appliedBlock: null,
             },
           });
-          await updateDraftExercises({
-            traineeId,
-            plannedWorkoutId: newId,
-            exercises: [cloning.exercise],
+          await updatePlannedWorkout({
+            plannedWorkout: { ...created, draftExercises: [cloning.exercise] },
           });
         }
 
@@ -149,23 +146,19 @@ export function PlannerProvider({
             return plannedWorkouts.delete({ plannedWorkout });
           }
           const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
-          return updateDraftExercises({
-            traineeId: plannedWorkout.traineeId,
-            plannedWorkoutId: plannedWorkout.id,
-            exercises,
+          return updatePlannedWorkout({
+            plannedWorkout: { ...plannedWorkout, draftExercises: exercises },
           });
         })
       );
 
       await Promise.all(
         result.create.map(async (plannedWorkout) => {
-          await plannedWorkouts.create({ plannedWorkout });
+          const created = await plannedWorkouts.create({ plannedWorkout });
           const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
           if (exercises.length) {
-            await updateDraftExercises({
-              traineeId: plannedWorkout.traineeId,
-              plannedWorkoutId: plannedWorkout.id,
-              exercises,
+            await updatePlannedWorkout({
+              plannedWorkout: { ...created, draftExercises: exercises },
             });
           }
         })
