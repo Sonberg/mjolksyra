@@ -39,7 +39,7 @@ export function WorkoutViewer({
     traineeId,
     toDate: dayjs().add(-1, "day"),
     sortBy: "PlannedAt",
-    order: "asc",
+    order: "desc",
     enabled: mode === "past",
   });
 
@@ -54,7 +54,7 @@ export function WorkoutViewer({
   const future = useWorkouts({
     id: "future",
     traineeId,
-    fromDate: dayjs(),
+    fromDate: dayjs().startOf("day"),
     sortBy: "PlannedAt",
     order: "asc",
     enabled: mode === "future",
@@ -63,7 +63,7 @@ export function WorkoutViewer({
     id: "completed",
     traineeId,
     sortBy: "PlannedAt",
-    order: "asc",
+    order: "desc",
     enabled: mode === "past",
   });
 

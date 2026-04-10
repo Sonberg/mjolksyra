@@ -52,6 +52,11 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
                 : Builders<PlannedWorkout>.Sort.Ascending(field)));
         }
 
+        if (sort.Count == 0)
+        {
+            sort.Add(Builders<PlannedWorkout>.Sort.Ascending(x => x.PlannedAt));
+        }
+
         var response = await _context.PlannedWorkout
             .Find(Builders<PlannedWorkout>.Filter.And(filters))
             .Sort(Builders<PlannedWorkout>.Sort.Combine(sort))
