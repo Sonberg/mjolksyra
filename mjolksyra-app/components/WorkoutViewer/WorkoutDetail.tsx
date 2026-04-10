@@ -27,7 +27,7 @@ import { ExerciseType } from "@/lib/exercisePrescription";
 
 type Props = {
   workout: PlannedWorkout;
-  session?: import("@/services/completedWorkouts/type").CompletedWorkout | null;
+  session?: import("@/services/completedWorkouts/type").WorkoutSessionResponse | null;
   viewerMode?: "athlete" | "coach";
   traineeId: string;
   backTab?: "past" | "future" | "changes";

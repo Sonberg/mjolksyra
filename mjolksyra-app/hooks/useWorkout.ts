@@ -5,12 +5,12 @@ import { updateWorkoutSession } from "@/services/completedWorkouts/updateWorkout
 import { startWorkoutSession } from "@/services/completedWorkouts/startWorkoutSession";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { CompletedWorkout, CompletedExercise } from "@/services/completedWorkouts/type";
+import { WorkoutSessionResponse, CompletedExercise } from "@/services/completedWorkouts/type";
 import { ExerciseType } from "@/lib/exercisePrescription";
 
 type UseWorkoutProps = {
   workout: PlannedWorkout;
-  session: CompletedWorkout | null;
+  session: WorkoutSessionResponse | null;
 };
 
 export function useWorkout({ workout, session }: UseWorkoutProps) {
@@ -142,7 +142,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     }) =>
       updateWorkoutSession({
         traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
+        id: session!.id,
         session: buildSessionPayload({ completedAt, markAllExercisesDone }),
       }),
     onSuccess: async () => {
@@ -155,7 +155,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     mutationFn: async ({ reviewedAt }: { reviewedAt: Date | null }) =>
       updateWorkoutSession({
         traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
+        id: session!.id,
         session: {
           ...buildSessionPayload({}),
           reviewedAt,
@@ -177,7 +177,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     }) =>
       updateWorkoutSession({
         traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
+        id: session!.id,
         session: buildSessionPayload({
           exerciseActualOverride: { exerciseId, isDone },
         }),
@@ -199,7 +199,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     }) =>
       updateWorkoutSession({
         traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
+        id: session!.id,
         session: buildSessionPayload({
           exerciseActualOverride: { exerciseId, setIndex, toggleSetDone: true },
         }),
@@ -231,7 +231,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     }) =>
       updateWorkoutSession({
         traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
+        id: session!.id,
         session: buildSessionPayload({
           exerciseActualOverride: {
             exerciseId,

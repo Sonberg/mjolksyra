@@ -1,16 +1,18 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.UseCases.CompletedWorkouts.GetWorkoutSession;
 
 public class GetWorkoutSessionRequestHandler(
+    IPlannedWorkoutRepository plannedWorkoutRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<GetWorkoutSessionRequest, CompletedWorkoutResponse?>
+    IUserContext userContext) : IRequestHandler<GetWorkoutSessionRequest, WorkoutResponse?>
 {
-    public async Task<CompletedWorkoutResponse?> Handle(GetWorkoutSessionRequest request, CancellationToken cancellationToken)
+    public async Task<WorkoutResponse?> Handle(GetWorkoutSessionRequest request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -22,19 +24,47 @@ public class GetWorkoutSessionRequestHandler(
             return null;
         }
 
-        var session = await completedWorkoutRepository.GetByPlannedWorkoutId(request.PlannedWorkoutId, cancellationToken);
-        if (session is null || session.TraineeId != request.TraineeId)
+        PlannedWorkout? plannedWorkout;
+        CompletedWorkout? session;
+
+        // Step 1: try resolving {id} as a CompletedWorkout.Id
+        var completedWorkout = await completedWorkoutRepository.GetById(request.Id, cancellationToken);
+        if (completedWorkout is not null && completedWorkout.TraineeId == request.TraineeId)
+        {
+            session = completedWorkout;
+            plannedWorkout = await plannedWorkoutRepository.Get(completedWorkout.PlannedWorkoutId, cancellationToken);
+        }
+        else
+        {
+            // Step 2: try resolving {id} as a PlannedWorkout.Id
+            plannedWorkout = await plannedWorkoutRepository.Get(request.Id, cancellationToken);
+            if (plannedWorkout is null || plannedWorkout.TraineeId != request.TraineeId)
+            {
+                return null;
+            }
+
+            session = await completedWorkoutRepository.GetByPlannedWorkoutId(request.Id, cancellationToken);
+        }
+
+        if (plannedWorkout is null)
         {
             return null;
         }
 
-        var exerciseIds = session.Exercises
+        var planExerciseIds = plannedWorkout.PublishedExercises
+            .Concat(plannedWorkout.DraftExercises ?? [])
             .Select(e => e.ExerciseId)
             .OfType<Guid>()
             .ToList();
 
-        var masterExercises = await exerciseRepository.GetMany(exerciseIds, cancellationToken);
+        var sessionExerciseIds = session?.Exercises
+            .Select(e => e.ExerciseId)
+            .OfType<Guid>()
+            .ToList() ?? [];
 
-        return CompletedWorkoutResponse.From(session, masterExercises);
+        var allIds = planExerciseIds.Union(sessionExerciseIds).ToList();
+        var masterExercises = await exerciseRepository.GetMany(allIds, cancellationToken);
+
+        return WorkoutResponse.From(plannedWorkout, session, masterExercises, masterExercises);
     }
 }

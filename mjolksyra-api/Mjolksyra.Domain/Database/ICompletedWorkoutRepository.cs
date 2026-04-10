@@ -5,7 +5,11 @@ namespace Mjolksyra.Domain.Database;
 
 public interface ICompletedWorkoutRepository
 {
+    Task<CompletedWorkout?> GetById(Guid id, CancellationToken cancellationToken);
+
     Task<CompletedWorkout?> GetByPlannedWorkoutId(Guid plannedWorkoutId, CancellationToken cancellationToken);
+
+    Task<ICollection<CompletedWorkout>> GetByPlannedWorkoutIds(ICollection<Guid> plannedWorkoutIds, CancellationToken cancellationToken);
 
     Task<CompletedWorkout> Create(CompletedWorkout workout, CancellationToken cancellationToken);
 

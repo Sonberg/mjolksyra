@@ -3,9 +3,9 @@ using Mjolksyra.UseCases.CompletedWorkouts;
 
 namespace Mjolksyra.UseCases.CompletedWorkouts.GetWorkoutSession;
 
-public class GetWorkoutSessionRequest : IRequest<CompletedWorkoutResponse?>
+public class GetWorkoutSessionRequest : IRequest<WorkoutResponse?>
 {
     public required Guid TraineeId { get; set; }
 
-    public required Guid PlannedWorkoutId { get; set; }
+    public required Guid Id { get; set; }
 }

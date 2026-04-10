@@ -10,9 +10,9 @@ public class StartWorkoutSessionCommandHandler(
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<StartWorkoutSessionCommand, CompletedWorkoutResponse?>
+    IUserContext userContext) : IRequestHandler<StartWorkoutSessionCommand, WorkoutResponse?>
 {
-    public async Task<CompletedWorkoutResponse?> Handle(StartWorkoutSessionCommand request, CancellationToken cancellationToken)
+    public async Task<WorkoutResponse?> Handle(StartWorkoutSessionCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -34,45 +34,40 @@ public class StartWorkoutSessionCommandHandler(
         var existing = await completedWorkoutRepository.GetByPlannedWorkoutId(request.PlannedWorkoutId, cancellationToken);
         if (existing is not null)
         {
-            var existingExerciseIds = existing.Exercises
-                .Select(e => e.ExerciseId)
-                .OfType<Guid>()
-                .ToList();
-
-            var existingMasterExercises = await exerciseRepository.GetMany(existingExerciseIds, cancellationToken);
-            return CompletedWorkoutResponse.From(existing, existingMasterExercises);
+            return await BuildResponse(plannedWorkout, existing, cancellationToken);
         }
 
-        // Initialize exercises from PublishedExercises (clear all Actual values)
+        // Initialize exercises from PublishedExercises
         var sessionExercises = plannedWorkout.PublishedExercises
-            .Select(e => new CompletedExercise
-            {
-                Id = e.Id,
-                ExerciseId = e.ExerciseId,
-                Name = e.Name,
-                Note = e.Note,
-                Prescription = e.Prescription is null
-                    ? null
-                    : new ExercisePrescription
-                    {
-                        Type = e.Prescription.Type,
-                        Sets = e.Prescription.Sets
-                            ?.Select(s => new ExercisePrescriptionSet
-                            {
-                                Target = s.Target is null ? null : new ExercisePrescriptionSetTarget
+                .Select(e => new CompletedExercise
+                {
+                    Id = e.Id,
+                    ExerciseId = e.ExerciseId,
+                    Name = e.Name,
+                    Note = e.Note,
+                    Prescription = e.Prescription is null
+                        ? null
+                        : new ExercisePrescription
+                        {
+                            Type = e.Prescription.Type,
+                            Sets = e.Prescription.Sets
+                                ?.Select(s => new ExercisePrescriptionSet
                                 {
-                                    Reps = s.Target.Reps,
-                                    DurationSeconds = s.Target.DurationSeconds,
-                                    DistanceMeters = s.Target.DistanceMeters,
-                                    WeightKg = s.Target.WeightKg,
-                                    Note = s.Target.Note,
-                                },
-                                Actual = null,
-                            })
-                            .ToList()
-                    }
-            })
-            .ToList();
+                                    Target = s.Target is null ? null : new ExercisePrescriptionSetTarget
+                                    {
+                                        Reps = s.Target.Reps,
+                                        DurationSeconds = s.Target.DurationSeconds,
+                                        DistanceMeters = s.Target.DistanceMeters,
+                                        WeightKg = s.Target.WeightKg,
+                                        Note = s.Target.Note,
+                                    },
+                                    Actual = null,
+                                })
+                                .ToList()
+                        }
+                })
+                .ToList<CompletedExercise>();
+
 
         var session = await completedWorkoutRepository.Create(new CompletedWorkout
         {
@@ -84,13 +79,28 @@ public class StartWorkoutSessionCommandHandler(
             CreatedAt = DateTimeOffset.UtcNow,
         }, cancellationToken);
 
-        var exerciseIds = session.Exercises
+        return await BuildResponse(plannedWorkout, session, cancellationToken);
+    }
+
+    private async Task<WorkoutResponse> BuildResponse(
+        PlannedWorkout plannedWorkout,
+        CompletedWorkout session,
+        CancellationToken cancellationToken)
+    {
+        var planExerciseIds = plannedWorkout.PublishedExercises
+            .Concat(plannedWorkout.DraftExercises ?? [])
             .Select(e => e.ExerciseId)
             .OfType<Guid>()
             .ToList();
 
-        var masterExercises = await exerciseRepository.GetMany(exerciseIds, cancellationToken);
+        var sessionExerciseIds = session.Exercises
+            .Select(e => e.ExerciseId)
+            .OfType<Guid>()
+            .ToList();
 
-        return CompletedWorkoutResponse.From(session, masterExercises);
+        var allIds = planExerciseIds.Union(sessionExerciseIds).ToList();
+        var masterExercises = await exerciseRepository.GetMany(allIds, cancellationToken);
+
+        return WorkoutResponse.From(plannedWorkout, session, masterExercises, masterExercises);
     }
 }

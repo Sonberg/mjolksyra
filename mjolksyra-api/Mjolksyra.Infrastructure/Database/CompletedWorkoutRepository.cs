@@ -15,6 +15,13 @@ public class CompletedWorkoutRepository : ICompletedWorkoutRepository
         _context = context;
     }
 
+    public async Task<CompletedWorkout?> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        return await _context.CompletedWorkouts
+            .Find(x => x.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<CompletedWorkout?> GetByPlannedWorkoutId(Guid plannedWorkoutId, CancellationToken cancellationToken)
     {
         var result = await _context.CompletedWorkouts
@@ -22,6 +29,13 @@ public class CompletedWorkoutRepository : ICompletedWorkoutRepository
             .FirstOrDefaultAsync(cancellationToken);
 
         return result;
+    }
+
+    public async Task<ICollection<CompletedWorkout>> GetByPlannedWorkoutIds(ICollection<Guid> plannedWorkoutIds, CancellationToken cancellationToken)
+    {
+        return await _context.CompletedWorkouts
+            .Find(Builders<CompletedWorkout>.Filter.In(x => x.PlannedWorkoutId, plannedWorkoutIds))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<CompletedWorkout> Create(CompletedWorkout workout, CancellationToken cancellationToken)

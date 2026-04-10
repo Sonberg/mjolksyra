@@ -1,6 +1,6 @@
 import { getAuth } from "@/context/Auth";
 import { PageContent } from "./pageContent";
-import { workoutSchema } from "@/services/plannedWorkouts/schema";
+import { workoutResponseSchema } from "@/services/completedWorkouts/schema";
 import { schema as traineeSchema } from "@/services/trainees/schema";
 
 type Props = {
@@ -20,7 +20,7 @@ export default async function Page({ params, searchParams }: Props) {
 
   const [workoutRes, traineeRes] = await Promise.all([
     fetch(
-      `${process.env.API_URL}/api/trainees/${routeParams.traineeId}/planned-workouts/${routeParams.workoutId}`,
+      `${process.env.API_URL}/api/trainees/${routeParams.traineeId}/workouts/${routeParams.workoutId}`,
       { headers: { Authorization: `Bearer ${auth!.accessToken}` }, cache: "no-store" },
     ),
     fetch(
@@ -34,7 +34,7 @@ export default async function Page({ params, searchParams }: Props) {
     traineeRes.ok ? traineeRes.json() : null,
   ]);
 
-  const workoutParsed = workoutJson ? await workoutSchema.safeParseAsync(workoutJson) : null;
+  const workoutParsed = workoutJson ? await workoutResponseSchema.safeParseAsync(workoutJson) : null;
   const traineeParsed = traineeJson ? await traineeSchema.safeParseAsync(traineeJson) : null;
 
   return (
@@ -42,7 +42,7 @@ export default async function Page({ params, searchParams }: Props) {
       traineeId={routeParams.traineeId}
       workoutId={routeParams.workoutId}
       backTab={backTab}
-      initialWorkout={workoutParsed?.success ? workoutParsed.data : null}
+      initialWorkoutResponse={workoutParsed?.success ? workoutParsed.data : null}
       initialTrainee={traineeParsed?.success ? traineeParsed.data : null}
     />
   );

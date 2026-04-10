@@ -1,7 +1,7 @@
 "use client";
 
 import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
-import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
+import { getWorkoutSession } from "@/services/completedWorkouts/getWorkoutSession";
 import { useQuery } from "@tanstack/react-query";
 
 type Props = {
@@ -12,15 +12,16 @@ type Props = {
 
 export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["planned-workout", traineeId, workoutId],
-    queryFn: ({ signal }) =>
-      getPlannedWorkoutById({
+    queryKey: ["workout-session", traineeId, workoutId],
+    queryFn: ({ signal: _signal }) =>
+      getWorkoutSession({
         traineeId,
         plannedWorkoutId: workoutId,
-        signal,
       }),
     retry: false,
   });
+
+  const { session, ...workout } = data ?? {};
 
   return (
     <div className="flex h-[calc(100dvh-7.5rem)] min-h-[600px] w-full flex-col overflow-hidden">
@@ -37,7 +38,8 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
       {data ? (
         <div className="flex-1 min-h-0 overflow-hidden">
           <WorkoutDetail
-            workout={data}
+            workout={workout as import("@/services/plannedWorkouts/type").PlannedWorkout}
+            session={session}
             traineeId={traineeId}
             backTab={backTab}
             viewerMode="athlete"

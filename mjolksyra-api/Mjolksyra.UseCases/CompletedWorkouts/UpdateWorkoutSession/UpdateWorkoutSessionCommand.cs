@@ -4,11 +4,11 @@ using Mjolksyra.UseCases.CompletedWorkouts;
 
 namespace Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
 
-public class UpdateWorkoutSessionCommand : IRequest<CompletedWorkoutResponse?>
+public class UpdateWorkoutSessionCommand : IRequest<WorkoutResponse?>
 {
     public required Guid TraineeId { get; set; }
 
-    public required Guid PlannedWorkoutId { get; set; }
+    public required Guid Id { get; set; }
 
     public required UpdateWorkoutSessionRequest Session { get; set; }
 }

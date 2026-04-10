@@ -28,7 +28,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     {
         var userId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
-        var workoutId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
 
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
@@ -40,7 +40,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
 
         var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         completedWorkoutRepository
-            .Setup(x => x.GetByPlannedWorkoutId(workoutId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((CompletedWorkout?)null);
 
         var sut = CreateSut(completedWorkoutRepository: completedWorkoutRepository, traineeRepository: traineeRepository, userContext: userContext);
@@ -48,7 +48,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var result = await sut.Handle(new UpdateWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            Id = sessionId,
             Session = new UpdateWorkoutSessionRequest { Exercises = [] }
         }, CancellationToken.None);
 
@@ -61,6 +61,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var athleteUserId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
 
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(athleteUserId);
@@ -76,12 +77,12 @@ public class UpdateWorkoutSessionCommandHandlerTests
                 Id = traineeId,
                 AthleteUserId = athleteUserId,
                 CoachUserId = Guid.NewGuid(),
-                Status = Domain.Database.Enum.TraineeStatus.Active
+                Status = TraineeStatus.Active
             });
 
         var session = new CompletedWorkout
         {
-            Id = Guid.NewGuid(),
+            Id = sessionId,
             PlannedWorkoutId = workoutId,
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 5, 1),
@@ -96,7 +97,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         CompletedWorkout? updatedSession = null;
         var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         completedWorkoutRepository
-            .Setup(x => x.GetByPlannedWorkoutId(workoutId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(session);
         completedWorkoutRepository
             .Setup(x => x.Update(It.IsAny<CompletedWorkout>(), It.IsAny<CancellationToken>()))
@@ -108,7 +109,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var result = await sut.Handle(new UpdateWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            Id = sessionId,
             Session = new UpdateWorkoutSessionRequest
             {
                 Exercises =
@@ -130,6 +131,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var athleteUserId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
 
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(athleteUserId);
@@ -145,12 +147,12 @@ public class UpdateWorkoutSessionCommandHandlerTests
                 Id = traineeId,
                 AthleteUserId = athleteUserId,
                 CoachUserId = Guid.NewGuid(),
-                Status = Domain.Database.Enum.TraineeStatus.Active
+                Status = TraineeStatus.Active
             });
 
         var session = new CompletedWorkout
         {
-            Id = Guid.NewGuid(),
+            Id = sessionId,
             PlannedWorkoutId = workoutId,
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 5, 1),
@@ -161,7 +163,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         CompletedWorkout? updatedSession = null;
         var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         completedWorkoutRepository
-            .Setup(x => x.GetByPlannedWorkoutId(workoutId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(session);
         completedWorkoutRepository
             .Setup(x => x.Update(It.IsAny<CompletedWorkout>(), It.IsAny<CancellationToken>()))
@@ -172,7 +174,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var result = await sut.Handle(new UpdateWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            Id = sessionId,
             Session = new UpdateWorkoutSessionRequest
             {
                 Exercises =
@@ -196,6 +198,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var coachUserId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         var completedAt = DateTimeOffset.UtcNow;
 
         var userContext = new Mock<IUserContext>();
@@ -212,12 +215,12 @@ public class UpdateWorkoutSessionCommandHandlerTests
                 Id = traineeId,
                 AthleteUserId = athleteUserId,
                 CoachUserId = coachUserId,
-                Status = Domain.Database.Enum.TraineeStatus.Active
+                Status = TraineeStatus.Active
             });
 
         var session = new CompletedWorkout
         {
-            Id = Guid.NewGuid(),
+            Id = sessionId,
             PlannedWorkoutId = workoutId,
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 5, 1),
@@ -229,7 +232,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
 
         var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         completedWorkoutRepository
-            .Setup(x => x.GetByPlannedWorkoutId(workoutId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(session);
 
         var notificationService = new Mock<INotificationService>();
@@ -243,7 +246,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var result = await sut.Handle(new UpdateWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            Id = sessionId,
             Session = new UpdateWorkoutSessionRequest
             {
                 Exercises = [],
@@ -252,8 +255,9 @@ public class UpdateWorkoutSessionCommandHandlerTests
         }, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal(completedAt, result.CompletedAt);
-        Assert.Null(result.ReviewedAt); // Cleared when completed
+        Assert.NotNull(result.Session);
+        Assert.Equal(completedAt, result.Session!.CompletedAt);
+        Assert.Null(result.Session.ReviewedAt); // Cleared when completed
 
         notificationService.Verify(
             x => x.Notify(coachUserId, "workout.completed", It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
@@ -266,6 +270,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var athleteUserId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
         var exerciseAId = Guid.NewGuid();
         var exerciseBId = Guid.NewGuid();
 
@@ -283,12 +288,12 @@ public class UpdateWorkoutSessionCommandHandlerTests
                 Id = traineeId,
                 AthleteUserId = athleteUserId,
                 CoachUserId = Guid.NewGuid(),
-                Status = Domain.Database.Enum.TraineeStatus.Active
+                Status = TraineeStatus.Active
             });
 
         var session = new CompletedWorkout
         {
-            Id = Guid.NewGuid(),
+            Id = sessionId,
             PlannedWorkoutId = workoutId,
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 5, 1),
@@ -303,7 +308,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         CompletedWorkout? updatedSession = null;
         var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         completedWorkoutRepository
-            .Setup(x => x.GetByPlannedWorkoutId(workoutId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetById(sessionId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(session);
         completedWorkoutRepository
             .Setup(x => x.Update(It.IsAny<CompletedWorkout>(), It.IsAny<CancellationToken>()))
@@ -315,7 +320,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         var result = await sut.Handle(new UpdateWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            Id = sessionId,
             Session = new UpdateWorkoutSessionRequest
             {
                 Exercises =
@@ -334,6 +339,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
     }
 
     private static UpdateWorkoutSessionCommandHandler CreateSut(
+        Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<ICompletedWorkoutRepository>? completedWorkoutRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
@@ -345,7 +351,20 @@ public class UpdateWorkoutSessionCommandHandlerTests
             .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        var plannedWorkoutRepo = plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>();
+        plannedWorkoutRepo
+            .Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlannedWorkout
+            {
+                Id = Guid.NewGuid(),
+                TraineeId = Guid.NewGuid(),
+                PublishedExercises = [],
+                PlannedAt = new DateOnly(2026, 5, 1),
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+
         return new UpdateWorkoutSessionCommandHandler(
+            plannedWorkoutRepo.Object,
             (completedWorkoutRepository ?? new Mock<ICompletedWorkoutRepository>()).Object,
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
@@ -358,7 +377,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
         return new UpdateWorkoutSessionCommand
         {
             TraineeId = Guid.NewGuid(),
-            PlannedWorkoutId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             Session = new UpdateWorkoutSessionRequest { Exercises = [] }
         };
     }

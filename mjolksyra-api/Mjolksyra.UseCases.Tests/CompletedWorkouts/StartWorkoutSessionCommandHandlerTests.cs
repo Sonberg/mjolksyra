@@ -103,9 +103,10 @@ public class StartWorkoutSessionCommandHandlerTests
         }, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal(existingSessionId, result.Id);
-        Assert.Single(result.Exercises);
-        Assert.Equal("Already In Session", result.Exercises.First().Name);
+        Assert.NotNull(result.Session);
+        Assert.Equal(existingSessionId, result.Session!.Id);
+        Assert.Single(result.Session.Exercises);
+        Assert.Equal("Already In Session", result.Session.Exercises.First().Name);
 
         // Must not create a new session
         completedWorkoutRepository.Verify(x => x.Create(It.IsAny<CompletedWorkout>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -182,14 +183,16 @@ public class StartWorkoutSessionCommandHandlerTests
 
         Assert.NotNull(result);
         Assert.Equal(workoutId, result.PlannedWorkoutId);
+        Assert.NotEqual(workoutId, result.Id); // Id is CompletedWorkout.Id, not PlannedWorkout.Id
         Assert.Equal(traineeId, result.TraineeId);
+        Assert.NotNull(result.Session);
 
         // Only published exercises, not draft
-        Assert.Single(result.Exercises);
-        Assert.Equal("Back Squat", result.Exercises.First().Name);
+        Assert.Single(result.Session!.Exercises);
+        Assert.Equal("Back Squat", result.Session.Exercises.First().Name);
 
         // Actual values cleared on initialization
-        var set = result.Exercises.First().Prescription?.Sets?.First();
+        var set = result.Session.Exercises.First().Prescription?.Sets?.First();
         Assert.NotNull(set);
         Assert.Null(set!.Actual);
 

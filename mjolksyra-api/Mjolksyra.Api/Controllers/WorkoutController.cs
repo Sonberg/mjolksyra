@@ -1,7 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Mjolksyra.Domain.Database.Common;
+using Mjolksyra.Domain.Database.Enum;
+using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.CompletedWorkouts;
 using Mjolksyra.UseCases.CompletedWorkouts.GetWorkoutSession;
+using Mjolksyra.UseCases.CompletedWorkouts.GetWorkouts;
 using Mjolksyra.UseCases.CompletedWorkouts.LogWorkoutSession;
 using Mjolksyra.UseCases.CompletedWorkouts.RestoreWorkoutSession;
 using Mjolksyra.UseCases.CompletedWorkouts.StartWorkoutSession;
@@ -10,90 +14,116 @@ using Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
 namespace Mjolksyra.Api.Controllers;
 
 [ApiController]
-[Route("api/trainees/{traineeId:guid}/planned-workouts/{plannedWorkoutId:guid}/session")]
-public class CompletedWorkoutsController : Controller
+[Route("api/trainees/{traineeId:guid}/workouts")]
+public class WorkoutController : Controller
 {
     private readonly IMediator _mediator;
 
-    public CompletedWorkoutsController(IMediator mediator)
+    public WorkoutController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
     [HttpGet]
-    public async Task<ActionResult<CompletedWorkoutResponse>> GetSession(
+    public async Task<ActionResult<PaginatedResponse<WorkoutResponse>>> GetWorkouts(
         Guid traineeId,
-        Guid plannedWorkoutId,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to,
+        [FromQuery] int limit = 20,
+        [FromQuery] string[]? sortBy = null,
+        [FromQuery] SortOrder order = SortOrder.Asc,
+        [FromQuery] bool draftOnly = false,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetWorkoutsRequest
+        {
+            TraineeId = traineeId,
+            From = from,
+            To = to,
+            Cursor = null,
+            Limit = limit,
+            SortBy = sortBy,
+            Order = order,
+            DraftOnly = draftOnly,
+        }, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<WorkoutResponse>> GetWorkout(
+        Guid traineeId,
+        Guid id,
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetWorkoutSessionRequest
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
+            Id = id,
         }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpPost]
-    public async Task<ActionResult<CompletedWorkoutResponse>> StartSession(
+    public async Task<ActionResult<WorkoutResponse>> StartSession(
         Guid traineeId,
-        Guid plannedWorkoutId,
+        [FromBody] StartWorkoutSessionRequest request,
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new StartWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
+            PlannedWorkoutId = request.PlannedWorkoutId,
         }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpPut]
-    public async Task<ActionResult<CompletedWorkoutResponse>> UpdateSession(
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<WorkoutResponse>> UpdateSession(
         Guid traineeId,
-        Guid plannedWorkoutId,
+        Guid id,
         [FromBody] UpdateWorkoutSessionRequest request,
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
+            Id = id,
             Session = request,
         }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpPut("log")]
-    public async Task<ActionResult<CompletedWorkoutResponse>> LogSession(
+    [HttpPut("{id:guid}/log")]
+    public async Task<ActionResult<WorkoutResponse>> LogSession(
         Guid traineeId,
-        Guid plannedWorkoutId,
+        Guid id,
         [FromBody] LogWorkoutSessionRequest request,
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new LogWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
+            Id = id,
             Log = request,
         }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpPost("restore")]
-    public async Task<ActionResult<CompletedWorkoutResponse>> RestoreSession(
+    [HttpPost("{id:guid}/restore")]
+    public async Task<ActionResult<WorkoutResponse>> RestoreSession(
         Guid traineeId,
-        Guid plannedWorkoutId,
+        Guid id,
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new RestoreWorkoutSessionCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
+            Id = id,
         }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
