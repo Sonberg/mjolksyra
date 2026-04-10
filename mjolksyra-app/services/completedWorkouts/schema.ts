@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ExerciseType } from "@/lib/exercisePrescription";
-import { workoutSchema } from "@/services/plannedWorkouts/schema";
+import { exerciseSchema } from "@/services/plannedWorkouts/schema";
 
 export const completedExercisePrescriptionSchema = z.object({
   type: z.nativeEnum(ExerciseType),
@@ -66,14 +66,32 @@ export const completedWorkoutSchema = z.object({
 
 export const workoutSessionResponseSchema = z.object({
   id: z.string(),
-  exercises: z.array(completedExerciseSchema),
   completedAt: z.coerce.date().nullable().optional(),
   reviewedAt: z.coerce.date().nullable().optional(),
   media: z.array(completedWorkoutMediaSchema).optional().default([]),
   createdAt: z.coerce.date(),
 });
 
-export const workoutResponseSchema = workoutSchema.extend({
+export const workoutResponseSchema = z.object({
+  id: z.string(),
   plannedWorkoutId: z.string(),
+  traineeId: z.string(),
+  name: z.string().nullable().optional(),
+  note: z.string().nullable().optional(),
+  plannedAt: z.string(),
+  createdAt: z.coerce.date().nullable(),
+  appliedBlock: z
+    .object({
+      blockId: z.string(),
+      blockName: z.string(),
+      startDate: z.string(),
+      weekNumber: z.number(),
+      totalWeeks: z.number(),
+    })
+    .nullable()
+    .optional()
+    .default(null),
+  prescribedExercises: z.array(exerciseSchema).default([]),
+  exercises: z.array(completedExerciseSchema).default([]),
   session: workoutSessionResponseSchema.nullable().optional().default(null),
 });

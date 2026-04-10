@@ -25,15 +25,12 @@ public class GetWorkoutsRequestHandler(
             return new PaginatedResponse<WorkoutResponse> { Data = [], Next = null };
         }
 
-        var trainee = await traineeRepository.GetById(request.TraineeId, cancellationToken);
-        var isAthleteViewer = trainee is not null && trainee.CoachUserId != userId;
-
         var cursor = request.Cursor switch
         {
             not null => request.Cursor with
             {
                 TraineeId = request.TraineeId,
-                DraftOnly = request.DraftOnly
+                DraftOnly = false
             },
             _ => new PlannedWorkoutCursor
             {
@@ -44,24 +41,25 @@ public class GetWorkoutsRequestHandler(
                 Size = request.Limit,
                 SortBy = request.SortBy,
                 Order = request.Order,
-                DraftOnly = request.DraftOnly
+                DraftOnly = false
             }
         };
 
         var workouts = await plannedWorkoutRepository.Get(cursor, cancellationToken);
 
-        var visibleWorkouts = isAthleteViewer
-            ? workouts.Data.Where(x => x.PublishedExercises.Count > 0).ToList()
-            : workouts.Data;
+        // Only show workouts that have at least one published exercise
+        var visibleWorkouts = workouts.Data
+            .Where(x => x.PublishedExercises.Count > 0)
+            .ToList();
 
         // Batch-fetch all sessions for this page of planned workouts
         var plannedWorkoutIds = visibleWorkouts.Select(x => x.Id).ToList();
         var sessions = await completedWorkoutRepository.GetByPlannedWorkoutIds(plannedWorkoutIds, cancellationToken);
         var sessionByPlannedWorkoutId = sessions.ToDictionary(s => s.PlannedWorkoutId);
 
-        // Collect all exercise IDs across plans and sessions for a single master lookup
+        // Collect exercise IDs from published exercises and sessions only
         var exerciseIds = visibleWorkouts
-            .SelectMany(x => x.PublishedExercises.Concat(x.DraftExercises ?? []))
+            .SelectMany(x => x.PublishedExercises)
             .Select(x => x.ExerciseId)
             .Concat(sessions.SelectMany(s => s.Exercises.Select(e => e.ExerciseId)))
             .OfType<Guid>()
@@ -75,10 +73,6 @@ public class GetWorkoutsRequestHandler(
             {
                 sessionByPlannedWorkoutId.TryGetValue(workout.Id, out var session);
                 var response = WorkoutResponse.From(workout, session, masterExercises, masterExercises);
-                if (isAthleteViewer)
-                {
-                    response.DraftExercises = null;
-                }
                 return response;
             })
             .ToList();

@@ -35,8 +35,6 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkoutRespo
     initialData: initialWorkoutResponse ?? undefined,
     retry: false,
   });
-  const { session, ...workout } = workoutQuery.data ?? {};
-
   const athleteName =
     trainee?.athlete?.givenName || trainee?.athlete?.familyName
       ? `${trainee?.athlete?.givenName ?? ""} ${trainee?.athlete?.familyName ?? ""}`.trim()
@@ -73,17 +71,20 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkoutRespo
             Could not load this workout.
           </div>
         ) : null}
-        {workoutQuery.data ? (
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <WorkoutDetail
-              workout={workout as import("@/services/plannedWorkouts/type").PlannedWorkout}
-              session={session}
-              viewerMode="coach"
-              traineeId={traineeId}
-              backTab={backTab}
-            />
-          </div>
-        ) : null}
+        {workoutQuery.data ? (() => {
+          const { session, ...workout } = workoutQuery.data;
+          return (
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <WorkoutDetail
+                workout={workout}
+                session={session}
+                viewerMode="coach"
+                traineeId={traineeId}
+                backTab={backTab}
+              />
+            </div>
+          );
+        })() : null}
       </div>
     </CoachWorkspaceShell>
   );

@@ -3,13 +3,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateWorkoutSession } from "@/services/completedWorkouts/updateWorkoutSession";
 import { startWorkoutSession } from "@/services/completedWorkouts/startWorkoutSession";
-import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
-import { WorkoutSessionResponse, CompletedExercise } from "@/services/completedWorkouts/type";
+import { WorkoutResponse, WorkoutSessionResponse, CompletedExercise } from "@/services/completedWorkouts/type";
 import { ExerciseType } from "@/lib/exercisePrescription";
 
 type UseWorkoutProps = {
-  workout: PlannedWorkout;
+  workout: Omit<WorkoutResponse, "session">;
   session: WorkoutSessionResponse | null;
 };
 
@@ -32,7 +30,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
       toggleSetDone?: boolean;
     };
   }) {
-    const exercises: CompletedExercise[] = (session?.exercises ?? []).map((e) => ({
+    const exercises: CompletedExercise[] = (workout.exercises ?? []).map((e) => ({
       ...e,
       prescription: e.prescription
         ? {
@@ -123,7 +121,7 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     mutationFn: async () =>
       startWorkoutSession({
         traineeId: workout.traineeId,
-        plannedWorkoutId: workout.id,
+        plannedWorkoutId: workout.plannedWorkoutId,
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
@@ -251,67 +249,67 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
     },
   });
 
-  // Coach-side exercise editing uses draftExercises (falls back to publishedExercises)
-  const draftExercises = workout.draftExercises ?? workout.publishedExercises;
-
   const addExercise = useMutation({
-    mutationFn: async ({
-      exercise,
-    }: {
-      exercise: PlannedWorkout["publishedExercises"][number];
-    }) =>
-      updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          draftExercises: [...draftExercises, exercise],
+    mutationFn: async ({ exercise }: { exercise: CompletedExercise }) =>
+      updateWorkoutSession({
+        traineeId: workout.traineeId,
+        id: session!.id,
+        session: {
+          completedAt: session?.completedAt ?? null,
+          mediaUrls: (session?.media ?? []).map((m) => m.rawUrl),
+          exercises: [...workout.exercises, exercise],
         },
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+      await queryClient.invalidateQueries({ queryKey: ["workout-session"] });
     },
   });
 
   const removeExercise = useMutation({
     mutationFn: async ({ exerciseId }: { exerciseId: string }) =>
-      updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          draftExercises: draftExercises.filter((e) => e.id !== exerciseId),
+      updateWorkoutSession({
+        traineeId: workout.traineeId,
+        id: session!.id,
+        session: {
+          completedAt: session?.completedAt ?? null,
+          mediaUrls: (session?.media ?? []).map((m) => m.rawUrl),
+          exercises: workout.exercises.filter((e) => e.id !== exerciseId),
         },
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+      await queryClient.invalidateQueries({ queryKey: ["workout-session"] });
     },
   });
 
   const addSetRow = useMutation({
     mutationFn: async ({ exerciseId }: { exerciseId: string }) => {
-      const exercise = draftExercises.find((e) => e.id === exerciseId);
+      const exercise = workout.exercises.find((e) => e.id === exerciseId);
       if (!exercise) return;
       const type = exercise.prescription?.type ?? ExerciseType.SetsReps;
       const existingSets = exercise.prescription?.sets ?? [];
-      return updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          draftExercises: draftExercises.map((e) =>
-            e.id !== exerciseId
-              ? e
-              : {
-                  ...e,
-                  prescription: {
-                    type,
-                    sets: [...existingSets, { target: null, actual: null }],
-                  },
-                },
-          ),
+      const updatedExercises = workout.exercises.map((e) =>
+        e.id !== exerciseId
+          ? e
+          : {
+              ...e,
+              prescription: {
+                type,
+                sets: [...existingSets, { target: null, actual: null }],
+              },
+            }
+      );
+      return updateWorkoutSession({
+        traineeId: workout.traineeId,
+        id: session!.id,
+        session: {
+          completedAt: session?.completedAt ?? null,
+          mediaUrls: (session?.media ?? []).map((m) => m.rawUrl),
+          exercises: updatedExercises,
         },
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+      await queryClient.invalidateQueries({ queryKey: ["workout-session"] });
     },
   });
 
@@ -323,29 +321,32 @@ export function useWorkout({ workout, session }: UseWorkoutProps) {
       exerciseId: string;
       setIndex: number;
     }) => {
-      const exercise = draftExercises.find((e) => e.id === exerciseId);
+      const exercise = workout.exercises.find((e) => e.id === exerciseId);
       if (!exercise) return;
       const existingSets = exercise.prescription?.sets ?? [];
-      return updatePlannedWorkout({
-        plannedWorkout: {
-          ...workout,
-          draftExercises: draftExercises.map((e) =>
-            e.id !== exerciseId
-              ? e
-              : {
-                  ...e,
-                  prescription: {
-                    type: e.prescription?.type ?? ExerciseType.SetsReps,
-                    sets: existingSets.filter((_, i) => i !== setIndex),
-                  },
-                },
-          ),
+      const updatedExercises = workout.exercises.map((e) =>
+        e.id !== exerciseId
+          ? e
+          : {
+              ...e,
+              prescription: {
+                type: e.prescription?.type ?? ExerciseType.SetsReps,
+                sets: existingSets.filter((_, i) => i !== setIndex),
+              },
+            }
+      );
+      return updateWorkoutSession({
+        traineeId: workout.traineeId,
+        id: session!.id,
+        session: {
+          completedAt: session?.completedAt ?? null,
+          mediaUrls: (session?.media ?? []).map((m) => m.rawUrl),
+          exercises: updatedExercises,
         },
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+      await queryClient.invalidateQueries({ queryKey: ["workout-session"] });
     },
   });
 

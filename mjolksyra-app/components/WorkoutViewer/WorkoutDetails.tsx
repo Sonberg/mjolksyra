@@ -3,6 +3,7 @@
 import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
 import { getWorkoutSession } from "@/services/completedWorkouts/getWorkoutSession";
 import { useQuery } from "@tanstack/react-query";
+import type { WorkoutResponse } from "@/services/completedWorkouts/type";
 
 type Props = {
   traineeId: string;
@@ -21,8 +22,6 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
     retry: false,
   });
 
-  const { session, ...workout } = data ?? {};
-
   return (
     <div className="flex h-[calc(100dvh-7.5rem)] min-h-[600px] w-full flex-col overflow-hidden">
       {isLoading ? (
@@ -36,16 +35,35 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
         </div>
       ) : null}
       {data ? (
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <WorkoutDetail
-            workout={workout as import("@/services/plannedWorkouts/type").PlannedWorkout}
-            session={session}
-            traineeId={traineeId}
-            backTab={backTab}
-            viewerMode="athlete"
-          />
-        </div>
+        <WorkoutDetailsPanel
+          data={data}
+          traineeId={traineeId}
+          backTab={backTab}
+        />
       ) : null}
+    </div>
+  );
+}
+
+function WorkoutDetailsPanel({
+  data,
+  traineeId,
+  backTab,
+}: {
+  data: WorkoutResponse;
+  traineeId: string;
+  backTab?: "past" | "future";
+}) {
+  const { session, ...workout } = data;
+  return (
+    <div className="flex-1 min-h-0 overflow-hidden">
+      <WorkoutDetail
+        workout={workout}
+        session={session}
+        traineeId={traineeId}
+        backTab={backTab}
+        viewerMode="athlete"
+      />
     </div>
   );
 }

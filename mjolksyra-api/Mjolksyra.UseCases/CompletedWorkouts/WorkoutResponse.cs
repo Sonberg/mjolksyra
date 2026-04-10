@@ -18,15 +18,17 @@ public class WorkoutResponse
 
     public required DateOnly PlannedAt { get; set; }
 
-    public required ICollection<PlannedExerciseResponse> PublishedExercises { get; set; }
+    // What the coach prescribed (from PlannedWorkout.PublishedExercises)
+    public required ICollection<PlannedExerciseResponse> PrescribedExercises { get; set; }
 
-    public ICollection<PlannedExerciseResponse>? DraftExercises { get; set; }
+    // What the athlete is actually doing (from CompletedWorkout.Exercises, empty if no session)
+    public required ICollection<CompletedExerciseResponse> Exercises { get; set; }
 
     public required DateTimeOffset CreatedAt { get; set; }
 
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
-    // Session state — null means no session started yet
+    // Session metadata — null means no session started yet
     public WorkoutSessionResponse? Session { get; set; }
 
     public static WorkoutResponse From(
@@ -43,12 +45,12 @@ public class WorkoutResponse
             Name = plannedWorkout.Name,
             Note = plannedWorkout.Note,
             PlannedAt = plannedWorkout.PlannedAt,
-            PublishedExercises = plannedWorkout.PublishedExercises
+            PrescribedExercises = plannedWorkout.PublishedExercises
                 .Select(x => PlannedExerciseResponse.From(x, planExercises))
                 .ToList(),
-            DraftExercises = plannedWorkout.DraftExercises?
-                .Select(x => PlannedExerciseResponse.From(x, planExercises))
-                .ToList(),
+            Exercises = session?.Exercises
+                .Select(e => CompletedExerciseResponse.From(e, sessionExercises))
+                .ToList() ?? [],
             CreatedAt = plannedWorkout.CreatedAt,
             AppliedBlock = plannedWorkout.AppliedBlock is null
                 ? null
@@ -63,9 +65,6 @@ public class WorkoutResponse
             Session = session is null ? null : new WorkoutSessionResponse
             {
                 Id = session.Id,
-                Exercises = session.Exercises
-                    .Select(e => CompletedExerciseResponse.From(e, sessionExercises))
-                    .ToList(),
                 CompletedAt = session.CompletedAt,
                 ReviewedAt = session.ReviewedAt,
                 Media = session.Media
@@ -85,8 +84,6 @@ public class WorkoutResponse
 public class WorkoutSessionResponse
 {
     public required Guid Id { get; set; }
-
-    public required ICollection<CompletedExerciseResponse> Exercises { get; set; }
 
     public DateTimeOffset? CompletedAt { get; set; }
 

@@ -32,7 +32,6 @@ public class WorkoutController : Controller
         [FromQuery] int limit = 20,
         [FromQuery] string[]? sortBy = null,
         [FromQuery] SortOrder order = SortOrder.Asc,
-        [FromQuery] bool draftOnly = false,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetWorkoutsRequest
@@ -44,7 +43,6 @@ public class WorkoutController : Controller
             Limit = limit,
             SortBy = sortBy,
             Order = order,
-            DraftOnly = draftOnly,
         }, cancellationToken);
 
         return Ok(result);

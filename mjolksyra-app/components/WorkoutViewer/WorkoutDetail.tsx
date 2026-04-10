@@ -1,6 +1,6 @@
 "use client";
 
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { WorkoutResponse, WorkoutSessionResponse } from "@/services/completedWorkouts/type";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { CheckCircle2Icon, MessageSquareIcon, PlusIcon, SparklesIcon } from "lucide-react";
@@ -26,8 +26,8 @@ import { v4 } from "uuid";
 import { ExerciseType } from "@/lib/exercisePrescription";
 
 type Props = {
-  workout: PlannedWorkout;
-  session?: import("@/services/completedWorkouts/type").WorkoutSessionResponse | null;
+  workout: Omit<WorkoutResponse, "session">;
+  session?: WorkoutSessionResponse | null;
   viewerMode?: "athlete" | "coach";
   traineeId: string;
   backTab?: "past" | "future" | "changes";
@@ -77,7 +77,7 @@ export function WorkoutDetail({
 
   const isCompleted = !!session?.completedAt;
   const isReviewed = !!session?.reviewedAt;
-  const exercises = session?.exercises ?? workout.publishedExercises;
+  const exercises = workout.exercises;
 
   const chatPanel = (
     <WorkoutChatPanel
@@ -295,8 +295,6 @@ export function WorkoutDetail({
                   name: exercise.name,
                   note: null,
                   isDone: false,
-                  isPublished: true,
-                  addedBy: "Athlete",
                   prescription: {
                     type: prescriptionType,
                     sets: [

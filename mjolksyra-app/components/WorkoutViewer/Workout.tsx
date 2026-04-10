@@ -1,7 +1,7 @@
 "use client";
 
 import { useWorkout } from "@/hooks/useWorkout";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { WorkoutResponse } from "@/services/completedWorkouts/type";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
 import { CheckCircle2Icon, RotateCcwIcon } from "lucide-react";
@@ -24,7 +24,7 @@ import { WorkoutAnalysisSection } from "./workout/WorkoutAnalysisSection";
 import { StatusBadge } from "./StatusBadge";
 
 type Props = {
-  workout: PlannedWorkout;
+  workout: Omit<WorkoutResponse, "session">;
   viewerMode?: "athlete" | "coach";
   isHighlighted?: boolean;
   traineeId?: string;
@@ -78,7 +78,7 @@ export function Workout({
 
   const isCompleted = false;
   const isReviewed = false;
-  const exercises = workout.publishedExercises;
+  const exercises = workout.exercises;
   const totalExercises = exercises.length;
   const doneExercises = exercises.filter(
     (exercise) => exercise.isDone,
