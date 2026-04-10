@@ -16,7 +16,7 @@ public class CreditActionPricingSeeder(IServiceProvider serviceProvider) : IHost
         await repo.Upsert(new CreditActionPricing
         {
             Id = new Guid("10000000-0000-0000-0000-000000000004"),
-            Action = CreditAction.AnalyzeWorkoutMedia,
+            Action = CreditAction.AnalyzeCompletedWorkout,
             CreditCost = 5,
         }, cancellationToken);
 

@@ -54,44 +54,29 @@ export const completedWorkoutMediaSchema = z.object({
 
 export const completedWorkoutSchema = z.object({
   id: z.string(),
-  plannedWorkoutId: z.string(),
+  plannedWorkoutId: z.string().nullable().optional().default(null),
   traineeId: z.string(),
   plannedAt: z.string(),
   exercises: z.array(completedExerciseSchema),
   completedAt: z.coerce.date().nullable().optional(),
-  reviewedAt: z.coerce.date().nullable().optional(),
   media: z.array(completedWorkoutMediaSchema).optional().default([]),
   createdAt: z.coerce.date().nullable(),
 });
 
-export const workoutSessionResponseSchema = z.object({
+export const workoutChatMessageSchema = z.object({
   id: z.string(),
-  completedAt: z.coerce.date().nullable().optional(),
-  reviewedAt: z.coerce.date().nullable().optional(),
+  userId: z.string(),
+  message: z.string(),
   media: z.array(completedWorkoutMediaSchema).optional().default([]),
+  role: z.enum(["Athlete", "Coach"]),
   createdAt: z.coerce.date(),
+  modifiedAt: z.coerce.date(),
 });
 
-export const workoutResponseSchema = z.object({
-  id: z.string(),
-  plannedWorkoutId: z.string(),
-  traineeId: z.string(),
-  name: z.string().nullable().optional(),
-  note: z.string().nullable().optional(),
-  plannedAt: z.string(),
-  createdAt: z.coerce.date().nullable(),
-  appliedBlock: z
-    .object({
-      blockId: z.string(),
-      blockName: z.string(),
-      startDate: z.string(),
-      weekNumber: z.number(),
-      totalWeeks: z.number(),
-    })
-    .nullable()
-    .optional()
-    .default(null),
-  prescribedExercises: z.array(exerciseSchema).default([]),
-  exercises: z.array(completedExerciseSchema).default([]),
-  session: workoutSessionResponseSchema.nullable().optional().default(null),
+export const workoutMediaAnalysisSchema = z.object({
+  summary: z.string(),
+  keyFindings: z.array(z.string()).default([]),
+  techniqueRisks: z.array(z.string()).default([]),
+  coachSuggestions: z.array(z.string()).default([]),
+  createdAt: z.coerce.date(),
 });

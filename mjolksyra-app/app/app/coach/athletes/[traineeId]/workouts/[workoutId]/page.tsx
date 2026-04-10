@@ -1,6 +1,6 @@
 import { getAuth } from "@/context/Auth";
 import { PageContent } from "./pageContent";
-import { workoutResponseSchema } from "@/services/completedWorkouts/schema";
+import { completedWorkoutSchema } from "@/services/completedWorkouts/schema";
 import { schema as traineeSchema } from "@/services/trainees/schema";
 
 type Props = {
@@ -14,7 +14,7 @@ export default async function Page({ params, searchParams }: Props) {
   const routeParams = await params;
   const query = (await searchParams) ?? {};
   const backTab =
-    query.tab === "past" || query.tab === "future" || query.tab === "changes"
+    query.tab === "planned" || query.tab === "completed"
       ? query.tab
       : undefined;
 
@@ -34,7 +34,7 @@ export default async function Page({ params, searchParams }: Props) {
     traineeRes.ok ? traineeRes.json() : null,
   ]);
 
-  const workoutParsed = workoutJson ? await workoutResponseSchema.safeParseAsync(workoutJson) : null;
+  const workoutParsed = workoutJson ? await completedWorkoutSchema.safeParseAsync(workoutJson) : null;
   const traineeParsed = traineeJson ? await traineeSchema.safeParseAsync(traineeJson) : null;
 
   return (

@@ -103,8 +103,7 @@ public class StartWorkoutSessionCommandHandlerTests
         }, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.NotNull(result.Session);
-        Assert.Equal(existingSessionId, result.Session!.Id);
+        Assert.Equal(existingSessionId, result.Id);
         Assert.Single(result.Exercises);
         Assert.Equal("Already In Session", result.Exercises.First().Name);
 
@@ -185,7 +184,6 @@ public class StartWorkoutSessionCommandHandlerTests
         Assert.Equal(workoutId, result.PlannedWorkoutId);
         Assert.NotEqual(workoutId, result.Id); // Id is CompletedWorkout.Id, not PlannedWorkout.Id
         Assert.Equal(traineeId, result.TraineeId);
-        Assert.NotNull(result.Session);
 
         // Only published exercises, not draft
         Assert.Single(result.Exercises);

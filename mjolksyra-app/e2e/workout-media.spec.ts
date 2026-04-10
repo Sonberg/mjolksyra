@@ -628,7 +628,7 @@ test.describe("Workout media upload", () => {
         contentType: "application/json",
         body: JSON.stringify([
           {
-            action: "AnalyzeWorkoutMedia",
+            action: "AnalyzeCompletedWorkoutMedia",
             creditCost: 5,
           },
         ]),

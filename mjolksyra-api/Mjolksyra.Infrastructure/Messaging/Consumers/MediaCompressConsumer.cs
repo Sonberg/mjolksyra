@@ -14,7 +14,7 @@ namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 public class MediaCompressConsumer(
     IHttpClientFactory httpClientFactory,
     IR2FileUploader fileUploader,
-    IPlannedWorkoutChatMessageRepository plannedWorkoutChatMessageRepository,
+    ICompletedWorkoutChatMessageRepository completedWorkoutChatMessageRepository,
     ILogger<MediaCompressConsumer> logger) : IConsumer<MediaCompressionRequestedMessage>
 {
     private const int MaxImageDimension = 1920;
@@ -38,27 +38,27 @@ public class MediaCompressConsumer(
             string compressedUrl;
             if (isVideo)
             {
-                compressedUrl = await CompressVideoAsync(rawStream, rawUrl, msg.PlannedWorkoutId, ct);
+                compressedUrl = await CompressVideoAsync(rawStream, rawUrl, msg.CompletedWorkoutId, ct);
             }
             else
             {
-                compressedUrl = await CompressImageAsync(rawStream, rawUrl, msg.PlannedWorkoutId, ct);
+                compressedUrl = await CompressImageAsync(rawStream, rawUrl, msg.CompletedWorkoutId, ct);
             }
 
 
-            await plannedWorkoutChatMessageRepository.SetMediaCompressedUrl(msg.PlannedWorkoutChatMessageId, rawUrl, compressedUrl, ct);
+            await completedWorkoutChatMessageRepository.SetMediaCompressedUrl(msg.CompletedWorkoutChatMessageId, rawUrl, compressedUrl, ct);
         }
         catch (Exception ex)
         {
             // Graceful degradation: raw URL is valid and visible to users.
             // Log and let the message ack without re-queuing.
             logger.LogWarning(ex,
-                "Media compression failed for {FileUrl} (workout {PlannedWorkoutId}). Raw URL preserved.",
-                msg.FileUrl, msg.PlannedWorkoutId);
+                "Media compression failed for {FileUrl} (completed workout {CompletedWorkoutId}). Raw URL preserved.",
+                msg.FileUrl, msg.CompletedWorkoutId);
         }
     }
 
-    private async Task<string> CompressImageAsync(Stream rawStream, string rawUrl, Guid plannedWorkoutId, CancellationToken ct)
+    private async Task<string> CompressImageAsync(Stream rawStream, string rawUrl, Guid completedWorkoutId, CancellationToken ct)
     {
         using var image = await Image.LoadAsync(rawStream, ct);
 
@@ -79,11 +79,11 @@ public class MediaCompressConsumer(
         }, ct);
         outputStream.Position = 0;
 
-        var key = $"workouts/{plannedWorkoutId}/{BaseName(rawUrl)}-compressed.webp";
+        var key = $"workouts/{completedWorkoutId}/{BaseName(rawUrl)}-compressed.webp";
         return await fileUploader.UploadAsync(outputStream, key, "image/webp", ct);
     }
 
-    private async Task<string> CompressVideoAsync(Stream rawStream, string rawUrl, Guid plannedWorkoutId, CancellationToken ct)
+    private async Task<string> CompressVideoAsync(Stream rawStream, string rawUrl, Guid completedWorkoutId, CancellationToken ct)
     {
         // Use Guid-based paths — Path.GetTempFileName() creates a file on disk that would leak
         var inputPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.mp4");
@@ -107,7 +107,7 @@ public class MediaCompressConsumer(
             await conversion.Start(ct);
 
             await using var compressedFs = File.OpenRead(outputPath);
-            var key = $"workouts/{plannedWorkoutId}/{BaseName(rawUrl)}-compressed.mp4";
+            var key = $"workouts/{completedWorkoutId}/{BaseName(rawUrl)}-compressed.mp4";
             return await fileUploader.UploadAsync(compressedFs, key, "video/mp4", ct);
         }
         finally

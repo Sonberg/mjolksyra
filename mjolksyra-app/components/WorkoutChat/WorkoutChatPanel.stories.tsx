@@ -117,7 +117,7 @@ export const AthleteView: Story = {
   render: () => (
     <WorkoutChatPanel
       traineeId="trainee-1"
-      plannedWorkoutId="workout-1"
+      completedWorkoutId="workout-1"
       viewerMode="athlete"
     />
   ),
@@ -128,7 +128,7 @@ export const CoachView: Story = {
   render: () => (
     <WorkoutChatPanel
       traineeId="trainee-1"
-      plannedWorkoutId="workout-1"
+      completedWorkoutId="workout-1"
       viewerMode="coach"
     />
   ),
@@ -139,7 +139,7 @@ export const WithConversation: Story = {
   render: () => (
     <WorkoutChatPanel
       traineeId="trainee-1"
-      plannedWorkoutId="workout-1"
+      completedWorkoutId="workout-1"
       viewerMode="athlete"
     />
   ),
@@ -150,7 +150,7 @@ export const ReadyForAnalysis: Story = {
   render: () => (
     <WorkoutChatPanel
       traineeId="trainee-1"
-      plannedWorkoutId="workout-1"
+      completedWorkoutId="workout-1"
       viewerMode="coach"
     />
   ),

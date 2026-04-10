@@ -14,9 +14,9 @@ public class RestoreWorkoutSessionCommandHandler(
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<RestoreWorkoutSessionCommand, WorkoutResponse?>
+    IUserContext userContext) : IRequestHandler<RestoreWorkoutSessionCommand, CompletedWorkoutResponse?>
 {
-    public async Task<WorkoutResponse?> Handle(RestoreWorkoutSessionCommand request, CancellationToken cancellationToken)
+    public async Task<CompletedWorkoutResponse?> Handle(RestoreWorkoutSessionCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -34,7 +34,12 @@ public class RestoreWorkoutSessionCommandHandler(
             return null;
         }
 
-        var plannedWorkout = await plannedWorkoutRepository.Get(session.PlannedWorkoutId, cancellationToken);
+        if (!session.PlannedWorkoutId.HasValue)
+        {
+            return null;
+        }
+
+        var plannedWorkout = await plannedWorkoutRepository.Get(session.PlannedWorkoutId.Value, cancellationToken);
         if (plannedWorkout is null || plannedWorkout.TraineeId != request.TraineeId)
         {
             return null;
@@ -72,7 +77,6 @@ public class RestoreWorkoutSessionCommandHandler(
             .ToList();
 
         session.CompletedAt = null;
-        session.ReviewedAt = null;
         session.Media = [];
 
         await completedWorkoutRepository.Update(session, cancellationToken);
@@ -91,6 +95,6 @@ public class RestoreWorkoutSessionCommandHandler(
         var allIds = planExerciseIds.Union(sessionExerciseIds).ToList();
         var masterExercises = await exerciseRepository.GetMany(allIds, cancellationToken);
 
-        return WorkoutResponse.From(plannedWorkout, session, masterExercises, masterExercises);
+        return CompletedWorkoutResponse.From(session, masterExercises);
     }
 }

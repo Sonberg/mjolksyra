@@ -13,7 +13,7 @@ public class CompletedWorkoutResponse
 {
     public required Guid Id { get; set; }
 
-    public required Guid PlannedWorkoutId { get; set; }
+    public Guid? PlannedWorkoutId { get; set; }
 
     public required Guid TraineeId { get; set; }
 

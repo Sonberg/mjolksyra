@@ -18,12 +18,12 @@ public class AIWorkoutPlannerControllerTests
     private readonly Mock<IMediator> _mediator = new();
     private readonly Mock<IUserEventPublisher> _publisher = new();
     private readonly Mock<IUserContext> _userContext = new();
-    private readonly AIWorkoutPlannerController _sut;
+    private readonly AiWorkoutPlannerController _sut;
 
     public AIWorkoutPlannerControllerTests()
     {
         _userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(_userId);
-        _sut = new AIWorkoutPlannerController(_mediator.Object, _publisher.Object, _userContext.Object);
+        _sut = new AiWorkoutPlannerController(_mediator.Object, _publisher.Object, _userContext.Object);
     }
 
     [Fact]

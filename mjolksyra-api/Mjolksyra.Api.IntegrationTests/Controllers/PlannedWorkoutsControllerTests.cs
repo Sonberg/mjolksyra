@@ -1,17 +1,13 @@
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
+using Moq;
 using Mjolksyra.Api.Common.UserEvents;
 using Mjolksyra.Api.Controllers;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
-using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkoutChatMessages;
-using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
-using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
-using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkoutChatMessage;
-using Moq;
 
 namespace Mjolksyra.Api.IntegrationTests.Controllers;
 
@@ -36,15 +32,15 @@ public class PlannedWorkoutsControllerTests
         TraineeId = _traineeId,
         Name = null,
         Note = null,
-        Exercises = [],
+        PublishedExercises = [],
         PlannedAt = DateOnly.FromDateTime(DateTime.UtcNow),
-        CreatedAt = DateTimeOffset.UtcNow
+        CreatedAt = DateTimeOffset.UtcNow,
     };
 
     private static PlannedWorkoutRequest MakeRequest() => new()
     {
-        Exercises = [],
-        PlannedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+        PlannedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+        DraftExercises = [],
     };
 
     [Fact]
@@ -78,6 +74,21 @@ public class PlannedWorkoutsControllerTests
     }
 
     [Fact]
+    public async Task PublishDraftExercises_PublishesPlannedWorkoutsUpdatedEvent()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<PublishDraftExercisesCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeResponse());
+
+        await _sut.PublishDraftExercises(_traineeId, Guid.NewGuid(), CancellationToken.None);
+
+        _publisher.Verify(x => x.Publish(
+            _userId,
+            "planned-workouts.updated",
+            It.IsAny<object?>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Delete_PublishesPlannedWorkoutsUpdatedEvent()
     {
         _mediator.Setup(x => x.Send(It.IsAny<DeletePlannedWorkoutCommand>(), It.IsAny<CancellationToken>()))
@@ -90,91 +101,6 @@ public class PlannedWorkoutsControllerTests
             "planned-workouts.updated",
             It.IsAny<object?>(),
             It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Log_DoesNotPublishEvent()
-    {
-        _mediator.Setup(x => x.Send(It.IsAny<LogPlannedWorkoutCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(MakeResponse());
-
-        await _sut.Log(_traineeId, Guid.NewGuid(), new LogPlannedWorkoutRequest { Exercises = [] });
-
-        _publisher.Verify(x => x.Publish(
-            It.IsAny<Guid>(),
-            It.IsAny<string>(),
-            It.IsAny<object?>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task GetChatMessages_DoesNotPublishEvent()
-    {
-        _mediator.Setup(x => x.Send(It.IsAny<GetPlannedWorkoutChatMessagesRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PlannedWorkoutChatMessageResponse>());
-
-        await _sut.GetChatMessages(_traineeId, Guid.NewGuid(), CancellationToken.None);
-
-        _publisher.Verify(x => x.Publish(
-            It.IsAny<Guid>(),
-            It.IsAny<string>(),
-            It.IsAny<object?>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task AddChatMessage_DoesNotPublishEvent()
-    {
-        _mediator.Setup(x => x.Send(It.IsAny<AddPlannedWorkoutChatMessageCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkoutChatMessageResponse
-            {
-                Id = Guid.NewGuid(),
-                UserId = _userId,
-                Message = "Hello",
-                Role = Domain.Database.Models.PlannedWorkoutChatRole.Coach,
-                CreatedAt = DateTimeOffset.UtcNow,
-                ModifiedAt = DateTimeOffset.UtcNow,
-            });
-
-        await _sut.AddChatMessage(
-            _traineeId,
-            Guid.NewGuid(),
-            new PlannedWorkoutChatMessageRequest { Message = "Hello", MediaUrls = [] },
-            CancellationToken.None);
-
-        _publisher.Verify(x => x.Publish(
-            It.IsAny<Guid>(),
-            It.IsAny<string>(),
-            It.IsAny<object?>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task UpdateChatMessage_DoesNotPublishEvent()
-    {
-        _mediator.Setup(x => x.Send(It.IsAny<UpdatePlannedWorkoutChatMessageCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkoutChatMessageResponse
-            {
-                Id = Guid.NewGuid(),
-                UserId = _userId,
-                Message = "Updated",
-                Role = Domain.Database.Models.PlannedWorkoutChatRole.Coach,
-                CreatedAt = DateTimeOffset.UtcNow,
-                ModifiedAt = DateTimeOffset.UtcNow,
-            });
-
-        await _sut.UpdateChatMessage(
-            _traineeId,
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            new PlannedWorkoutChatMessageEditRequest { Message = "Updated" },
-            CancellationToken.None);
-
-        _publisher.Verify(x => x.Publish(
-            It.IsAny<Guid>(),
-            It.IsAny<string>(),
-            It.IsAny<object?>(),
-            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

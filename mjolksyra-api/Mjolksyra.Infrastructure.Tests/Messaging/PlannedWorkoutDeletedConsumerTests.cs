@@ -49,18 +49,18 @@ public class PlannedWorkoutDeletedConsumerTests
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var fileDeleter = new Mock<IR2FileDeleter>();
-        var repository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var repository = new Mock<ICompletedWorkoutChatMessageRepository>();
         repository
             .Setup(x => x.GetByWorkoutId(traineeId, workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([
-                new PlannedWorkoutChatMessage
+                new CompletedWorkoutChatMessage
                 {
                     Id = Guid.NewGuid(),
-                    PlannedWorkoutId = workoutId,
+                    CompletedWorkoutId = workoutId,
                     TraineeId = traineeId,
                     UserId = Guid.NewGuid(),
                     Message = "x",
-                    Role = PlannedWorkoutChatRole.Athlete,
+                    Role = CompletedWorkoutChatRole.Athlete,
                     CreatedAt = DateTimeOffset.UtcNow,
                     ModifiedAt = DateTimeOffset.UtcNow,
                     Media =
@@ -87,18 +87,18 @@ public class PlannedWorkoutDeletedConsumerTests
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var fileDeleter = new Mock<IR2FileDeleter>();
-        var repository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var repository = new Mock<ICompletedWorkoutChatMessageRepository>();
         repository
             .Setup(x => x.GetByWorkoutId(traineeId, workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([
-                new PlannedWorkoutChatMessage
+                new CompletedWorkoutChatMessage
                 {
                     Id = Guid.NewGuid(),
-                    PlannedWorkoutId = workoutId,
+                    CompletedWorkoutId = workoutId,
                     TraineeId = traineeId,
                     UserId = Guid.NewGuid(),
                     Message = "x",
-                    Role = PlannedWorkoutChatRole.Athlete,
+                    Role = CompletedWorkoutChatRole.Athlete,
                     CreatedAt = DateTimeOffset.UtcNow,
                     ModifiedAt = DateTimeOffset.UtcNow,
                     Media =
@@ -124,10 +124,10 @@ public class PlannedWorkoutDeletedConsumerTests
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var fileDeleter = new Mock<IR2FileDeleter>();
-        var repository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var repository = new Mock<ICompletedWorkoutChatMessageRepository>();
         repository
             .Setup(x => x.GetByWorkoutId(traineeId, workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PlannedWorkoutChatMessage>());
+            .ReturnsAsync(new List<CompletedWorkoutChatMessage>());
         var consumer = new PlannedWorkoutDeletedConsumer(repository.Object, fileDeleter.Object, BuildR2Options());
 
         await consumer.Consume(BuildContext(workoutId, traineeId).Object);
@@ -143,18 +143,18 @@ public class PlannedWorkoutDeletedConsumerTests
         var workoutId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
         var fileDeleter = new Mock<IR2FileDeleter>();
-        var repository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var repository = new Mock<ICompletedWorkoutChatMessageRepository>();
         repository
             .Setup(x => x.GetByWorkoutId(traineeId, workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([
-                new PlannedWorkoutChatMessage
+                new CompletedWorkoutChatMessage
                 {
                     Id = Guid.NewGuid(),
-                    PlannedWorkoutId = workoutId,
+                    CompletedWorkoutId = workoutId,
                     TraineeId = traineeId,
                     UserId = Guid.NewGuid(),
                     Message = "x",
-                    Role = PlannedWorkoutChatRole.Athlete,
+                    Role = CompletedWorkoutChatRole.Athlete,
                     CreatedAt = DateTimeOffset.UtcNow,
                     ModifiedAt = DateTimeOffset.UtcNow,
                     Media =

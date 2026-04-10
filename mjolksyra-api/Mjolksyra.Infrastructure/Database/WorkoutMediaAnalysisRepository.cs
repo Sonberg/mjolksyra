@@ -12,10 +12,10 @@ public class WorkoutMediaAnalysisRepository(IMongoDbContext context) : IWorkoutM
         return analysis;
     }
 
-    public async Task<WorkoutMediaAnalysisRecord?> GetLatest(Guid traineeId, Guid plannedWorkoutId, CancellationToken ct)
+    public async Task<WorkoutMediaAnalysisRecord?> GetLatest(Guid traineeId, Guid completedWorkoutId, CancellationToken ct)
     {
         return await context.WorkoutMediaAnalyses
-            .Find(x => x.TraineeId == traineeId && x.PlannedWorkoutId == plannedWorkoutId)
+            .Find(x => x.TraineeId == traineeId && x.CompletedWorkoutId == completedWorkoutId)
             .SortByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(ct);
     }

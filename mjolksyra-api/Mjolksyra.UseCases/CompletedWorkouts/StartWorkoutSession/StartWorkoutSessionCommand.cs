@@ -3,7 +3,7 @@ using Mjolksyra.UseCases.CompletedWorkouts;
 
 namespace Mjolksyra.UseCases.CompletedWorkouts.StartWorkoutSession;
 
-public class StartWorkoutSessionCommand : IRequest<WorkoutResponse?>
+public class StartWorkoutSessionCommand : IRequest<CompletedWorkoutResponse?>
 {
     public required Guid TraineeId { get; set; }
 

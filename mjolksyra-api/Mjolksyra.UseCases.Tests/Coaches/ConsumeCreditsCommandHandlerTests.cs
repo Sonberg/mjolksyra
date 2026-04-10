@@ -22,11 +22,11 @@ public class ConsumeCreditsCommandHandlerTests
         var creditsRepo = new Mock<IUserCreditsRepository>();
         var ledgerRepo = new Mock<ICreditLedgerRepository>();
 
-        pricingRepo.Setup(r => r.GetByAction(CreditAction.AnalyzeWorkoutMedia, It.IsAny<CancellationToken>()))
+        pricingRepo.Setup(r => r.GetByAction(CreditAction.AnalyzeCompletedWorkout, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreditActionPricing
             {
                 Id = Guid.NewGuid(),
-                Action = CreditAction.AnalyzeWorkoutMedia,
+                Action = CreditAction.AnalyzeCompletedWorkout,
                 CreditCost = 5,
             });
         creditsRepo.Setup(r => r.GetByCoachUserId(coachId, It.IsAny<CancellationToken>()))
@@ -39,7 +39,7 @@ public class ConsumeCreditsCommandHandlerTests
             });
 
         var handler = CreateHandler(creditsRepo, pricingRepo, ledgerRepo);
-        var result = await handler.Handle(new ConsumeCreditsCommand(coachId, CreditAction.AnalyzeWorkoutMedia), default);
+        var result = await handler.Handle(new ConsumeCreditsCommand(coachId, CreditAction.AnalyzeCompletedWorkout), default);
 
         Assert.True(result.IsT1);
         Assert.Contains("Insufficient", result.AsT1.Reason);
@@ -53,11 +53,11 @@ public class ConsumeCreditsCommandHandlerTests
         var creditsRepo = new Mock<IUserCreditsRepository>();
         var ledgerRepo = new Mock<ICreditLedgerRepository>();
 
-        pricingRepo.Setup(r => r.GetByAction(CreditAction.AnalyzeWorkoutMedia, It.IsAny<CancellationToken>()))
+        pricingRepo.Setup(r => r.GetByAction(CreditAction.AnalyzeCompletedWorkout, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreditActionPricing
             {
                 Id = Guid.NewGuid(),
-                Action = CreditAction.AnalyzeWorkoutMedia,
+                Action = CreditAction.AnalyzeCompletedWorkout,
                 CreditCost = 5,
             });
 
@@ -82,7 +82,7 @@ public class ConsumeCreditsCommandHandlerTests
             });
 
         var handler = CreateHandler(creditsRepo, pricingRepo, ledgerRepo);
-        var result = await handler.Handle(new ConsumeCreditsCommand(coachId, CreditAction.AnalyzeWorkoutMedia, "ref-1"), default);
+        var result = await handler.Handle(new ConsumeCreditsCommand(coachId, CreditAction.AnalyzeCompletedWorkout, "ref-1"), default);
 
         Assert.True(result.IsT0);
         Assert.Equal(0, result.AsT0.RemainingIncluded);
@@ -92,7 +92,7 @@ public class ConsumeCreditsCommandHandlerTests
             x => x.Append(
                 It.Is<CreditLedger>(entry =>
                     entry.CoachUserId == coachId
-                    && entry.Action == CreditAction.AnalyzeWorkoutMedia
+                    && entry.Action == CreditAction.AnalyzeCompletedWorkout
                     && entry.Type == CreditLedgerType.Deduct
                     && entry.IncludedCreditsChanged == -3
                     && entry.PurchasedCreditsChanged == -2

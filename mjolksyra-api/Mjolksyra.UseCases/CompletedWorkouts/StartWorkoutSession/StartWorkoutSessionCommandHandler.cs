@@ -10,9 +10,9 @@ public class StartWorkoutSessionCommandHandler(
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<StartWorkoutSessionCommand, WorkoutResponse?>
+    IUserContext userContext) : IRequestHandler<StartWorkoutSessionCommand, CompletedWorkoutResponse?>
 {
-    public async Task<WorkoutResponse?> Handle(StartWorkoutSessionCommand request, CancellationToken cancellationToken)
+    public async Task<CompletedWorkoutResponse?> Handle(StartWorkoutSessionCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -34,7 +34,7 @@ public class StartWorkoutSessionCommandHandler(
         var existing = await completedWorkoutRepository.GetByPlannedWorkoutId(request.PlannedWorkoutId, cancellationToken);
         if (existing is not null)
         {
-            return await BuildResponse(plannedWorkout, existing, cancellationToken);
+            return await BuildResponse(existing, cancellationToken);
         }
 
         // Initialize exercises from PublishedExercises
@@ -79,28 +79,20 @@ public class StartWorkoutSessionCommandHandler(
             CreatedAt = DateTimeOffset.UtcNow,
         }, cancellationToken);
 
-        return await BuildResponse(plannedWorkout, session, cancellationToken);
+        return await BuildResponse(session, cancellationToken);
     }
 
-    private async Task<WorkoutResponse> BuildResponse(
-        PlannedWorkout plannedWorkout,
+    private async Task<CompletedWorkoutResponse> BuildResponse(
         CompletedWorkout session,
         CancellationToken cancellationToken)
     {
-        var planExerciseIds = plannedWorkout.PublishedExercises
-            .Concat(plannedWorkout.DraftExercises ?? [])
-            .Select(e => e.ExerciseId)
-            .OfType<Guid>()
-            .ToList();
-
         var sessionExerciseIds = session.Exercises
             .Select(e => e.ExerciseId)
             .OfType<Guid>()
             .ToList();
 
-        var allIds = planExerciseIds.Union(sessionExerciseIds).ToList();
-        var masterExercises = await exerciseRepository.GetMany(allIds, cancellationToken);
+        var masterExercises = await exerciseRepository.GetMany(sessionExerciseIds, cancellationToken);
 
-        return WorkoutResponse.From(plannedWorkout, session, masterExercises, masterExercises);
+        return CompletedWorkoutResponse.From(session, masterExercises);
     }
 }

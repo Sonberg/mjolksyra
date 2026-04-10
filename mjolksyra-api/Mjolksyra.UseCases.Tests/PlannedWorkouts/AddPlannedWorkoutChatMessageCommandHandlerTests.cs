@@ -3,12 +3,12 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.PlannedWorkouts;
-using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
+using Mjolksyra.UseCases.CompletedWorkouts;
+using Mjolksyra.UseCases.CompletedWorkouts.AddCompletedWorkoutChatMessage;
 
-namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
+namespace Mjolksyra.UseCases.Tests.CompletedWorkouts;
 
-public class AddPlannedWorkoutChatMessageCommandHandlerTests
+public class AddCompletedWorkoutChatMessageCommandHandlerTests
 {
     [Fact]
     public async Task Handle_WhenUserNotAuthenticated_ReturnsNull()
@@ -39,24 +39,24 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
             Status = Domain.Database.Enum.TraineeStatus.Active,
         };
 
-        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var workoutRepository = new Mock<ICompletedWorkoutRepository>();
         workoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = []
+                Exercises = []
             });
 
-        PlannedWorkoutChatMessage? saved = null;
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        CompletedWorkoutChatMessage? saved = null;
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
         chatRepository
-            .Setup(x => x.Create(It.IsAny<PlannedWorkoutChatMessage>(), It.IsAny<CancellationToken>()))
-            .Callback<PlannedWorkoutChatMessage, CancellationToken>((m, _) => saved = m)
-            .ReturnsAsync((PlannedWorkoutChatMessage m, CancellationToken _) => m);
+            .Setup(x => x.Create(It.IsAny<CompletedWorkoutChatMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<CompletedWorkoutChatMessage, CancellationToken>((m, _) => saved = m)
+            .ReturnsAsync((CompletedWorkoutChatMessage m, CancellationToken _) => m);
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
@@ -75,11 +75,11 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
 
         var sut = CreateSut(workoutRepository, chatRepository, traineeRepository, userContext, compressionPublisher);
 
-        var result = await sut.Handle(new AddPlannedWorkoutChatMessageCommand
+        var result = await sut.Handle(new AddCompletedWorkoutChatMessageCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
-            Message = new PlannedWorkoutChatMessageRequest
+            CompletedWorkoutId = workoutId,
+            Message = new CompletedWorkoutChatMessageRequest
             {
                 Message = "Completed session",
                 MediaUrls = ["https://utfs.io/f/photo.jpg", "https://utfs.io/f/clip.mp4?raw=1"]
@@ -88,7 +88,7 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
 
         Assert.NotNull(result);
         Assert.NotNull(saved);
-        Assert.Equal(PlannedWorkoutChatRole.Athlete, saved!.Role);
+        Assert.Equal(CompletedWorkoutChatRole.Athlete, saved!.Role);
         Assert.Equal(2, saved.Media.Count);
         Assert.Equal(PlannedWorkoutMediaType.Image, saved.Media.First().Type);
         Assert.Equal(PlannedWorkoutMediaType.Video, saved.Media.Last().Type);
@@ -111,19 +111,19 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
             Status = Domain.Database.Enum.TraineeStatus.Active,
         };
 
-        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var workoutRepository = new Mock<ICompletedWorkoutRepository>();
         workoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = []
+                Exercises = []
             });
 
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
             .Setup(x => x.HasAccess(traineeId, coachUserId, It.IsAny<CancellationToken>()))
@@ -139,11 +139,11 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
 
         var sut = CreateSut(workoutRepository, chatRepository, traineeRepository, userContext);
 
-        var result = await sut.Handle(new AddPlannedWorkoutChatMessageCommand
+        var result = await sut.Handle(new AddCompletedWorkoutChatMessageCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
-            Message = new PlannedWorkoutChatMessageRequest
+            CompletedWorkoutId = workoutId,
+            Message = new CompletedWorkoutChatMessageRequest
             {
                 Message = "   ",
                 MediaUrls = []
@@ -151,7 +151,7 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
         }, CancellationToken.None);
 
         Assert.Null(result);
-        chatRepository.Verify(x => x.Create(It.IsAny<PlannedWorkoutChatMessage>(), It.IsAny<CancellationToken>()), Times.Never);
+        chatRepository.Verify(x => x.Create(It.IsAny<CompletedWorkoutChatMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -168,24 +168,24 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
             Status = Domain.Database.Enum.TraineeStatus.Active,
         };
 
-        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var workoutRepository = new Mock<ICompletedWorkoutRepository>();
         workoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = []
+                Exercises = []
             });
 
-        PlannedWorkoutChatMessage? saved = null;
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        CompletedWorkoutChatMessage? saved = null;
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
         chatRepository
-            .Setup(x => x.Create(It.IsAny<PlannedWorkoutChatMessage>(), It.IsAny<CancellationToken>()))
-            .Callback<PlannedWorkoutChatMessage, CancellationToken>((m, _) => saved = m)
-            .ReturnsAsync((PlannedWorkoutChatMessage m, CancellationToken _) => m);
+            .Setup(x => x.Create(It.IsAny<CompletedWorkoutChatMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<CompletedWorkoutChatMessage, CancellationToken>((m, _) => saved = m)
+            .ReturnsAsync((CompletedWorkoutChatMessage m, CancellationToken _) => m);
 
         var traineeRepository = new Mock<ITraineeRepository>();
         traineeRepository
@@ -202,44 +202,44 @@ public class AddPlannedWorkoutChatMessageCommandHandlerTests
 
         var sut = CreateSut(workoutRepository, chatRepository, traineeRepository, userContext);
 
-        var result = await sut.Handle(new AddPlannedWorkoutChatMessageCommand
+        var result = await sut.Handle(new AddCompletedWorkoutChatMessageCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
-            Message = new PlannedWorkoutChatMessageRequest
+            CompletedWorkoutId = workoutId,
+            Message = new CompletedWorkoutChatMessageRequest
             {
                 Message = "Coach-context message",
-                Role = PlannedWorkoutChatRole.Coach,
+                Role = CompletedWorkoutChatRole.Coach,
             }
         }, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.NotNull(saved);
-        Assert.Equal(PlannedWorkoutChatRole.Coach, saved!.Role);
+        Assert.Equal(CompletedWorkoutChatRole.Coach, saved!.Role);
     }
 
-    private static AddPlannedWorkoutChatMessageCommandHandler CreateSut(
-        Mock<IPlannedWorkoutRepository>? workoutRepository = null,
-        Mock<IPlannedWorkoutChatMessageRepository>? chatRepository = null,
+    private static AddCompletedWorkoutChatMessageCommandHandler CreateSut(
+        Mock<ICompletedWorkoutRepository>? workoutRepository = null,
+        Mock<ICompletedWorkoutChatMessageRepository>? chatRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null,
         Mock<IMediaCompressionPublisher>? compressionPublisher = null)
     {
-        return new AddPlannedWorkoutChatMessageCommandHandler(
-            (workoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
-            (chatRepository ?? new Mock<IPlannedWorkoutChatMessageRepository>()).Object,
+        return new AddCompletedWorkoutChatMessageCommandHandler(
+            (workoutRepository ?? new Mock<ICompletedWorkoutRepository>()).Object,
+            (chatRepository ?? new Mock<ICompletedWorkoutChatMessageRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object,
             (compressionPublisher ?? new Mock<IMediaCompressionPublisher>()).Object);
     }
 
-    private static AddPlannedWorkoutChatMessageCommand CreateCommand()
+    private static AddCompletedWorkoutChatMessageCommand CreateCommand()
     {
-        return new AddPlannedWorkoutChatMessageCommand
+        return new AddCompletedWorkoutChatMessageCommand
         {
             TraineeId = Guid.NewGuid(),
-            PlannedWorkoutId = Guid.NewGuid(),
-            Message = new PlannedWorkoutChatMessageRequest
+            CompletedWorkoutId = Guid.NewGuid(),
+            Message = new CompletedWorkoutChatMessageRequest
             {
                 Message = "Hello",
                 MediaUrls = []

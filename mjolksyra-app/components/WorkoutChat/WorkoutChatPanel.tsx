@@ -2,22 +2,22 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { addPlannedWorkoutChatMessage } from "@/services/plannedWorkouts/addPlannedWorkoutChatMessage";
-import { getPlannedWorkoutChatMessages } from "@/services/plannedWorkouts/getPlannedWorkoutChatMessages";
-import { updatePlannedWorkoutChatMessage } from "@/services/plannedWorkouts/updatePlannedWorkoutChatMessage";
+import { addCompletedWorkoutChatMessage } from "@/services/completedWorkouts/addCompletedWorkoutChatMessage";
+import { getCompletedWorkoutChatMessages } from "@/services/completedWorkouts/getCompletedWorkoutChatMessages";
+import { updateCompletedWorkoutChatMessage } from "@/services/completedWorkouts/updateCompletedWorkoutChatMessage";
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutChatComposer } from "@/components/WorkoutChat/WorkoutChatComposer";
 import { WorkoutChatMessageItem } from "@/components/WorkoutChat/WorkoutChatMessageItem";
 
 type Props = {
   traineeId: string;
-  plannedWorkoutId: string;
+  completedWorkoutId: string;
   viewerMode: "athlete" | "coach";
 };
 
 export function WorkoutChatPanel({
   traineeId,
-  plannedWorkoutId,
+  completedWorkoutId,
   viewerMode,
 }: Props) {
   const queryClient = useQueryClient();
@@ -28,20 +28,20 @@ export function WorkoutChatPanel({
   const [editingMessageBody, setEditingMessageBody] = useState("");
 
   const chatMessages = useQuery({
-    queryKey: ["planned-workout-chat", traineeId, plannedWorkoutId],
+    queryKey: ["completed-workout-chat", traineeId, completedWorkoutId],
     queryFn: ({ signal }) =>
-      getPlannedWorkoutChatMessages({
+      getCompletedWorkoutChatMessages({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         signal,
       }),
   });
 
   const sendMessage = useMutation({
     mutationFn: async () =>
-      addPlannedWorkoutChatMessage({
+      addCompletedWorkoutChatMessage({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         message: {
           message,
           mediaUrls: media.map((x) => x.rawUrl),
@@ -52,10 +52,9 @@ export function WorkoutChatPanel({
       setMessage("");
       setMedia([]);
       await queryClient.invalidateQueries({
-        queryKey: ["planned-workout-chat", traineeId, plannedWorkoutId],
+        queryKey: ["completed-workout-chat", traineeId, completedWorkoutId],
       });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
-      await queryClient.invalidateQueries({ queryKey: ["planned-workout"] });
+      await queryClient.invalidateQueries({ queryKey: ["completed-workouts"] });
     },
   });
 
@@ -65,9 +64,9 @@ export function WorkoutChatPanel({
         return null;
       }
 
-      return updatePlannedWorkoutChatMessage({
+      return updateCompletedWorkoutChatMessage({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         chatMessageId: editingMessageId,
         message: editingMessageBody,
       });
@@ -76,7 +75,7 @@ export function WorkoutChatPanel({
       setEditingMessageId(null);
       setEditingMessageBody("");
       await queryClient.invalidateQueries({
-        queryKey: ["planned-workout-chat", traineeId, plannedWorkoutId],
+        queryKey: ["completed-workout-chat", traineeId, completedWorkoutId],
       });
     },
   });
@@ -172,7 +171,7 @@ export function WorkoutChatPanel({
 
       <WorkoutChatComposer
         traineeId={traineeId}
-        plannedWorkoutId={plannedWorkoutId}
+        completedWorkoutId={completedWorkoutId}
         message={message}
         onMessageChange={setMessage}
         media={media}

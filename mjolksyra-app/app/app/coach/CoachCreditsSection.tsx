@@ -107,7 +107,7 @@ export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Pr
 }
 
 export function formatActionName(action: string) {
-  if (action === "AnalyzeWorkoutMedia") {
+  if (action === "AnalyzeCompletedWorkoutMedia") {
     return "Workout media analysis";
   }
 

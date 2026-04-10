@@ -29,7 +29,7 @@ export async function requestPresignedUrl(opts: {
   contentType: string;
   fileSize: number;
   type: "image" | "video";
-  plannedWorkoutId: string;
+  workoutId: string;
 }): Promise<PresignedUrlResponse> {
   const res = await fetch("/api/uploads/presigned", {
     method: "POST",

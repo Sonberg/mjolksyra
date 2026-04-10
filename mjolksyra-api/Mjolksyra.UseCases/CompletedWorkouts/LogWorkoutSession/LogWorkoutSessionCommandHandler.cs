@@ -13,9 +13,9 @@ public class LogWorkoutSessionCommandHandler(
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext,
-    INotificationService notificationService) : IRequestHandler<LogWorkoutSessionCommand, WorkoutResponse?>
+    INotificationService notificationService) : IRequestHandler<LogWorkoutSessionCommand, CompletedWorkoutResponse?>
 {
-    public async Task<WorkoutResponse?> Handle(LogWorkoutSessionCommand request, CancellationToken cancellationToken)
+    public async Task<CompletedWorkoutResponse?> Handle(LogWorkoutSessionCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -44,11 +44,6 @@ public class LogWorkoutSessionCommandHandler(
                 Type = MediaUrlHelper.IsVideoUrl(url) ? PlannedWorkoutMediaType.Video : PlannedWorkoutMediaType.Image,
             })
             .ToList();
-
-        if (session.CompletedAt is not null)
-        {
-            session.ReviewedAt = null;
-        }
 
         foreach (var exerciseLog in request.Log.Exercises)
         {
@@ -90,12 +85,19 @@ public class LogWorkoutSessionCommandHandler(
                 trainee.CoachUserId,
                 type: "workout.completed",
                 title: "Workout completed",
-                body: $"Athlete completed the workout for {session.PlannedAt:yyyy-MM-dd}. It now needs review.",
-                href: $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={session.Id}",
+                body: $"Athlete completed the workout for {session.PlannedAt:yyyy-MM-dd}.",
+                href: $"/app/coach/athletes/{trainee.Id}/workouts/completed/{session.Id}",
                 cancellationToken: cancellationToken);
         }
 
-        var plannedWorkout = await plannedWorkoutRepository.Get(session.PlannedWorkoutId, cancellationToken);
+        var sessionExerciseIds = session.Exercises
+            .Select(e => e.ExerciseId)
+            .OfType<Guid>()
+            .ToList();
+
+        var plannedWorkout = session.PlannedWorkoutId.HasValue
+            ? await plannedWorkoutRepository.Get(session.PlannedWorkoutId.Value, cancellationToken)
+            : null;
 
         var planExerciseIds = plannedWorkout?.PublishedExercises
             .Concat(plannedWorkout.DraftExercises ?? [])
@@ -103,14 +105,8 @@ public class LogWorkoutSessionCommandHandler(
             .OfType<Guid>()
             .ToList() ?? [];
 
-        var sessionExerciseIds = session.Exercises
-            .Select(e => e.ExerciseId)
-            .OfType<Guid>()
-            .ToList();
+        var masterExercises = await exerciseRepository.GetMany(planExerciseIds.Union(sessionExerciseIds).ToList(), cancellationToken);
 
-        var allIds = planExerciseIds.Union(sessionExerciseIds).ToList();
-        var masterExercises = await exerciseRepository.GetMany(allIds, cancellationToken);
-
-        return WorkoutResponse.From(plannedWorkout!, session, masterExercises, masterExercises);
+        return CompletedWorkoutResponse.From(session, masterExercises);
     }
 }

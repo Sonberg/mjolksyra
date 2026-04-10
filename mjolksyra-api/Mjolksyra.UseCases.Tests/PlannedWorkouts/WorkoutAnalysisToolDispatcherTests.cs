@@ -4,9 +4,9 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
-using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
+using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 
-namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
+namespace Mjolksyra.UseCases.Tests.CompletedWorkouts;
 
 public class WorkoutAnalysisToolDispatcherTests
 {

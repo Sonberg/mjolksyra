@@ -6,7 +6,7 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
-using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
+using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 

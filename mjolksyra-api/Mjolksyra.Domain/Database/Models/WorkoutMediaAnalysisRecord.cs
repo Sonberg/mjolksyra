@@ -6,7 +6,7 @@ public class WorkoutMediaAnalysisRecord
 
     public Guid TraineeId { get; set; }
 
-    public Guid PlannedWorkoutId { get; set; }
+    public Guid CompletedWorkoutId { get; set; }
 
     public Guid RequestedByUserId { get; set; }
 

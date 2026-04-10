@@ -255,9 +255,8 @@ public class UpdateWorkoutSessionCommandHandlerTests
         }, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.NotNull(result.Session);
-        Assert.Equal(completedAt, result.Session!.CompletedAt);
-        Assert.Null(result.Session.ReviewedAt); // Cleared when completed
+        Assert.Equal(completedAt, result.CompletedAt);
+        Assert.Null(result.ReviewedAt); // Cleared when completed
 
         notificationService.Verify(
             x => x.Notify(coachUserId, "workout.completed", It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
@@ -339,7 +338,6 @@ public class UpdateWorkoutSessionCommandHandlerTests
     }
 
     private static UpdateWorkoutSessionCommandHandler CreateSut(
-        Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<ICompletedWorkoutRepository>? completedWorkoutRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
@@ -351,20 +349,7 @@ public class UpdateWorkoutSessionCommandHandlerTests
             .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var plannedWorkoutRepo = plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>();
-        plannedWorkoutRepo
-            .Setup(x => x.Get(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
-            {
-                Id = Guid.NewGuid(),
-                TraineeId = Guid.NewGuid(),
-                PublishedExercises = [],
-                PlannedAt = new DateOnly(2026, 5, 1),
-                CreatedAt = DateTimeOffset.UtcNow
-            });
-
         return new UpdateWorkoutSessionCommandHandler(
-            plannedWorkoutRepo.Object,
             (completedWorkoutRepository ?? new Mock<ICompletedWorkoutRepository>()).Object,
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,

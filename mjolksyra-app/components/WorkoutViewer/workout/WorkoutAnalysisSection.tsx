@@ -3,15 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { MessageSquareShareIcon } from "lucide-react";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
-import { analyzeWorkoutMedia } from "@/services/plannedWorkouts/analyzeWorkoutMedia";
-import { getLatestWorkoutMediaAnalysis } from "@/services/plannedWorkouts/getLatestWorkoutMediaAnalysis";
-import { addPlannedWorkoutChatMessage } from "@/services/plannedWorkouts/addPlannedWorkoutChatMessage";
+import { analyzeCompletedWorkoutMedia } from "@/services/completedWorkouts/analyzeCompletedWorkoutMedia";
+import { getLatestCompletedWorkoutMediaAnalysis } from "@/services/completedWorkouts/getLatestCompletedWorkoutMediaAnalysis";
+import { addCompletedWorkoutChatMessage } from "@/services/completedWorkouts/addCompletedWorkoutChatMessage";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { WorkoutMediaAnalysis } from "@/services/plannedWorkouts/type";
 
 type Props = {
   traineeId: string;
-  plannedWorkoutId: string;
+  completedWorkoutId: string;
 };
 
 function AnalysisSkeleton() {
@@ -40,7 +40,7 @@ function AnalysisSkeleton() {
 
 function WorkoutAnalysisTrigger({
   traineeId,
-  plannedWorkoutId,
+  completedWorkoutId,
   isPending,
   onAnalyze,
 }: Props & { isPending: boolean; onAnalyze: (text: string) => void }) {
@@ -52,7 +52,7 @@ function WorkoutAnalysisTrigger({
   });
 
   const analyzeCost = useMemo(() => {
-    const mediaAction = pricing.data?.find((item) => item.action === "AnalyzeWorkoutMedia");
+    const mediaAction = pricing.data?.find((item) => item.action === "AnalyzeCompletedWorkoutMedia");
     return mediaAction?.creditCost ?? null;
   }, [pricing.data]);
 
@@ -116,15 +116,15 @@ function buildAnalysisShareMessage(analysis: WorkoutMediaAnalysis) {
 
 export function WorkoutAnalysisSection({
   traineeId,
-  plannedWorkoutId,
+  completedWorkoutId,
   isPending = false,
 }: Props & { isPending?: boolean }) {
   const latestAnalysis = useQuery({
-    queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
+    queryKey: ["completed-workout-analysis", traineeId, completedWorkoutId],
     queryFn: ({ signal }) =>
-      getLatestWorkoutMediaAnalysis({
+      getLatestCompletedWorkoutMediaAnalysis({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         signal,
       }),
   });
@@ -153,7 +153,7 @@ export function WorkoutAnalysisSection({
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Findings</span>
                   <ul className="mt-1 list-disc pl-4 space-y-0.5">
-                    {analysis.keyFindings.map((f, i) => <li key={i}>{f}</li>)}
+                    {analysis.keyFindings.map((f: string, i: number) => <li key={i}>{f}</li>)}
                   </ul>
                 </div>
               ) : null}
@@ -161,7 +161,7 @@ export function WorkoutAnalysisSection({
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Risks</span>
                   <ul className="mt-1 list-disc pl-4 space-y-0.5">
-                    {analysis.techniqueRisks.map((r, i) => <li key={i}>{r}</li>)}
+                    {analysis.techniqueRisks.map((r: string, i: number) => <li key={i}>{r}</li>)}
                   </ul>
                 </div>
               ) : null}
@@ -169,7 +169,7 @@ export function WorkoutAnalysisSection({
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Suggestions</span>
                   <ul className="mt-1 list-disc pl-4 space-y-0.5">
-                    {analysis.coachSuggestions.map((s, i) => <li key={i}>{s}</li>)}
+                    {analysis.coachSuggestions.map((s: string, i: number) => <li key={i}>{s}</li>)}
                   </ul>
                 </div>
               ) : null}
@@ -181,31 +181,31 @@ export function WorkoutAnalysisSection({
   );
 }
 
-export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
+export function WorkoutAnalysis({ traineeId, completedWorkoutId }: Props) {
   const queryClient = useQueryClient();
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [shareSuccess, setShareSuccess] = useState<string | null>(null);
 
   const analyze = useMutation({
     mutationFn: async (text: string) =>
-      analyzeWorkoutMedia({
+      analyzeCompletedWorkoutMedia({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         analysis: { text },
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
+        queryKey: ["completed-workout-analysis", traineeId, completedWorkoutId],
       });
     },
   });
 
   const latestAnalysis = useQuery({
-    queryKey: ["planned-workout-analysis", traineeId, plannedWorkoutId],
+    queryKey: ["completed-workout-analysis", traineeId, completedWorkoutId],
     queryFn: ({ signal }) =>
-      getLatestWorkoutMediaAnalysis({
+      getLatestCompletedWorkoutMediaAnalysis({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         signal,
       }),
   });
@@ -217,9 +217,9 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
         throw new Error("No analysis available to share.");
       }
 
-      return addPlannedWorkoutChatMessage({
+      return addCompletedWorkoutChatMessage({
         traineeId,
-        plannedWorkoutId,
+        completedWorkoutId,
         message: {
           message: buildAnalysisShareMessage(analysis),
           mediaUrls: [],
@@ -230,7 +230,7 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
     onSuccess: async () => {
       setShareSuccess("Shared in workout chat.");
       await queryClient.invalidateQueries({
-        queryKey: ["planned-workout-chat", traineeId, plannedWorkoutId],
+        queryKey: ["completed-workout-chat", traineeId, completedWorkoutId],
       });
     },
   });
@@ -262,7 +262,7 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
     <div className="space-y-4">
       <WorkoutAnalysisSection
         traineeId={traineeId}
-        plannedWorkoutId={plannedWorkoutId}
+        completedWorkoutId={completedWorkoutId}
         isPending={analyze.isPending}
       />
 
@@ -299,7 +299,7 @@ export function WorkoutAnalysis({ traineeId, plannedWorkoutId }: Props) {
 
       <WorkoutAnalysisTrigger
         traineeId={traineeId}
-        plannedWorkoutId={plannedWorkoutId}
+        completedWorkoutId={completedWorkoutId}
         isPending={analyze.isPending}
         onAnalyze={(text) => analyze.mutate(text)}
       />

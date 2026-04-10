@@ -8,14 +8,13 @@ using Mjolksyra.Domain.UserContext;
 namespace Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
 
 public class UpdateWorkoutSessionCommandHandler(
-    IPlannedWorkoutRepository plannedWorkoutRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext,
-    INotificationService notificationService) : IRequestHandler<UpdateWorkoutSessionCommand, WorkoutResponse?>
+    INotificationService notificationService) : IRequestHandler<UpdateWorkoutSessionCommand, CompletedWorkoutResponse?>
 {
-    public async Task<WorkoutResponse?> Handle(UpdateWorkoutSessionCommand request, CancellationToken cancellationToken)
+    public async Task<CompletedWorkoutResponse?> Handle(UpdateWorkoutSessionCommand request, CancellationToken cancellationToken)
     {
         if (await userContext.GetUserId(cancellationToken) is not { } userId)
         {
@@ -80,7 +79,6 @@ public class UpdateWorkoutSessionCommandHandler(
             .ToList();
 
         session.CompletedAt = request.Session.CompletedAt;
-        session.ReviewedAt = request.Session.ReviewedAt;
         session.Media = request.Session.MediaUrls
             .Select(url => new PlannedWorkoutMedia
             {
@@ -109,22 +107,13 @@ public class UpdateWorkoutSessionCommandHandler(
                 cancellationToken: cancellationToken);
         }
 
-        var plannedWorkout = await plannedWorkoutRepository.Get(session.PlannedWorkoutId, cancellationToken);
-
-        var planExerciseIds = plannedWorkout?.PublishedExercises
-            .Concat(plannedWorkout.DraftExercises ?? [])
-            .Select(e => e.ExerciseId)
-            .OfType<Guid>()
-            .ToList() ?? [];
-
         var sessionExerciseIds = session.Exercises
             .Select(e => e.ExerciseId)
             .OfType<Guid>()
             .ToList();
 
-        var allIds = planExerciseIds.Union(sessionExerciseIds).ToList();
-        var masterExercises = await exerciseRepository.GetMany(allIds, cancellationToken);
+        var masterExercises = await exerciseRepository.GetMany(sessionExerciseIds, cancellationToken);
 
-        return WorkoutResponse.From(plannedWorkout!, session, masterExercises, masterExercises);
+        return CompletedWorkoutResponse.From(session, masterExercises);
     }
 }

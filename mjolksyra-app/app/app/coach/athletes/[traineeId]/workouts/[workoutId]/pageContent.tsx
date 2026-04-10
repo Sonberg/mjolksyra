@@ -8,13 +8,13 @@ import { getTrainee } from "@/services/trainees/getTrainee";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import type { Trainee } from "@/services/trainees/type";
-import type { WorkoutResponse } from "@/services/completedWorkouts/type";
+import type { CompletedWorkout } from "@/services/completedWorkouts/type";
 
 type Props = {
   traineeId: string;
   workoutId: string;
-  backTab?: "past" | "future" | "changes";
-  initialWorkoutResponse?: WorkoutResponse | null;
+  backTab?: "planned" | "completed";
+  initialWorkoutResponse?: CompletedWorkout | null;
   initialTrainee?: Trainee | null;
 };
 
@@ -30,7 +30,7 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkoutRespo
     queryFn: () =>
       getWorkoutSession({
         traineeId,
-        plannedWorkoutId: workoutId,
+        completedWorkoutId: workoutId,
       }),
     initialData: initialWorkoutResponse ?? undefined,
     retry: false,
@@ -56,7 +56,7 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkoutRespo
             <ChevronLeftIcon className="h-4 w-4" />
           </Link>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Workout</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Completed workout</p>
             <p className="truncate text-base font-semibold text-[var(--shell-ink)]">{athleteName}</p>
           </div>
         </div>
@@ -72,15 +72,11 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkoutRespo
           </div>
         ) : null}
         {workoutQuery.data ? (() => {
-          const { session, ...workout } = workoutQuery.data;
           return (
             <div className="flex-1 min-h-0 overflow-hidden">
               <WorkoutDetail
-                workout={workout}
-                session={session}
+                workout={workoutQuery.data}
                 viewerMode="coach"
-                traineeId={traineeId}
-                backTab={backTab}
               />
             </div>
           );

@@ -7,7 +7,7 @@ using Mjolksyra.Infrastructure.R2;
 namespace Mjolksyra.Infrastructure.Messaging.Consumers;
 
 public class PlannedWorkoutDeletedConsumer(
-    IPlannedWorkoutChatMessageRepository repository,
+    ICompletedWorkoutChatMessageRepository repository,
     IR2FileDeleter fileDeleter,
     IOptions<R2Options> r2Options) : IConsumer<PlannedWorkoutDeletedMessage>
 {

@@ -2,12 +2,12 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.PlannedWorkouts;
-using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkoutChatMessage;
+using Mjolksyra.UseCases.CompletedWorkouts;
+using Mjolksyra.UseCases.CompletedWorkouts.UpdateCompletedWorkoutChatMessage;
 
-namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
+namespace Mjolksyra.UseCases.Tests.CompletedWorkouts;
 
-public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
+public class UpdateCompletedWorkoutChatMessageCommandHandlerTests
 {
     [Fact]
     public async Task Handle_WhenMessageBelongsToUser_UpdatesMessage()
@@ -17,42 +17,42 @@ public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
         var chatMessageId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var plannedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         plannedWorkoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 2),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = [],
+                Exercises = [],
             });
 
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
         chatRepository
             .Setup(x => x.GetById(chatMessageId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkoutChatMessage
+            .ReturnsAsync(new CompletedWorkoutChatMessage
             {
                 Id = chatMessageId,
                 TraineeId = traineeId,
-                PlannedWorkoutId = workoutId,
+                CompletedWorkoutId = workoutId,
                 UserId = userId,
                 Message = "Old",
-                Role = PlannedWorkoutChatRole.Athlete,
+                Role = CompletedWorkoutChatRole.Athlete,
                 CreatedAt = DateTimeOffset.UtcNow,
                 ModifiedAt = DateTimeOffset.UtcNow,
             });
         chatRepository
             .Setup(x => x.UpdateMessage(chatMessageId, "New text", It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkoutChatMessage
+            .ReturnsAsync(new CompletedWorkoutChatMessage
             {
                 Id = chatMessageId,
                 TraineeId = traineeId,
-                PlannedWorkoutId = workoutId,
+                CompletedWorkoutId = workoutId,
                 UserId = userId,
                 Message = "New text",
-                Role = PlannedWorkoutChatRole.Athlete,
+                Role = CompletedWorkoutChatRole.Athlete,
                 CreatedAt = DateTimeOffset.UtcNow,
                 ModifiedAt = DateTimeOffset.UtcNow,
             });
@@ -65,18 +65,18 @@ public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
 
-        var sut = new UpdatePlannedWorkoutChatMessageCommandHandler(
+        var sut = new UpdateCompletedWorkoutChatMessageCommandHandler(
             plannedWorkoutRepository.Object,
             chatRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new UpdatePlannedWorkoutChatMessageCommand
+        var result = await sut.Handle(new UpdateCompletedWorkoutChatMessageCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            CompletedWorkoutId = workoutId,
             ChatMessageId = chatMessageId,
-            Message = new PlannedWorkoutChatMessageEditRequest { Message = "New text" },
+            Message = new CompletedWorkoutChatMessageEditRequest { Message = "New text" },
         }, CancellationToken.None);
 
         Assert.NotNull(result);
@@ -91,29 +91,29 @@ public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
         var chatMessageId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var plannedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
         plannedWorkoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 2),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = [],
+                Exercises = [],
             });
 
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
         chatRepository
             .Setup(x => x.GetById(chatMessageId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkoutChatMessage
+            .ReturnsAsync(new CompletedWorkoutChatMessage
             {
                 Id = chatMessageId,
                 TraineeId = traineeId,
-                PlannedWorkoutId = workoutId,
+                CompletedWorkoutId = workoutId,
                 UserId = Guid.NewGuid(),
                 Message = "Old",
-                Role = PlannedWorkoutChatRole.Athlete,
+                Role = CompletedWorkoutChatRole.Athlete,
                 CreatedAt = DateTimeOffset.UtcNow,
                 ModifiedAt = DateTimeOffset.UtcNow,
             });
@@ -126,18 +126,18 @@ public class UpdatePlannedWorkoutChatMessageCommandHandlerTests
         var userContext = new Mock<IUserContext>();
         userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(userId);
 
-        var sut = new UpdatePlannedWorkoutChatMessageCommandHandler(
+        var sut = new UpdateCompletedWorkoutChatMessageCommandHandler(
             plannedWorkoutRepository.Object,
             chatRepository.Object,
             traineeRepository.Object,
             userContext.Object);
 
-        var result = await sut.Handle(new UpdatePlannedWorkoutChatMessageCommand
+        var result = await sut.Handle(new UpdateCompletedWorkoutChatMessageCommand
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            CompletedWorkoutId = workoutId,
             ChatMessageId = chatMessageId,
-            Message = new PlannedWorkoutChatMessageEditRequest { Message = "New text" },
+            Message = new CompletedWorkoutChatMessageEditRequest { Message = "New text" },
         }, CancellationToken.None);
 
         Assert.Null(result);

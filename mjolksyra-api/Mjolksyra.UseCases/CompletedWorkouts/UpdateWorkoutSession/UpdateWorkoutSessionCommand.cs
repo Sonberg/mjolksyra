@@ -4,7 +4,7 @@ using Mjolksyra.UseCases.CompletedWorkouts;
 
 namespace Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
 
-public class UpdateWorkoutSessionCommand : IRequest<WorkoutResponse?>
+public class UpdateWorkoutSessionCommand : IRequest<CompletedWorkoutResponse?>
 {
     public required Guid TraineeId { get; set; }
 
@@ -18,8 +18,6 @@ public class UpdateWorkoutSessionRequest
     public required ICollection<CompletedExerciseRequest> Exercises { get; set; }
 
     public DateTimeOffset? CompletedAt { get; set; }
-
-    public DateTimeOffset? ReviewedAt { get; set; }
 
     public ICollection<string> MediaUrls { get; set; } = [];
 }

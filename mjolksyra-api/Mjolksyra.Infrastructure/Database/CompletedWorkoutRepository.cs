@@ -33,8 +33,19 @@ public class CompletedWorkoutRepository : ICompletedWorkoutRepository
 
     public async Task<ICollection<CompletedWorkout>> GetByPlannedWorkoutIds(ICollection<Guid> plannedWorkoutIds, CancellationToken cancellationToken)
     {
+        var filter = Builders<CompletedWorkout>.Filter.And(
+            Builders<CompletedWorkout>.Filter.Ne(x => x.PlannedWorkoutId, null),
+            Builders<CompletedWorkout>.Filter.In(nameof(CompletedWorkout.PlannedWorkoutId), plannedWorkoutIds));
+
         return await _context.CompletedWorkouts
-            .Find(Builders<CompletedWorkout>.Filter.In(x => x.PlannedWorkoutId, plannedWorkoutIds))
+            .Find(filter)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<ICollection<CompletedWorkout>> GetByIds(ICollection<Guid> ids, CancellationToken cancellationToken)
+    {
+        return await _context.CompletedWorkouts
+            .Find(Builders<CompletedWorkout>.Filter.In(x => x.Id, ids))
             .ToListAsync(cancellationToken);
     }
 

@@ -11,6 +11,8 @@ public interface ICompletedWorkoutRepository
 
     Task<ICollection<CompletedWorkout>> GetByPlannedWorkoutIds(ICollection<Guid> plannedWorkoutIds, CancellationToken cancellationToken);
 
+    Task<ICollection<CompletedWorkout>> GetByIds(ICollection<Guid> ids, CancellationToken cancellationToken);
+
     Task<CompletedWorkout> Create(CompletedWorkout workout, CancellationToken cancellationToken);
 
     Task Update(CompletedWorkout workout, CancellationToken cancellationToken);

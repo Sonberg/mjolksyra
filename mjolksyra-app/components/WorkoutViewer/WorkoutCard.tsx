@@ -3,10 +3,7 @@
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
-import { CheckCircle2Icon } from "lucide-react";
 import Link from "next/link";
-import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
-import { WorkoutAnalysisSection } from "./workout/WorkoutAnalysisSection";
 import { StatusBadge } from "./StatusBadge";
 
 type Props = {
@@ -14,7 +11,7 @@ type Props = {
   viewerMode?: "athlete" | "coach";
   isHighlighted?: boolean;
   traineeId?: string;
-  backTab?: "past" | "future" | "changes";
+  backTab?: "planned" | "completed";
 };
 
 export function WorkoutCard({
@@ -52,8 +49,6 @@ export function WorkoutCard({
     }
   }, [date]);
 
-  const isCompleted = false;
-  const isReviewed = false;
   const exercises = workout.publishedExercises;
   const totalExercises = exercises.length;
   const doneExercises = exercises.filter(
@@ -74,11 +69,11 @@ export function WorkoutCard({
   const detailHref = traineeId
     ? viewerMode === "coach"
       ? backTab
-        ? `/app/coach/athletes/${traineeId}/workouts/${workout.id}?tab=${backTab}`
-        : `/app/coach/athletes/${traineeId}/workouts/${workout.id}`
+        ? `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}?tab=${backTab}`
+        : `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}`
       : backTab
-      ? `/app/athlete/${traineeId}/workouts/${workout.id}?tab=${backTab}`
-      : `/app/athlete/${traineeId}/workouts/${workout.id}`
+      ? `/app/athlete/${traineeId}/workouts/planned/${workout.id}?tab=${backTab}`
+      : `/app/athlete/${traineeId}/workouts/planned/${workout.id}`
     : null;
 
   useEffect(() => {
@@ -107,19 +102,8 @@ export function WorkoutCard({
               {displayName}
             </p>
             <div className="flex items-center gap-2">
-              {isCompleted ? (
-                <StatusBadge variant="default">
-                  <CheckCircle2Icon className="h-3 w-3" />
-                  Completed
-                </StatusBadge>
-              ) : null}
-              {viewerMode === "coach" && isReviewed ? (
-                <StatusBadge variant="solid">Reviewed</StatusBadge>
-              ) : null}
+              <StatusBadge variant="subtle">Planned</StatusBadge>
             </div>
-            {viewerMode === "coach" && isCompleted && !isReviewed ? (
-              <StatusBadge variant="accent">Needs review</StatusBadge>
-            ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {detailHref ? (

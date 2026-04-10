@@ -2,11 +2,11 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.PlannedWorkouts.GetLatestWorkoutMediaAnalysis;
+using Mjolksyra.UseCases.CompletedWorkouts.GetLatestCompletedWorkoutMediaAnalysis;
 
-namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
+namespace Mjolksyra.UseCases.Tests.CompletedWorkouts;
 
-public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
+public class GetLatestCompletedWorkoutMediaAnalysisRequestHandlerTests
 {
     [Fact]
     public async Task Handle_WhenLatestExists_ReturnsLatestAnalysis()
@@ -35,16 +35,16 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
                 Status = Domain.Database.Enum.TraineeStatus.Active,
             });
 
-        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var workoutRepository = new Mock<ICompletedWorkoutRepository>();
         workoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = [],
+                Exercises = [],
             });
 
         var analysisRepository = new Mock<IWorkoutMediaAnalysisRepository>();
@@ -54,7 +54,7 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
             {
                 Id = Guid.NewGuid(),
                 TraineeId = traineeId,
-                PlannedWorkoutId = workoutId,
+                CompletedWorkoutId = workoutId,
                 RequestedByUserId = userId,
                 Text = "Review check-in",
                 Summary = "Strong session.",
@@ -64,16 +64,16 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
                 CreatedAt = createdAt,
             });
 
-        var sut = new GetLatestWorkoutMediaAnalysisRequestHandler(
+        var sut = new GetLatestCompletedWorkoutMediaAnalysisRequestHandler(
             workoutRepository.Object,
             traineeRepository.Object,
             userContext.Object,
             analysisRepository.Object);
 
-        var result = await sut.Handle(new GetLatestWorkoutMediaAnalysisRequest
+        var result = await sut.Handle(new GetLatestCompletedWorkoutMediaAnalysisRequest
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            CompletedWorkoutId = workoutId,
         }, CancellationToken.None);
 
         Assert.NotNull(result);
@@ -107,16 +107,16 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
                 Status = Domain.Database.Enum.TraineeStatus.Active,
             });
 
-        var workoutRepository = new Mock<IPlannedWorkoutRepository>();
+        var workoutRepository = new Mock<ICompletedWorkoutRepository>();
         workoutRepository
-            .Setup(x => x.Get(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PlannedWorkout
+            .Setup(x => x.GetById(workoutId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CompletedWorkout
             {
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 4, 1),
                 CreatedAt = DateTimeOffset.UtcNow,
-                PublishedExercises = [],
+                Exercises = [],
             });
 
         var analysisRepository = new Mock<IWorkoutMediaAnalysisRepository>();
@@ -124,16 +124,16 @@ public class GetLatestWorkoutMediaAnalysisRequestHandlerTests
             .Setup(x => x.GetLatest(traineeId, workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((WorkoutMediaAnalysisRecord?)null);
 
-        var sut = new GetLatestWorkoutMediaAnalysisRequestHandler(
+        var sut = new GetLatestCompletedWorkoutMediaAnalysisRequestHandler(
             workoutRepository.Object,
             traineeRepository.Object,
             userContext.Object,
             analysisRepository.Object);
 
-        var result = await sut.Handle(new GetLatestWorkoutMediaAnalysisRequest
+        var result = await sut.Handle(new GetLatestCompletedWorkoutMediaAnalysisRequest
         {
             TraineeId = traineeId,
-            PlannedWorkoutId = workoutId,
+            CompletedWorkoutId = workoutId,
         }, CancellationToken.None);
 
         Assert.Null(result);

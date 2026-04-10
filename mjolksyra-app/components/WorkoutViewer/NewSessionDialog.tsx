@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { createPlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
+import { createCompletedWorkout } from "@/services/completedWorkouts/createCompletedWorkout";
 import {
   Dialog,
   DialogContent,
@@ -29,21 +29,12 @@ export function NewSessionDialog({
 
   const create = useMutation({
     mutationFn: () =>
-      createPlannedWorkout({
-        plannedWorkout: {
-          id: "",
-          traineeId,
-          name: null,
-          note: null,
-          plannedAt: date,
-          publishedExercises: [],
-          draftExercises: null,
-          createdAt: null,
-          appliedBlock: null,
-        },
+      createCompletedWorkout({
+        traineeId,
+        plannedAt: date,
       }),
     onSuccess: async (created) => {
-      await queryClient.invalidateQueries({ queryKey: ["planned-workouts"] });
+      await queryClient.invalidateQueries({ queryKey: ["completed-workouts"] });
       onOpenChange(false);
       onCreated(created.id);
     },

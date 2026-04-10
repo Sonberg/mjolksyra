@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
-  const analyzeCost = creditPricing.find((x) => x.action === "AnalyzeWorkoutMedia")?.creditCost;
+  const analyzeCost = creditPricing.find((x) => x.action === "AnalyzeCompletedWorkoutMedia")?.creditCost;
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   return (
@@ -65,7 +65,7 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
 
       {analyzeCost ? (
         <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          {formatActionName("AnalyzeWorkoutMedia")}: {analyzeCost} credits
+          {formatActionName("AnalyzeCompletedWorkoutMedia")}: {analyzeCost} credits
         </p>
       ) : null}
     </div>

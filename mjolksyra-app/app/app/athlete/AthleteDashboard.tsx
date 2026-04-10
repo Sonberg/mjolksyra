@@ -6,8 +6,8 @@ type Props = {
   coach: UserTrainee;
   focusWorkoutId?: string;
   detailWorkoutId?: string;
-  detailBackTab?: "past" | "future";
-  initialWorkoutTab?: "past" | "future";
+  detailBackTab?: "planned" | "completed";
+  initialWorkoutTab?: "planned" | "completed";
 };
 
 export function AthleteDashboard({
@@ -21,7 +21,6 @@ export function AthleteDashboard({
     <WorkoutDetails
       traineeId={coach.traineeId}
       workoutId={detailWorkoutId}
-      backTab={detailBackTab ?? initialWorkoutTab}
     />
   ) : (
     <WorkoutViewer

@@ -17,7 +17,7 @@ public interface IMongoDbContext
 
     IMongoCollection<PlannedWorkout> PlannedWorkout { get; }
 
-    IMongoCollection<PlannedWorkoutChatMessage> PlannedWorkoutChatMessages { get; }
+    IMongoCollection<CompletedWorkoutChatMessage> CompletedWorkoutChatMessages { get; }
     
     IMongoCollection<Block> Blocks { get; }
 
@@ -64,7 +64,7 @@ public class MongoDbContext : IMongoDbContext
 
     public IMongoCollection<PlannedWorkout> PlannedWorkout => Database.GetCollection<PlannedWorkout>("planned-workouts");
 
-    public IMongoCollection<PlannedWorkoutChatMessage> PlannedWorkoutChatMessages => Database.GetCollection<PlannedWorkoutChatMessage>("planned-workout-chat-messages");
+    public IMongoCollection<CompletedWorkoutChatMessage> CompletedWorkoutChatMessages => Database.GetCollection<CompletedWorkoutChatMessage>("completed-workout-chat-messages");
 
     public IMongoCollection<Block> Blocks => Database.GetCollection<Block>("blocks");
 
@@ -78,7 +78,7 @@ public class MongoDbContext : IMongoDbContext
 
     public IMongoCollection<Plan> Plans => Database.GetCollection<Plan>("plans");
 
-    public IMongoCollection<WorkoutMediaAnalysisRecord> WorkoutMediaAnalyses => Database.GetCollection<WorkoutMediaAnalysisRecord>("planned-workout-analyses");
+    public IMongoCollection<WorkoutMediaAnalysisRecord> WorkoutMediaAnalyses => Database.GetCollection<WorkoutMediaAnalysisRecord>("completed-workout-analyses");
 
     public IMongoCollection<UserCredits> UserCredits => Database.GetCollection<UserCredits>("user-credits");
 

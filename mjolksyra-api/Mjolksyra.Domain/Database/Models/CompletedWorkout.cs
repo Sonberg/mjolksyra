@@ -8,7 +8,7 @@ public class CompletedWorkout : IDocument
 {
     public Guid Id { get; set; }
 
-    public Guid PlannedWorkoutId { get; set; }
+    public Guid? PlannedWorkoutId { get; set; }
 
     public Guid TraineeId { get; set; }
 

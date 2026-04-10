@@ -2,12 +2,18 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.UseCases.Common.Models;
+using Mjolksyra.UseCases.CompletedWorkouts.AddCompletedWorkoutChatMessage;
 using Mjolksyra.UseCases.CompletedWorkouts;
+using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
+using Mjolksyra.UseCases.CompletedWorkouts.CreateCompletedWorkout;
+using Mjolksyra.UseCases.CompletedWorkouts.GetCompletedWorkoutChatMessages;
+using Mjolksyra.UseCases.CompletedWorkouts.GetLatestCompletedWorkoutMediaAnalysis;
 using Mjolksyra.UseCases.CompletedWorkouts.GetWorkoutSession;
 using Mjolksyra.UseCases.CompletedWorkouts.GetWorkouts;
 using Mjolksyra.UseCases.CompletedWorkouts.LogWorkoutSession;
 using Mjolksyra.UseCases.CompletedWorkouts.RestoreWorkoutSession;
 using Mjolksyra.UseCases.CompletedWorkouts.StartWorkoutSession;
+using Mjolksyra.UseCases.CompletedWorkouts.UpdateCompletedWorkoutChatMessage;
 using Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
 
 namespace Mjolksyra.Api.Controllers;
@@ -24,7 +30,7 @@ public class WorkoutController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult<PaginatedResponse<WorkoutResponse>>> GetWorkouts(
+    public async Task<ActionResult<PaginatedResponse<CompletedWorkoutResponse>>> GetWorkouts(
         Guid traineeId,
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to,
@@ -48,7 +54,7 @@ public class WorkoutController : Controller
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<WorkoutResponse>> GetWorkout(
+    public async Task<ActionResult<CompletedWorkoutResponse>> GetWorkout(
         Guid traineeId,
         Guid id,
         CancellationToken cancellationToken)
@@ -63,7 +69,7 @@ public class WorkoutController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult<WorkoutResponse>> StartSession(
+    public async Task<ActionResult<CompletedWorkoutResponse>> StartSession(
         Guid traineeId,
         [FromBody] StartWorkoutSessionRequest request,
         CancellationToken cancellationToken)
@@ -77,8 +83,23 @@ public class WorkoutController : Controller
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpPost("ad-hoc")]
+    public async Task<ActionResult<CompletedWorkoutResponse>> CreateAdHocWorkout(
+        Guid traineeId,
+        [FromBody] CreateCompletedWorkoutRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new CreateCompletedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            Workout = request,
+        }, cancellationToken);
+
+        return result is null ? Forbid() : Ok(result);
+    }
+
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<WorkoutResponse>> UpdateSession(
+    public async Task<ActionResult<CompletedWorkoutResponse>> UpdateSession(
         Guid traineeId,
         Guid id,
         [FromBody] UpdateWorkoutSessionRequest request,
@@ -95,7 +116,7 @@ public class WorkoutController : Controller
     }
 
     [HttpPut("{id:guid}/log")]
-    public async Task<ActionResult<WorkoutResponse>> LogSession(
+    public async Task<ActionResult<CompletedWorkoutResponse>> LogSession(
         Guid traineeId,
         Guid id,
         [FromBody] LogWorkoutSessionRequest request,
@@ -112,7 +133,7 @@ public class WorkoutController : Controller
     }
 
     [HttpPost("{id:guid}/restore")]
-    public async Task<ActionResult<WorkoutResponse>> RestoreSession(
+    public async Task<ActionResult<CompletedWorkoutResponse>> RestoreSession(
         Guid traineeId,
         Guid id,
         CancellationToken cancellationToken)
@@ -121,6 +142,92 @@ public class WorkoutController : Controller
         {
             TraineeId = traineeId,
             Id = id,
+        }, cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{completedWorkoutId:guid}/chat-messages")]
+    public async Task<ActionResult<ICollection<CompletedWorkoutChatMessageResponse>>> GetChatMessages(
+        Guid traineeId,
+        Guid completedWorkoutId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetCompletedWorkoutChatMessagesRequest
+        {
+            TraineeId = traineeId,
+            CompletedWorkoutId = completedWorkoutId,
+        }, cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPost("{completedWorkoutId:guid}/chat-messages")]
+    public async Task<ActionResult<CompletedWorkoutChatMessageResponse>> AddChatMessage(
+        Guid traineeId,
+        Guid completedWorkoutId,
+        [FromBody] CompletedWorkoutChatMessageRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AddCompletedWorkoutChatMessageCommand
+        {
+            TraineeId = traineeId,
+            CompletedWorkoutId = completedWorkoutId,
+            Message = request,
+        }, cancellationToken);
+
+        return result is null ? Forbid() : Ok(result);
+    }
+
+    [HttpPatch("{completedWorkoutId:guid}/chat-messages/{chatMessageId:guid}")]
+    public async Task<ActionResult<CompletedWorkoutChatMessageResponse>> UpdateChatMessage(
+        Guid traineeId,
+        Guid completedWorkoutId,
+        Guid chatMessageId,
+        [FromBody] CompletedWorkoutChatMessageEditRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UpdateCompletedWorkoutChatMessageCommand
+        {
+            TraineeId = traineeId,
+            CompletedWorkoutId = completedWorkoutId,
+            ChatMessageId = chatMessageId,
+            Message = request,
+        }, cancellationToken);
+
+        return result is null ? Forbid() : Ok(result);
+    }
+
+    [HttpPost("{completedWorkoutId:guid}/analysis")]
+    public async Task<ActionResult<CompletedWorkoutMediaAnalysisResponse>> Analyze(
+        Guid traineeId,
+        Guid completedWorkoutId,
+        [FromBody] CompletedWorkoutMediaAnalysisRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AnalyzeCompletedWorkoutMediaCommand
+        {
+            TraineeId = traineeId,
+            CompletedWorkoutId = completedWorkoutId,
+            Analysis = request,
+        }, cancellationToken);
+
+        return result.Match<ActionResult<CompletedWorkoutMediaAnalysisResponse>>(
+            success => Ok(success),
+            _ => Forbid(),
+            insufficient => UnprocessableEntity(new { error = insufficient.Reason }));
+    }
+
+    [HttpGet("{completedWorkoutId:guid}/analysis/latest")]
+    public async Task<ActionResult<CompletedWorkoutMediaAnalysisResponse>> GetLatestAnalysis(
+        Guid traineeId,
+        Guid completedWorkoutId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetLatestCompletedWorkoutMediaAnalysisRequest
+        {
+            TraineeId = traineeId,
+            CompletedWorkoutId = completedWorkoutId,
         }, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
