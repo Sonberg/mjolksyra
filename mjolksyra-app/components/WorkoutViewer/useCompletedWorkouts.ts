@@ -1,6 +1,7 @@
 "use client";
 
 import { getCompletedWorkouts } from "@/services/completedWorkouts/getCompletedWorkouts";
+import { getSkippedWorkouts } from "@/services/plannedWorkouts/getSkippedWorkouts";
 import { flatten } from "@/lib/flatten";
 import { uniqBy } from "@/lib/uniqBy";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
@@ -25,6 +26,13 @@ export function useCompletedWorkouts({
   enabled,
   ...args
 }: Args) {
+  const skipped = useQuery({
+    queryKey: ["skipped-workouts", traineeId],
+    queryFn: async ({ signal }) => getSkippedWorkouts({ traineeId, signal }),
+    placeholderData: [],
+    enabled,
+  });
+
   const initial = useQuery({
     queryKey: [
       "completed-workouts",
@@ -73,20 +81,42 @@ export function useCompletedWorkouts({
     enabled: !!initial.data?.next && enabled,
   });
 
-  return useMemo(
-    () => ({
-      isFetched: infinit.isFetched && initial.isFetched,
-      data: uniqBy(
-        [
-          ...(initial.data?.data ?? []),
-          ...flatten(infinit.data?.pages ?? [], (x) => x.data),
-        ],
-        (x) => x.id,
-      ),
+  return useMemo(() => {
+    const completedItems = uniqBy(
+      [
+        ...(initial.data?.data ?? []),
+        ...flatten(infinit.data?.pages ?? [], (x) => x.data),
+      ],
+      (x) => x.id,
+    );
+
+    const skippedAsCompleted = (skipped.data ?? []).map((w) => ({
+      id: w.id,
+      plannedWorkoutId: w.id,
+      traineeId: w.traineeId,
+      plannedAt: w.plannedAt,
+      exercises: [],
+      completedAt: null,
+      skippedAt: w.skippedAt ?? null,
+      media: [],
+      createdAt: w.createdAt,
+    }));
+
+    const merged = uniqBy(
+      [...completedItems, ...skippedAsCompleted],
+      (x) => x.id,
+    ).sort((a, b) => {
+      const dateA = a.plannedAt;
+      const dateB = b.plannedAt;
+      return dateB.localeCompare(dateA);
+    });
+
+    return {
+      isFetched: infinit.isFetched && initial.isFetched && skipped.isFetched,
+      data: merged,
       isFetchingNextPage: infinit.isFetchingNextPage,
       hasNextPage: infinit.hasNextPage,
       fetchNextPage: infinit.fetchNextPage,
-    }),
-    [initial, infinit],
-  );
+    };
+  }, [initial, infinit, skipped]);
 }

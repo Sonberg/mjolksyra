@@ -20,6 +20,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
             Mock.Of<IPlannedWorkoutRepository>(),
             Mock.Of<IExerciseRepository>(),
             Mock.Of<ITraineeRepository>(),
+            Mock.Of<ICompletedWorkoutRepository>(),
             userContext.Object);
 
         var result = await sut.Handle(CreateRequest(), CancellationToken.None);
@@ -95,10 +96,16 @@ public class GetPlannedWorkoutsRequestHandlerTests
                 }
             ]);
 
+        var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
+        completedWorkoutRepository
+            .Setup(x => x.GetByPlannedWorkoutIds(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         var sut = new GetPlannedWorkoutsRequestHandler(
             plannedWorkoutRepository.Object,
             exerciseRepository.Object,
             traineeRepository.Object,
+            completedWorkoutRepository.Object,
             userContext.Object);
 
         var result = await sut.Handle(CreateRequest(traineeId), CancellationToken.None);
@@ -135,6 +142,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
             plannedWorkoutRepository.Object,
             Mock.Of<IExerciseRepository>(),
             traineeRepository.Object,
+            Mock.Of<ICompletedWorkoutRepository>(),
             userContext.Object);
 
         await sut.Handle(CreateRequest(traineeId, draftOnly: true), CancellationToken.None);
@@ -232,10 +240,16 @@ public class GetPlannedWorkoutsRequestHandlerTests
                 }
             ]);
 
+        var completedWorkoutRepository2 = new Mock<ICompletedWorkoutRepository>();
+        completedWorkoutRepository2
+            .Setup(x => x.GetByPlannedWorkoutIds(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         var sut = new GetPlannedWorkoutsRequestHandler(
             plannedWorkoutRepository.Object,
             exerciseRepository.Object,
             traineeRepository.Object,
+            completedWorkoutRepository2.Object,
             userContext.Object);
 
         var result = await sut.Handle(CreateRequest(traineeId), CancellationToken.None);

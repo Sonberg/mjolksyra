@@ -14,17 +14,21 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
     private readonly ITraineeRepository _traineeRepository;
 
+    private readonly ICompletedWorkoutRepository _completedWorkoutRepository;
+
     private readonly IUserContext _userContext;
 
     public GetPlannedWorkoutsRequestHandler(
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IExerciseRepository exerciseRepository,
         ITraineeRepository traineeRepository,
+        ICompletedWorkoutRepository completedWorkoutRepository,
         IUserContext userContext)
     {
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _exerciseRepository = exerciseRepository;
         _traineeRepository = traineeRepository;
+        _completedWorkoutRepository = completedWorkoutRepository;
         _userContext = userContext;
     }
 
@@ -56,7 +60,8 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
             not null => request.Cursor with
             {
                 TraineeId = request.TraineeId,
-                DraftOnly = request.DraftOnly
+                DraftOnly = request.DraftOnly,
+                SkippedOnly = request.SkippedOnly
             },
             _ => new PlannedWorkoutCursor
             {
@@ -67,7 +72,8 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
                 Size = request.Limit,
                 SortBy = request.SortBy,
                 Order = request.Order,
-                DraftOnly = request.DraftOnly
+                DraftOnly = request.DraftOnly,
+                SkippedOnly = request.SkippedOnly
             }
         };
 
@@ -87,6 +93,10 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
         var exercises = await _exerciseRepository.GetMany(exerciseIds, cancellationToken);
 
+        var plannedWorkoutIds = visibleWorkouts.Select(x => x.Id).ToList();
+        var sessions = await _completedWorkoutRepository.GetByPlannedWorkoutIds(plannedWorkoutIds, cancellationToken);
+        var workoutIdsWithSession = (sessions ?? []).Select(s => s.PlannedWorkoutId).ToHashSet();
+
         return new PaginatedResponse<PlannedWorkoutResponse>
         {
             Next = workouts.Cursor,
@@ -94,6 +104,7 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
                 .Select(x =>
                 {
                     var response = PlannedWorkoutResponse.From(x, exercises);
+                    response.HasActiveSession = workoutIdsWithSession.Contains(x.Id);
                     if (isAthleteViewer)
                     {
                         response.DraftExercises = null;

@@ -55,6 +55,8 @@ export const workoutSchema = z.object({
   name: z.string().nullable(),
   note: z.string().nullable(),
   plannedAt: z.string(),
+  skippedAt: z.coerce.date().nullable().optional(),
+  hasActiveSession: z.boolean().optional(),
   publishedExercises: z.array(exerciseSchema),
   draftExercises: z.array(exerciseSchema).nullable().optional().default(null),
   changes: z

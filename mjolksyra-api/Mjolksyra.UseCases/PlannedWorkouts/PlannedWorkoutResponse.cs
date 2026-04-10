@@ -20,6 +20,10 @@ public class PlannedWorkoutResponse
 
     public required DateOnly PlannedAt { get; set; }
 
+    public DateTimeOffset? SkippedAt { get; set; }
+
+    public bool HasActiveSession { get; set; }
+
     public required DateTimeOffset CreatedAt { get; set; }
 
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
@@ -43,6 +47,7 @@ public class PlannedWorkoutResponse
             Changes = ComputeChanges(workout),
             CreatedAt = workout.CreatedAt,
             PlannedAt = workout.PlannedAt,
+            SkippedAt = workout.SkippedAt,
             AppliedBlock = workout.AppliedBlock is null
                 ? null
                 : new PlannedWorkoutAppliedBlockResponse

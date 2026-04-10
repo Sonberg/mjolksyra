@@ -92,12 +92,12 @@ export function CompletedWorkoutCard({
               {displayName}
             </p>
             <div className="flex items-center gap-2">
-              <StatusBadge variant="default">
-                {workout.completedAt ? "Completed" : "In progress"}
+              <StatusBadge variant={workout.skippedAt ? "subtle" : "default"}>
+                {workout.skippedAt ? "Skipped" : workout.completedAt ? "Completed" : "In progress"}
               </StatusBadge>
             </div>
           </div>
-          {detailHref ? (
+          {detailHref && !workout.skippedAt ? (
             <Link
               href={detailHref}
               className="inline-flex items-center border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:brightness-95"

@@ -59,6 +59,7 @@ export const completedWorkoutSchema = z.object({
   plannedAt: z.string(),
   exercises: z.array(completedExerciseSchema),
   completedAt: z.coerce.date().nullable().optional(),
+  skippedAt: z.coerce.date().nullable().optional().default(null),
   media: z.array(completedWorkoutMediaSchema).optional().default([]),
   createdAt: z.coerce.date().nullable(),
 });

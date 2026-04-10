@@ -39,6 +39,8 @@ public class PlannedWorkout : IDocument
 
     public DateOnly PlannedAt { get; set; }
 
+    public DateTimeOffset? SkippedAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public PlannedWorkoutAppliedBlock? AppliedBlock { get; set; }

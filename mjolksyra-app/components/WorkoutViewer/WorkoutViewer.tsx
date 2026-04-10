@@ -2,11 +2,12 @@
 
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
 import { WorkoutCard } from "./WorkoutCard";
+import { MissedWorkoutCard } from "./MissedWorkoutCard";
 import { NewSessionDialog } from "./NewSessionDialog";
 import { useWorkouts } from "./useWorkouts";
 import { useCompletedWorkouts } from "./useCompletedWorkouts";
@@ -32,6 +33,7 @@ export function WorkoutViewer({
   const [newSessionOpen, setNewSessionOpen] = useState(false);
   const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
   const [isEndIntersecting, setIsEndIntersecting] = useState(false);
+  const [missedExpanded, setMissedExpanded] = useState(true);
 
   const planned = useWorkouts({
     id: "planned",
@@ -112,7 +114,38 @@ export function WorkoutViewer({
     router.push(`/app/athlete/${traineeId}/workouts/${workoutId}?tab=completed`);
   }
 
+  const today = dayjs().startOf("day");
+
   const plannedData = planned.data.filter((workout) => !focusWorkoutId || workout.id === focusWorkoutId || true);
+
+  const missedWorkouts = useMemo(() => {
+    if (viewerMode !== "athlete") return [];
+    return plannedData
+      .filter((w) => {
+        const [year, month, day] = w.plannedAt.split("-");
+        const date = dayjs()
+          .year(Number(year))
+          .month(Number(month) - 1)
+          .date(Number(day))
+          .startOf("day");
+        return date.isBefore(today) && !w.skippedAt && !w.hasActiveSession;
+      })
+      .sort((a, b) => b.plannedAt.localeCompare(a.plannedAt));
+  }, [plannedData, today, viewerMode]);
+
+  const upcomingWorkouts = useMemo(() => {
+    return plannedData.filter((w) => {
+      const [year, month, day] = w.plannedAt.split("-");
+      const date = dayjs()
+        .year(Number(year))
+        .month(Number(month) - 1)
+        .date(Number(day))
+        .startOf("day");
+      return !date.isBefore(today) || w.skippedAt || w.hasActiveSession;
+    });
+  }, [plannedData, today]);
+
+  const hasPlannedContent = missedWorkouts.length > 0 || upcomingWorkouts.length > 0;
 
   return (
     <>
@@ -165,7 +198,7 @@ export function WorkoutViewer({
 
       <div className="grid gap-4 sm:gap-8">
         {mode === "planned" ? (
-          plannedData.length === 0 ? (
+          !hasPlannedContent ? (
             <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
               <p className="text-lg font-semibold text-[var(--shell-ink)]">
                 {emptyState.title}
@@ -175,16 +208,48 @@ export function WorkoutViewer({
               </p>
             </section>
           ) : (
-            plannedData.map((workout) => (
-              <WorkoutCard
-                key={workout.id}
-                workout={workout}
-                viewerMode={viewerMode}
-                traineeId={traineeId}
-                isHighlighted={focusWorkoutId === workout.id}
-                backTab="planned"
-              />
-            ))
+            <>
+              {missedWorkouts.length > 0 ? (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setMissedExpanded((prev) => !prev)}
+                    className="mb-3 flex w-full items-center justify-between border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2.5 text-left"
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                      Missed ({missedWorkouts.length})
+                    </span>
+                    {missedExpanded ? (
+                      <ChevronUpIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+                    ) : (
+                      <ChevronDownIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+                    )}
+                  </button>
+                  {missedExpanded ? (
+                    <div className="grid gap-4 sm:gap-8">
+                      {missedWorkouts.map((workout) => (
+                        <MissedWorkoutCard
+                          key={workout.id}
+                          workout={workout}
+                          traineeId={traineeId}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {upcomingWorkouts.map((workout) => (
+                <WorkoutCard
+                  key={workout.id}
+                  workout={workout}
+                  viewerMode={viewerMode}
+                  traineeId={traineeId}
+                  isHighlighted={focusWorkoutId === workout.id}
+                  backTab="planned"
+                />
+              ))}
+            </>
           )
         ) : completed.data.length === 0 ? (
           <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
@@ -209,7 +274,7 @@ export function WorkoutViewer({
         )}
       </div>
 
-      {((mode === "planned" && plannedData.length > 0) || (mode === "completed" && completed.data.length > 0)) && !hasNextPage ? (
+      {((mode === "planned" && hasPlannedContent) || (mode === "completed" && completed.data.length > 0)) && !hasNextPage ? (
         <div className="mt-8 text-center text-lg text-muted">
           {mode === "planned" ? "No more planned workouts" : "No more completed workouts"}
         </div>

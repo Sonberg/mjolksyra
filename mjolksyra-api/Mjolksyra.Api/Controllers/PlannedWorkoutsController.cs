@@ -12,6 +12,8 @@ using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
+using Mjolksyra.UseCases.PlannedWorkouts.SkipPlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.UnskipPlannedWorkout;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -39,10 +41,11 @@ public class PlannedWorkoutsController : Controller
         [FromQuery] int limit,
         [FromQuery] string[] sortBy,
         [FromQuery] SortOrder order,
-        CancellationToken cancellationToken)
+        [FromQuery] bool skippedOnly = false,
+        CancellationToken cancellationToken = default)
     {
         return Ok(await _mediator.Send(
-            CreateGetRequest(traineeId, from, to, next, limit, sortBy, order, draftOnly: false),
+            CreateGetRequest(traineeId, from, to, next, limit, sortBy, order, draftOnly: false, skippedOnly: skippedOnly),
             cancellationToken));
     }
 
@@ -137,6 +140,46 @@ public class PlannedWorkoutsController : Controller
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpPost("{plannedWorkoutId:guid}/skip")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> Skip(Guid traineeId, Guid plannedWorkoutId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new SkipPlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId
+        }, cancellationToken);
+
+        if (result is null) return NotFound();
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return Ok(result);
+    }
+
+    [HttpDelete("{plannedWorkoutId:guid}/skip")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> Unskip(Guid traineeId, Guid plannedWorkoutId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UnskipPlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId
+        }, cancellationToken);
+
+        if (result is null) return NotFound();
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return Ok(result);
+    }
+
     [HttpDelete("{plannedWorkoutId:guid}")]
     public async Task<ActionResult> Delete(Guid traineeId, Guid plannedWorkoutId, CancellationToken cancellationToken)
     {
@@ -163,7 +206,8 @@ public class PlannedWorkoutsController : Controller
         int limit,
         string[] sortBy,
         SortOrder order,
-        bool draftOnly)
+        bool draftOnly,
+        bool skippedOnly = false)
     {
         return new GetPlannedWorkoutsRequest
         {
@@ -174,7 +218,8 @@ public class PlannedWorkoutsController : Controller
             SortBy = sortBy,
             Order = order,
             Cursor = Cursor.Parse<PlannedWorkoutCursor>(next),
-            DraftOnly = draftOnly
+            DraftOnly = draftOnly,
+            SkippedOnly = skippedOnly
         };
     }
 }

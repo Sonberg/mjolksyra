@@ -38,6 +38,11 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
             filters.Add(Builders<PlannedWorkout>.Filter.Ne(x => x.DraftExercises, null));
         }
 
+        if (cursor.SkippedOnly)
+        {
+            filters.Add(Builders<PlannedWorkout>.Filter.Ne(x => x.SkippedAt, null));
+        }
+
         if (cursor.SortBy is { } sortBy)
         {
             sort.AddRange(sortBy.Select(field => cursor.Order == SortOrder.Desc
