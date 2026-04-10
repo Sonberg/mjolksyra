@@ -57,6 +57,15 @@ export const workoutSchema = z.object({
   plannedAt: z.string(),
   publishedExercises: z.array(exerciseSchema),
   draftExercises: z.array(exerciseSchema).nullable().optional().default(null),
+  changes: z
+    .array(
+      z.object({
+        plannedExerciseId: z.string(),
+        name: z.string(),
+        status: z.enum(["Added", "Modified", "Removed"]),
+      }),
+    )
+    .optional(),
   createdAt: z.coerce.date().nullable(),
   appliedBlock: z
     .object({

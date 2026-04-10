@@ -97,19 +97,13 @@ export function DayExercise({
     syncWorkout(newPlannedWorkout);
   }, [locked, syncWorkout, plannedExercise, plannedWorkout]);
 
-  const isDraftChange = useMemo(() => {
-    if (plannedExercise.isPublished) return false;
-    if (!plannedWorkout) return true;
-    const published = plannedWorkout.publishedExercises.find(
-      (x) => x.id === plannedExercise.id,
-    );
-    if (!published) return true; // new exercise
-    return (
-      published.name !== plannedExercise.name ||
-      published.note !== plannedExercise.note ||
-      JSON.stringify(published.prescription) !== JSON.stringify(plannedExercise.prescription)
-    );
-  }, [plannedExercise, plannedWorkout]);
+  const isDraftChange = useMemo(
+    () =>
+      !!plannedWorkout?.changes?.some(
+        (c) => c.plannedExerciseId === plannedExercise.id,
+      ),
+    [plannedExercise.id, plannedWorkout?.changes],
+  );
 
   return useMemo(
     () => (

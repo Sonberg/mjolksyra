@@ -75,9 +75,10 @@ export function PlannerProvider({
             exercises: insertAt(targetDraft, cloning.index, cloning.exercise),
           });
         } else {
+          const newId = v4();
           await plannedWorkouts.create({
             plannedWorkout: {
-              id: v4(),
+              id: newId,
               traineeId,
               name: null,
               note: null,
@@ -87,6 +88,11 @@ export function PlannerProvider({
               createdAt: null,
               appliedBlock: null,
             },
+          });
+          await updateDraftExercises({
+            traineeId,
+            plannedWorkoutId: newId,
+            exercises: [cloning.exercise],
           });
         }
 
@@ -152,9 +158,17 @@ export function PlannerProvider({
       );
 
       await Promise.all(
-        result.create.map((plannedWorkout) =>
-          plannedWorkouts.create({ plannedWorkout })
-        )
+        result.create.map(async (plannedWorkout) => {
+          await plannedWorkouts.create({ plannedWorkout });
+          const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+          if (exercises.length) {
+            await updateDraftExercises({
+              traineeId: plannedWorkout.traineeId,
+              plannedWorkoutId: plannedWorkout.id,
+              exercises,
+            });
+          }
+        })
       );
 
       const updated = [...result.create, ...result.delete, ...result.update];

@@ -18,11 +18,11 @@ export const useWorkoutStore = create<WorkoutStoreState>((set) => ({
     set((state) => ({
       ...state,
       data: state.data.map((x) =>
-        x.id === plannedWorkout.id ? plannedWorkout : x
+        x.id === plannedWorkout.id ? (plannedWorkout as PlannedWorkout) : x
       ),
     }));
 
-    return plannedWorkout;
+    return plannedWorkout as PlannedWorkout;
   },
   create: async ({ plannedWorkout }) => {
     const newWorkout = {

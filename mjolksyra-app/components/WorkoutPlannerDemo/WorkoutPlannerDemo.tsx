@@ -155,10 +155,10 @@ export function WorkoutPlannerDemo() {
         plannedWorkouts={{
           update: async ({ plannedWorkout }) => {
             plannedWorkouts.current = plannedWorkouts.current.map((x) =>
-              x.id === plannedWorkout.id ? plannedWorkout : x
+              x.id === plannedWorkout.id ? (plannedWorkout as PlannedWorkout) : x
             );
 
-            return plannedWorkout;
+            return plannedWorkout as PlannedWorkout;
           },
           create: async ({ plannedWorkout }) => {
             plannedWorkouts.current = [

@@ -24,6 +24,8 @@ public class PlannedWorkoutResponse
 
     public PlannedWorkoutAppliedBlockResponse? AppliedBlock { get; set; }
 
+    public ICollection<PlannedWorkoutChangeResponse> Changes { get; set; } = [];
+
     public static PlannedWorkoutResponse From(PlannedWorkout workout, ICollection<Exercise> exercises)
     {
         return new PlannedWorkoutResponse
@@ -38,6 +40,7 @@ public class PlannedWorkoutResponse
             DraftExercises = workout.DraftExercises?
                 .Select(x => PlannedExerciseResponse.From(x, exercises))
                 .ToList(),
+            Changes = ComputeChanges(workout),
             CreatedAt = workout.CreatedAt,
             PlannedAt = workout.PlannedAt,
             AppliedBlock = workout.AppliedBlock is null
@@ -52,6 +55,63 @@ public class PlannedWorkoutResponse
                 }
         };
     }
+
+    private static ICollection<PlannedWorkoutChangeResponse> ComputeChanges(PlannedWorkout workout)
+    {
+        if (workout.DraftExercises is null)
+            return [];
+
+        var changes = new List<PlannedWorkoutChangeResponse>();
+        var publishedById = workout.PublishedExercises.ToDictionary(x => x.Id);
+        var draftById = workout.DraftExercises.ToDictionary(x => x.Id);
+
+        foreach (var (id, draft) in draftById)
+        {
+            if (!publishedById.TryGetValue(id, out var pub))
+                changes.Add(new PlannedWorkoutChangeResponse { PlannedExerciseId = id, Name = draft.Name ?? string.Empty, Status = "Added" });
+            else if (IsModified(pub, draft))
+                changes.Add(new PlannedWorkoutChangeResponse { PlannedExerciseId = id, Name = draft.Name ?? string.Empty, Status = "Modified" });
+        }
+
+        foreach (var (id, pub) in publishedById)
+        {
+            if (!draftById.ContainsKey(id))
+                changes.Add(new PlannedWorkoutChangeResponse { PlannedExerciseId = id, Name = pub.Name ?? string.Empty, Status = "Removed" });
+        }
+
+        return changes;
+    }
+
+    private static bool IsModified(PlannedExercise pub, PlannedExercise draft)
+    {
+        if (pub.Name != draft.Name || pub.Note != draft.Note) return true;
+        if ((pub.Prescription is null) != (draft.Prescription is null)) return true;
+        if (pub.Prescription is null) return false;
+
+        if (pub.Prescription.Type != draft.Prescription!.Type) return true;
+
+        var pubSets = pub.Prescription.Sets ?? [];
+        var draftSets = draft.Prescription.Sets ?? [];
+        if (pubSets.Count != draftSets.Count) return true;
+
+        foreach (var (ps, ds) in pubSets.Zip(draftSets))
+        {
+            if (ps.Target?.Reps != ds.Target?.Reps) return true;
+            if (ps.Target?.WeightKg != ds.Target?.WeightKg) return true;
+            if (ps.Target?.DurationSeconds != ds.Target?.DurationSeconds) return true;
+            if (ps.Target?.DistanceMeters != ds.Target?.DistanceMeters) return true;
+            if (ps.Target?.Note != ds.Target?.Note) return true;
+        }
+
+        return false;
+    }
+}
+
+public class PlannedWorkoutChangeResponse
+{
+    public required Guid PlannedExerciseId { get; set; }
+    public required string Name { get; set; }
+    public required string Status { get; set; }
 }
 
 public class PlannedWorkoutAppliedBlockResponse
