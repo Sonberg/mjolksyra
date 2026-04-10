@@ -13,6 +13,7 @@ import {
   getPlannedWorkouts,
 } from "@/services/plannedWorkouts/getPlannedWorkout";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { publishDraftExercises } from "@/services/plannedWorkouts/publishDraftExercises";
 import { applyBlock } from "@/services/blocks/applyBlock";
 import { getBlocks } from "@/services/blocks/getBlocks";
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
@@ -77,22 +78,15 @@ function PlannerChangesPanel({
     setIsSaving(true);
     try {
       for (const workout of draftWorkouts) {
-        const currentDraft = workout.draftExercises ?? workout.publishedExercises;
-        const publishedWorkout: PlannedWorkout = {
-          ...workout,
-          publishedExercises: currentDraft.map((exercise) => ({
-            ...exercise,
-            isPublished: true,
-          })),
-          draftExercises: null,
-        };
-
-        await update({ plannedWorkout: publishedWorkout });
+        const published = await publishDraftExercises({
+          traineeId: workout.traineeId,
+          plannedWorkoutId: workout.id,
+        });
         dispatch({
           type: "SET_WORKOUT",
           payload: {
             monthId: monthId(workout.plannedAt),
-            plannedWorkout: publishedWorkout,
+            plannedWorkout: published,
           },
         });
       }
