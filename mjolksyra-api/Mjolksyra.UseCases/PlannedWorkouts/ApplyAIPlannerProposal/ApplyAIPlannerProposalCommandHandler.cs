@@ -56,28 +56,37 @@ public class ApplyAIPlannerProposalCommandHandler(
             proposal.CreditBreakdown = pricing.Breakdown;
         }
 
-        if (!DateOnly.TryParse(proposal.AffectedDateFrom, out var fromDate) ||
-            !DateOnly.TryParse(proposal.AffectedDateTo, out var toDate))
-        {
-            return new ApplyAIPlannerProposalConflict("This proposal is missing its date range.");
-        }
+        // Only fetch and validate existing workouts when the proposal targets them.
+        // Pure create_workout proposals have no targetWorkoutId and cannot conflict with
+        // existing state, so the snapshot check is skipped for those.
+        var hasTargetedActions = proposal.Actions.Any(a => a.TargetWorkoutId.HasValue);
 
-        var currentWorkouts = await plannedWorkoutRepository.Get(new PlannedWorkoutCursor
+        Paginated<PlannedWorkout> currentWorkouts = new() { Data = [] };
+        if (hasTargetedActions)
         {
-            TraineeId = request.TraineeId,
-            FromDate = fromDate,
-            ToDate = toDate,
-            SortBy = ["plannedAt"],
-            Order = SortOrder.Asc,
-            DraftOnly = false,
-            Size = 200,
-            Page = 0,
-        }, cancellationToken);
+            if (!DateOnly.TryParse(proposal.AffectedDateFrom, out var fromDate) ||
+                !DateOnly.TryParse(proposal.AffectedDateTo, out var toDate))
+            {
+                return new ApplyAIPlannerProposalConflict("This proposal is missing its date range.");
+            }
 
-        var currentSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint(currentWorkouts.Data);
-        if (!string.Equals(proposal.SourceSnapshotHash, currentSnapshotHash, StringComparison.Ordinal))
-        {
-            return new ApplyAIPlannerProposalConflict("Planner state changed after this proposal was generated. Please ask the assistant to refresh the proposal.");
+            currentWorkouts = await plannedWorkoutRepository.Get(new PlannedWorkoutCursor
+            {
+                TraineeId = request.TraineeId,
+                FromDate = fromDate,
+                ToDate = toDate,
+                SortBy = ["plannedAt"],
+                Order = SortOrder.Asc,
+                DraftOnly = false,
+                Size = 200,
+                Page = 0,
+            }, cancellationToken);
+
+            var currentSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint(currentWorkouts.Data);
+            if (!string.Equals(proposal.SourceSnapshotHash, currentSnapshotHash, StringComparison.Ordinal))
+            {
+                return new ApplyAIPlannerProposalConflict("Planner state changed after this proposal was generated. Please ask the assistant to refresh the proposal.");
+            }
         }
 
         var consumeResult = await mediator.Send(
@@ -96,16 +105,15 @@ public class ApplyAIPlannerProposalCommandHandler(
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var resolvedExercises = new Dictionary<string, Exercise>(StringComparer.OrdinalIgnoreCase);
         var changedWorkoutIds = new List<Guid>();
+        var actionsApplied = 0;
 
         foreach (var action in proposal.Actions)
         {
             switch (action.ActionType)
             {
                 case AIPlannerProposalActionTypes.CreateWorkout:
-                    if (action.Workout is null)
-                    {
-                        return new ApplyAIPlannerProposalConflict("A create action is missing its workout payload.");
-                    }
+                    // Skip creates that have no workout data (LLM omitted the payload).
+                    if (action.Workout is null) break;
 
                     var (createMetadata, createExercises) = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
                     var created = await mediator.Send(new CreatePlannedWorkoutCommand
@@ -120,19 +128,16 @@ public class ApplyAIPlannerProposalCommandHandler(
                         Exercises = createExercises,
                     }, cancellationToken);
                     changedWorkoutIds.Add(created.Id);
+                    actionsApplied++;
                     break;
 
                 case AIPlannerProposalActionTypes.DeleteWorkout:
-                    if (!action.TargetWorkoutId.HasValue)
-                    {
-                        return new ApplyAIPlannerProposalConflict("A delete action is missing its target workout.");
-                    }
+                    // Skip if the LLM gave a missing or unresolvable target ID.
+                    if (!action.TargetWorkoutId.HasValue) break;
 
                     var workoutToDelete = currentWorkouts.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
-                    if (workoutToDelete is null || workoutToDelete.PlannedAt < today)
-                    {
-                        return new ApplyAIPlannerProposalConflict("A target workout can no longer be deleted.");
-                    }
+                    // Skip if the workout is already gone or is in the past.
+                    if (workoutToDelete is null || workoutToDelete.PlannedAt < today) break;
 
                     await mediator.Send(new DeletePlannedWorkoutCommand
                     {
@@ -140,6 +145,7 @@ public class ApplyAIPlannerProposalCommandHandler(
                         PlannedWorkoutId = action.TargetWorkoutId.Value,
                     }, cancellationToken);
                     changedWorkoutIds.Add(action.TargetWorkoutId.Value);
+                    actionsApplied++;
                     break;
 
                 case AIPlannerProposalActionTypes.UpdateWorkout:
@@ -147,21 +153,15 @@ public class ApplyAIPlannerProposalCommandHandler(
                 case AIPlannerProposalActionTypes.AddExercise:
                 case AIPlannerProposalActionTypes.UpdateExercise:
                 case AIPlannerProposalActionTypes.DeleteExercise:
-                    if (!action.TargetWorkoutId.HasValue || action.Workout is null)
-                    {
-                        return new ApplyAIPlannerProposalConflict("An update action is missing its target workout payload.");
-                    }
+                    // Skip if the LLM gave a missing/unresolvable target ID or omitted the workout payload.
+                    if (!action.TargetWorkoutId.HasValue || action.Workout is null) break;
 
                     var targetWorkout = currentWorkouts.Data.FirstOrDefault(x => x.Id == action.TargetWorkoutId.Value);
-                    if (targetWorkout is null || targetWorkout.PlannedAt < today)
-                    {
-                        return new ApplyAIPlannerProposalConflict("A target workout can no longer be changed.");
-                    }
+                    // Skip if the workout is already gone or is in the past.
+                    if (targetWorkout is null || targetWorkout.PlannedAt < today) break;
 
-                    if (!string.Equals(action.BeforeStateFingerprint, AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(targetWorkout), StringComparison.Ordinal))
-                    {
-                        return new ApplyAIPlannerProposalConflict("A target workout changed after this proposal was generated. Please refresh the proposal.");
-                    }
+                    // Skip if the workout changed since the proposal was staged (stale fingerprint).
+                    if (!string.Equals(action.BeforeStateFingerprint, AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(targetWorkout), StringComparison.Ordinal)) break;
 
                     var (updateMetadata, updateExercises) = await BuildWorkoutRequestAsync(action.Workout, userId, resolvedExercises, cancellationToken);
                     var updated = await mediator.Send(new UpdatePlannedWorkoutCommand
@@ -177,16 +177,15 @@ public class ApplyAIPlannerProposalCommandHandler(
                         Exercises = updateExercises,
                     }, cancellationToken);
 
-                    if (updated is null)
+                    if (updated is not null)
                     {
-                        return new ApplyAIPlannerProposalConflict("A target workout could not be updated.");
+                        changedWorkoutIds.Add(updated.Id);
+                        actionsApplied++;
                     }
-
-                    changedWorkoutIds.Add(updated.Id);
                     break;
 
                 default:
-                    return new ApplyAIPlannerProposalConflict($"Unsupported action type '{action.ActionType}'.");
+                    break;
             }
         }
 
@@ -196,8 +195,8 @@ public class ApplyAIPlannerProposalCommandHandler(
         {
             ActionsApplied = proposal.Actions.Count,
             Summary = proposal.Summary,
-            DateFrom = proposal.AffectedDateFrom ?? fromDate.ToString("yyyy-MM-dd"),
-            DateTo = proposal.AffectedDateTo ?? toDate.ToString("yyyy-MM-dd"),
+            DateFrom = proposal.AffectedDateFrom ?? string.Empty,
+            DateTo = proposal.AffectedDateTo ?? string.Empty,
             GeneratedAt = DateTimeOffset.UtcNow,
         };
         session.UpdatedAt = DateTimeOffset.UtcNow;
@@ -207,7 +206,7 @@ public class ApplyAIPlannerProposalCommandHandler(
         {
             SessionId = session.Id,
             ProposalId = proposal.Id,
-            ActionsApplied = proposal.Actions.Count,
+            ActionsApplied = actionsApplied,
             Summary = proposal.Summary,
             WorkoutIds = changedWorkoutIds.Distinct().ToList(),
         };

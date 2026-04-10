@@ -272,8 +272,8 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                     {
                         ActionType = action.ActionType,
                         Summary = action.Summary,
-                        TargetWorkoutId = action.TargetWorkoutId,
-                        TargetExerciseId = action.TargetExerciseId,
+                        TargetWorkoutId = Guid.TryParse(action.TargetWorkoutId, out var twId) ? twId : null,
+                        TargetExerciseId = Guid.TryParse(action.TargetExerciseId, out var teId) ? teId : null,
                         TargetDate = action.TargetDate,
                         PreviousDate = action.PreviousDate,
                         Workout = action.Workout is null ? null : new PlannedWorkoutRequestPayload
@@ -283,8 +283,8 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                             PlannedAt = action.Workout.PlannedAt,
                             Exercises = (action.Workout.Exercises ?? []).Select(exercise => new PlannedExerciseRequestPayload
                             {
-                                Id = exercise.Id,
-                                ExerciseId = exercise.ExerciseId,
+                                Id = Guid.TryParse(exercise.Id, out var eId) ? eId : null,
+                                ExerciseId = Guid.TryParse(exercise.ExerciseId, out var exId) ? exId : null,
                                 Name = exercise.Name,
                                 Note = exercise.Note,
                                 PrescriptionType = exercise.PrescriptionType,
@@ -420,9 +420,9 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
 
         public string Summary { get; set; } = string.Empty;
 
-        public Guid? TargetWorkoutId { get; set; }
+        public string? TargetWorkoutId { get; set; }
 
-        public Guid? TargetExerciseId { get; set; }
+        public string? TargetExerciseId { get; set; }
 
         public string? TargetDate { get; set; }
 
@@ -433,9 +433,9 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
 
     private class ExercisePayload
     {
-        public Guid? Id { get; set; }
+        public string? Id { get; set; }
 
-        public Guid? ExerciseId { get; set; }
+        public string? ExerciseId { get; set; }
 
         public string? Name { get; set; }
 

@@ -65,9 +65,24 @@ type GenerationResult = AIPlannerApplyProposalResponse & {
   generatedAt: string;
 };
 
-const ACCEPTED_EXTENSIONS = ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif";
-const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/jpg", "image/heic", "image/heif"]);
-const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"]);
+const ACCEPTED_EXTENSIONS =
+  ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif";
+const IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/jpg",
+  "image/heic",
+  "image/heif",
+]);
+const IMAGE_EXTENSIONS = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".heic",
+  ".heif",
+]);
 
 function isImageFile(file: File): boolean {
   if (IMAGE_TYPES.has(file.type)) return true;
@@ -551,59 +566,54 @@ export function AIPlannerPanel({
       {hasStarted && (
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
           <div className="flex min-h-full flex-col gap-4">
-            <AssistantSection
-              eyebrow="Conversation"
-              title="Planner context"
-              description="The assistant will guide the plan, ask for missing details, and stage changes for approval."
-            >
-              <div className="flex flex-col gap-3">
-                {messages.map((message, index) => {
-                  const isLastAi =
-                    message.role === "assistant" &&
-                    index ===
-                      messages.findLastIndex((m) => m.role === "assistant");
-                  const showOptions =
-                    isLastAi &&
-                    message.options?.length &&
-                    !isLoading &&
-                    !hasPendingProposal;
+            <div className="flex flex-col gap-3">
+              {messages.map((message, index) => {
+                const isLastAi =
+                  message.role === "assistant" &&
+                  index ===
+                    messages.findLastIndex((m) => m.role === "assistant");
+                const showOptions =
+                  isLastAi &&
+                  message.options?.length &&
+                  !isLoading &&
+                  !hasPendingProposal;
 
-                  return (
-                    <div key={index} className="flex flex-col gap-1.5">
-                      <PlannerBubble role={message.role}>
-                        {message.content}
-                      </PlannerBubble>
-                      {showOptions && (
-                        <div className="flex flex-wrap gap-2">
-                          {message.options!.map((option) => (
-                            <Button
-                              key={option}
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => void handleOptionSelect(option)}
-                            >
-                              {option}
-                            </Button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-                {isLoading && (
-                  <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                      Planner
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
-                      <LoadingDots />
-                      <span>Thinking through the plan…</span>
-                    </div>
+                return (
+                  <div key={index} className="flex flex-col gap-1.5">
+                    <PlannerBubble role={message.role}>
+                      {message.content}
+                    </PlannerBubble>
+                    {showOptions && (
+                      <div className="flex flex-wrap gap-2">
+                        {message.options!.map((option) => (
+                          <Button
+                            key={option}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => void handleOptionSelect(option)}
+                          >
+                            {option}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </AssistantSection>
+                );
+              })}
+              {isLoading && (
+                <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                    Planner
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
+                    <LoadingDots />
+                    <span>Thinking through the plan…</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {hasPendingProposal && proposedActionSet && (
               <ProposalReviewCard
                 proposal={proposedActionSet}
@@ -700,7 +710,9 @@ export function AIPlannerPanel({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <PaperclipIcon className="h-3 w-3" />
-                  {isAttachmentDragActive ? "Drop files here" : "Attach context"}
+                  {isAttachmentDragActive
+                    ? "Drop files here"
+                    : "Attach context"}
                 </Button>
                 {attachedFiles.map((file, i) => (
                   <AttachmentPill
@@ -849,7 +861,6 @@ function StatTile({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
 
 function AttachmentPill({
   fileName,
