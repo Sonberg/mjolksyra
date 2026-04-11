@@ -52,7 +52,8 @@ export function WorkoutViewer({
     enabled: mode === "completed",
   });
 
-  const hasNextPage = mode === "planned" ? planned.hasNextPage : completed.hasNextPage;
+  const hasNextPage =
+    mode === "planned" ? planned.hasNextPage : completed.hasNextPage;
 
   const endRef = useCallback((node: HTMLDivElement | null) => {
     setEndNode(node);
@@ -111,12 +112,16 @@ export function WorkoutViewer({
   }
 
   function handleSessionCreated(workoutId: string) {
-    router.push(`/app/athlete/${traineeId}/workouts/${workoutId}?tab=completed`);
+    router.push(
+      `/app/athlete/${traineeId}/workouts/${workoutId}?tab=completed`,
+    );
   }
 
   const today = dayjs().startOf("day");
 
-  const plannedData = planned.data.filter((workout) => !focusWorkoutId || workout.id === focusWorkoutId || true);
+  const plannedData = planned.data.filter(
+    (workout) => !focusWorkoutId || workout.id === focusWorkoutId || true,
+  );
 
   const missedWorkouts = useMemo(() => {
     if (viewerMode !== "athlete") return [];
@@ -145,7 +150,8 @@ export function WorkoutViewer({
     });
   }, [plannedData, today]);
 
-  const hasPlannedContent = missedWorkouts.length > 0 || upcomingWorkouts.length > 0;
+  const hasPlannedContent =
+    missedWorkouts.length > 0 || upcomingWorkouts.length > 0;
 
   return (
     <>
@@ -239,16 +245,18 @@ export function WorkoutViewer({
                 </div>
               ) : null}
 
-              {upcomingWorkouts.map((workout) => (
-                <WorkoutCard
-                  key={workout.id}
-                  workout={workout}
-                  viewerMode={viewerMode}
-                  traineeId={traineeId}
-                  isHighlighted={focusWorkoutId === workout.id}
-                  backTab="planned"
-                />
-              ))}
+              {upcomingWorkouts.map((workout) =>
+                workout.publishedExercises.length > 0 ? (
+                  <WorkoutCard
+                    key={workout.id}
+                    workout={workout}
+                    viewerMode={viewerMode}
+                    traineeId={traineeId}
+                    isHighlighted={focusWorkoutId === workout.id}
+                    backTab="planned"
+                  />
+                ) : null,
+              )}
             </>
           )
         ) : completed.data.length === 0 ? (
@@ -274,9 +282,13 @@ export function WorkoutViewer({
         )}
       </div>
 
-      {((mode === "planned" && hasPlannedContent) || (mode === "completed" && completed.data.length > 0)) && !hasNextPage ? (
+      {((mode === "planned" && hasPlannedContent) ||
+        (mode === "completed" && completed.data.length > 0)) &&
+      !hasNextPage ? (
         <div className="mt-8 text-center text-lg text-muted">
-          {mode === "planned" ? "No more planned workouts" : "No more completed workouts"}
+          {mode === "planned"
+            ? "No more planned workouts"
+            : "No more completed workouts"}
         </div>
       ) : null}
 
