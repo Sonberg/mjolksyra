@@ -77,3 +77,25 @@ export const AdHocInProgress: Story = {
     onOpenChat: noop,
   },
 };
+
+export const NarrowAthleteView: Story = {
+  args: {
+    displayName: "Tomorrow",
+    isCompleted: false,
+    createdAt: new Date("2026-04-11T21:42:24"),
+    completedAt: null,
+    plannedWorkoutId: "plan-mobile",
+    viewerMode: "athlete",
+    onAddExercise: noop,
+    onRestoreToPlanned: noop,
+    onToggleCompletion: noop,
+    onOpenChat: noop,
+  },
+  decorators: [
+    (Story) => (
+      <div className="mx-auto w-[360px] border border-[var(--shell-border)]">
+        <Story />
+      </div>
+    ),
+  ],
+};
