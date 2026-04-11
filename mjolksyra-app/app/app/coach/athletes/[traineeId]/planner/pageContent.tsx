@@ -13,6 +13,7 @@ import {
   getPlannedWorkouts,
 } from "@/services/plannedWorkouts/getPlannedWorkout";
 import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { publishDraftExercises } from "@/services/plannedWorkouts/publishDraftExercises";
 import { applyBlock } from "@/services/blocks/applyBlock";
 import { getBlocks } from "@/services/blocks/getBlocks";
 import { ExerciseLibrary } from "@/components/ExerciseLibrary";
@@ -22,7 +23,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
 import { AIPlannerPanel } from "@/components/AIPlannerPanel";
-import { ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -68,6 +70,7 @@ function PlannerChangesPanel({
   const { dispatch } = useWorkouts();
   const { update, delete: deleteWorkout } = usePlannedWorkoutActions();
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
 
   async function onPublishAll() {
     if (isSaving) {
@@ -77,20 +80,15 @@ function PlannerChangesPanel({
     setIsSaving(true);
     try {
       for (const workout of draftWorkouts) {
-        const publishedWorkout: PlannedWorkout = {
-          ...workout,
-          exercises: workout.exercises.map((exercise) => ({
-            ...exercise,
-            isPublished: true,
-          })),
-        };
-
-        await update({ plannedWorkout: publishedWorkout });
+        const published = await publishDraftExercises({
+          traineeId: workout.traineeId,
+          plannedWorkoutId: workout.id,
+        });
         dispatch({
           type: "SET_WORKOUT",
           payload: {
             monthId: monthId(workout.plannedAt),
-            plannedWorkout: publishedWorkout,
+            plannedWorkout: published,
           },
         });
       }
@@ -108,7 +106,7 @@ function PlannerChangesPanel({
     setIsSaving(true);
     try {
       for (const workout of draftWorkouts) {
-        const publishedOnly = workout.exercises.filter(
+        const publishedOnly = workout.publishedExercises.filter(
           (exercise) => exercise.isPublished,
         );
 
@@ -126,7 +124,8 @@ function PlannerChangesPanel({
 
         const revertedWorkout: PlannedWorkout = {
           ...workout,
-          exercises: publishedOnly,
+          publishedExercises: publishedOnly,
+          draftExercises: null,
         };
 
         await update({ plannedWorkout: revertedWorkout });
@@ -186,7 +185,7 @@ function PlannerChangesPanel({
             </div>
           ) : (
             draftWorkouts.map((workout) => {
-              const draftExercises = workout.exercises.filter(
+              const draftExercises = (workout.draftExercises ?? workout.publishedExercises).filter(
                 (exercise) => !exercise.isPublished,
               );
               return (
@@ -194,17 +193,67 @@ function PlannerChangesPanel({
                   key={workout.id}
                   className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3"
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-2 text-left"
+                    onClick={() =>
+                      setExpandedWorkoutId(
+                        expandedWorkoutId === workout.id ? null : workout.id,
+                      )
+                    }
+                  >
                     <p className="text-sm font-semibold text-[var(--shell-ink)]">
                       {dayjs(workout.plannedAt).format("ddd, D MMM YYYY")}
                     </p>
-                    <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
-                      {draftExercises.length} draft
-                    </span>
-                  </div>
-                  <p className="mt-2 truncate text-xs text-[var(--shell-muted)]">
-                    {draftExercises.map((exercise) => exercise.name).join(", ")}
-                  </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+                        {draftExercises.length} draft
+                      </span>
+                      <ChevronDownIcon
+                        className={cn(
+                          "h-3.5 w-3.5 text-[var(--shell-muted)] transition-transform",
+                          expandedWorkoutId === workout.id && "rotate-180",
+                        )}
+                      />
+                    </div>
+                  </button>
+                  {expandedWorkoutId !== workout.id && (
+                    <p className="mt-2 truncate text-xs text-[var(--shell-muted)]">
+                      {draftExercises.map((exercise) => exercise.name).join(", ")}
+                    </p>
+                  )}
+                  {expandedWorkoutId === workout.id && (
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {(workout.changes ?? []).map((entry) => (
+                        <div key={entry.plannedExerciseId} className="flex items-start gap-2">
+                          <span
+                            className={cn(
+                              "shrink-0 rounded-none px-1 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]",
+                              entry.status === "Added" && "bg-emerald-900/40 text-emerald-400",
+                              entry.status === "Removed" && "bg-red-900/40 text-red-400",
+                              entry.status === "Modified" && "bg-amber-900/40 text-amber-400",
+                            )}
+                          >
+                            {entry.status === "Added"
+                              ? "new"
+                              : entry.status === "Removed"
+                                ? "del"
+                                : "mod"}
+                          </span>
+                          <div className="min-w-0">
+                            <p
+                              className={cn(
+                                "text-xs font-medium text-[var(--shell-ink)]",
+                                entry.status === "Removed" && "line-through opacity-50",
+                              )}
+                            >
+                              {entry.name}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })

@@ -10,7 +10,7 @@ import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 
 type Props = {
   traineeId: string;
-  initialTab?: "past" | "future" | "changes";
+  initialTab?: "planned" | "completed";
 };
 
 export function PageContent({ traineeId, initialTab }: Props) {

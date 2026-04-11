@@ -20,6 +20,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
             Mock.Of<IPlannedWorkoutRepository>(),
             Mock.Of<IExerciseRepository>(),
             Mock.Of<ITraineeRepository>(),
+            Mock.Of<ICompletedWorkoutRepository>(),
             userContext.Object);
 
         var result = await sut.Handle(CreateRequest(), CancellationToken.None);
@@ -48,7 +49,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
             Name = "Workout",
             Note = null,
             PlannedAt = new DateOnly(2026, 2, 2),
-            Exercises =
+            PublishedExercises =
             [
                 new PlannedExercise
                 {
@@ -95,10 +96,16 @@ public class GetPlannedWorkoutsRequestHandlerTests
                 }
             ]);
 
+        var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
+        completedWorkoutRepository
+            .Setup(x => x.GetByPlannedWorkoutIds(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         var sut = new GetPlannedWorkoutsRequestHandler(
             plannedWorkoutRepository.Object,
             exerciseRepository.Object,
             traineeRepository.Object,
+            completedWorkoutRepository.Object,
             userContext.Object);
 
         var result = await sut.Handle(CreateRequest(traineeId), CancellationToken.None);
@@ -135,6 +142,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
             plannedWorkoutRepository.Object,
             Mock.Of<IExerciseRepository>(),
             traineeRepository.Object,
+            Mock.Of<ICompletedWorkoutRepository>(),
             userContext.Object);
 
         await sut.Handle(CreateRequest(traineeId, draftOnly: true), CancellationToken.None);
@@ -145,7 +153,7 @@ public class GetPlannedWorkoutsRequestHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenAthleteViewer_FiltersOutDraftExercisesAndEmptyWorkouts()
+    public async Task Handle_WhenAthleteViewer_ReturnsOnlyPublishedExercisesAndFiltersEmptyWorkouts()
     {
         var athleteUserId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
@@ -172,21 +180,22 @@ public class GetPlannedWorkoutsRequestHandlerTests
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 3, 1),
             CreatedAt = DateTimeOffset.UtcNow,
-            Exercises =
+            PublishedExercises =
             [
                 new PlannedExercise
                 {
                     Id = Guid.NewGuid(),
                     ExerciseId = publishedExerciseId,
                     Name = "Published",
-                    IsPublished = true
-                },
+                }
+            ],
+            DraftExercises =
+            [
                 new PlannedExercise
                 {
                     Id = Guid.NewGuid(),
                     ExerciseId = Guid.NewGuid(),
                     Name = "Draft",
-                    IsPublished = false
                 }
             ]
         };
@@ -197,14 +206,14 @@ public class GetPlannedWorkoutsRequestHandlerTests
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 3, 2),
             CreatedAt = DateTimeOffset.UtcNow,
-            Exercises =
+            PublishedExercises = [],
+            DraftExercises =
             [
                 new PlannedExercise
                 {
                     Id = Guid.NewGuid(),
                     ExerciseId = Guid.NewGuid(),
                     Name = "Draft only",
-                    IsPublished = false
                 }
             ]
         };
@@ -231,18 +240,24 @@ public class GetPlannedWorkoutsRequestHandlerTests
                 }
             ]);
 
+        var completedWorkoutRepository2 = new Mock<ICompletedWorkoutRepository>();
+        completedWorkoutRepository2
+            .Setup(x => x.GetByPlannedWorkoutIds(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         var sut = new GetPlannedWorkoutsRequestHandler(
             plannedWorkoutRepository.Object,
             exerciseRepository.Object,
             traineeRepository.Object,
+            completedWorkoutRepository2.Object,
             userContext.Object);
 
         var result = await sut.Handle(CreateRequest(traineeId), CancellationToken.None);
 
         Assert.Single(result.Data);
         var workout = Assert.Single(result.Data);
-        var exercise = Assert.Single(workout.Exercises);
-        Assert.True(exercise.IsPublished);
+        Assert.Single(workout.PublishedExercises);
+        Assert.Null(workout.DraftExercises);
     }
 
     private static GetPlannedWorkoutsRequest CreateRequest(Guid? traineeId = null, bool draftOnly = false)

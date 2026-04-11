@@ -3,14 +3,14 @@
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageIcon, UploadIcon, XIcon } from "lucide-react";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
 
-type PlannedWorkoutMedia = PlannedWorkout["media"][number];
+type PlannedWorkoutMedia = NonNullable<CompletedWorkout["media"]>[number];
 
 type Props = {
   traineeId: string;
-  plannedWorkoutId: string;
+  workoutId: string;
   media: PlannedWorkoutMedia[];
   onUploadComplete: (media: PlannedWorkoutMedia[]) => void;
   isPending?: boolean;
@@ -60,7 +60,7 @@ function getFilename(url: string) {
 
 export function WorkoutMediaUploader({
   traineeId,
-  plannedWorkoutId,
+  workoutId,
   media,
   onUploadComplete,
   isPending,
@@ -130,7 +130,7 @@ export function WorkoutMediaUploader({
       if (inputRef.current) inputRef.current.value = "";
 
       try {
-        const uploaded = await uploadFiles(validFiles, plannedWorkoutId);
+        const uploaded = await uploadFiles(validFiles, workoutId);
         onUploadComplete([...media, ...uploaded]);
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : "Upload failed");
@@ -145,7 +145,7 @@ export function WorkoutMediaUploader({
         setIsUploading(false);
       }
     },
-    [IMAGE_MAX_BYTES, VIDEO_MAX_BYTES, media, onUploadComplete, plannedWorkoutId],
+    [IMAGE_MAX_BYTES, VIDEO_MAX_BYTES, media, onUploadComplete, workoutId],
   );
 
   const handleFileChange = useCallback(
@@ -330,7 +330,7 @@ export function WorkoutMediaUploader({
   );
 }
 
-async function uploadFiles(files: File[], plannedWorkoutId: string): Promise<PlannedWorkoutMedia[]> {
+async function uploadFiles(files: File[], workoutId: string): Promise<PlannedWorkoutMedia[]> {
   return Promise.all(
     files.map(async (file) => {
       const isVideo = file.type.startsWith("video/");
@@ -340,7 +340,7 @@ async function uploadFiles(files: File[], plannedWorkoutId: string): Promise<Pla
         contentType: file.type,
         fileSize: file.size,
         type,
-        plannedWorkoutId,
+        workoutId,
       });
       await uploadToR2(presignedUrl, file);
       return {

@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
-import { PlannedWorkoutChatMessage } from "@/services/plannedWorkouts/type";
+import { CompletedWorkoutChatMessage } from "@/services/plannedWorkouts/type";
 
 type Props = {
-  chatMessage: PlannedWorkoutChatMessage;
+  chatMessage: CompletedWorkoutChatMessage;
   viewerMode: "athlete" | "coach";
   editingMessageId: string | null;
   editingMessageBody: string;

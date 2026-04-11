@@ -1,12 +1,12 @@
 using FluentValidation.TestHelper;
-using Mjolksyra.UseCases.PlannedWorkouts;
-using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
+using Mjolksyra.UseCases.CompletedWorkouts;
+using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 
-namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
+namespace Mjolksyra.UseCases.Tests.CompletedWorkouts;
 
-public class AnalyzeWorkoutMediaCommandValidatorTests
+public class AnalyzeCompletedWorkoutMediaCommandValidatorTests
 {
-    private static AnalyzeWorkoutMediaCommandValidator CreateValidator() => new();
+    private static AnalyzeCompletedWorkoutMediaCommandValidator CreateValidator() => new();
 
     [Fact]
     public void Valid_Text_Only_Passes()
@@ -24,13 +24,13 @@ public class AnalyzeWorkoutMediaCommandValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    private static AnalyzeWorkoutMediaCommand CreateCommand(string text)
+    private static AnalyzeCompletedWorkoutMediaCommand CreateCommand(string text)
     {
-        return new AnalyzeWorkoutMediaCommand
+        return new AnalyzeCompletedWorkoutMediaCommand
         {
             TraineeId = Guid.NewGuid(),
-            PlannedWorkoutId = Guid.NewGuid(),
-            Analysis = new WorkoutMediaAnalysisRequest
+            CompletedWorkoutId = Guid.NewGuid(),
+            Analysis = new CompletedWorkoutMediaAnalysisRequest
             {
                 Text = text,
             }

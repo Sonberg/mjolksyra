@@ -15,7 +15,7 @@ namespace Mjolksyra.Api.Controllers;
 
 [ApiController]
 [Route("api/trainees/{traineeId:guid}/ai-planner")]
-public class AIWorkoutPlannerController(
+public class AiWorkoutPlannerController(
     IMediator mediator,
     IUserEventPublisher userEventPublisher,
     IUserContext userContext) : Controller

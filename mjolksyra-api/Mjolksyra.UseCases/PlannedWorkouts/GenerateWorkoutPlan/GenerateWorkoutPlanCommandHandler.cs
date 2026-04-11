@@ -15,6 +15,7 @@ public class GenerateWorkoutPlanCommandHandler(
     IMediator mediator,
     IAIWorkoutPlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
@@ -66,6 +67,7 @@ public class GenerateWorkoutPlanCommandHandler(
 
         var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
+            completedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,
@@ -139,34 +141,39 @@ public class GenerateWorkoutPlanCommandHandler(
 
             if (strategy == "Append" && existingByDate.TryGetValue(plannedAt, out var existingWorkout) && existingWorkout is not null)
             {
-                var mergedExercises = existingWorkout.Exercises.ToList();
-                mergedExercises.AddRange(await MapExercises(
+                var mergedDraft = (existingWorkout.DraftExercises ?? existingWorkout.PublishedExercises).ToList();
+                mergedDraft.AddRange(await MapExercises(
                     workoutOutput.Exercises,
                     isPublished: false,
                     createdByUserId: userId,
                     resolvedExercises: resolvedExercises,
                     cancellationToken: cancellationToken));
-                existingWorkout.Exercises = mergedExercises;
+                existingWorkout.DraftExercises = mergedDraft;
                 await plannedWorkoutRepository.Update(existingWorkout, cancellationToken);
                 created++;
                 continue;
             }
 
-            await plannedWorkoutRepository.Create(new PlannedWorkout
+            var newWorkout = await plannedWorkoutRepository.Create(new PlannedWorkout
             {
                 Id = Guid.NewGuid(),
                 TraineeId = request.TraineeId,
                 Name = workoutOutput.Name,
                 Note = workoutOutput.Note,
                 PlannedAt = plannedAt,
-                Exercises = await MapExercises(
-                    workoutOutput.Exercises,
-                    isPublished: false,
-                    createdByUserId: userId,
-                    resolvedExercises: resolvedExercises,
-                    cancellationToken: cancellationToken),
+                PublishedExercises = [],
                 CreatedAt = DateTimeOffset.UtcNow,
             }, cancellationToken);
+
+            var newDraftExercises = await MapExercises(
+                workoutOutput.Exercises,
+                isPublished: false,
+                createdByUserId: userId,
+                resolvedExercises: resolvedExercises,
+                cancellationToken: cancellationToken);
+
+            newWorkout.DraftExercises = newDraftExercises;
+            await plannedWorkoutRepository.Update(newWorkout, cancellationToken);
 
             created++;
         }

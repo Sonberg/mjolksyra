@@ -186,7 +186,7 @@ export function WorkoutExerciseCard({
                 )}
                 {exercise.isDone ? "Done" : "Mark done"}
               </button>
-              {onDeleteExercise && exercise.addedBy === "Athlete" ? (
+              {onDeleteExercise ? (
                 <button
                   type="button"
                   onClick={() => onDeleteExercise(exercise.id)}
@@ -246,13 +246,13 @@ export function WorkoutExerciseCard({
                 isPending={isSetActionPending}
                 onToggleSetDone={onToggleSetDone}
                 onUpdateSetActual={onUpdateSetActual}
-                onRemoveSetRow={exercise.addedBy === "Athlete" ? onRemoveSetRow : undefined}
+                onRemoveSetRow={onRemoveSetRow}
               />
             ))}
           </div>
 
-          {/* Add set row — athlete-added exercises only */}
-          {viewerMode === "athlete" && onAddSetRow && exercise.addedBy === "Athlete" ? (
+          {/* Add set row */}
+          {viewerMode === "athlete" && onAddSetRow ? (
             <div className="border-t border-[var(--shell-border)] px-3 py-2 sm:px-4">
               <button
                 type="button"
@@ -267,8 +267,8 @@ export function WorkoutExerciseCard({
         </div>
       ) : null}
 
-      {/* Add set row when no sets yet — athlete-added exercises only */}
-      {!hasSets && viewerMode === "athlete" && isDetailView && onAddSetRow && exercise.addedBy === "Athlete" ? (
+      {/* Add set row when no sets yet */}
+      {!hasSets && viewerMode === "athlete" && isDetailView && onAddSetRow ? (
         <div className="border-t border-[var(--shell-border)] px-3 py-2 sm:px-4">
           <button
             type="button"

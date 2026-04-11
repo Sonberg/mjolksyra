@@ -1,94 +1,59 @@
 "use client";
 
-import { useWorkouts } from "./useWorkouts";
 import dayjs from "dayjs";
-import { WorkoutCard } from "./WorkoutCard";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { uniqBy } from "@/lib/uniqBy";
-import { sortBy } from "@/lib/sortBy";
-import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
-import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
-import { useQuery } from "@tanstack/react-query";
-import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
+import { PlusIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { PlusIcon } from "lucide-react";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
+import { WorkoutCard } from "./WorkoutCard";
+import { MissedWorkoutCard } from "./MissedWorkoutCard";
 import { NewSessionDialog } from "./NewSessionDialog";
+import { useWorkouts } from "./useWorkouts";
+import { useCompletedWorkouts } from "./useCompletedWorkouts";
+import { CompletedWorkoutCard } from "./CompletedWorkoutCard";
 
 type Props = {
   traineeId: string;
   mode?: "athlete" | "coach";
-  initialTab?: "past" | "future" | "changes";
+  initialTab?: "planned" | "completed";
   focusWorkoutId?: string | null;
 };
 
 export function WorkoutViewer({
   traineeId,
   mode: viewerMode = "athlete",
-  initialTab,
+  initialTab = "planned",
   focusWorkoutId,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const defaultMode = viewerMode === "coach" ? "changes" : "future";
-  const [mode, setMode] = useState<"past" | "future" | "changes">(
-    initialTab ?? defaultMode,
-  );
-  const past = useWorkouts({
-    id: "past",
-    traineeId,
-    toDate: dayjs().add(-1, "day"),
-    sortBy: "PlannedAt",
-    order: "desc",
-    enabled: mode === "past",
-  });
+  const [mode, setMode] = useState<"planned" | "completed">(initialTab);
+  const [newSessionOpen, setNewSessionOpen] = useState(false);
+  const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
+  const [isEndIntersecting, setIsEndIntersecting] = useState(false);
+  const [missedExpanded, setMissedExpanded] = useState(true);
 
-  const changes = useWorkouts({
-    id: "changes",
+  const planned = useWorkouts({
+    id: "planned",
     traineeId,
-    sortBy: "PlannedAt",
-    order: "desc",
-    enabled: mode === "changes",
-  });
-
-  const future = useWorkouts({
-    id: "future",
-    traineeId,
-    fromDate: dayjs().startOf("day"),
+    fromDate: dayjs().startOf("day").subtract(12, "weeks"),
     sortBy: "PlannedAt",
     order: "asc",
-    enabled: mode === "future",
+    enabled: mode === "planned",
   });
-  const completed = useWorkouts({
+
+  const completed = useCompletedWorkouts({
     id: "completed",
     traineeId,
     sortBy: "PlannedAt",
     order: "desc",
-    enabled: mode === "past",
+    enabled: mode === "completed",
   });
 
-  const focusedWorkout = useQuery({
-    queryKey: ["planned-workout", traineeId, focusWorkoutId],
-    queryFn: async ({ signal }) =>
-      getPlannedWorkoutById({
-        traineeId,
-        plannedWorkoutId: focusWorkoutId!,
-        signal,
-      }),
-    enabled: !!focusWorkoutId,
-    retry: false,
-  });
+  const hasNextPage = mode === "planned" ? planned.hasNextPage : completed.hasNextPage;
 
-  const hasNextPage =
-    mode === "future"
-      ? future.hasNextPage
-      : mode === "changes"
-        ? changes.hasNextPage
-        : past.hasNextPage || completed.hasNextPage;
-
-  const [newSessionOpen, setNewSessionOpen] = useState(false);
-  const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
-  const [isEndIntersecting, setIsEndIntersecting] = useState(false);
   const endRef = useCallback((node: HTMLDivElement | null) => {
     setEndNode(node);
     if (!node) {
@@ -102,162 +67,39 @@ export function WorkoutViewer({
     const observer = new IntersectionObserver(([entry]) => {
       setIsEndIntersecting(entry.isIntersecting);
     });
+
     observer.observe(endNode);
     return () => observer.disconnect();
   }, [endNode]);
-  const sourceData = useMemo(() => {
-    if (mode === "future") {
-      return future.data;
+
+  useEffect(() => {
+    if (!isEndIntersecting || !hasNextPage) {
+      return;
     }
 
-    if (mode === "changes") {
-      return changes.data;
+    if (mode === "planned") {
+      void planned.fetchNextPage();
+      return;
     }
 
-    return [...past.data, ...completed.data];
-  }, [mode, future.data, changes.data, past.data, completed.data]);
-
-  const data = useMemo(
-    () => {
-      const startOfToday = dayjs().startOf("day");
-      const sorted = sortBy(
-        uniqBy(
-          [
-            ...sourceData,
-            ...(focusedWorkout.data ? [focusedWorkout.data] : []),
-          ],
-          (x) => x.id,
-        ).filter((x) => {
-          const plannedAt = dayjs(x.plannedAt).startOf("day");
-          const isBeforeToday = plannedAt.isBefore(startOfToday);
-          const isCompleted = !!x.completedAt;
-
-          if (focusWorkoutId && x.id === focusWorkoutId) {
-            return true;
-          }
-
-          if (mode === "changes") {
-            if (viewerMode === "coach") {
-              return !!x.completedAt && !x.reviewedAt;
-            }
-
-            return !!(x.completedAt || x.reviewedAt);
-          }
-
-          if (mode === "future") {
-            return !isCompleted && !isBeforeToday;
-          }
-
-          if (mode === "past" && !(isCompleted || isBeforeToday)) {
-            return false;
-          }
-
-          const visible =
-            x.exercises.length > 0 ||
-            !!x.note?.trim() ||
-            !!x.completedAt;
-
-          if (!visible) {
-            return false;
-          }
-
-          if (viewerMode === "coach" && !x.completedAt) {
-            return false;
-          }
-
-          return true;
-        }),
-        (x) => {
-          return dayjs(x.plannedAt);
-        },
-        mode === "future"
-      );
-
-      if (!focusWorkoutId) {
-        return sorted;
-      }
-
-      const focusedIndex = sorted.findIndex((x) => x.id === focusWorkoutId);
-      if (focusedIndex <= 0) {
-        return sorted;
-      }
-
-      return [sorted[focusedIndex], ...sorted.filter((x) => x.id !== focusWorkoutId)];
-    },
-    [sourceData, focusedWorkout.data, focusWorkoutId, mode, viewerMode]
-  );
+    void completed.fetchNextPage();
+  }, [completed, hasNextPage, isEndIntersecting, mode, planned]);
 
   const emptyState = useMemo(() => {
-    if (mode === "changes") {
+    if (mode === "planned") {
       return {
-        title:
-          viewerMode === "coach"
-            ? "No workouts need review"
-            : "No workouts with changes",
-        body:
-          viewerMode === "coach"
-            ? "Completed sessions that still need coach feedback will appear here."
-            : "Completed or updated workouts will appear here when athletes log and review sessions.",
-      };
-    }
-
-    if (mode === "future") {
-      return {
-        title: "No upcoming workouts",
-        body: "Planned sessions for future dates will appear here.",
+        title: "No planned workouts",
+        body: "Future and unscheduled prescriptions will appear here.",
       };
     }
 
     return {
-      title: viewerMode === "coach" ? "No reviewed workouts" : "No past workouts",
-      body:
-        viewerMode === "coach"
-          ? "Sessions you already reviewed will appear here."
-          : "Completed or previously planned sessions will appear here.",
+      title: "No completed workouts",
+      body: "Finished and ad hoc workout sessions will appear here.",
     };
-  }, [mode, viewerMode]);
+  }, [mode]);
 
-  useEffect(() => {
-    if (!isEndIntersecting) {
-      return;
-    }
-
-    if (!hasNextPage) {
-      return;
-    }
-
-    if (mode === "future") {
-      void future.fetchNextPage();
-      return;
-    }
-
-    if (mode === "changes") {
-      void changes.fetchNextPage();
-      return;
-    }
-
-    const actions: Array<Promise<unknown>> = [];
-    if (past.hasNextPage) {
-      actions.push(past.fetchNextPage());
-    }
-    if (completed.hasNextPage) {
-      actions.push(completed.fetchNextPage());
-    }
-
-    if (actions.length > 0) {
-      void Promise.all(actions);
-    }
-  }, [
-    isEndIntersecting,
-    hasNextPage,
-    mode,
-    future,
-    changes,
-    past,
-    completed,
-  ]);
-
-  function setModeWithUrl(nextMode: "past" | "future" | "changes") {
+  function setModeWithUrl(nextMode: "planned" | "completed") {
     setMode(nextMode);
 
     const params = new URLSearchParams(searchParams.toString());
@@ -269,8 +111,41 @@ export function WorkoutViewer({
   }
 
   function handleSessionCreated(workoutId: string) {
-    router.push(`/app/athlete/${traineeId}/workouts/${workoutId}`);
+    router.push(`/app/athlete/${traineeId}/workouts/${workoutId}?tab=completed`);
   }
+
+  const today = dayjs().startOf("day");
+
+  const plannedData = planned.data.filter((workout) => !focusWorkoutId || workout.id === focusWorkoutId || true);
+
+  const missedWorkouts = useMemo(() => {
+    if (viewerMode !== "athlete") return [];
+    return plannedData
+      .filter((w) => {
+        const [year, month, day] = w.plannedAt.split("-");
+        const date = dayjs()
+          .year(Number(year))
+          .month(Number(month) - 1)
+          .date(Number(day))
+          .startOf("day");
+        return date.isBefore(today) && !w.skippedAt && !w.hasActiveSession;
+      })
+      .sort((a, b) => b.plannedAt.localeCompare(a.plannedAt));
+  }, [plannedData, today, viewerMode]);
+
+  const upcomingWorkouts = useMemo(() => {
+    return plannedData.filter((w) => {
+      const [year, month, day] = w.plannedAt.split("-");
+      const date = dayjs()
+        .year(Number(year))
+        .month(Number(month) - 1)
+        .date(Number(day))
+        .startOf("day");
+      return !date.isBefore(today) || w.skippedAt || w.hasActiveSession;
+    });
+  }, [plannedData, today]);
+
+  const hasPlannedContent = missedWorkouts.length > 0 || upcomingWorkouts.length > 0;
 
   return (
     <>
@@ -282,55 +157,36 @@ export function WorkoutViewer({
           onCreated={handleSessionCreated}
         />
       ) : null}
+
       <PageSectionHeader
         className="mb-4"
         titleClassName="text-xl md:text-2xl"
-        title={
-          viewerMode === "coach"
-            ? mode === "future"
-              ? "Upcoming workouts"
-              : mode === "changes"
-                ? "Needs review"
-                : "Reviewed workouts"
-            : mode === "future"
-              ? "Upcoming workouts"
-              : "Past workouts"
-        }
+        title={mode === "planned" ? "Planned workouts" : "Completed workouts"}
         actions={
           <div className="flex w-full items-center gap-3">
             <SelectionTabs
               items={[
                 {
-                  key: "future",
-                  label: "Upcoming",
-                  onSelect: () => setModeWithUrl("future"),
+                  key: "planned",
+                  label: "Planned",
+                  onSelect: () => setModeWithUrl("planned"),
                 },
                 {
-                  key: "past",
-                  label: "Past",
-                  onSelect: () => setModeWithUrl("past"),
+                  key: "completed",
+                  label: "Completed",
+                  onSelect: () => setModeWithUrl("completed"),
                 },
-                ...(viewerMode === "coach"
-                  ? [
-                      {
-                        key: "changes" as const,
-                        label: "Needs review",
-                        onSelect: () => setModeWithUrl("changes"),
-                      },
-                    ]
-                  : []),
               ]}
               activeKey={mode}
               size="md"
               fullWidth={viewerMode !== "coach"}
-              className="w-full max-w-[34rem]"
-              itemClassName={viewerMode === "coach" ? "px-3 text-sm" : undefined}
+              className="w-full max-w-[24rem]"
             />
             {viewerMode === "athlete" ? (
               <button
                 type="button"
                 onClick={() => setNewSessionOpen(true)}
-                className="shrink-0 inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+                className="inline-flex shrink-0 items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
               >
                 <PlusIcon className="h-3.5 w-3.5" />
                 New session
@@ -341,8 +197,62 @@ export function WorkoutViewer({
       />
 
       <div className="grid gap-4 sm:gap-8">
-        {data.length === 0 ? (
-          <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
+        {mode === "planned" ? (
+          !hasPlannedContent ? (
+            <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
+              <p className="text-lg font-semibold text-[var(--shell-ink)]">
+                {emptyState.title}
+              </p>
+              <p className="mt-2 text-sm text-[var(--shell-muted)]">
+                {emptyState.body}
+              </p>
+            </section>
+          ) : (
+            <>
+              {missedWorkouts.length > 0 ? (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setMissedExpanded((prev) => !prev)}
+                    className="mb-3 flex w-full items-center justify-between border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2.5 text-left"
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                      Missed ({missedWorkouts.length})
+                    </span>
+                    {missedExpanded ? (
+                      <ChevronUpIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+                    ) : (
+                      <ChevronDownIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+                    )}
+                  </button>
+                  {missedExpanded ? (
+                    <div className="grid gap-4 sm:gap-8">
+                      {missedWorkouts.map((workout) => (
+                        <MissedWorkoutCard
+                          key={workout.id}
+                          workout={workout}
+                          traineeId={traineeId}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {upcomingWorkouts.map((workout) => (
+                <WorkoutCard
+                  key={workout.id}
+                  workout={workout}
+                  viewerMode={viewerMode}
+                  traineeId={traineeId}
+                  isHighlighted={focusWorkoutId === workout.id}
+                  backTab="planned"
+                />
+              ))}
+            </>
+          )
+        ) : completed.data.length === 0 ? (
+          <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
             <p className="text-lg font-semibold text-[var(--shell-ink)]">
               {emptyState.title}
             </p>
@@ -351,28 +261,28 @@ export function WorkoutViewer({
             </p>
           </section>
         ) : (
-          data.map((x) => (
-            <WorkoutCard
-              key={x.id}
-              workout={x}
+          completed.data.map((workout) => (
+            <CompletedWorkoutCard
+              key={workout.id}
+              workout={workout}
               viewerMode={viewerMode}
               traineeId={traineeId}
-              isHighlighted={focusWorkoutId === x.id}
-              backTab={mode}
+              isHighlighted={focusWorkoutId === workout.id}
+              backTab="completed"
             />
           ))
         )}
       </div>
-      {data.length > 0 && !hasNextPage ? (
-        <div className="text-muted text-lg text-center mt-8">
-          {mode === "changes"
-            ? viewerMode === "coach"
-              ? "No workouts currently need review"
-              : "No workouts with changes"
-            : "No more workouts planned"}
+
+      {((mode === "planned" && hasPlannedContent) || (mode === "completed" && completed.data.length > 0)) && !hasNextPage ? (
+        <div className="mt-8 text-center text-lg text-muted">
+          {mode === "planned" ? "No more planned workouts" : "No more completed workouts"}
         </div>
       ) : null}
-      <div className="w-full h-8 opacity-0" ref={endRef} children="d" />
+
+      <div className="h-8 w-full opacity-0" ref={endRef}>
+        d
+      </div>
     </>
   );
 }

@@ -22,7 +22,7 @@ public record PlannedWorkoutCursor : Cursor
 
     public required bool DraftOnly { get; set; }
 
-    public bool? CompletedOnly { get; set; }
+    public bool SkippedOnly { get; set; }
 
     public override string ToString()
     {

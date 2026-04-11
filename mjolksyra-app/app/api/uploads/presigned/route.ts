@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
-  const { fileName, contentType, fileSize, type, plannedWorkoutId } = body ?? {};
+  const { fileName, contentType, fileSize, type, workoutId } = body ?? {};
 
-  if (!fileName || !contentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !plannedWorkoutId) {
+  if (!fileName || !contentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !workoutId) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   }
 
   const ext = getExtension(fileName);
-  const key = `workouts/${plannedWorkoutId}/${crypto.randomUUID()}.${ext}`;
+  const key = `workouts/${workoutId}/${crypto.randomUUID()}.${ext}`;
   const bucket = process.env.R2_BUCKET_NAME!;
   const publicBaseUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
 

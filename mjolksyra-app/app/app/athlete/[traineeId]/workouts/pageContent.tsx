@@ -4,7 +4,7 @@ import { WorkoutViewer } from "@/components/WorkoutViewer";
 
 type Props = {
   traineeId: string;
-  initialTab?: "past" | "future";
+  initialTab?: "planned" | "completed";
   focusWorkoutId?: string | null;
 };
 

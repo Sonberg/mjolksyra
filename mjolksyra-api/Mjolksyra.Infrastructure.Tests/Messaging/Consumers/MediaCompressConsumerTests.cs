@@ -24,8 +24,8 @@ public class MediaCompressConsumerTests
         context.SetupGet(x => x.Message).Returns(new MediaCompressionRequestedMessage
         {
             FileUrl = fileUrl,
-            PlannedWorkoutId = workoutId ?? Guid.NewGuid(),
-            PlannedWorkoutChatMessageId = chatMessageId ?? Guid.NewGuid(),
+            CompletedWorkoutId = workoutId ?? Guid.NewGuid(),
+            CompletedWorkoutChatMessageId = chatMessageId ?? Guid.NewGuid(),
         });
         context.SetupGet(x => x.CancellationToken).Returns(CancellationToken.None);
         return context;
@@ -39,7 +39,7 @@ public class MediaCompressConsumerTests
             .Returns(new HttpClient(new FailingHandler()));
 
         var fileUploader = new Mock<IR2FileUploader>();
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
 
         var consumer = new MediaCompressConsumer(
             httpClientFactory.Object,
@@ -67,7 +67,7 @@ public class MediaCompressConsumerTests
             .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("upload failed"));
 
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
 
         var consumer = new MediaCompressConsumer(
             httpClientFactory.Object,
@@ -98,7 +98,7 @@ public class MediaCompressConsumerTests
             .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(compressedUrl);
 
-        var chatRepository = new Mock<IPlannedWorkoutChatMessageRepository>();
+        var chatRepository = new Mock<ICompletedWorkoutChatMessageRepository>();
 
         var consumer = new MediaCompressConsumer(
             httpClientFactory.Object,

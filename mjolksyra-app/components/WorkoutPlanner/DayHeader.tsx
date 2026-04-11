@@ -82,9 +82,7 @@ export function DayHeader({
               className={cn(
                 "rounded-none border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
                 isCompleted
-                  ? plannedWorkout?.reviewedAt
-                    ? "border-[var(--shell-border)] bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-                    : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
+                  ? "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]"
                   : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
               )}
               title={
@@ -93,11 +91,7 @@ export function DayHeader({
                   : "Planning is available for today and future days."
               }
             >
-              {isCompleted
-                ? plannedWorkout?.reviewedAt
-                  ? "Reviewed"
-                  : "Done"
-                : "Past"}
+              {isCompleted ? "Done" : "Past"}
             </span>
           )}
         </div>

@@ -18,7 +18,7 @@ const sampleCredits = {
 
 const samplePricing = [
   {
-    action: "AnalyzeWorkoutMedia",
+    action: "AnalyzeCompletedWorkoutMedia",
     creditCost: 5,
   },
 ];
@@ -27,7 +27,7 @@ const sampleLedger = [
   {
     id: "1",
     type: "Deduct",
-    action: "AnalyzeWorkoutMedia",
+    action: "AnalyzeCompletedWorkoutMedia",
     includedCreditsChanged: -5,
     purchasedCreditsChanged: 0,
     referenceId: "Workout analysis",

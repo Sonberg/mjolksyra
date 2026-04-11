@@ -76,6 +76,6 @@ type Story = StoryObj<typeof meta>;
 export const CoachAnalysis: Story = {
   decorators: [withMockedFetch(mockAnalysisFetch)],
   render: () => (
-    <WorkoutAnalysisSection traineeId="trainee-1" plannedWorkoutId="workout-1" />
+    <WorkoutAnalysisSection traineeId="trainee-1" completedWorkoutId="workout-1" />
   ),
 };

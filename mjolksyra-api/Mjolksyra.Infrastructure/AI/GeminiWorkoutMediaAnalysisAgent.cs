@@ -5,11 +5,16 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using Mjolksyra.Domain.AI;
 using OpenAI;
+using Xabe.FFmpeg;
 
 namespace Mjolksyra.Infrastructure.AI;
 
-public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : IWorkoutMediaAnalysisAgent
+public class GeminiWorkoutMediaAnalysisAgent(
+    IOptions<GeminiOptions> options,
+    IHttpClientFactory httpClientFactory) : IWorkoutMediaAnalysisAgent
 {
+    private const int MaxVideoFrames = 30;
+
     public async Task<WorkoutMediaAnalysis> AnalyzeAsync(WorkoutMediaAnalysisInput input, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(options.Value.ApiKey))
@@ -26,6 +31,7 @@ public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : 
             .Build();
 
         var tools = BuildTools(input.ToolDispatcher, cancellationToken);
+        var userContent = await BuildUserContentAsync(input, cancellationToken);
 
         var messages = new List<ChatMessage>
         {
@@ -33,7 +39,7 @@ public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : 
                 "You analyze athlete workout text, image, and video context. " +
                 "You have tools to query the athlete's historical workouts — use them to give progression-aware coaching feedback. " +
                 "Always respond with strict JSON only once you have gathered enough context."),
-            new(ChatRole.User, BuildPrompt(input)),
+            new(ChatRole.User, userContent),
         };
 
         var response = await chatClient.GetResponseAsync(
@@ -51,6 +57,86 @@ public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : 
             TechniqueRisks = [],
             CoachSuggestions = [],
         };
+    }
+
+    private async Task<IList<AIContent>> BuildUserContentAsync(WorkoutMediaAnalysisInput input, CancellationToken cancellationToken)
+    {
+        var http = httpClientFactory.CreateClient();
+        var contents = new List<AIContent>();
+
+        var videoFrameCount = 0;
+        var videoIntervalSeconds = 1;
+
+        foreach (var url in input.ImageUrls)
+        {
+            var bytes = await http.GetByteArrayAsync(url, cancellationToken);
+            contents.Add(new DataContent(bytes, GetImageMimeType(url)));
+        }
+
+        foreach (var url in input.VideoUrls)
+        {
+            var (frames, intervalSeconds) = await ExtractVideoFramesAsync(url, http, cancellationToken);
+            videoFrameCount += frames.Count;
+            videoIntervalSeconds = intervalSeconds;
+            foreach (var frame in frames)
+                contents.Add(new DataContent(frame, "image/jpeg"));
+        }
+
+        contents.Insert(0, new TextContent(BuildPrompt(input, videoFrameCount, videoIntervalSeconds)));
+
+        return contents;
+    }
+
+    private static async Task<(IReadOnlyList<byte[]> Frames, int IntervalSeconds)> ExtractVideoFramesAsync(
+        string videoUrl,
+        HttpClient http,
+        CancellationToken cancellationToken)
+    {
+        var inputPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.mp4");
+        var framesDir = Path.Combine(Path.GetTempPath(), $"frames_{Guid.NewGuid():N}");
+
+        try
+        {
+            Directory.CreateDirectory(framesDir);
+
+            var videoBytes = await http.GetByteArrayAsync(videoUrl, cancellationToken);
+            await File.WriteAllBytesAsync(inputPath, videoBytes, cancellationToken);
+
+            var mediaInfo = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
+            var durationSeconds = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds);
+            var intervalSeconds = Math.Clamp((int)Math.Ceiling((double)durationSeconds / MaxVideoFrames), 1, 5);
+            var framePattern = Path.Combine(framesDir, "frame_%03d.jpg");
+
+            await FFmpeg.Conversions.New()
+                .AddParameter($"-i \"{inputPath}\"")
+                .AddParameter($"-vf fps=1/{intervalSeconds},scale=1280:-2")
+                .AddParameter($"-frames:v {MaxVideoFrames}")
+                .AddParameter("-q:v 2")
+                .SetOutput(framePattern)
+                .Start(cancellationToken);
+
+            var frames = Directory
+                .GetFiles(framesDir, "*.jpg")
+                .OrderBy(f => f)
+                .Select(f => File.ReadAllBytes(f))
+                .ToList();
+
+            return (frames, intervalSeconds);
+        }
+        finally
+        {
+            TryDelete(inputPath);
+            TryDeleteDirectory(framesDir);
+        }
+    }
+
+    private static string GetImageMimeType(string url)
+    {
+        if (url.Contains(".png", StringComparison.OrdinalIgnoreCase)) return "image/png";
+        if (url.Contains(".jpg", StringComparison.OrdinalIgnoreCase) ||
+            url.Contains(".jpeg", StringComparison.OrdinalIgnoreCase)) return "image/jpeg";
+        if (url.Contains(".gif", StringComparison.OrdinalIgnoreCase)) return "image/gif";
+        return "image/webp";
     }
 
     private static AIFunction[] BuildTools(IWorkoutAnalysisToolDispatcher dispatcher, CancellationToken ct)
@@ -76,14 +162,27 @@ public class GeminiWorkoutMediaAnalysisAgent(IOptions<GeminiOptions> options) : 
         ];
     }
 
-    private static string BuildPrompt(WorkoutMediaAnalysisInput input)
+    private static string BuildPrompt(WorkoutMediaAnalysisInput input, int videoFrameCount, int videoIntervalSeconds)
     {
-        var totalMediaCount = input.ImageUrls.Count + input.VideoUrls.Count;
-        var mediaSection = totalMediaCount == 0
-            ? "No media URLs were provided."
-            : string.Join('\n',
-                input.ImageUrls.Select(url => $"- [image] {url}")
-                    .Concat(input.VideoUrls.Select(url => $"- [video] {url}")));
+        var imageCount = input.ImageUrls.Count;
+        var videoCount = input.VideoUrls.Count;
+
+        string mediaSection;
+        if (imageCount == 0 && videoCount == 0)
+        {
+            mediaSection = "No media was provided.";
+        }
+        else
+        {
+            var parts = new List<string>();
+            if (imageCount > 0) parts.Add($"{imageCount} image(s)");
+            if (videoCount > 0)
+            {
+                var intervalLabel = videoIntervalSeconds == 1 ? "1 frame per second" : $"1 frame every {videoIntervalSeconds} seconds";
+                parts.Add($"{videoCount} video(s) sampled as {videoFrameCount} frame(s) ({intervalLabel}, covering full duration)");
+            }
+            mediaSection = $"Media attached: {string.Join(", ", parts)}. Inspect all attached media for technique, form, and safety risks.";
+        }
 
         var exerciseSection = input.Exercises.Count == 0
             ? "No exercise data was provided."
@@ -100,7 +199,7 @@ Workout exercises (prescribed vs actual):
 Media references:
 {mediaSection}
 
-Use the text and media references to produce a coach-friendly summary.
+Use the text and media to produce a coach-friendly summary.
 Use the available tools to look up historical workouts and provide progression-aware feedback.
 If media cannot be accessed, explicitly mention that in keyFindings.
 
@@ -179,6 +278,18 @@ Return ONLY JSON with this exact shape:
         {
             return null;
         }
+    }
+
+    private static void TryDelete(string path)
+    {
+        try { File.Delete(path); }
+        catch { /* ignore */ }
+    }
+
+    private static void TryDeleteDirectory(string path)
+    {
+        try { Directory.Delete(path, recursive: true); }
+        catch { /* ignore */ }
     }
 
     private class GeminiWorkoutMediaAnalysisPayload

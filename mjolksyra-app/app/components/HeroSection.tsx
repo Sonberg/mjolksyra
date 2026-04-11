@@ -48,7 +48,7 @@ export const HeroSection = () => {
                 <RegisterDialog
                   trigger={
                     <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
-                      Start free trial
+                      Sign Up
                     </button>
                   }
                 />

@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
 import { WorkoutMediaLightbox } from "@/components/WorkoutMediaGallery/WorkoutMediaLightbox";
 
-type PlannedWorkoutMedia = PlannedWorkout["media"][number];
+type PlannedWorkoutMedia = NonNullable<CompletedWorkout["media"]>[number];
 
 type Props = {
   media: PlannedWorkoutMedia[];

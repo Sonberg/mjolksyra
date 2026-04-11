@@ -68,7 +68,8 @@ public static class Configure
         services.AddScoped<ITraineeRepository, TraineeRepository>();
         services.AddScoped<ITraineeTransactionRepository, TraineeTransactionRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
-        services.AddScoped<IPlannedWorkoutChatMessageRepository, PlannedWorkoutChatMessageRepository>();
+        services.AddScoped<ICompletedWorkoutRepository, CompletedWorkoutRepository>();
+        services.AddScoped<ICompletedWorkoutChatMessageRepository, CompletedWorkoutChatMessageRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<IDiscountCodeRepository, DiscountCodeRepository>();

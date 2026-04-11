@@ -8,15 +8,12 @@ using Mjolksyra.UseCases.Common.Models;
 using Mjolksyra.UseCases.PlannedWorkouts;
 using Mjolksyra.UseCases.PlannedWorkouts.CreatePlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.DeletePlannedWorkout;
-using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkoutChatMessages;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkout;
 using Mjolksyra.UseCases.PlannedWorkouts.GetPlannedWorkouts;
-using Mjolksyra.UseCases.PlannedWorkouts.LogPlannedWorkout;
-using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkoutChatMessage;
 using Mjolksyra.UseCases.PlannedWorkouts.UpdatePlannedWorkout;
-using Mjolksyra.UseCases.PlannedWorkouts.AddPlannedWorkoutChatMessage;
-using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
-using Mjolksyra.UseCases.PlannedWorkouts.GetLatestWorkoutMediaAnalysis;
+using Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
+using Mjolksyra.UseCases.PlannedWorkouts.SkipPlannedWorkout;
+using Mjolksyra.UseCases.PlannedWorkouts.UnskipPlannedWorkout;
 
 namespace Mjolksyra.Api.Controllers;
 
@@ -44,10 +41,11 @@ public class PlannedWorkoutsController : Controller
         [FromQuery] int limit,
         [FromQuery] string[] sortBy,
         [FromQuery] SortOrder order,
-        CancellationToken cancellationToken)
+        [FromQuery] bool skippedOnly = false,
+        CancellationToken cancellationToken = default)
     {
         return Ok(await _mediator.Send(
-            CreateGetRequest(traineeId, from, to, next, limit, sortBy, order, draftOnly: false),
+            CreateGetRequest(traineeId, from, to, next, limit, sortBy, order, draftOnly: false, skippedOnly: skippedOnly),
             cancellationToken));
     }
 
@@ -116,21 +114,70 @@ public class PlannedWorkoutsController : Controller
             await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
         }
 
-        return Ok(result);
+        return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpPut("{plannedWorkoutId:guid}/log")]
-    public async Task<ActionResult<PlannedWorkoutResponse>> Log(
-        Guid traineeId, Guid plannedWorkoutId, [FromBody] LogPlannedWorkoutRequest request)
+    [HttpPost("{plannedWorkoutId:guid}/exercises/publish")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> PublishDraftExercises(
+        Guid traineeId,
+        Guid plannedWorkoutId,
+        [FromBody] PublishDraftExercisesRequest? request,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new LogPlannedWorkoutCommand
+        var result = await _mediator.Send(new PublishDraftExercisesCommand
         {
             TraineeId = traineeId,
             PlannedWorkoutId = plannedWorkoutId,
-            Log = request
-        });
+            Exercises = request?.Exercises,
+        }, cancellationToken);
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
 
         return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost("{plannedWorkoutId:guid}/skip")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> Skip(Guid traineeId, Guid plannedWorkoutId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new SkipPlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId
+        }, cancellationToken);
+
+        if (result is null) return NotFound();
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return Ok(result);
+    }
+
+    [HttpDelete("{plannedWorkoutId:guid}/skip")]
+    public async Task<ActionResult<PlannedWorkoutResponse>> Unskip(Guid traineeId, Guid plannedWorkoutId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UnskipPlannedWorkoutCommand
+        {
+            TraineeId = traineeId,
+            PlannedWorkoutId = plannedWorkoutId
+        }, cancellationToken);
+
+        if (result is null) return NotFound();
+
+        var userId = await _userContext.GetUserId(cancellationToken);
+        if (userId.HasValue)
+        {
+            await _userEventPublisher.Publish(userId.Value, "planned-workouts.updated", new { traineeId }, cancellationToken);
+        }
+
+        return Ok(result);
     }
 
     [HttpDelete("{plannedWorkoutId:guid}")]
@@ -151,92 +198,6 @@ public class PlannedWorkoutsController : Controller
         return NoContent();
     }
 
-    [HttpGet("{plannedWorkoutId:guid}/chat-messages")]
-    public async Task<ActionResult<ICollection<PlannedWorkoutChatMessageResponse>>> GetChatMessages(
-        Guid traineeId,
-        Guid plannedWorkoutId,
-        CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new GetPlannedWorkoutChatMessagesRequest
-        {
-            TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
-        }, cancellationToken);
-
-        return Ok(result);
-    }
-
-    [HttpPost("{plannedWorkoutId:guid}/chat-messages")]
-    public async Task<ActionResult<PlannedWorkoutChatMessageResponse>> AddChatMessage(
-        Guid traineeId,
-        Guid plannedWorkoutId,
-        [FromBody] PlannedWorkoutChatMessageRequest request,
-        CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new AddPlannedWorkoutChatMessageCommand
-        {
-            TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
-            Message = request,
-        }, cancellationToken);
-
-        return result is null ? Forbid() : Ok(result);
-    }
-
-    [HttpPatch("{plannedWorkoutId:guid}/chat-messages/{chatMessageId:guid}")]
-    public async Task<ActionResult<PlannedWorkoutChatMessageResponse>> UpdateChatMessage(
-        Guid traineeId,
-        Guid plannedWorkoutId,
-        Guid chatMessageId,
-        [FromBody] PlannedWorkoutChatMessageEditRequest request,
-        CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new UpdatePlannedWorkoutChatMessageCommand
-        {
-            TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
-            ChatMessageId = chatMessageId,
-            Message = request,
-        }, cancellationToken);
-
-        return result is null ? Forbid() : Ok(result);
-    }
-
-    [HttpPost("{plannedWorkoutId:guid}/analysis")]
-    public async Task<ActionResult<WorkoutMediaAnalysisResponse>> AnalyzeWorkoutMedia(
-        Guid traineeId,
-        Guid plannedWorkoutId,
-        [FromBody] WorkoutMediaAnalysisRequest request,
-        CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new AnalyzeWorkoutMediaCommand
-        {
-            TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
-            Analysis = request,
-        }, cancellationToken);
-
-        return result.Match<ActionResult<WorkoutMediaAnalysisResponse>>(
-            success => Ok(success),
-            _ => Forbid(),
-            insufficient => UnprocessableEntity(new { error = insufficient.Reason }));
-    }
-
-    [HttpGet("{plannedWorkoutId:guid}/analysis/latest")]
-    public async Task<ActionResult<WorkoutMediaAnalysisResponse?>> GetLatestWorkoutMediaAnalysis(
-        Guid traineeId,
-        Guid plannedWorkoutId,
-        CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new GetLatestWorkoutMediaAnalysisRequest
-        {
-            TraineeId = traineeId,
-            PlannedWorkoutId = plannedWorkoutId,
-        }, cancellationToken);
-
-        return result is null ? NotFound() : Ok(result);
-    }
-
     private static GetPlannedWorkoutsRequest CreateGetRequest(
         Guid traineeId,
         DateOnly? from,
@@ -245,7 +206,8 @@ public class PlannedWorkoutsController : Controller
         int limit,
         string[] sortBy,
         SortOrder order,
-        bool draftOnly)
+        bool draftOnly,
+        bool skippedOnly = false)
     {
         return new GetPlannedWorkoutsRequest
         {
@@ -256,7 +218,8 @@ public class PlannedWorkoutsController : Controller
             SortBy = sortBy,
             Order = order,
             Cursor = Cursor.Parse<PlannedWorkoutCursor>(next),
-            DraftOnly = draftOnly
+            DraftOnly = draftOnly,
+            SkippedOnly = skippedOnly
         };
     }
 }

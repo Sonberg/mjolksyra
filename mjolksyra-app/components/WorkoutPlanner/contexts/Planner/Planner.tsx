@@ -16,7 +16,7 @@ import { parse, Payload } from "./parse";
 import { transform } from "./transformers";
 import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
 import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
-import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { UpdatePlannedWorkout, updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { ApplyBlock } from "@/services/blocks/applyBlock";
 import { useWorkouts } from "../Workouts";
@@ -67,30 +67,29 @@ export function PlannerProvider({
 
       if (cloning) {
         if (cloning.targetWorkout) {
-          await plannedWorkouts.update({
+          const targetDraft = cloning.targetWorkout.draftExercises ?? cloning.targetWorkout.publishedExercises;
+          await updatePlannedWorkout({
             plannedWorkout: {
               ...cloning.targetWorkout,
-              exercises: insertAt(
-                cloning.targetWorkout.exercises,
-                cloning.index,
-                cloning.exercise
-              ),
+              draftExercises: insertAt(targetDraft, cloning.index, cloning.exercise),
             },
           });
         } else {
-          await plannedWorkouts.create({
+          const created = await plannedWorkouts.create({
             plannedWorkout: {
               id: v4(),
-                traineeId,
-                name: null,
-                note: null,
-                media: [],
-                exercises: [cloning.exercise],
-                plannedAt: cloning.targetDate,
-                createdAt: null,
-                completedAt: null,
+              traineeId,
+              name: null,
+              note: null,
+              publishedExercises: [],
+              draftExercises: [cloning.exercise],
+              plannedAt: cloning.targetDate,
+              createdAt: null,
               appliedBlock: null,
             },
+          });
+          await updatePlannedWorkout({
+            plannedWorkout: { ...created, draftExercises: [cloning.exercise] },
           });
         }
 
@@ -142,17 +141,27 @@ export function PlannerProvider({
       );
 
       await Promise.all(
-        result.update.map((plannedWorkout) =>
-          workoutEmpty(plannedWorkout)
-            ? plannedWorkouts.delete({ plannedWorkout })
-            : plannedWorkouts.update({ plannedWorkout })
-        )
+        result.update.map((plannedWorkout) => {
+          if (workoutEmpty(plannedWorkout)) {
+            return plannedWorkouts.delete({ plannedWorkout });
+          }
+          const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+          return updatePlannedWorkout({
+            plannedWorkout: { ...plannedWorkout, draftExercises: exercises },
+          });
+        })
       );
 
       await Promise.all(
-        result.create.map((plannedWorkout) =>
-          plannedWorkouts.create({ plannedWorkout })
-        )
+        result.create.map(async (plannedWorkout) => {
+          const created = await plannedWorkouts.create({ plannedWorkout });
+          const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+          if (exercises.length) {
+            await updatePlannedWorkout({
+              plannedWorkout: { ...created, draftExercises: exercises },
+            });
+          }
+        })
       );
 
       const updated = [...result.create, ...result.delete, ...result.update];

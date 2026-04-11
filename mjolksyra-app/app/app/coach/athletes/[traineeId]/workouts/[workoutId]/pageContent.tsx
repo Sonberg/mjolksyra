@@ -3,40 +3,38 @@
 import { CoachWorkspaceShell } from "../../../../CoachWorkspaceShell";
 import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
 import { useQuery } from "@tanstack/react-query";
-import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
+import { getWorkoutSession } from "@/services/completedWorkouts/getWorkoutSession";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
-import type { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import type { Trainee } from "@/services/trainees/type";
+import type { CompletedWorkout } from "@/services/completedWorkouts/type";
 
 type Props = {
   traineeId: string;
   workoutId: string;
-  backTab?: "past" | "future" | "changes";
-  initialWorkout?: PlannedWorkout | null;
+  backTab?: "planned" | "completed";
+  initialWorkoutResponse?: CompletedWorkout | null;
   initialTrainee?: Trainee | null;
 };
 
-export function PageContent({ traineeId, workoutId, backTab, initialWorkout, initialTrainee }: Props) {
+export function PageContent({ traineeId, workoutId, backTab, initialWorkoutResponse, initialTrainee }: Props) {
   const { data: trainee } = useQuery({
     queryKey: ["trainees", traineeId, "workoutReviewDetailHeader"],
     queryFn: ({ signal }) => getTrainee({ id: traineeId, signal }),
     initialData: initialTrainee ?? undefined,
   });
 
-  const workout = useQuery({
-    queryKey: ["planned-workout", traineeId, workoutId],
-    queryFn: ({ signal }) =>
-      getPlannedWorkoutById({
+  const workoutQuery = useQuery({
+    queryKey: ["workout-session", traineeId, workoutId],
+    queryFn: () =>
+      getWorkoutSession({
         traineeId,
-        plannedWorkoutId: workoutId,
-        signal,
+        completedWorkoutId: workoutId,
       }),
-    initialData: initialWorkout ?? undefined,
+    initialData: initialWorkoutResponse ?? undefined,
     retry: false,
   });
-
   const athleteName =
     trainee?.athlete?.givenName || trainee?.athlete?.familyName
       ? `${trainee?.athlete?.givenName ?? ""} ${trainee?.athlete?.familyName ?? ""}`.trim()
@@ -58,31 +56,31 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkout, ini
             <ChevronLeftIcon className="h-4 w-4" />
           </Link>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Workout</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Completed workout</p>
             <p className="truncate text-base font-semibold text-[var(--shell-ink)]">{athleteName}</p>
           </div>
         </div>
 
-        {workout.isLoading ? (
+        {workoutQuery.isLoading ? (
           <div className="flex-none border-b border-[var(--shell-border)] p-4 text-sm text-[var(--shell-muted)]">
             Loading workout...
           </div>
         ) : null}
-        {workout.isError ? (
+        {workoutQuery.isError ? (
           <div className="flex-none border-b border-[var(--shell-border)] p-4 text-sm text-[var(--shell-accent)]">
             Could not load this workout.
           </div>
         ) : null}
-        {workout.data ? (
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <WorkoutDetail
-              workout={workout.data}
-              viewerMode="coach"
-              traineeId={traineeId}
-              backTab={backTab}
-            />
-          </div>
-        ) : null}
+        {workoutQuery.data ? (() => {
+          return (
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <WorkoutDetail
+                workout={workoutQuery.data}
+                viewerMode="coach"
+              />
+            </div>
+          );
+        })() : null}
       </div>
     </CoachWorkspaceShell>
   );
