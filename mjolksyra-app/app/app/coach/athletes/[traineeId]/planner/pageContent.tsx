@@ -83,6 +83,7 @@ function PlannerChangesPanel({
         const published = await publishDraftExercises({
           traineeId: workout.traineeId,
           plannedWorkoutId: workout.id,
+          exercises: workout.draftExercises ?? workout.publishedExercises,
         });
         dispatch({
           type: "SET_WORKOUT",
