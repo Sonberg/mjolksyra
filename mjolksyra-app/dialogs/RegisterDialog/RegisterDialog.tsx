@@ -1,6 +1,6 @@
 "use client";
 
-import { Waitlist } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 import type { ReactNode } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
@@ -13,7 +13,7 @@ export function RegisterDialog({ trigger }: Props) {
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-h-[85vh] border bg-zinc-950 p-0 shadow-none sm:max-w-md [&>button]:hidden">
-        <Waitlist
+        <SignUp
           appearance={{
             elements: {
               rootBox: "w-full",
