@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { startWorkoutSession } from "@/services/completedWorkouts/startWorkoutSession";
 import { StatusBadge } from "./StatusBadge";
+import { CheckCircle2Icon, PlayIcon } from "lucide-react";
 
 type Props = {
   workout: PlannedWorkout;
@@ -65,6 +66,7 @@ export function WorkoutCard({
   }, [date]);
 
   const exercises = workout.publishedExercises;
+  const isStarted = !!workout.hasActiveSession && !workout.skippedAt;
   const totalExercises = exercises.length;
   const doneExercises = exercises.filter(
     (exercise) => exercise.isDone,
@@ -113,7 +115,9 @@ export function WorkoutCard({
               {displayName}
             </p>
             <div className="flex items-center gap-2">
-              <StatusBadge variant="subtle">Planned</StatusBadge>
+              <StatusBadge variant={isStarted ? "accent" : "subtle"}>
+                {isStarted ? "In progress" : "Planned"}
+              </StatusBadge>
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -131,7 +135,10 @@ export function WorkoutCard({
                 disabled={startSessionMutation.isPending}
                 className="inline-flex items-center rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
               >
-                {startSessionMutation.isPending ? "Starting..." : "Start session"}
+                {isStarted ? <CheckCircle2Icon className="mr-1.5 h-3.5 w-3.5" /> : <PlayIcon className="mr-1.5 h-3.5 w-3.5" />}
+                {startSessionMutation.isPending
+                  ? (isStarted ? "Opening..." : "Starting...")
+                  : (isStarted ? "Open session" : "Start session")}
               </button>
             ) : null}
           </div>
