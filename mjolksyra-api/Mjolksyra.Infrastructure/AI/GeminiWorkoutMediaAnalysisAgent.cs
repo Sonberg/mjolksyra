@@ -65,6 +65,7 @@ public class GeminiWorkoutMediaAnalysisAgent(
         var contents = new List<AIContent>();
 
         var videoFrameCount = 0;
+        var videoIntervalSeconds = 1;
 
         foreach (var url in input.ImageUrls)
         {
@@ -74,18 +75,19 @@ public class GeminiWorkoutMediaAnalysisAgent(
 
         foreach (var url in input.VideoUrls)
         {
-            var frames = await ExtractVideoFramesAsync(url, http, cancellationToken);
+            var (frames, intervalSeconds) = await ExtractVideoFramesAsync(url, http, cancellationToken);
             videoFrameCount += frames.Count;
+            videoIntervalSeconds = intervalSeconds;
             foreach (var frame in frames)
                 contents.Add(new DataContent(frame, "image/jpeg"));
         }
 
-        contents.Insert(0, new TextContent(BuildPrompt(input, videoFrameCount)));
+        contents.Insert(0, new TextContent(BuildPrompt(input, videoFrameCount, videoIntervalSeconds)));
 
         return contents;
     }
 
-    private static async Task<IReadOnlyList<byte[]>> ExtractVideoFramesAsync(
+    private static async Task<(IReadOnlyList<byte[]> Frames, int IntervalSeconds)> ExtractVideoFramesAsync(
         string videoUrl,
         HttpClient http,
         CancellationToken cancellationToken)
@@ -100,21 +102,26 @@ public class GeminiWorkoutMediaAnalysisAgent(
             var videoBytes = await http.GetByteArrayAsync(videoUrl, cancellationToken);
             await File.WriteAllBytesAsync(inputPath, videoBytes, cancellationToken);
 
+            var mediaInfo = await FFmpeg.GetMediaInfo(inputPath, cancellationToken);
+            var durationSeconds = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds);
+            var intervalSeconds = Math.Clamp((int)Math.Ceiling((double)durationSeconds / MaxVideoFrames), 1, 5);
             var framePattern = Path.Combine(framesDir, "frame_%03d.jpg");
 
             await FFmpeg.Conversions.New()
                 .AddParameter($"-i \"{inputPath}\"")
-                .AddParameter($"-vf fps=1,scale=1280:-2")
+                .AddParameter($"-vf fps=1/{intervalSeconds},scale=1280:-2")
                 .AddParameter($"-frames:v {MaxVideoFrames}")
                 .AddParameter("-q:v 2")
                 .SetOutput(framePattern)
                 .Start(cancellationToken);
 
-            return Directory
+            var frames = Directory
                 .GetFiles(framesDir, "*.jpg")
                 .OrderBy(f => f)
                 .Select(f => File.ReadAllBytes(f))
                 .ToList();
+
+            return (frames, intervalSeconds);
         }
         finally
         {
@@ -155,7 +162,7 @@ public class GeminiWorkoutMediaAnalysisAgent(
         ];
     }
 
-    private static string BuildPrompt(WorkoutMediaAnalysisInput input, int videoFrameCount)
+    private static string BuildPrompt(WorkoutMediaAnalysisInput input, int videoFrameCount, int videoIntervalSeconds)
     {
         var imageCount = input.ImageUrls.Count;
         var videoCount = input.VideoUrls.Count;
@@ -169,7 +176,11 @@ public class GeminiWorkoutMediaAnalysisAgent(
         {
             var parts = new List<string>();
             if (imageCount > 0) parts.Add($"{imageCount} image(s)");
-            if (videoCount > 0) parts.Add($"{videoCount} video(s) sampled as {videoFrameCount} frame(s) at 1 frame per second");
+            if (videoCount > 0)
+            {
+                var intervalLabel = videoIntervalSeconds == 1 ? "1 frame per second" : $"1 frame every {videoIntervalSeconds} seconds";
+                parts.Add($"{videoCount} video(s) sampled as {videoFrameCount} frame(s) ({intervalLabel}, covering full duration)");
+            }
             mediaSection = $"Media attached: {string.Join(", ", parts)}. Inspect all attached media for technique, form, and safety risks.";
         }
 
