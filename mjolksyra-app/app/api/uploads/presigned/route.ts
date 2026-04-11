@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { resolveMediaMimeType } from "@/lib/mediaUpload";
 
 const IMAGE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 const VIDEO_MAX_BYTES = 256 * 1024 * 1024; // 256 MB
@@ -33,8 +34,10 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => null);
   const { fileName, contentType, fileSize, type, workoutId } = body ?? {};
+  const resolvedContentType =
+    typeof fileName === "string" ? resolveMediaMimeType(fileName, contentType) : null;
 
-  if (!fileName || !contentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !workoutId) {
+  if (!fileName || !resolvedContentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !workoutId) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
@@ -55,7 +58,7 @@ export async function POST(req: NextRequest) {
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
-    ContentType: contentType,
+    ContentType: resolvedContentType,
     // Omit ContentLength — including it adds `content-length` to X-Amz-SignedHeaders,
     // which triggers a CORS preflight header check that R2 fails without AllowedHeaders configured.
   });

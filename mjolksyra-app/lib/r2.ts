@@ -48,12 +48,18 @@ export async function requestPresignedUrl(opts: {
 /**
  * Uploads a file directly to R2 using a presigned PUT URL.
  */
-export async function uploadToR2(presignedUrl: string, file: File): Promise<void> {
+export async function uploadToR2(
+  presignedUrl: string,
+  file: File,
+  contentType?: string,
+): Promise<void> {
   const res = await fetch(presignedUrl, {
     method: "PUT",
-    headers: {
-      "Content-Type": file.type,
-    },
+    headers: contentType
+      ? {
+          "Content-Type": contentType,
+        }
+      : undefined,
     body: file,
   });
 

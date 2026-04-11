@@ -171,7 +171,7 @@ test.describe("Workout media upload", () => {
     const input = page.locator("input[type='file']");
     await expect(input).toHaveAttribute(
       "accept",
-      "image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime",
+      "image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,video/mp4,video/quicktime,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.mp4,.mov,.m4v",
     );
     await expect(input).toHaveAttribute("multiple", "");
   });
@@ -286,6 +286,48 @@ test.describe("Workout media upload", () => {
     expect(req.fileName).toBe("test-image.png");
     expect(req.contentType).toBe("image/png");
     expect(typeof req.fileSize).toBe("number");
+    expect(req.type).toBe("image");
+  });
+
+  test("iphone-style files with empty mime type still request a valid upload content type", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
+    );
+    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+
+    const presignedRequests: unknown[] = [];
+    await page.route("**/api/uploads/presigned", async (route) => {
+      presignedRequests.push(route.request().postDataJSON());
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          presignedUrl: `https://fake-r2-endpoint.example.com/workouts/mock-key`,
+          publicUrl: `${R2_PUBLIC_URL}/workouts/mock-key`,
+          key: "workouts/mock-key",
+        }),
+      });
+    });
+
+    await page.route("https://fake-r2-endpoint.example.com/**", async (route) => {
+      await route.fulfill({ status: 200, body: "" });
+    });
+
+    const heicLikeBuffer = Buffer.from("iphone-photo");
+    await page.locator("input[type='file']").setInputFiles({
+      name: "IMG_0001.HEIC",
+      mimeType: "",
+      buffer: heicLikeBuffer,
+    });
+
+    await page.waitForTimeout(1_000);
+
+    expect(presignedRequests.length).toBeGreaterThan(0);
+    const req = presignedRequests[0] as Record<string, unknown>;
+    expect(req.fileName).toBe("IMG_0001.HEIC");
+    expect(req.contentType).toBe("image/heic");
     expect(req.type).toBe("image");
   });
 

@@ -1,6 +1,12 @@
 "use client";
 
 import { requestPresignedUrl, uploadToR2, extractR2Key } from "@/lib/r2";
+import {
+  ACCEPTED_MEDIA_INPUT,
+  getAcceptedMediaMimeType,
+  isAcceptedMediaFile,
+  isAcceptedVideoMimeType,
+} from "@/lib/mediaUpload";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageIcon, UploadIcon, XIcon } from "lucide-react";
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
@@ -26,18 +32,6 @@ export type PendingPreview = {
   isVideo: boolean;
   name: string;
 };
-
-const ACCEPTED_MEDIA_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "video/mp4",
-  "video/quicktime",
-] as const;
-const ACCEPTED_MEDIA_INPUT = ACCEPTED_MEDIA_TYPES.join(",");
 
 // R2 URLs have file extensions in the key (e.g. https://media.example.com/workouts/abc.mp4).
 // Keep ?ct=video branch for legacy UploadThing URLs.
@@ -89,9 +83,7 @@ export function WorkoutMediaUploader({
         return;
       }
 
-      const validFiles = files.filter((file) =>
-        ACCEPTED_MEDIA_TYPES.includes(file.type as (typeof ACCEPTED_MEDIA_TYPES)[number]),
-      );
+      const validFiles = files.filter((file) => isAcceptedMediaFile(file));
 
       if (!validFiles.length) {
         setUploadError("Only photos and videos are supported here.");
@@ -104,7 +96,14 @@ export function WorkoutMediaUploader({
 
       // Client-side size validation
       for (const file of validFiles) {
-        const isVideo = file.type.startsWith("video/");
+        const mimeType = getAcceptedMediaMimeType(file);
+        if (!mimeType) {
+          setUploadError(`"${file.name}" is not a supported photo or video.`);
+          if (inputRef.current) inputRef.current.value = "";
+          return;
+        }
+
+        const isVideo = isAcceptedVideoMimeType(mimeType);
         const maxBytes = isVideo ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
         if (file.size > maxBytes) {
           setUploadError(
@@ -121,7 +120,7 @@ export function WorkoutMediaUploader({
       const previews: PendingPreview[] = validFiles.map((f) => ({
         id: crypto.randomUUID(),
         localUrl: URL.createObjectURL(f),
-        isVideo: f.type.startsWith("video/"),
+        isVideo: isAcceptedVideoMimeType(getAcceptedMediaMimeType(f) ?? ""),
         name: f.name,
       }));
       setPendingPreviews((prev) => [...prev, ...previews]);
@@ -333,16 +332,21 @@ export function WorkoutMediaUploader({
 async function uploadFiles(files: File[], workoutId: string): Promise<PlannedWorkoutMedia[]> {
   return Promise.all(
     files.map(async (file) => {
-      const isVideo = file.type.startsWith("video/");
+      const mimeType = getAcceptedMediaMimeType(file);
+      if (!mimeType) {
+        throw new Error(`"${file.name}" is not a supported photo or video.`);
+      }
+
+      const isVideo = isAcceptedVideoMimeType(mimeType);
       const type = isVideo ? "video" : "image";
       const { presignedUrl, publicUrl } = await requestPresignedUrl({
         fileName: file.name,
-        contentType: file.type,
+        contentType: mimeType,
         fileSize: file.size,
         type,
         workoutId,
       });
-      await uploadToR2(presignedUrl, file);
+      await uploadToR2(presignedUrl, file, mimeType);
       return {
         rawUrl: `${publicUrl}?raw=1`,
         compressedUrl: null,
