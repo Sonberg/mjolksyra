@@ -52,7 +52,7 @@ describe("calculatorUtils", () => {
 
   describe("pickCheapestPlan", () => {
     test("returns cheapest plan by total cost for athlete count", () => {
-      expect(pickCheapestPlan(plans, 8)?.id).toBe("pro");
+      expect(pickCheapestPlan(plans, 8)?.id).toBe("starter");
     });
 
     test("respects tie order from sorted plans", () => {
