@@ -66,9 +66,51 @@ export const createDiscountCodeResultSchema = z.object({
   description: z.string(),
 });
 
+export const attachmentIntegritySummarySchema = z.object({
+  totalReferencedMediaUrls: z.number(),
+  totalR2Objects: z.number(),
+  orphanObjectCount: z.number(),
+  rawWithCompressedCount: z.number(),
+  deadReferenceCount: z.number(),
+});
+
+export const orphanMediaObjectSchema = z.object({
+  key: z.string(),
+  sizeBytes: z.number(),
+  lastModifiedAt: z.coerce.date().nullable().optional(),
+});
+
+export const rawWithCompressedSchema = z.object({
+  sourceType: z.string(),
+  traineeId: z.string(),
+  ownerId: z.string(),
+  rawUrl: z.string(),
+  rawKey: z.string(),
+  compressedUrl: z.string(),
+  compressedKey: z.string(),
+});
+
+export const deadMediaReferenceSchema = z.object({
+  sourceType: z.string(),
+  traineeId: z.string(),
+  ownerId: z.string(),
+  url: z.string(),
+  key: z.string().nullable().optional(),
+  reason: z.string(),
+});
+
+export const attachmentIntegrityReportSchema = z.object({
+  generatedAt: z.coerce.date(),
+  summary: attachmentIntegritySummarySchema,
+  orphanObjects: z.array(orphanMediaObjectSchema),
+  rawWithCompressed: z.array(rawWithCompressedSchema),
+  deadReferences: z.array(deadMediaReferenceSchema),
+});
+
 export type AdminStats = z.infer<typeof adminStatsSchema>;
 export type FeedbackReportItem = z.infer<typeof feedbackReportItemSchema>;
 export type UpdateFeedbackStatusResult = z.infer<typeof updateFeedbackStatusResultSchema>;
 export type CoachRevenueItem = z.infer<typeof coachRevenueItemSchema>;
 export type DiscountCode = z.infer<typeof discountCodeSchema>;
 export type CreateDiscountCodeResult = z.infer<typeof createDiscountCodeResultSchema>;
+export type AttachmentIntegrityReport = z.infer<typeof attachmentIntegrityReportSchema>;
