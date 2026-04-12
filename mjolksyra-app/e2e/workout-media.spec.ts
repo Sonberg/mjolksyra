@@ -162,7 +162,7 @@ test.describe("Workout media upload", () => {
     await expect(videos).toHaveCount(0);
   });
 
-  test("file input accepts images and videos", async ({ page }) => {
+  test("file input accepts wildcard images and videos", async ({ page }) => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
     );
@@ -171,7 +171,7 @@ test.describe("Workout media upload", () => {
     const input = page.locator("input[type='file']");
     await expect(input).toHaveAttribute(
       "accept",
-      "image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,video/mp4,video/quicktime,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.mp4,.mov,.m4v",
+      "image/*,video/*,.jpg,.jpeg,.png,.gif,.webp,.avif,.heic,.heif,.mp4,.mov,.m4v,.webm",
     );
     await expect(input).toHaveAttribute("multiple", "");
   });
@@ -329,6 +329,48 @@ test.describe("Workout media upload", () => {
     expect(req.fileName).toBe("IMG_0001.HEIC");
     expect(req.contentType).toBe("image/heic");
     expect(req.type).toBe("image");
+  });
+
+  test("iphone-style files with generic mime type fall back to extension", async ({
+    page,
+  }) => {
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
+    );
+    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+
+    const presignedRequests: unknown[] = [];
+    await page.route("**/api/uploads/presigned", async (route) => {
+      presignedRequests.push(route.request().postDataJSON());
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          presignedUrl: `https://fake-r2-endpoint.example.com/workouts/mock-key`,
+          publicUrl: `${R2_PUBLIC_URL}/workouts/mock-key`,
+          key: "workouts/mock-key",
+        }),
+      });
+    });
+
+    await page.route("https://fake-r2-endpoint.example.com/**", async (route) => {
+      await route.fulfill({ status: 200, body: "" });
+    });
+
+    const movLikeBuffer = Buffer.from("iphone-video");
+    await page.locator("input[type='file']").setInputFiles({
+      name: "IMG_4321.MOV",
+      mimeType: "application/octet-stream",
+      buffer: movLikeBuffer,
+    });
+
+    await page.waitForTimeout(1_000);
+
+    expect(presignedRequests.length).toBeGreaterThan(0);
+    const req = presignedRequests[0] as Record<string, unknown>;
+    expect(req.fileName).toBe("IMG_4321.MOV");
+    expect(req.contentType).toBe("video/quicktime");
+    expect(req.type).toBe("video");
   });
 
   // after file selection, shows "Uploading..." immediately (no compression delay)

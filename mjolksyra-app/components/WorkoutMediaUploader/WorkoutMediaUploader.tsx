@@ -86,19 +86,19 @@ export function WorkoutMediaUploader({
       const validFiles = files.filter((file) => isAcceptedMediaFile(file));
 
       if (!validFiles.length) {
-        setUploadError("Only photos and videos are supported here.");
+        setUploadError("Only image and video files are supported here.");
         return;
       }
 
       if (validFiles.length !== files.length) {
-        setUploadError("Some files were skipped. Only photos and videos are supported here.");
+        setUploadError("Some files were skipped. Only image and video files are supported here.");
       }
 
       // Client-side size validation
       for (const file of validFiles) {
         const mimeType = getAcceptedMediaMimeType(file);
         if (!mimeType) {
-          setUploadError(`"${file.name}" is not a supported photo or video.`);
+          setUploadError(`"${file.name}" is not a supported image or video.`);
           if (inputRef.current) inputRef.current.value = "";
           return;
         }
@@ -309,7 +309,7 @@ export function WorkoutMediaUploader({
                 ? "Release to upload"
                 : compact
                   ? "Click to choose a photo or video"
-                  : "Click to choose files or drop photos and videos here"}
+                  : "Click to choose files or drop images and videos here"}
             </p>
           </div>
           {compact ? (
@@ -334,7 +334,7 @@ async function uploadFiles(files: File[], workoutId: string): Promise<PlannedWor
     files.map(async (file) => {
       const mimeType = getAcceptedMediaMimeType(file);
       if (!mimeType) {
-        throw new Error(`"${file.name}" is not a supported photo or video.`);
+        throw new Error(`"${file.name}" is not a supported image or video.`);
       }
 
       const isVideo = isAcceptedVideoMimeType(mimeType);

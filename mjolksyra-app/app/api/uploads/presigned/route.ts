@@ -28,6 +28,18 @@ function getExtension(fileName: string): string {
   return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "bin";
 }
 
+function getMediaKind(contentType: string) {
+  if (contentType.startsWith("video/")) {
+    return "video";
+  }
+
+  if (contentType.startsWith("image/")) {
+    return "image";
+  }
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,15 +48,20 @@ export async function POST(req: NextRequest) {
   const { fileName, contentType, fileSize, type, workoutId } = body ?? {};
   const resolvedContentType =
     typeof fileName === "string" ? resolveMediaMimeType(fileName, contentType) : null;
+  const resolvedType = resolvedContentType ? getMediaKind(resolvedContentType) : null;
 
-  if (!fileName || !resolvedContentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !workoutId) {
+  if (!fileName || !resolvedContentType || !resolvedType || typeof fileSize !== "number" || !workoutId) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const maxBytes = type === "video" ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
+  if (type && type !== resolvedType) {
+    return NextResponse.json({ error: "Invalid media type" }, { status: 400 });
+  }
+
+  const maxBytes = resolvedType === "video" ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
   if (fileSize > maxBytes) {
     return NextResponse.json(
-      { error: `File too large. Max size for ${type}: ${maxBytes / 1024 / 1024} MB` },
+      { error: `File too large. Max size for ${resolvedType}: ${maxBytes / 1024 / 1024} MB` },
       { status: 400 },
     );
   }

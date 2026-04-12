@@ -4,23 +4,14 @@ const MEDIA_TYPE_BY_EXTENSION: Record<string, string> = {
   ".png": "image/png",
   ".gif": "image/gif",
   ".webp": "image/webp",
+  ".avif": "image/avif",
   ".heic": "image/heic",
   ".heif": "image/heif",
   ".mp4": "video/mp4",
   ".mov": "video/quicktime",
   ".m4v": "video/mp4",
+  ".webm": "video/webm",
 };
-
-const ACCEPTED_MEDIA_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "video/mp4",
-  "video/quicktime",
-] as const;
 
 const ACCEPTED_MEDIA_EXTENSIONS = Object.keys(MEDIA_TYPE_BY_EXTENSION);
 
@@ -31,7 +22,7 @@ function getExtension(fileName: string) {
 
 export function resolveMediaMimeType(fileName: string, mimeType?: string | null) {
   const normalized = mimeType?.trim().toLowerCase();
-  if (normalized && ACCEPTED_MEDIA_MIME_TYPES.includes(normalized as (typeof ACCEPTED_MEDIA_MIME_TYPES)[number])) {
+  if (normalized && (normalized.startsWith("image/") || normalized.startsWith("video/"))) {
     return normalized;
   }
 
@@ -52,7 +43,7 @@ export function isAcceptedVideoMimeType(mimeType: string) {
 }
 
 export const ACCEPTED_MEDIA_INPUT = [
-  ...ACCEPTED_MEDIA_MIME_TYPES,
+  "image/*",
+  "video/*",
   ...ACCEPTED_MEDIA_EXTENSIONS,
 ].join(",");
-
