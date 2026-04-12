@@ -64,14 +64,6 @@ export function WorkoutDetail({
 
   const isCompleted = !!workout.completedAt;
 
-  const chatPanel = (
-    <WorkoutChatPanel
-      traineeId={workout.traineeId}
-      completedWorkoutId={workout.id}
-      viewerMode={viewerMode}
-    />
-  );
-
   return (
     <article className="flex h-full flex-col overflow-hidden bg-[var(--shell-surface)]">
       <WorkoutDetailHeader
@@ -96,7 +88,11 @@ export function WorkoutDetail({
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
         <SheetContent side="right" className="w-[85vw] max-w-sm p-0">
           <SheetTitle className="sr-only">Chat</SheetTitle>
-          {chatPanel}
+          <WorkoutChatPanel
+            traineeId={workout.traineeId}
+            completedWorkoutId={workout.id}
+            viewerMode={viewerMode}
+          />
         </SheetContent>
       </Sheet>
 
@@ -181,7 +177,11 @@ export function WorkoutDetail({
         </div>
 
         <div className="hidden min-h-0 flex-1 flex-col overflow-hidden md:flex md:flex-[1]">
-          {chatPanel}
+          <WorkoutChatPanel
+            traineeId={workout.traineeId}
+            completedWorkoutId={workout.id}
+            viewerMode={viewerMode}
+          />
         </div>
       </div>
     </article>

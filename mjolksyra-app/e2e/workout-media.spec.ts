@@ -103,11 +103,11 @@ test.describe("Workout media upload", () => {
   }) => {
     await page.goto("http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default");
 
-    await page.waitForSelector("label[for='workout-media-input']", {
+    await page.waitForSelector("[data-testid='workout-media-input-label']", {
       timeout: 10_000,
     });
 
-    const label = page.locator("label[for='workout-media-input']");
+    const label = page.getByTestId("workout-media-input-label");
     await expect(label).toBeVisible();
     await expect(label).toContainText("Add photos / videos");
   });
@@ -167,8 +167,8 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
     );
 
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
-    const input = page.locator("input[type='file']");
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
+    const input = page.getByTestId("workout-media-input");
     await expect(input).toHaveAttribute(
       "accept",
       "image/*,video/*,.jpg,.jpeg,.png,.gif,.webp,.avif,.heic,.heif,.mp4,.mov,.m4v,.webm",
@@ -181,8 +181,8 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--disabled",
     );
 
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
-    const input = page.locator("input[type='file']");
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
+    const input = page.getByTestId("workout-media-input");
     await expect(input).toBeDisabled();
   });
 
@@ -194,9 +194,9 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--uploading",
     );
 
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
 
-    const input = page.locator("input[type='file']");
+    const input = page.getByTestId("workout-media-input");
     await expect(input).not.toBeDisabled();
   });
 
@@ -208,9 +208,9 @@ test.describe("Workout media upload", () => {
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--uploading",
     );
 
-    await page.waitForSelector("label[for='workout-media-input']", { timeout: 10_000 });
+    await page.waitForSelector("[data-testid='workout-media-input-label']", { timeout: 10_000 });
 
-    const label = page.locator("label[for='workout-media-input']");
+    const label = page.getByTestId("workout-media-input-label");
     await expect(label).not.toContainText("Compressing");
 
     await expect(page.getByText("Uploading...", { exact: true })).toBeVisible();
@@ -251,7 +251,7 @@ test.describe("Workout media upload", () => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
     );
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
 
     await mockR2Upload(page);
 
@@ -273,7 +273,7 @@ test.describe("Workout media upload", () => {
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
       "base64",
     );
-    await page.locator("input[type='file']").setInputFiles({
+    await page.getByTestId("workout-media-input").setInputFiles({
       name: "test-image.png",
       mimeType: "image/png",
       buffer: pngBuffer,
@@ -295,7 +295,7 @@ test.describe("Workout media upload", () => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
     );
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
 
     const presignedRequests: unknown[] = [];
     await page.route("**/api/uploads/presigned", async (route) => {
@@ -316,7 +316,7 @@ test.describe("Workout media upload", () => {
     });
 
     const heicLikeBuffer = Buffer.from("iphone-photo");
-    await page.locator("input[type='file']").setInputFiles({
+    await page.getByTestId("workout-media-input").setInputFiles({
       name: "IMG_0001.HEIC",
       mimeType: "",
       buffer: heicLikeBuffer,
@@ -337,7 +337,7 @@ test.describe("Workout media upload", () => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
     );
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
 
     const presignedRequests: unknown[] = [];
     await page.route("**/api/uploads/presigned", async (route) => {
@@ -358,7 +358,7 @@ test.describe("Workout media upload", () => {
     });
 
     const movLikeBuffer = Buffer.from("iphone-video");
-    await page.locator("input[type='file']").setInputFiles({
+    await page.getByTestId("workout-media-input").setInputFiles({
       name: "IMG_4321.MOV",
       mimeType: "application/octet-stream",
       buffer: movLikeBuffer,
@@ -380,7 +380,7 @@ test.describe("Workout media upload", () => {
     await page.goto(
       "http://localhost:6006/iframe.html?id=workoutmediauploader-workoutmediauploader--default",
     );
-    await page.waitForSelector("input[type='file']", { timeout: 10_000 });
+    await page.waitForSelector("[data-testid='workout-media-input']", { timeout: 10_000 });
 
     await mockR2Upload(page);
 
@@ -388,7 +388,7 @@ test.describe("Workout media upload", () => {
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
       "base64",
     );
-    await page.locator("input[type='file']").setInputFiles({
+    await page.getByTestId("workout-media-input").setInputFiles({
       name: "test-image.png",
       mimeType: "image/png",
       buffer: pngBuffer,
@@ -398,7 +398,7 @@ test.describe("Workout media upload", () => {
     await expect(page.getByText("Compressing", { exact: true })).not.toBeVisible();
 
     // After upload completes the button reverts to idle state
-    await expect(page.locator("label[for='workout-media-input']")).toContainText(
+    await expect(page.getByTestId("workout-media-input-label")).toContainText(
       "Add photos / videos",
       { timeout: 30_000 },
     );
@@ -423,7 +423,7 @@ test.describe("Workout media upload", () => {
 
     const dropzone = page.getByTestId("workout-media-dropzone");
     await dropzone.dispatchEvent("dragenter", { dataTransfer });
-    await expect(page.locator("label[for='workout-media-input']")).toContainText("Drop photos / videos");
+    await expect(page.getByTestId("workout-media-input-label")).toContainText("Drop photos / videos");
     await dropzone.dispatchEvent("drop", { dataTransfer });
 
     await expect(page.locator("img[alt='Workout media']")).toHaveCount(1, { timeout: 30_000 });
@@ -448,7 +448,7 @@ test.describe("Workout media upload", () => {
 
     const dropzone = page.getByTestId("workout-media-dropzone");
     await dropzone.dispatchEvent("dragenter", { dataTransfer });
-    await expect(page.locator("label[for='workout-media-input']")).toContainText("Drop to upload");
+    await expect(page.getByTestId("workout-media-input-label")).toContainText("Drop to upload");
     await dropzone.dispatchEvent("drop", { dataTransfer });
 
     await expect(page.locator("img[alt='Workout media']")).toHaveCount(1, { timeout: 30_000 });
@@ -575,6 +575,32 @@ test.describe("Workout media upload", () => {
 
     await composer.fill("Looks good, thanks coach!");
     await expect(sendButton).toBeEnabled();
+  });
+
+  test("mobile chat sheet keeps uploaded media visible before sending", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=workoutviewer-workoutdetail--athlete-view",
+    );
+
+    await mockR2Upload(page);
+
+    await page.getByRole("button", { name: "Open chat" }).click();
+    await expect(page.getByTestId("workout-chat-panel")).toBeVisible();
+
+    const pngBuffer = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==",
+      "base64",
+    );
+
+    await page.getByTestId("workout-media-input").setInputFiles({
+      name: "mobile-preview.png",
+      mimeType: "image/png",
+      buffer: pngBuffer,
+    });
+
+    await expect(page.locator("img[alt='Workout media']")).toHaveCount(1, { timeout: 30_000 });
   });
 
   test("AthleteWorkoutLogger hides analyze action for athlete", async ({ page }) => {

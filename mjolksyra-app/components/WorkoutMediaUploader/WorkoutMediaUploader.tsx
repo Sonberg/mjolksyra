@@ -7,7 +7,7 @@ import {
   isAcceptedMediaFile,
   isAcceptedVideoMimeType,
 } from "@/lib/mediaUpload";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ImageIcon, UploadIcon, XIcon } from "lucide-react";
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutMediaThumbnail } from "@/components/WorkoutMediaThumbnail/WorkoutMediaThumbnail";
@@ -62,6 +62,7 @@ export function WorkoutMediaUploader({
   compact,
   _testPendingPreviews,
 }: Props) {
+  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [pendingPreviews, setPendingPreviews] = useState<PendingPreview[]>(
     _testPendingPreviews ?? [],
@@ -287,10 +288,12 @@ export function WorkoutMediaUploader({
           disabled={disabled}
           onChange={handleFileChange}
           className="sr-only"
-          id="workout-media-input"
+          id={inputId}
+          data-testid="workout-media-input"
         />
         <label
-          htmlFor="workout-media-input"
+          htmlFor={inputId}
+          data-testid="workout-media-input-label"
           className={[
             "flex w-full cursor-pointer items-center justify-between gap-3 border bg-[var(--shell-surface)] px-3 py-3 transition hover:bg-[var(--shell-surface-strong)]",
             compact
