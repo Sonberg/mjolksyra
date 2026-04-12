@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState, useId } from "react";
 import { isAxiosError } from "axios";
 import {
   SparklesIcon,
@@ -124,6 +124,7 @@ export function AIPlannerPanel({
   onGenerated,
   initialState,
 }: Props) {
+  const attachmentInputId = useId();
   const [sessionId, setSessionId] = useState<string | null>(
     initialState?.sessionId ?? null,
   );
@@ -698,6 +699,8 @@ export function AIPlannerPanel({
                   ref={fileInputRef}
                   type="file"
                   className="hidden"
+                  id={attachmentInputId}
+                  data-testid="ai-planner-attachment-input"
                   accept={ACCEPTED_EXTENSIONS}
                   multiple
                   onChange={handleFileChange}
@@ -706,6 +709,7 @@ export function AIPlannerPanel({
                   type="button"
                   variant="ghost"
                   size="sm"
+                  data-testid="ai-planner-attachment-button"
                   className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
                   onClick={() => fileInputRef.current?.click()}
                 >
@@ -772,6 +776,8 @@ export function AIPlannerPanel({
                 ref={fileInputRef}
                 type="file"
                 className="hidden"
+                id={attachmentInputId}
+                data-testid="ai-planner-attachment-input"
                 accept={ACCEPTED_EXTENSIONS}
                 multiple
                 onChange={handleFileChange}
@@ -780,6 +786,7 @@ export function AIPlannerPanel({
                 type="button"
                 variant="ghost"
                 size="sm"
+                data-testid="ai-planner-attachment-button"
                 className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
                 onClick={() => fileInputRef.current?.click()}
               >
