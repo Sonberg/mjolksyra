@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle2Icon, MessageSquareIcon, PlusIcon, RefreshCcwIcon, CircleIcon } from "lucide-react";
+import { CheckCircle2Icon, MessageSquareIcon, PencilIcon, CheckIcon, RefreshCcwIcon, CircleIcon } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 
 type Props = {
@@ -11,7 +11,8 @@ type Props = {
   completedAt?: Date | string | null;
   plannedWorkoutId?: string | null;
   viewerMode: "athlete" | "coach";
-  onAddExercise: () => void;
+  isEditMode: boolean;
+  onToggleEditMode: () => void;
   onRestoreToPlanned: () => void;
   isRestoring?: boolean;
   onToggleCompletion: () => void;
@@ -26,7 +27,8 @@ export function WorkoutDetailHeader({
   completedAt,
   plannedWorkoutId,
   viewerMode,
-  onAddExercise,
+  isEditMode,
+  onToggleEditMode,
   onRestoreToPlanned,
   isRestoring,
   onToggleCompletion,
@@ -72,15 +74,15 @@ export function WorkoutDetailHeader({
           {viewerMode === "athlete" ? (
             <>
               <Button
-                variant="outline"
+                variant={isEditMode ? "default" : "outline"}
                 size="sm"
-                onClick={onAddExercise}
+                onClick={onToggleEditMode}
                 className="w-full justify-center sm:w-auto"
               >
-                <PlusIcon />
-                Add exercise
+                {isEditMode ? <CheckIcon /> : <PencilIcon />}
+                {isEditMode ? "Done" : "Edit"}
               </Button>
-              {plannedWorkoutId ? (
+              {plannedWorkoutId && !isEditMode ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -106,7 +108,7 @@ export function WorkoutDetailHeader({
             Chat
           </Button>
 
-          {viewerMode === "athlete" ? (
+          {viewerMode === "athlete" && !isEditMode ? (
             <Button
               variant="default"
               size="sm"

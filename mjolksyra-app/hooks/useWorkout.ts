@@ -275,6 +275,51 @@ export function useWorkout({ workout }: UseWorkoutProps) {
     onSuccess: invalidate,
   });
 
+  const reorderExercises = useMutation({
+    mutationFn: async ({ exercises }: { exercises: CompletedExercise[] }) =>
+      updateWorkoutSession({
+        traineeId: workout.traineeId,
+        id: workout.id,
+        session: {
+          completedAt: workout.completedAt ?? null,
+          mediaUrls: (workout.media ?? []).map((media) => media.rawUrl),
+          exercises,
+        },
+      }),
+    onSuccess: invalidate,
+  });
+
+  const reorderSets = useMutation({
+    mutationFn: async ({
+      exerciseId,
+      sets,
+    }: {
+      exerciseId: string;
+      sets: NonNullable<NonNullable<CompletedExercise["prescription"]>["sets"]>;
+    }) => {
+      const updatedExercises = workout.exercises.map((item) =>
+        item.id !== exerciseId
+          ? item
+          : {
+              ...item,
+              prescription: item.prescription
+                ? { ...item.prescription, sets }
+                : null,
+            },
+      );
+      return updateWorkoutSession({
+        traineeId: workout.traineeId,
+        id: workout.id,
+        session: {
+          completedAt: workout.completedAt ?? null,
+          mediaUrls: (workout.media ?? []).map((media) => media.rawUrl),
+          exercises: updatedExercises,
+        },
+      });
+    },
+    onSuccess: invalidate,
+  });
+
   const restore = useMutation({
     mutationFn: () =>
       restoreWorkoutSession({
@@ -293,6 +338,8 @@ export function useWorkout({ workout }: UseWorkoutProps) {
     removeExercise,
     addSetRow,
     removeSetRow,
+    reorderExercises,
+    reorderSets,
     restore,
   };
 }

@@ -3,7 +3,7 @@
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
-import { SparklesIcon } from "lucide-react";
+import { PlusIcon, SparklesIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ExerciseQuickSearchOverlay } from "@/components/ExerciseLibrary/ExerciseQuickSearchOverlay";
 import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
@@ -13,7 +13,20 @@ import { WorkoutDetailHeader } from "./WorkoutDetailHeader";
 import { useWorkout } from "@/hooks/useWorkout";
 import { v4 } from "uuid";
 import { ExerciseType } from "@/lib/exercisePrescription";
-import { ToggleExerciseDoneInput, ToggleSetDoneInput, UpdateSetActualInput } from "./workout/types";
+import { ToggleExerciseDoneInput, ToggleSetDoneInput, UpdateSetActualInput, WorkoutSet } from "./workout/types";
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 
 type Props = {
   workout: CompletedWorkout;
@@ -33,11 +46,18 @@ export function WorkoutDetail({
     removeExercise,
     addSetRow,
     removeSetRow,
+    reorderExercises,
+    reorderSets,
     restore,
   } = useWorkout({ workout });
 
   const [chatOpen, setChatOpen] = useState(false);
   const [addExerciseOpen, setAddExerciseOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
 
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
@@ -64,6 +84,18 @@ export function WorkoutDetail({
 
   const isCompleted = !!workout.completedAt;
 
+  function handleExerciseDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const exercises = workout.exercises;
+    const oldIndex = exercises.findIndex((e) => e.id === active.id);
+    const newIndex = exercises.findIndex((e) => e.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    reorderExercises.mutate({ exercises: arrayMove(exercises, oldIndex, newIndex) });
+  }
+
+  const exerciseIds = workout.exercises.map((e) => e.id);
+
   return (
     <article className="flex h-full flex-col overflow-hidden bg-[var(--shell-surface)]">
       <WorkoutDetailHeader
@@ -73,7 +105,8 @@ export function WorkoutDetail({
         completedAt={workout.completedAt}
         plannedWorkoutId={workout.plannedWorkoutId}
         viewerMode={viewerMode}
-        onAddExercise={() => setAddExerciseOpen(true)}
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode((prev) => !prev)}
         onRestoreToPlanned={() => restore.mutate()}
         isRestoring={restore.isPending}
         onToggleCompletion={() =>
@@ -113,39 +146,71 @@ export function WorkoutDetail({
             </div>
           ) : null}
 
-          <div className="space-y-2">
-            {workout.exercises.length === 0 && viewerMode === "athlete" ? (
-              <div className="border border-dashed border-[var(--shell-border)] px-6 py-8 text-center">
-                <p className="text-sm font-semibold text-[var(--shell-ink)]">No exercises yet</p>
-                <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                  Add exercises to start building this session.
-                </p>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleExerciseDragEnd}
+          >
+            <SortableContext items={exerciseIds} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {workout.exercises.map((exercise, index) => (
+                  <WorkoutExerciseCard
+                    key={exercise.id}
+                    exercise={exercise}
+                    index={index}
+                    viewerMode={viewerMode}
+                    isDetailView
+                    isEditMode={isEditMode}
+                    isToggleExerciseDonePending={toggleExerciseDone.isPending}
+                    isSetActionPending={
+                      toggleSetDone.isPending ||
+                      updateSetWeight.isPending ||
+                      addSetRow.isPending ||
+                      removeSetRow.isPending
+                    }
+                    onToggleExerciseDone={(input: ToggleExerciseDoneInput) => toggleExerciseDone.mutate(input)}
+                    onToggleSetDone={(input: ToggleSetDoneInput) => toggleSetDone.mutate(input)}
+                    onUpdateSetActual={(input: UpdateSetActualInput) => updateSetWeight.mutate(input)}
+                    onDeleteExercise={viewerMode === "athlete" ? (exerciseId) => removeExercise.mutate({ exerciseId }) : undefined}
+                    onAddSetRow={viewerMode === "athlete" ? (exerciseId) => addSetRow.mutate({ exerciseId }) : undefined}
+                    onRemoveSetRow={viewerMode === "athlete" ? (input) => removeSetRow.mutate(input) : undefined}
+                    onReorderSets={
+                      viewerMode === "athlete"
+                        ? (exerciseId, sets) => reorderSets.mutate({ exerciseId, sets: sets as Parameters<typeof reorderSets.mutate>[0]["sets"] })
+                        : undefined
+                    }
+                  />
+                ))}
               </div>
-            ) : null}
+            </SortableContext>
+          </DndContext>
 
-            {workout.exercises.map((exercise, index) => (
-              <WorkoutExerciseCard
-                key={exercise.id}
-                exercise={exercise}
-                index={index}
-                viewerMode={viewerMode}
-                isDetailView
-                isToggleExerciseDonePending={toggleExerciseDone.isPending}
-                isSetActionPending={
-                  toggleSetDone.isPending ||
-                  updateSetWeight.isPending ||
-                  addSetRow.isPending ||
-                  removeSetRow.isPending
-                }
-                onToggleExerciseDone={(input: ToggleExerciseDoneInput) => toggleExerciseDone.mutate(input)}
-                onToggleSetDone={(input: ToggleSetDoneInput) => toggleSetDone.mutate(input)}
-                onUpdateSetActual={(input: UpdateSetActualInput) => updateSetWeight.mutate(input)}
-                onDeleteExercise={viewerMode === "athlete" ? (exerciseId) => removeExercise.mutate({ exerciseId }) : undefined}
-                onAddSetRow={viewerMode === "athlete" ? (exerciseId) => addSetRow.mutate({ exerciseId }) : undefined}
-                onRemoveSetRow={viewerMode === "athlete" ? (input) => removeSetRow.mutate(input) : undefined}
-              />
-            ))}
-          </div>
+          {/* Empty state or Add exercise button */}
+          {viewerMode === "athlete" && !isEditMode ? (
+            workout.exercises.length === 0 ? (
+              <div className="flex items-center justify-center py-12">
+                <button
+                  type="button"
+                  onClick={() => setAddExerciseOpen(true)}
+                  className="inline-flex items-center gap-2 border border-dashed border-[var(--shell-border)] px-6 py-3 text-sm font-semibold text-[var(--shell-muted)] transition hover:border-[var(--shell-ink)] hover:text-[var(--shell-ink)]"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  Add exercise
+                </button>
+              </div>
+            ) : (
+              <div className="mt-2 px-1">
+                <button
+                  type="button"
+                  onClick={() => setAddExerciseOpen(true)}
+                  className="inline-flex w-full items-center justify-center gap-2 border border-dashed border-[var(--shell-border)] py-3 text-sm font-semibold text-[var(--shell-muted)] transition hover:border-[var(--shell-ink)] hover:text-[var(--shell-ink)]"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  Add exercise
+                </button>
+              </div>
+            )
+          ) : null}
 
           <ExerciseQuickSearchOverlay
             open={addExerciseOpen}

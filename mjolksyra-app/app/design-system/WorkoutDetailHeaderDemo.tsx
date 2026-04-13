@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { WorkoutDetailHeader } from "@/components/WorkoutViewer/WorkoutDetailHeader";
 
 const noop = () => {};
 
 export function WorkoutDetailHeaderDemo() {
+  const [editMode1, setEditMode1] = useState(false);
+  const [editMode2, setEditMode2] = useState(false);
+
   return (
     <div className="space-y-1 border border-[var(--shell-border)]">
       <div>
@@ -18,7 +22,8 @@ export function WorkoutDetailHeaderDemo() {
           completedAt={null}
           plannedWorkoutId="plan-1"
           viewerMode="athlete"
-          onAddExercise={noop}
+          isEditMode={editMode1}
+          onToggleEditMode={() => setEditMode1((p) => !p)}
           onRestoreToPlanned={noop}
           onToggleCompletion={noop}
           onOpenChat={noop}
@@ -35,7 +40,8 @@ export function WorkoutDetailHeaderDemo() {
           completedAt={new Date("2026-03-14T09:45:00")}
           plannedWorkoutId="plan-2"
           viewerMode="athlete"
-          onAddExercise={noop}
+          isEditMode={editMode2}
+          onToggleEditMode={() => setEditMode2((p) => !p)}
           onRestoreToPlanned={noop}
           onToggleCompletion={noop}
           onOpenChat={noop}
@@ -52,7 +58,8 @@ export function WorkoutDetailHeaderDemo() {
           completedAt={null}
           plannedWorkoutId={null}
           viewerMode="coach"
-          onAddExercise={noop}
+          isEditMode={false}
+          onToggleEditMode={noop}
           onRestoreToPlanned={noop}
           onToggleCompletion={noop}
           onOpenChat={noop}

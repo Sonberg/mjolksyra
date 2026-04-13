@@ -81,3 +81,12 @@ export const AdHocSession: Story = {
     />
   ),
 };
+
+export const EmptySession: Story = {
+  render: () => (
+    <WorkoutDetail
+      workout={{ ...baseWorkout, exercises: [], completedAt: null }}
+      viewerMode="athlete"
+    />
+  ),
+};
