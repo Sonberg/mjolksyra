@@ -4,7 +4,9 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.Coaches.ConsumeCredits;
+using Mjolksyra.UseCases.Coaches.ReleaseCreditsReservation;
+using Mjolksyra.UseCases.Coaches.ReserveCredits;
+using Mjolksyra.UseCases.Coaches.SettleCreditsReservation;
 using OneOf;
 using CompletedExercise = Mjolksyra.Domain.Database.Models.CompletedExercise;
 
@@ -44,17 +46,22 @@ public class AnalyzeCompletedWorkoutMediaCommandHandler(
             return new AnalyzeCompletedWorkoutMediaForbidden();
         }
 
-        var consumeResult = await mediator.Send(
-            new ConsumeCreditsCommand(
+        var reserveResult = await mediator.Send(
+            new ReserveCreditsCommand(
                 userId,
                 CreditAction.AnalyzeCompletedWorkout,
                 request.CompletedWorkoutId.ToString()),
             cancellationToken);
 
-        if (consumeResult.IsT1)
+        if (reserveResult.IsT1)
         {
-            return new AnalyzeCompletedWorkoutMediaInsufficientCredits(consumeResult.AsT1.Reason);
+            return new AnalyzeCompletedWorkoutMediaInsufficientCredits(reserveResult.AsT1.Reason);
         }
+
+        var reservation = reserveResult.AsT0;
+
+        try
+        {
 
         var chatMessages = await completedWorkoutChatMessageRepository.GetByWorkoutId(
             request.TraineeId,
@@ -162,7 +169,25 @@ public class AnalyzeCompletedWorkoutMediaCommandHandler(
             CreatedAt = createdAt,
         }, cancellationToken);
 
+        await mediator.Send(new SettleCreditsReservationCommand(
+            userId,
+            reservation.IncludedReserved,
+            reservation.PurchasedReserved,
+            CreditAction.AnalyzeCompletedWorkout,
+            request.CompletedWorkoutId.ToString()), cancellationToken);
+
         return CompletedWorkoutMediaAnalysisResponse.From(analysis, createdAt);
+
+        } // end try
+        catch
+        {
+            await mediator.Send(new ReleaseCreditsReservationCommand(
+                userId,
+                reservation.IncludedReserved,
+                reservation.PurchasedReserved,
+                request.CompletedWorkoutId.ToString()), cancellationToken);
+            throw;
+        }
     }
 
     private static string BuildLoggedRepEvidence(ICollection<CompletedExercise> exercises)

@@ -4,7 +4,9 @@ using Mjolksyra.Domain.AI;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.Coaches.ConsumeCredits;
+using Mjolksyra.UseCases.Coaches.ReleaseCreditsReservation;
+using Mjolksyra.UseCases.Coaches.ReserveCredits;
+using Mjolksyra.UseCases.Coaches.SettleCreditsReservation;
 using Mjolksyra.UseCases.CompletedWorkouts;
 using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 using OneOf;
@@ -195,8 +197,11 @@ public class AnalyzeCompletedWorkoutMediaCommandHandlerTests
 
         var mediator = new Mock<IMediator>();
         mediator
-            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(10, 5)));
+            .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT0(new ReserveCreditsSuccess(1, 0, 1)));
+        mediator
+            .Setup(x => x.Send(It.IsAny<SettleCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SettleCreditsReservationResult(true));
 
         var sut = CreateSut(mediator, workoutRepository, chatMessageRepository, traineeRepository, userContext, analysisRepository, analysisAgent);
 
@@ -334,8 +339,11 @@ public class AnalyzeCompletedWorkoutMediaCommandHandlerTests
 
         var mediator = new Mock<IMediator>();
         mediator
-            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(3, 0)));
+            .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT0(new ReserveCreditsSuccess(1, 0, 1)));
+        mediator
+            .Setup(x => x.Send(It.IsAny<SettleCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SettleCreditsReservationResult(true));
 
         var sut = CreateSut(mediator, workoutRepository, chatMessageRepository: chatMessageRepository, traineeRepository: traineeRepository, userContext: userContext, analysisAgent: analysisAgent);
 
@@ -389,8 +397,8 @@ public class AnalyzeCompletedWorkoutMediaCommandHandlerTests
 
         var mediator = new Mock<IMediator>();
         mediator
-            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT1(new ConsumeCreditsError("Insufficient credits.")));
+            .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT1(new ReserveCreditsError("Insufficient credits.")));
 
         var analysisAgent = new Mock<IWorkoutMediaAnalysisAgent>();
         var sut = CreateSut(mediator: mediator, workoutRepository: workoutRepository, traineeRepository: traineeRepository, userContext: userContext, analysisAgent: analysisAgent);
@@ -411,8 +419,22 @@ public class AnalyzeCompletedWorkoutMediaCommandHandlerTests
         Mock<IWorkoutMediaAnalysisRepository>? analysisRepository = null,
         Mock<IWorkoutMediaAnalysisAgent>? analysisAgent = null)
     {
+        if (mediator is null)
+        {
+            mediator = new Mock<IMediator>();
+            mediator
+                .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT0(new ReserveCreditsSuccess(1, 0, 1)));
+            mediator
+                .Setup(x => x.Send(It.IsAny<SettleCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new SettleCreditsReservationResult(true));
+            mediator
+                .Setup(x => x.Send(It.IsAny<ReleaseCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ReleaseCreditsReservationResult(true));
+        }
+
         return new AnalyzeCompletedWorkoutMediaCommandHandler(
-            (mediator ?? new Mock<IMediator>()).Object,
+            mediator.Object,
             (workoutRepository ?? new Mock<ICompletedWorkoutRepository>()).Object,
             (chatMessageRepository ?? new Mock<ICompletedWorkoutChatMessageRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,

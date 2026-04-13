@@ -15,5 +15,26 @@ public interface IUserCreditsRepository
         int expectedVersion,
         CancellationToken ct);
 
+    Task<UserCredits?> AtomicReserve(
+        Guid coachUserId,
+        int includedToReserve,
+        int purchasedToReserve,
+        int expectedVersion,
+        CancellationToken ct);
+
+    Task<UserCredits?> AtomicSettle(
+        Guid coachUserId,
+        int includedToSettle,
+        int purchasedToSettle,
+        int expectedVersion,
+        CancellationToken ct);
+
+    Task<UserCredits?> AtomicRelease(
+        Guid coachUserId,
+        int includedToRelease,
+        int purchasedToRelease,
+        int expectedVersion,
+        CancellationToken ct);
+
     Task Upsert(UserCredits credits, CancellationToken ct);
 }

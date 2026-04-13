@@ -7,7 +7,9 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
-using Mjolksyra.UseCases.Coaches.ConsumeCredits;
+using Mjolksyra.UseCases.Coaches.ReleaseCreditsReservation;
+using Mjolksyra.UseCases.Coaches.ReserveCredits;
+using Mjolksyra.UseCases.Coaches.SettleCreditsReservation;
 using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 using OneOf;
 
@@ -83,8 +85,8 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var mediator = new Mock<IMediator>();
         mediator
-            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT1(new ConsumeCreditsError("Insufficient credits.")));
+            .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT1(new ReserveCreditsError("Insufficient credits.")));
 
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
 
@@ -121,8 +123,11 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         var mediator = new Mock<IMediator>();
         mediator
-            .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(20, 5)));
+            .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT0(new ReserveCreditsSuccess(1, 0, 1)));
+        mediator
+            .Setup(x => x.Send(It.IsAny<ReleaseCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReleaseCreditsReservationResult(true));
 
         var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
         plannerAgent
@@ -134,7 +139,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
         await sut.Handle(CreateCommand(traineeId: traineeId, sessionId: sessionId), CancellationToken.None);
 
         mediator.Verify(x => x.Send(
-            It.Is<ConsumeCreditsCommand>(c =>
+            It.Is<ReserveCreditsCommand>(c =>
                 c.CoachUserId == userId &&
                 c.Action == CreditAction.GenerateWorkoutPlan &&
                 c.ReferenceId == sessionId.ToString()),
@@ -534,8 +539,14 @@ public class GenerateWorkoutPlanCommandHandlerTests
         {
             mediator = new Mock<IMediator>();
             mediator
-                .Setup(x => x.Send(It.IsAny<ConsumeCreditsCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>.FromT0(new ConsumeCreditsSuccess(20, 5)));
+                .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT0(new ReserveCreditsSuccess(1, 0, 1)));
+            mediator
+                .Setup(x => x.Send(It.IsAny<SettleCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new SettleCreditsReservationResult(true));
+            mediator
+                .Setup(x => x.Send(It.IsAny<ReleaseCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ReleaseCreditsReservationResult(true));
         }
 
         return new GenerateWorkoutPlanCommandHandler(

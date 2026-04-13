@@ -14,11 +14,14 @@ public class GetCreditsQueryHandler(IUserCreditsRepository creditsRepository)
             return null;
         }
 
+        var includedAvailable = credits.IncludedRemaining - credits.IncludedReserved;
+        var purchasedAvailable = credits.PurchasedRemaining - credits.PurchasedReserved;
+
         return new GetCreditsResponse
         {
-            IncludedRemaining = credits.IncludedRemaining,
-            PurchasedRemaining = credits.PurchasedRemaining,
-            TotalRemaining = credits.IncludedRemaining + credits.PurchasedRemaining,
+            IncludedRemaining = includedAvailable,
+            PurchasedRemaining = purchasedAvailable,
+            TotalRemaining = includedAvailable + purchasedAvailable,
             LastResetAt = credits.LastResetAt,
             NextResetAt = credits.LastResetAt?.AddMonths(1),
         };

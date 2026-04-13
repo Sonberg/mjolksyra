@@ -4,18 +4,18 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using OneOf;
 
-namespace Mjolksyra.UseCases.Coaches.ConsumeCredits;
+namespace Mjolksyra.UseCases.Coaches.ReserveCredits;
 
-public class ConsumeCreditsCommandHandler(
+public class ReserveCreditsCommandHandler(
     IUserCreditsRepository creditsRepository,
     ICreditActionPricingRepository pricingRepository,
     ICreditLedgerRepository ledgerRepository)
-    : IRequestHandler<ConsumeCreditsCommand, OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>>
+    : IRequestHandler<ReserveCreditsCommand, OneOf<ReserveCreditsSuccess, ReserveCreditsError>>
 {
     private const int MaxRetries = 3;
 
-    public async Task<OneOf<ConsumeCreditsSuccess, ConsumeCreditsError>> Handle(
-        ConsumeCreditsCommand request,
+    public async Task<OneOf<ReserveCreditsSuccess, ReserveCreditsError>> Handle(
+        ReserveCreditsCommand request,
         CancellationToken cancellationToken)
     {
         var cost = request.CreditCostOverride;
@@ -24,7 +24,7 @@ public class ConsumeCreditsCommandHandler(
             var pricing = await pricingRepository.GetByAction(request.Action, cancellationToken);
             if (pricing is null)
             {
-                return new ConsumeCreditsError("Action pricing not configured.");
+                return new ReserveCreditsError("Action pricing not configured.");
             }
 
             cost = pricing.CreditCost;
@@ -35,24 +35,25 @@ public class ConsumeCreditsCommandHandler(
             var credits = await creditsRepository.GetByCoachUserId(request.CoachUserId, cancellationToken);
             if (credits is null)
             {
-                return new ConsumeCreditsError("Insufficient credits.");
+                return new ReserveCreditsError("Insufficient credits.");
             }
 
             var includedAvailable = credits.IncludedRemaining - credits.IncludedReserved;
             var purchasedAvailable = credits.PurchasedRemaining - credits.PurchasedReserved;
             var totalAvailable = includedAvailable + purchasedAvailable;
+
             if (totalAvailable < cost.Value)
             {
-                return new ConsumeCreditsError("Insufficient credits.");
+                return new ReserveCreditsError("Insufficient credits.");
             }
 
-            var includedUsed = Math.Min(cost.Value, includedAvailable);
-            var purchasedUsed = cost.Value - includedUsed;
+            var includedToReserve = Math.Min(cost.Value, includedAvailable);
+            var purchasedToReserve = cost.Value - includedToReserve;
 
-            var updated = await creditsRepository.AtomicDeduct(
+            var updated = await creditsRepository.AtomicReserve(
                 request.CoachUserId,
-                includedUsed,
-                purchasedUsed,
+                includedToReserve,
+                purchasedToReserve,
                 credits.Version,
                 cancellationToken);
 
@@ -66,16 +67,16 @@ public class ConsumeCreditsCommandHandler(
                 Id = Guid.NewGuid(),
                 CoachUserId = request.CoachUserId,
                 Action = request.Action,
-                Type = CreditLedgerType.Deduct,
-                IncludedCreditsChanged = -includedUsed,
-                PurchasedCreditsChanged = -purchasedUsed,
+                Type = CreditLedgerType.Reserve,
+                IncludedCreditsChanged = -includedToReserve,
+                PurchasedCreditsChanged = -purchasedToReserve,
                 ReferenceId = request.ReferenceId,
                 CreatedAt = DateTimeOffset.UtcNow,
             }, cancellationToken);
 
-            return new ConsumeCreditsSuccess(updated.IncludedRemaining, updated.PurchasedRemaining);
+            return new ReserveCreditsSuccess(includedToReserve, purchasedToReserve, cost.Value);
         }
 
-        return new ConsumeCreditsError("Could not process request due to concurrent activity. Please retry.");
+        return new ReserveCreditsError("Could not process request due to concurrent activity. Please retry.");
     }
 }
