@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2Icon, CircleIcon, XIcon } from "lucide-react";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -69,8 +69,16 @@ export function WorkoutExerciseSetCard({
   onRemoveSetRow,
 }: Props) {
   const [draft, setDraft] = useState<SetActualDraft>(() => buildDraftFromSet(set));
-  const [isEditing, setIsEditing] = useState(false);
-  const visibleDraft = isEditing ? draft : buildDraftFromSet(set);
+  const isEditingRef = useRef(false);
+
+  // Sync draft from the server-reflected prop, but only when the user is not
+  // actively typing — prevents the just-entered value from reverting to the
+  // old prop while the mutation is still in-flight.
+  useEffect(() => {
+    if (!isEditingRef.current) {
+      setDraft(buildDraftFromSet(set));
+    }
+  }, [set]);
 
   const commitDraft = useCallback(
     (nextDraft: SetActualDraft) => {
@@ -123,10 +131,9 @@ export function WorkoutExerciseSetCard({
         <input
           type="number"
           min={0}
-          value={isSetsReps ? visibleDraft.reps : isDurationSeconds ? visibleDraft.durationSeconds : visibleDraft.distanceMeters}
+          value={isSetsReps ? draft.reps : isDurationSeconds ? draft.durationSeconds : draft.distanceMeters}
           onFocus={() => {
-            setDraft(buildDraftFromSet(set));
-            setIsEditing(true);
+            isEditingRef.current = true;
           }}
           onChange={(ev) =>
             updateDraft(
@@ -138,7 +145,7 @@ export function WorkoutExerciseSetCard({
             )
           }
           onBlur={() => {
-            setIsEditing(false);
+            isEditingRef.current = false;
             commitDraft(draft);
           }}
           className={inputCls}
@@ -173,14 +180,13 @@ export function WorkoutExerciseSetCard({
             type="number"
             min={0}
             step="0.5"
-            value={visibleDraft.weightKg}
+            value={draft.weightKg}
             onFocus={() => {
-              setDraft(buildDraftFromSet(set));
-              setIsEditing(true);
+              isEditingRef.current = true;
             }}
             onChange={(ev) => updateDraft({ weightKg: ev.target.value })}
             onBlur={() => {
-              setIsEditing(false);
+              isEditingRef.current = false;
               commitDraft(draft);
             }}
             className={inputCls}
@@ -203,14 +209,13 @@ export function WorkoutExerciseSetCard({
       {isEditable ? (
         <input
           type="text"
-          value={visibleDraft.note}
+          value={draft.note}
           onFocus={() => {
-            setDraft(buildDraftFromSet(set));
-            setIsEditing(true);
+            isEditingRef.current = true;
           }}
           onChange={(ev) => updateDraft({ note: ev.target.value })}
           onBlur={() => {
-            setIsEditing(false);
+            isEditingRef.current = false;
             commitDraft(draft);
           }}
           className="h-9 min-w-0 flex-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 text-xs text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--shell-accent)]"
