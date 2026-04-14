@@ -9,6 +9,7 @@ import {
   LogOutIcon,
   MessageSquareWarningIcon,
   MoonIcon,
+  PlusIcon,
   ShieldIcon,
   SunIcon,
   UserIcon,
@@ -30,9 +31,10 @@ type NavigationUserProps = {
     familyName: string | null;
   } | null;
   isAdmin?: boolean;
+  completedRoles?: ("coach" | "athlete")[];
 };
 
-export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
+export function NavigationUser({ user, isAdmin, completedRoles = [] }: NavigationUserProps) {
   const auth = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
@@ -87,6 +89,22 @@ export function NavigationUser({ user, isAdmin }: NavigationUserProps) {
             Profile
           </Link>
         </DropdownMenuItem>
+        {completedRoles.length === 1 && !completedRoles.includes("coach") && (
+          <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
+            <Link href="/app/onboard/coach">
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Join as coach
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {completedRoles.length === 1 && !completedRoles.includes("athlete") && (
+          <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
+            <Link href="/app/onboard/athlete">
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Join as athlete
+            </Link>
+          </DropdownMenuItem>
+        )}
         {isAdmin && (
           <DropdownMenuItem asChild className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]">
             <Link href="/app/admin">

@@ -3,15 +3,22 @@
 import Link from "next/link";
 import { NavigationUser } from "./NavigationUser";
 import { NavigationNotifications } from "./NavigationNotifications";
-import { SelectionTabs } from "./SelectionTabs";
 import { Button } from "../ui/button";
 import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
+import { ChevronDownIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 type NavigationAuthSnapshot = {
   isAuthenticated: boolean;
@@ -20,18 +27,37 @@ type NavigationAuthSnapshot = {
   givenName: string | null;
   familyName: string | null;
   isAdmin?: boolean;
+  completedRoles?: ("coach" | "athlete")[];
+  activeRole?: "coach" | "athlete" | null;
 };
 
 type NavigationProps = {
   initialAuth?: NavigationAuthSnapshot;
 };
 
+const roleLabels: Record<"coach" | "athlete", string> = {
+  coach: "Coach",
+  athlete: "Athlete",
+};
+
+const roleHrefs: Record<"coach" | "athlete", string> = {
+  coach: "/app/coach/dashboard",
+  athlete: "/app/athlete",
+};
+
+function setActiveRoleCookie(role: "coach" | "athlete") {
+  document.cookie = `mjolksyra-active-role=${role}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+}
+
 export function Navigation({ initialAuth }: NavigationProps) {
   const auth = useAuth();
   const pathname = usePathname();
-  const isCoachActive = pathname.startsWith("/app/coach");
-  const isAthleteActive = pathname.startsWith("/app/athlete");
+  const router = useRouter();
+
   const isAuthenticated = initialAuth?.isAuthenticated ?? auth.isAuthenticated;
+  const completedRoles = initialAuth?.completedRoles ?? [];
+  const activeRole = initialAuth?.activeRole ?? null;
+
   const user = {
     name: initialAuth?.name ?? auth.name ?? null,
     email: initialAuth?.email ?? auth.email ?? null,
@@ -39,15 +65,110 @@ export function Navigation({ initialAuth }: NavigationProps) {
     familyName: initialAuth?.familyName ?? auth.familyName ?? null,
   };
 
-  const roleTabs = [
-    { key: "coach", href: "/app/coach/dashboard", label: "Coach" },
-    { key: "athlete", href: "/app/athlete", label: "Athlete" },
-  ] as const;
-  const activeRoleTab = isCoachActive
-    ? "coach"
-    : isAthleteActive
-      ? "athlete"
-      : undefined;
+  // Track the last role route visited so the label stays stable when
+  // navigating to neutral pages like /app/profile.
+  const [selectedRole, setSelectedRole] = useState<"coach" | "athlete" | null>(
+    activeRole,
+  );
+
+  useEffect(() => {
+    if (pathname.startsWith("/app/coach")) {
+      setSelectedRole("coach");
+    } else if (pathname.startsWith("/app/athlete")) {
+      setSelectedRole("athlete");
+    }
+  }, [pathname]);
+
+  const currentRole = selectedRole;
+
+  const otherRole: "coach" | "athlete" | null =
+    completedRoles.length === 2
+      ? currentRole === "coach"
+        ? "athlete"
+        : "coach"
+      : null;
+
+  const isOnRoleRoute =
+    pathname.startsWith("/app/coach") || pathname.startsWith("/app/athlete");
+
+  function switchRole(role: "coach" | "athlete") {
+    setActiveRoleCookie(role);
+    router.push(roleHrefs[role]);
+  }
+
+  const roleTab =
+    isAuthenticated && currentRole ? (
+      otherRole ? (
+        // Both roles complete — split button: label navigates, chevron opens dropdown
+        <div
+          className={cn(
+            "inline-flex h-9 items-stretch rounded-none text-sm font-semibold transition-colors",
+            isOnRoleRoute
+              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+              : "bg-transparent text-[var(--shell-muted)]",
+          )}
+        >
+          <Link
+            href={roleHrefs[currentRole]}
+            className={cn(
+              "inline-flex items-center px-4 transition-colors",
+              isOnRoleRoute
+                ? "hover:bg-[var(--shell-ink-soft)]"
+                : "hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
+            )}
+          >
+            {roleLabels[currentRole]}
+          </Link>
+          <div
+            className={cn(
+              "w-px self-stretch",
+              isOnRoleRoute
+                ? "bg-[var(--shell-surface)]/20"
+                : "bg-[var(--shell-border)]",
+            )}
+          />
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex items-center px-2 transition-colors focus-visible:outline-none",
+                  isOnRoleRoute
+                    ? "hover:bg-[var(--shell-ink-soft)]"
+                    : "hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
+                )}
+              >
+                <ChevronDownIcon className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-40 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
+            >
+              <DropdownMenuItem
+                className="cursor-pointer rounded-none focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
+                onSelect={() => switchRole(otherRole)}
+              >
+                Switch to {roleLabels[otherRole]}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : (
+        // Single role — plain link
+        <Link
+          href={roleHrefs[currentRole]}
+          className={cn(
+            "inline-flex h-9 items-center rounded-none px-4 text-sm font-semibold transition-colors",
+            isOnRoleRoute
+              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+              : "bg-transparent text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
+          )}
+        >
+          {roleLabels[currentRole]}
+        </Link>
+      )
+    ) : null;
 
   return (
     <header
@@ -70,35 +191,21 @@ export function Navigation({ initialAuth }: NavigationProps) {
             />
           </div>
         </Link>
+
         <div
           className={cn(
             "ml-auto flex shrink-0 items-center gap-1 sm:gap-2",
           )}
         >
           {isAuthenticated ? (
-            <SelectionTabs
-              items={roleTabs}
-              activeKey={activeRoleTab}
-              size="md"
-              className="!inline-flex md:!hidden"
-              itemClassName="text-sm"
-            />
-          ) : null}
-          {isAuthenticated ? (
-            <SelectionTabs
-              items={roleTabs}
-              activeKey={activeRoleTab}
-              className="ml-auto !hidden md:!inline-flex"
-              itemClassName="text-sm"
-            />
-          ) : null}
-          {isAuthenticated ? (
             <>
+              {roleTab}
               <ThemeToggle />
               <NavigationNotifications forceVisible={isAuthenticated} />
               <NavigationUser
                 user={user}
                 isAdmin={initialAuth?.isAdmin ?? false}
+                completedRoles={completedRoles}
               />
             </>
           ) : (
