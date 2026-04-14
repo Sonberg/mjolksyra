@@ -6,6 +6,7 @@ import type { Credits } from "@/services/coaches/getCredits";
 import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
 import { formatActionName } from "./CoachCreditsSection";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   credits: Credits | null;
@@ -18,41 +19,28 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
 
   return (
     <div className="bg-[var(--shell-surface-strong)] p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits</p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--shell-ink)]">{credits?.totalRemaining ?? 0}</p>
-          <p className="mt-1 text-xs text-[var(--shell-muted)]">Total credits remaining</p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits</p>
         <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setPurchaseDialogOpen(true)}
-            className="border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
-          >
+          <Button size="sm" onClick={() => setPurchaseDialogOpen(true)}>
             Buy credits
-          </button>
-          <Link
-            href="/app/coach/credits"
-            className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
-          >
-            Open credits
-          </Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/app/coach/credits">Open credits</Link>
+          </Button>
         </div>
       </div>
 
-      <PurchaseCreditsDialog
-        open={purchaseDialogOpen}
-        onOpenChange={setPurchaseDialogOpen}
-      />
+      <p className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">{credits?.totalRemaining ?? 0}</p>
+      <p className="mt-1 text-xs text-[var(--shell-muted)]">Total credits remaining</p>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 flex gap-8">
         <div>
-          <p className="text-[11px] uppercase tracking-widest text-[var(--shell-muted)]">Included</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Included</p>
           <p className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{credits?.includedRemaining ?? 0}</p>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-widest text-[var(--shell-muted)]">Purchased</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Purchased</p>
           <p className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{credits?.purchasedRemaining ?? 0}</p>
         </div>
       </div>
@@ -68,6 +56,11 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
           {formatActionName("AnalyzeCompletedWorkoutMedia")}: {analyzeCost} credits
         </p>
       ) : null}
+
+      <PurchaseCreditsDialog
+        open={purchaseDialogOpen}
+        onOpenChange={setPurchaseDialogOpen}
+      />
     </div>
   );
 }

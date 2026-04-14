@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { LucideIcon } from "lucide-react";
 
@@ -11,7 +10,6 @@ export type CoachTodoItem = {
   names: string | null;
   count: number;
   icon: LucideIcon;
-  tone: string;
 };
 
 type Props = {
@@ -31,22 +29,38 @@ export function CoachDashboardTodoSection({ items }: Props) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {items.map((item) => {
           const Icon = item.icon;
+          const active = item.count > 0;
           return (
-            <div key={item.key} className="bg-[var(--shell-surface-strong)] p-4">
+            <div key={item.key} className="bg-[var(--shell-surface-strong)] p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className={cn("mt-0.5 shrink-0 p-2", item.tone)}>
-                    <Icon className="h-4 w-4" />
+                  <div
+                    className="mt-0.5 shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-1.5"
+                    style={{ color: active ? "var(--shell-ink)" : "var(--shell-muted)" }}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[var(--shell-ink)]">{item.title}</p>
-                    <p className="mt-1 text-sm text-[var(--shell-muted)]">{item.text}</p>
+                    <p
+                      className="text-xs font-semibold"
+                      style={{ color: active ? "var(--shell-ink)" : "var(--shell-muted)" }}
+                    >
+                      {item.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[var(--shell-muted)]">
+                      {item.text}
+                    </p>
                     {item.names && (
-                      <p className="mt-2 text-xs text-[var(--shell-muted)]">{item.names}</p>
+                      <p className="mt-1 text-[10px] text-[var(--shell-muted)]">
+                        {item.names}
+                      </p>
                     )}
                   </div>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-[var(--shell-ink)]">
+                <span
+                  className="shrink-0 text-xs font-semibold tabular-nums"
+                  style={{ color: active ? "var(--shell-ink)" : "var(--shell-muted)" }}
+                >
                   {item.count}
                 </span>
               </div>

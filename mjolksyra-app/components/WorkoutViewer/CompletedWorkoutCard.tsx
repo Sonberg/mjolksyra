@@ -56,6 +56,9 @@ export function CompletedWorkoutCard({
       count + (exercise.prescription?.sets?.filter((set) => set.actual?.isDone).length ?? 0),
     0,
   );
+  const hasEnteredData = workout.exercises.some(
+    (ex) => ex.isDone || (ex.prescription?.sets?.some((s) => s.actual?.isDone) ?? false),
+  );
 
   const detailHref = traineeId
     ? viewerMode === "coach"
@@ -92,8 +95,20 @@ export function CompletedWorkoutCard({
               {displayName}
             </p>
             <div className="flex items-center gap-2">
-              <StatusBadge variant={workout.skippedAt ? "subtle" : "default"}>
-                {workout.skippedAt ? "Skipped" : workout.completedAt ? "Completed" : "In progress"}
+              <StatusBadge
+                variant={
+                  workout.skippedAt || (!workout.completedAt && !hasEnteredData)
+                    ? "subtle"
+                    : "default"
+                }
+              >
+                {workout.skippedAt
+                  ? "Skipped"
+                  : workout.completedAt
+                    ? "Completed"
+                    : hasEnteredData
+                      ? "In progress"
+                      : "Not started"}
               </StatusBadge>
             </div>
           </div>
@@ -107,35 +122,37 @@ export function CompletedWorkoutCard({
           ) : null}
         </div>
       </div>
-      <div className="space-y-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:space-y-4 sm:p-4">
-        <div className="flex flex-wrap items-baseline gap-2">
-          <StatusBadge variant="subtle">{totalExercises} exercises</StatusBadge>
-          {totalSets > 0 ? (
-            <StatusBadge variant="subtle">{doneSets}/{totalSets} sets done</StatusBadge>
-          ) : null}
-          {workout.completedAt ? (
-            <StatusBadge variant="subtle">
-              {new Date(workout.completedAt).toLocaleString()}
-            </StatusBadge>
-          ) : null}
-        </div>
+      {!workout.skippedAt ? (
+        <div className="space-y-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:space-y-4 sm:p-4">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <StatusBadge variant="subtle">{totalExercises} exercises</StatusBadge>
+            {totalSets > 0 ? (
+              <StatusBadge variant="subtle">{doneSets}/{totalSets} sets done</StatusBadge>
+            ) : null}
+            {workout.completedAt ? (
+              <StatusBadge variant="subtle">
+                {new Date(workout.completedAt).toLocaleString()}
+              </StatusBadge>
+            ) : null}
+          </div>
 
-        <div className="grid gap-2 sm:grid-cols-2">
-          {workout.exercises.slice(0, 4).map((exercise, index) => (
-            <div
-              key={exercise.id}
-              className="bg-[var(--shell-surface-strong)] px-3 py-2"
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                Exercise {index + 1}
-              </p>
-              <p className="mt-1 text-sm text-[var(--shell-ink)]">
-                {exercise.name}
-              </p>
-            </div>
-          ))}
+          <div className="grid gap-2 sm:grid-cols-2">
+            {workout.exercises.slice(0, 4).map((exercise, index) => (
+              <div
+                key={exercise.id}
+                className="bg-[var(--shell-surface-strong)] px-3 py-2"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                  Exercise {index + 1}
+                </p>
+                <p className="mt-1 text-sm text-[var(--shell-ink)]">
+                  {exercise.name}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </article>
   );
 }

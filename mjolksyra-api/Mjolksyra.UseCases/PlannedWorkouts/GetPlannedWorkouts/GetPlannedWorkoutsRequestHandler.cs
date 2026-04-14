@@ -105,7 +105,12 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
         var exercises = await _exerciseRepository.GetMany(exerciseIds, cancellationToken);
         var workoutIdsWithActiveSession = sessions
-            .Where(x => !x.CompletedAt.HasValue && x.PlannedWorkoutId.HasValue)
+            .Where(x => !x.CompletedAt.HasValue &&
+                        x.PlannedWorkoutId.HasValue &&
+                        x.Exercises.Any(e =>
+                            e.Prescription != null &&
+                            e.Prescription.Sets != null &&
+                            e.Prescription.Sets.Any(s => s.Actual != null && s.Actual.IsDone)))
             .Select(x => x.PlannedWorkoutId!.Value)
             .ToHashSet();
 
