@@ -4,11 +4,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { UserTrainee } from "@/services/users/type";
 import { NavigationTabs } from "@/components/Navigation/NavigationTabs";
 
-type AthleteTab = "workouts" | "transactions" | "settings";
+type AthleteTab = "workouts" | "transactions" | "settings" | "insights";
 
 function getActiveTab(pathname: string): AthleteTab {
   if (pathname.includes("/settings")) return "settings";
   if (pathname.includes("/transactions")) return "transactions";
+  if (pathname.includes("/insights")) return "insights";
   return "workouts";
 }
 
@@ -30,6 +31,7 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
       href: `/app/athlete/${traineeId}/transactions`,
       label: "Transactions",
     },
+    { key: "insights", href: `/app/athlete/${traineeId}/insights`, label: "Insights" },
     { key: "settings", href: `/app/athlete/${traineeId}/settings`, label: "Settings" },
   ];
 

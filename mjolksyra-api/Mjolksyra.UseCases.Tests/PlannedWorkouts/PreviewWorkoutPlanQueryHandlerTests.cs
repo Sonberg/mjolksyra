@@ -254,6 +254,8 @@ public class PreviewWorkoutPlanQueryHandlerTests
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
+            new Mock<ITraineeInsightsRepository>().Object,
+            new Mock<ICoachInsightsRepository>().Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }
 
