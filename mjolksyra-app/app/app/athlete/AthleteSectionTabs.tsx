@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { UserTrainee } from "@/services/users/type";
 import { NavigationTabs } from "@/components/Navigation/NavigationTabs";
+import { useTraineeInsights } from "@/hooks/useTraineeInsights";
 
 type AthleteTab = "workouts" | "transactions" | "settings" | "insights";
 
@@ -23,6 +24,7 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
   const pathname = usePathname();
   const router = useRouter();
   const activeTab = getActiveTab(pathname);
+  const { data: insights } = useTraineeInsights(traineeId);
 
   const tabs: Array<{ key: AthleteTab; href: string; label: string }> = [
     { key: "workouts", href: `/app/athlete/${traineeId}/workouts`, label: "Workouts" },
@@ -31,7 +33,9 @@ export function AthleteSectionTabs({ traineeId, coaches, onCoachChange }: Props)
       href: `/app/athlete/${traineeId}/transactions`,
       label: "Transactions",
     },
-    { key: "insights", href: `/app/athlete/${traineeId}/insights`, label: "Insights" },
+    ...(insights?.visibleToAthlete
+      ? [{ key: "insights" as AthleteTab, href: `/app/athlete/${traineeId}/insights`, label: "Insights" }]
+      : []),
     { key: "settings", href: `/app/athlete/${traineeId}/settings`, label: "Settings" },
   ];
 

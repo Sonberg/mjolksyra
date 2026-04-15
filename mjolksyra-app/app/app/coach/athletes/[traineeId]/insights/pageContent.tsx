@@ -333,7 +333,7 @@ export function PageContent({ traineeId }: Props) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 pb-8">
           {generatedAt ? (
             <p className="text-xs text-[var(--shell-muted)]">Last generated: {generatedAt}</p>
           ) : null}
