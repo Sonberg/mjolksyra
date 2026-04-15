@@ -86,4 +86,38 @@ test.describe("AI Workout Planner", () => {
 
     await expect(page.getByText("block-notes.csv")).toBeVisible();
   });
+
+  test("attachment stays visible after starting the planner", async ({ page }) => {
+    await page.route("**/api/trainees/**/ai-planner/clarify", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sessionId: "session-1",
+          message: "I can work from that context. Here is a first pass.",
+          options: [],
+          proposedActionSet: null,
+          previewWorkouts: [],
+        }),
+      });
+    });
+
+    await page.goto(
+      "http://localhost:6006/iframe.html?id=aiplanpanel--idle",
+    );
+
+    await page.getByTestId("ai-planner-attachment-input").setInputFiles({
+      name: "block-notes.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from("goal,phase\nstrength,1"),
+    });
+
+    await expect(page.getByText("block-notes.csv")).toBeVisible();
+
+    await page.getByPlaceholder(/12-week strength block/i).fill("Plan next block");
+    await page.getByRole("button", { name: /start planner|send/i }).click();
+
+    await expect(page.getByText("block-notes.csv")).toBeVisible();
+    await expect(page.getByText("I can work from that context. Here is a first pass.")).toBeVisible();
+  });
 });

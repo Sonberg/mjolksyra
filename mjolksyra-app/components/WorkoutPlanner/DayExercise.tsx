@@ -86,15 +86,24 @@ export function DayExercise({
       return;
     }
 
+    const currentDraft = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
     const newPlannedWorkout = {
       ...plannedWorkout,
-      exercises: plannedWorkout.exercises.filter(
+      draftExercises: currentDraft.filter(
         (x) => x.id !== plannedExercise.id,
       ),
     };
 
     syncWorkout(newPlannedWorkout);
   }, [locked, syncWorkout, plannedExercise, plannedWorkout]);
+
+  const isDraftChange = useMemo(
+    () =>
+      !!plannedWorkout?.changes?.some(
+        (c) => c.plannedExerciseId === plannedExercise.id,
+      ),
+    [plannedExercise.id, plannedWorkout?.changes],
+  );
 
   return useMemo(
     () => (
@@ -112,7 +121,7 @@ export function DayExercise({
           isGhost={isGhost}
           rightSlot={
             <div className="mt-0.5 flex shrink-0 items-start gap-1">
-              {!plannedExercise.isPublished ? (
+              {isDraftChange ? (
                 <span
                   className="mt-2 h-1.5 w-1.5 rounded-none bg-[var(--shell-accent)]"
                   title="Draft change"
@@ -138,6 +147,7 @@ export function DayExercise({
     ),
     [
       plannedExercise,
+      isDraftChange,
       transform,
       transition,
       setNodeRef,

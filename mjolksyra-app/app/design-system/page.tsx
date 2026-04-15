@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { TabsDemo } from "./TabsDemo";
 import { DialogDemo } from "./DialogDemo";
+import { WorkoutDetailHeaderDemo } from "./WorkoutDetailHeaderDemo";
 
 export const metadata: Metadata = {
   title: "Design System",
@@ -136,6 +137,7 @@ const navLinks = [
   { href: "#chat", label: "Chat" },
   { href: "#list", label: "List" },
   { href: "#page-header", label: "Page Header" },
+  { href: "#workout-header", label: "Workout Header" },
   { href: "#patterns", label: "Patterns" },
 ];
 
@@ -487,6 +489,11 @@ export default function DesignSystemPage() {
                   />
                 </div>
               </div>
+            </Section>
+
+            {/* ── Workout Header ──────────────────────── */}
+            <Section id="workout-header" eyebrow="Patterns" title="Workout Detail Header">
+              <WorkoutDetailHeaderDemo />
             </Section>
 
             {/* ── Patterns ────────────────────────────── */}

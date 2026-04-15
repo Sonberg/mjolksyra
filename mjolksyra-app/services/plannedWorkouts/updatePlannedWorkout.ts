@@ -3,7 +3,10 @@ import { workoutSchema } from "./schema";
 import { PlannedWorkout } from "./type";
 
 type Args = {
-  plannedWorkout: PlannedWorkout;
+  plannedWorkout: Omit<
+    PlannedWorkout,
+    "createdAt" | "updatedAt" | "publishedExercises"
+  >;
 };
 
 export type UpdatePlannedWorkout = typeof updatePlannedWorkout;

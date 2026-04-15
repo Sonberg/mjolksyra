@@ -40,21 +40,21 @@ export const HeroSection = () => {
               </span>
             ))}
           </div>
-          <div className="space-y-3 sm:flex sm:space-x-3 sm:space-y-0 sm:items-center">
+          <div className="space-y-3 flex gap-4 flex-col sm:flex-row sm:space-x-3 sm:space-y-0 sm:items-center">
             {isBeta ? (
               <SignupForm />
             ) : (
               <>
                 <RegisterDialog
                   trigger={
-                    <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
-                      Start free trial
+                    <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-6 py-3 md:px-8 md:py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
+                      Sign Up
                     </button>
                   }
                 />
                 <a
                   href="#planner-demo"
-                  className="inline-flex items-center justify-center rounded-none px-2 py-4 text-sm font-medium text-[var(--home-muted)] underline-offset-4 hover:underline transition"
+                  className="hidden md:inline-flex items-center justify-center rounded-none px-2 py-4 text-sm font-medium text-[var(--home-muted)] underline-offset-4 hover:underline transition"
                 >
                   Try live demo
                 </a>

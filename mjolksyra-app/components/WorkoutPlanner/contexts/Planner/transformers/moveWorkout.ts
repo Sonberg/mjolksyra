@@ -5,6 +5,8 @@ import { PLANNED_AT } from "@/constants/dateFormats";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 
 export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
+  const sourceDraft = action.sourceWorkout!.draftExercises ?? action.sourceWorkout!.publishedExercises;
+
   const updateSourceWorkout = action.clone
     ? []
     : ([
@@ -12,11 +14,11 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
           id: action.sourceWorkout!.id,
           plannedAt: action.sourceWorkout!.plannedAt,
           traineeId: traineeId,
-          exercises: [],
+          publishedExercises: [],
+          draftExercises: [],
           name: null,
           appliedBlock: null,
           note: null,
-          media: [],
           createdAt: null,
         },
       ] as PlannedWorkout[]);
@@ -29,7 +31,7 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
         ...updateSourceWorkout,
         {
           ...action.targetWorkout!,
-          exercises: action.sourceWorkout!.exercises.map((x) => ({
+          draftExercises: sourceDraft.map((x) => ({
             ...x,
             id: v4(),
           })),
@@ -50,9 +52,9 @@ export function moveWorkout(traineeId: string, action: MoveWorkoutAction) {
           note: null,
           createdAt: null,
           appliedBlock: null,
-          media: [],
           plannedAt: action.targetDate.format(PLANNED_AT),
-          exercises: action.sourceWorkout!.exercises.map((x) => ({
+          publishedExercises: [],
+          draftExercises: sourceDraft.map((x) => ({
             ...x,
             id: v4(),
           })),

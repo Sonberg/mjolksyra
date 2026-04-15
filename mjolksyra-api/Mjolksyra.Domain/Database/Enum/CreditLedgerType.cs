@@ -5,5 +5,7 @@ public enum CreditLedgerType
     Purchase,
     Deduct,
     Reset,
-    AdminGrant
+    AdminGrant,
+    Reserve,
+    Release,
 }

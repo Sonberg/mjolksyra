@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { Navigation } from "@/components/Navigation";
 import { getUserMe } from "@/services/users/getUserMe";
 
@@ -90,17 +91,31 @@ export default async function RootLayout({
   const user = userId ? await currentUser() : null;
 
   let isAdmin = false;
+  const completedRoles: ("coach" | "athlete")[] = [];
+
   if (userId) {
     try {
       const accessToken = (await getToken()) ?? "";
       if (accessToken) {
         const me = await getUserMe({ accessToken });
         isAdmin = me.isAdmin;
+        if (me.onboarding.coach === "Completed") completedRoles.push("coach");
+        if (me.onboarding.athlete === "Completed") completedRoles.push("athlete");
       }
     } catch {
       // non-critical — user may not exist in DB yet
     }
   }
+
+  const cookieStore = await cookies();
+  const cookieRole = cookieStore.get("mjolksyra-active-role")?.value as
+    | "coach"
+    | "athlete"
+    | undefined;
+  const activeRole: "coach" | "athlete" | null =
+    cookieRole && completedRoles.includes(cookieRole)
+      ? cookieRole
+      : completedRoles[0] ?? null;
 
   const initialAuth = {
     isAuthenticated: Boolean(userId),
@@ -109,6 +124,8 @@ export default async function RootLayout({
     givenName: user?.firstName ?? null,
     familyName: user?.lastName ?? null,
     isAdmin,
+    completedRoles,
+    activeRole,
   };
 
   return (

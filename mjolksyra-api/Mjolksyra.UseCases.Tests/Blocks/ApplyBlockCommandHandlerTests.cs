@@ -102,7 +102,7 @@ public class ApplyBlockCommandHandlerTests
         {
             Id = Guid.NewGuid(),
             TraineeId = traineeId,
-            Exercises = [],
+            PublishedExercises = [],
             PlannedAt = new DateOnly(2026, 2, 2),
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -136,13 +136,13 @@ public class ApplyBlockCommandHandlerTests
         plannedWorkoutRepository.Verify(x => x.Create(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()), Times.Once);
         plannedWorkoutRepository.Verify(x => x.Create(
             It.Is<PlannedWorkout>(workout =>
-                workout.Exercises.Count == 1 &&
-                workout.Exercises.First().Prescription != null &&
-                workout.Exercises.First().Prescription!.Type == ExerciseType.SetsReps &&
-                workout.Exercises.First().Prescription!.Sets != null &&
-                workout.Exercises.First().Prescription!.Sets!.Count == 1 &&
-                workout.Exercises.First().Prescription!.Sets!.First().Target!.Reps == 8 &&
-                workout.Exercises.First().Prescription!.Sets!.First().Target!.WeightKg == 60),
+                workout.PublishedExercises.Count == 1 &&
+                workout.PublishedExercises.First().Prescription != null &&
+                workout.PublishedExercises.First().Prescription!.Type == ExerciseType.SetsReps &&
+                workout.PublishedExercises.First().Prescription!.Sets != null &&
+                workout.PublishedExercises.First().Prescription!.Sets!.Count == 1 &&
+                workout.PublishedExercises.First().Prescription!.Sets!.First().Target!.Reps == 8 &&
+                workout.PublishedExercises.First().Prescription!.Sets!.First().Target!.WeightKg == 60),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -20,7 +20,7 @@ function Controlled({ initial }: { initial: PlannedWorkoutMedia[] }) {
   return (
     <WorkoutMediaUploader
       traineeId="trainee-1"
-      plannedWorkoutId="workout-1"
+      workoutId="workout-1"
       media={media}
       onUploadComplete={setMedia}
     />
@@ -36,7 +36,7 @@ export const Compact: Story = {
     <div className="w-[320px] border border-gray-200 p-3">
       <WorkoutMediaUploader
         traineeId="trainee-1"
-        plannedWorkoutId="workout-1"
+        workoutId="workout-1"
         media={[]}
         onUploadComplete={() => {}}
         compact
@@ -74,7 +74,7 @@ export const Disabled: Story = {
   render: () => (
     <WorkoutMediaUploader
       traineeId="trainee-1"
-      plannedWorkoutId="workout-1"
+      workoutId="workout-1"
       media={[{ rawUrl: "https://placehold.co/200x200?text=Photo", compressedUrl: null, type: "Image" }]}
       onUploadComplete={() => {}}
       isPending
@@ -103,7 +103,7 @@ export const Uploading: Story = {
     return (
       <WorkoutMediaUploader
         traineeId="trainee-1"
-        plannedWorkoutId="workout-1"
+        workoutId="workout-1"
         media={[]}
         onUploadComplete={() => {}}
         _testPendingPreviews={testPreviews}

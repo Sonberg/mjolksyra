@@ -24,9 +24,9 @@ export default async function Page({ params, searchParams }: Props) {
 
   const query = (await searchParams) ?? {};
   const backTab =
-    query.tab === "past" || query.tab === "future"
+    query.tab === "planned" || query.tab === "completed"
       ? query.tab
-      : query.workoutTab === "past" || query.workoutTab === "future"
+      : query.workoutTab === "planned" || query.workoutTab === "completed"
         ? query.workoutTab
         : undefined;
 

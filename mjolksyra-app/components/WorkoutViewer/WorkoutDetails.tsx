@@ -1,22 +1,21 @@
 "use client";
 
 import { WorkoutDetail } from "@/components/WorkoutViewer/WorkoutDetail";
-import { getPlannedWorkoutById } from "@/services/plannedWorkouts/getPlannedWorkoutById";
+import { getWorkoutSession } from "@/services/completedWorkouts/getWorkoutSession";
 import { useQuery } from "@tanstack/react-query";
 
 type Props = {
   traineeId: string;
   workoutId: string;
-  backTab?: "past" | "future";
 };
 
-export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
+export function WorkoutDetails({ traineeId, workoutId }: Props) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["planned-workout", traineeId, workoutId],
+    queryKey: ["workout-session", traineeId, workoutId],
     queryFn: ({ signal }) =>
-      getPlannedWorkoutById({
+      getWorkoutSession({
         traineeId,
-        plannedWorkoutId: workoutId,
+        completedWorkoutId: workoutId,
         signal,
       }),
     retry: false,
@@ -36,12 +35,7 @@ export function WorkoutDetails({ traineeId, workoutId, backTab }: Props) {
       ) : null}
       {data ? (
         <div className="flex-1 min-h-0 overflow-hidden">
-          <WorkoutDetail
-            workout={data}
-            traineeId={traineeId}
-            backTab={backTab}
-            viewerMode="athlete"
-          />
+          <WorkoutDetail workout={data} viewerMode="athlete" />
         </div>
       ) : null}
     </div>

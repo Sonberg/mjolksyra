@@ -15,7 +15,7 @@ export default async function Page({ params, searchParams }: Props) {
   const routeParams = await params;
   const query = (await searchParams) ?? {};
   const initialTab =
-    query.tab === "past" || query.tab === "future" || query.tab === "changes"
+    query.tab === "planned" || query.tab === "completed"
       ? query.tab
       : undefined;
 

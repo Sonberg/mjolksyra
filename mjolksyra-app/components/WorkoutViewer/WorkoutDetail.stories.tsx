@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { WorkoutDetail } from "./WorkoutDetail";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import { PropsWithChildren } from "react";
 
 const StoryProvider = ({ children }: PropsWithChildren) => (
-  <div className="max-w-4xl mx-auto">{children}</div>
+  <div className="mx-auto max-w-4xl">{children}</div>
 );
 
 const meta = {
@@ -23,17 +23,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof WorkoutDetail>;
 
-const baseWorkout: PlannedWorkout = {
-  id: "workout-1",
+const baseWorkout: CompletedWorkout = {
+  id: "session-1",
+  plannedWorkoutId: "workout-1",
   traineeId: "trainee-1",
-  name: "Lower Body Strength",
-  note: "Keep rest around 2 minutes and lock in your squat depth.",
   plannedAt: "2026-04-02",
   completedAt: new Date("2026-04-02T11:15:00Z"),
-  reviewedAt: null,
   media: [],
   createdAt: new Date("2026-04-01"),
-  appliedBlock: null,
   exercises: [
     {
       id: "exercise-1",
@@ -41,8 +38,6 @@ const baseWorkout: PlannedWorkout = {
       name: "Back Squat",
       note: null,
       isDone: true,
-      isPublished: true,
-      addedBy: null,
       prescription: {
         type: ExerciseType.SetsReps,
         sets: [
@@ -57,29 +52,16 @@ const baseWorkout: PlannedWorkout = {
         ],
       },
     },
-    {
-      id: "exercise-2",
-      exerciseId: "rdl",
-      name: "Romanian Deadlift",
-      note: null,
-      isDone: false,
-      isPublished: true,
-      addedBy: null,
-      prescription: {
-        type: ExerciseType.SetsReps,
-        sets: [
-          {
-            target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 70, note: null },
-            actual: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 70, note: null, isDone: true },
-          },
-          {
-            target: { reps: 8, durationSeconds: null, distanceMeters: null, weightKg: 70, note: null },
-            actual: null,
-          },
-        ],
-      },
-    },
   ],
+};
+
+export const AthleteView: Story = {
+  render: () => (
+    <WorkoutDetail
+      workout={{ ...baseWorkout, completedAt: null }}
+      viewerMode="athlete"
+    />
+  ),
 };
 
 export const CoachView: Story = {
@@ -87,70 +69,24 @@ export const CoachView: Story = {
     <WorkoutDetail
       workout={baseWorkout}
       viewerMode="coach"
-      traineeId="trainee-1"
-      backTab="changes"
     />
   ),
 };
 
-export const AthleteView: Story = {
+export const AdHocSession: Story = {
   render: () => (
     <WorkoutDetail
-      workout={baseWorkout}
+      workout={{ ...baseWorkout, plannedWorkoutId: null }}
       viewerMode="athlete"
-      traineeId="trainee-1"
-      backTab="past"
     />
   ),
 };
 
-export const AthleteWithOwnExercise: Story = {
+export const EmptySession: Story = {
   render: () => (
     <WorkoutDetail
-      workout={{
-        ...baseWorkout,
-        completedAt: null,
-        exercises: [
-          baseWorkout.exercises[0], // coach-added: no delete/add-set controls
-          {
-            id: "exercise-athlete-1",
-            exerciseId: "pushup",
-            name: "Push-up",
-            note: null,
-            isDone: false,
-            isPublished: true,
-            addedBy: "Athlete",
-            prescription: {
-              type: ExerciseType.SetsReps,
-              sets: [
-                { target: null, actual: null },
-                { target: null, actual: null },
-              ],
-            },
-          },
-        ],
-      }}
+      workout={{ ...baseWorkout, exercises: [], completedAt: null }}
       viewerMode="athlete"
-      traineeId="trainee-1"
     />
   ),
 };
-
-export const AthleteEmptySession: Story = {
-  render: () => (
-    <WorkoutDetail
-      workout={{
-        ...baseWorkout,
-        id: "workout-empty",
-        name: null,
-        note: null,
-        completedAt: null,
-        exercises: [],
-        plannedAt: "2026-04-10",
-      }}
-      viewerMode="athlete"
-      traineeId="trainee-1"
-    />
-  ),
-};
-  

@@ -38,13 +38,15 @@ public class ConsumeCreditsCommandHandler(
                 return new ConsumeCreditsError("Insufficient credits.");
             }
 
-            var totalAvailable = credits.IncludedRemaining + credits.PurchasedRemaining;
+            var includedAvailable = credits.IncludedRemaining - credits.IncludedReserved;
+            var purchasedAvailable = credits.PurchasedRemaining - credits.PurchasedReserved;
+            var totalAvailable = includedAvailable + purchasedAvailable;
             if (totalAvailable < cost.Value)
             {
                 return new ConsumeCreditsError("Insufficient credits.");
             }
 
-            var includedUsed = Math.Min(cost.Value, credits.IncludedRemaining);
+            var includedUsed = Math.Min(cost.Value, includedAvailable);
             var purchasedUsed = cost.Value - includedUsed;
 
             var updated = await creditsRepository.AtomicDeduct(

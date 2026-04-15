@@ -31,26 +31,33 @@ export function moveWeek(action: MoveWeekAction): TransformResult {
       if (!sourceWorkout && targetWorkout) {
         return {
           ...targetWorkout,
-          exercises: [],
-        };
+          publishedExercises: [],
+          draftExercises: [],
+        } as PlannedWorkout;
       }
 
       if (!sourceWorkout) {
         return null;
       }
 
+      const sourceDraft = sourceWorkout.draftExercises ?? sourceWorkout.publishedExercises;
+
       return {
         id: targetWorkout?.id ?? v4(),
         traineeId: sourceWorkout.traineeId,
         plannedAt: newPlannedAt,
-        exercises: sourceWorkout.exercises.map((y) => ({
+        name: sourceWorkout.name,
+        note: sourceWorkout.note,
+        appliedBlock: sourceWorkout.appliedBlock ?? null,
+        publishedExercises: [],
+        draftExercises: sourceDraft.map((y) => ({
           ...y,
           id: v4(),
         })),
-        createdAt: targetWorkout?.createdAt,
-      };
+        createdAt: targetWorkout?.createdAt ?? null,
+      } as PlannedWorkout;
     })
-    .filter((x): x is PlannedWorkout => !!x);
+    .filter((x): x is PlannedWorkout => x !== null);
 
   const sourceToDelete = action.clone
     ? []

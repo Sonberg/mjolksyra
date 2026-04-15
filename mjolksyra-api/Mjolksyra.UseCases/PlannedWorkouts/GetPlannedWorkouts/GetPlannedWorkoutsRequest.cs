@@ -22,4 +22,6 @@ public class GetPlannedWorkoutsRequest : IRequest<PaginatedResponse<PlannedWorko
     public required SortOrder Order { get; set; } = SortOrder.Asc;
 
     public bool DraftOnly { get; set; }
+
+    public bool SkippedOnly { get; set; }
 }

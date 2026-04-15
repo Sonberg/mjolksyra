@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { resolveMediaMimeType } from "@/lib/mediaUpload";
 
 const IMAGE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 const VIDEO_MAX_BYTES = 256 * 1024 * 1024; // 256 MB
@@ -27,27 +28,46 @@ function getExtension(fileName: string): string {
   return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "bin";
 }
 
+function getMediaKind(contentType: string) {
+  if (contentType.startsWith("video/")) {
+    return "video";
+  }
+
+  if (contentType.startsWith("image/")) {
+    return "image";
+  }
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
-  const { fileName, contentType, fileSize, type, plannedWorkoutId } = body ?? {};
+  const { fileName, contentType, fileSize, type, workoutId } = body ?? {};
+  const resolvedContentType =
+    typeof fileName === "string" ? resolveMediaMimeType(fileName, contentType) : null;
+  const resolvedType = resolvedContentType ? getMediaKind(resolvedContentType) : null;
 
-  if (!fileName || !contentType || typeof fileSize !== "number" || (type !== "image" && type !== "video") || !plannedWorkoutId) {
+  if (!fileName || !resolvedContentType || !resolvedType || typeof fileSize !== "number" || !workoutId) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const maxBytes = type === "video" ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
+  if (type && type !== resolvedType) {
+    return NextResponse.json({ error: "Invalid media type" }, { status: 400 });
+  }
+
+  const maxBytes = resolvedType === "video" ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
   if (fileSize > maxBytes) {
     return NextResponse.json(
-      { error: `File too large. Max size for ${type}: ${maxBytes / 1024 / 1024} MB` },
+      { error: `File too large. Max size for ${resolvedType}: ${maxBytes / 1024 / 1024} MB` },
       { status: 400 },
     );
   }
 
   const ext = getExtension(fileName);
-  const key = `workouts/${plannedWorkoutId}/${crypto.randomUUID()}.${ext}`;
+  const key = `workouts/${workoutId}/${crypto.randomUUID()}.${ext}`;
   const bucket = process.env.R2_BUCKET_NAME!;
   const publicBaseUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL!;
 
@@ -55,7 +75,7 @@ export async function POST(req: NextRequest) {
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
-    ContentType: contentType,
+    ContentType: resolvedContentType,
     // Omit ContentLength — including it adds `content-length` to X-Amz-SignedHeaders,
     // which triggers a CORS preflight header check that R2 fails without AllowedHeaders configured.
   });

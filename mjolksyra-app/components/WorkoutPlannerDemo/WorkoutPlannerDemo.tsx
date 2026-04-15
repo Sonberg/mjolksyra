@@ -31,8 +31,8 @@ function createInitialPlannedWorkouts(exercises: Exercise[]): PlannedWorkout[] {
     dayjs().subtract(2, "month").date(6),
     dayjs().subtract(1, "month").date(14),
     dayjs().subtract(1, "month").date(25),
-    dayjs().date(5),
-    dayjs().date(12),
+    dayjs().add(3, "day"),
+    dayjs().add(8, "day"),
     dayjs().add(1, "month").date(8),
     dayjs().add(1, "month").date(18),
     dayjs().add(2, "month").date(3),
@@ -48,15 +48,13 @@ function createInitialPlannedWorkouts(exercises: Exercise[]): PlannedWorkout[] {
       traineeId: "",
       name: index % 2 === 0 ? "Strength day" : "Mixed day",
       note: index % 2 === 0 ? "Focus on controlled tempo." : null,
-      media: [],
       plannedAt: plannedAt.format("YYYY-MM-DD"),
-      completedAt: null,
-      reviewedAt: null,
-      exercises: [
+      publishedExercises: [
         buildPlannedExercise(first),
         buildPlannedExercise(second),
         buildPlannedExercise(third),
       ],
+      draftExercises: null,
       createdAt: new Date(),
       appliedBlock: null,
     };
@@ -157,10 +155,10 @@ export function WorkoutPlannerDemo() {
         plannedWorkouts={{
           update: async ({ plannedWorkout }) => {
             plannedWorkouts.current = plannedWorkouts.current.map((x) =>
-              x.id === plannedWorkout.id ? plannedWorkout : x
+              x.id === plannedWorkout.id ? (plannedWorkout as PlannedWorkout) : x
             );
 
-            return plannedWorkout;
+            return plannedWorkout as PlannedWorkout;
           },
           create: async ({ plannedWorkout }) => {
             plannedWorkouts.current = [

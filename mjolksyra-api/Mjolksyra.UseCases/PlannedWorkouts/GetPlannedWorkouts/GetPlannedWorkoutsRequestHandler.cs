@@ -14,17 +14,21 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
 
     private readonly ITraineeRepository _traineeRepository;
 
+    private readonly ICompletedWorkoutRepository _completedWorkoutRepository;
+
     private readonly IUserContext _userContext;
 
     public GetPlannedWorkoutsRequestHandler(
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IExerciseRepository exerciseRepository,
         ITraineeRepository traineeRepository,
+        ICompletedWorkoutRepository completedWorkoutRepository,
         IUserContext userContext)
     {
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _exerciseRepository = exerciseRepository;
         _traineeRepository = traineeRepository;
+        _completedWorkoutRepository = completedWorkoutRepository;
         _userContext = userContext;
     }
 
@@ -56,7 +60,8 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
             not null => request.Cursor with
             {
                 TraineeId = request.TraineeId,
-                DraftOnly = request.DraftOnly
+                DraftOnly = request.DraftOnly,
+                SkippedOnly = request.SkippedOnly
             },
             _ => new PlannedWorkoutCursor
             {
@@ -67,50 +72,63 @@ public class GetPlannedWorkoutsRequestHandler : IRequestHandler<GetPlannedWorkou
                 Size = request.Limit,
                 SortBy = request.SortBy,
                 Order = request.Order,
-                DraftOnly = request.DraftOnly
+                DraftOnly = request.DraftOnly,
+                SkippedOnly = request.SkippedOnly
             }
         };
 
         var workouts = await _plannedWorkoutRepository.Get(cursor, cancellationToken);
+        var plannedWorkoutIds = workouts.Data.Select(x => x.Id).ToList();
+        var sessions = plannedWorkoutIds.Count == 0
+            ? []
+            : await _completedWorkoutRepository.GetByPlannedWorkoutIds(plannedWorkoutIds, cancellationToken);
 
-        var visibleWorkouts = isAthleteViewer
-            ? workouts.Data
-                .Select(FilterPublishedExercises)
-                .Where(x => x.Exercises.Count > 0)
-                .ToList()
-            : workouts.Data;
+        var completedWorkoutIds = (request.DraftOnly ? [] : sessions)
+            .Where(x => x.CompletedAt.HasValue && x.PlannedWorkoutId.HasValue)
+            .Select(x => x.PlannedWorkoutId!.Value)
+            .ToHashSet();
 
-        var exerciseIds = visibleWorkouts.SelectMany(x => x.Exercises)
+        var workoutsWithoutCompletedSessions = workouts.Data
+            .Where(x => request.DraftOnly || !completedWorkoutIds.Contains(x.Id))
+            .ToList();
+
+        var visibleWorkouts = (isAthleteViewer
+            ? workoutsWithoutCompletedSessions.Where(x => x.PublishedExercises.Count > 0)
+            : workoutsWithoutCompletedSessions)
+            .ToList();
+
+        var exerciseIds = visibleWorkouts
+            .SelectMany(x => x.PublishedExercises.Concat(x.DraftExercises ?? []))
             .Select(x => x.ExerciseId)
             .OfType<Guid>()
             .ToList();
 
         var exercises = await _exerciseRepository.GetMany(exerciseIds, cancellationToken);
+        var workoutIdsWithActiveSession = sessions
+            .Where(x => !x.CompletedAt.HasValue &&
+                        x.PlannedWorkoutId.HasValue &&
+                        x.Exercises.Any(e =>
+                            e.Prescription != null &&
+                            e.Prescription.Sets != null &&
+                            e.Prescription.Sets.Any(s => s.Actual != null && s.Actual.IsDone)))
+            .Select(x => x.PlannedWorkoutId!.Value)
+            .ToHashSet();
 
         return new PaginatedResponse<PlannedWorkoutResponse>
         {
             Next = workouts.Cursor,
             Data = visibleWorkouts
-                .Select(x => PlannedWorkoutResponse.From(x, exercises))
+                .Select(x =>
+                {
+                    var response = PlannedWorkoutResponse.From(x, exercises);
+                    response.HasActiveSession = workoutIdsWithActiveSession.Contains(x.Id);
+                    if (isAthleteViewer)
+                    {
+                        response.DraftExercises = null;
+                    }
+                    return response;
+                })
                 .ToList(),
-        };
-    }
-
-    private static Domain.Database.Models.PlannedWorkout FilterPublishedExercises(
-        Domain.Database.Models.PlannedWorkout workout)
-    {
-        return new Domain.Database.Models.PlannedWorkout
-        {
-            Id = workout.Id,
-            TraineeId = workout.TraineeId,
-            Name = workout.Name,
-            Note = workout.Note,
-            PlannedAt = workout.PlannedAt,
-            CreatedAt = workout.CreatedAt,
-            AppliedBlock = workout.AppliedBlock,
-            Exercises = workout.Exercises
-                .Where(e => e.IsPublished)
-                .ToList()
         };
     }
 }

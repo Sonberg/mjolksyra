@@ -44,6 +44,80 @@ public class UserCreditsRepository(IMongoDbContext context) : IUserCreditsReposi
         return await context.UserCredits.FindOneAndUpdateAsync(filter, update, options, ct);
     }
 
+    public async Task<UserCredits?> AtomicReserve(
+        Guid coachUserId,
+        int includedToReserve,
+        int purchasedToReserve,
+        int expectedVersion,
+        CancellationToken ct)
+    {
+        var filter = Builders<UserCredits>.Filter.And(
+            Builders<UserCredits>.Filter.Eq(x => x.CoachUserId, coachUserId),
+            Builders<UserCredits>.Filter.Eq(x => x.Version, expectedVersion));
+
+        var update = Builders<UserCredits>.Update
+            .Inc(x => x.IncludedReserved, includedToReserve)
+            .Inc(x => x.PurchasedReserved, purchasedToReserve)
+            .Inc(x => x.Version, 1);
+
+        var options = new FindOneAndUpdateOptions<UserCredits>
+        {
+            ReturnDocument = ReturnDocument.After,
+        };
+
+        return await context.UserCredits.FindOneAndUpdateAsync(filter, update, options, ct);
+    }
+
+    public async Task<UserCredits?> AtomicSettle(
+        Guid coachUserId,
+        int includedToSettle,
+        int purchasedToSettle,
+        int expectedVersion,
+        CancellationToken ct)
+    {
+        var filter = Builders<UserCredits>.Filter.And(
+            Builders<UserCredits>.Filter.Eq(x => x.CoachUserId, coachUserId),
+            Builders<UserCredits>.Filter.Eq(x => x.Version, expectedVersion));
+
+        var update = Builders<UserCredits>.Update
+            .Inc(x => x.IncludedRemaining, -includedToSettle)
+            .Inc(x => x.IncludedReserved, -includedToSettle)
+            .Inc(x => x.PurchasedRemaining, -purchasedToSettle)
+            .Inc(x => x.PurchasedReserved, -purchasedToSettle)
+            .Inc(x => x.Version, 1);
+
+        var options = new FindOneAndUpdateOptions<UserCredits>
+        {
+            ReturnDocument = ReturnDocument.After,
+        };
+
+        return await context.UserCredits.FindOneAndUpdateAsync(filter, update, options, ct);
+    }
+
+    public async Task<UserCredits?> AtomicRelease(
+        Guid coachUserId,
+        int includedToRelease,
+        int purchasedToRelease,
+        int expectedVersion,
+        CancellationToken ct)
+    {
+        var filter = Builders<UserCredits>.Filter.And(
+            Builders<UserCredits>.Filter.Eq(x => x.CoachUserId, coachUserId),
+            Builders<UserCredits>.Filter.Eq(x => x.Version, expectedVersion));
+
+        var update = Builders<UserCredits>.Update
+            .Inc(x => x.IncludedReserved, -includedToRelease)
+            .Inc(x => x.PurchasedReserved, -purchasedToRelease)
+            .Inc(x => x.Version, 1);
+
+        var options = new FindOneAndUpdateOptions<UserCredits>
+        {
+            ReturnDocument = ReturnDocument.After,
+        };
+
+        return await context.UserCredits.FindOneAndUpdateAsync(filter, update, options, ct);
+    }
+
     public async Task Upsert(UserCredits credits, CancellationToken ct)
     {
         await context.UserCredits.ReplaceOneAsync(

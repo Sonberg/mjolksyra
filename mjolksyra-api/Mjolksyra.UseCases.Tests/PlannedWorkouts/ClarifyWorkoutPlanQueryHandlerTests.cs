@@ -216,7 +216,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                         TraineeId = traineeId,
                         Name = "Heavy lower",
                         PlannedAt = new DateOnly(2026, 4, 10),
-                        Exercises = [],
+                        PublishedExercises = [],
                         CreatedAt = DateTimeOffset.UtcNow,
                     },
                 ],
@@ -229,7 +229,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 TraineeId = traineeId,
                 Name = "Heavy lower",
                 PlannedAt = new DateOnly(2026, 4, 10),
-                Exercises = [],
+                PublishedExercises = [],
                 CreatedAt = DateTimeOffset.UtcNow,
             });
 
@@ -327,8 +327,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         {
             Id = firstWorkoutId,
             TraineeId = traineeId,
-            PlannedAt = new DateOnly(2026, 4, 8),
-            Exercises = [],
+            PlannedAt = new DateOnly(2026, 4, 11),
+            PublishedExercises = [],
             CreatedAt = now,
         };
         var lastWorkout = new PlannedWorkout
@@ -336,7 +336,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             Id = lastWorkoutId,
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 7, 16),
-            Exercises = [],
+            PublishedExercises = [],
             CreatedAt = now,
         };
 
@@ -370,7 +370,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
 
         Assert.NotNull(result);
         Assert.NotNull(result.ProposedActionSet);
-        Assert.Equal("2026-04-08", result.ProposedActionSet.AffectedDateFrom);
+        Assert.Equal("2026-04-11", result.ProposedActionSet.AffectedDateFrom);
         Assert.Equal("2026-07-16", result.ProposedActionSet.AffectedDateTo);
         Assert.Equal(1, result.ProposedActionSet.CreditCost);
         Assert.All(result.ProposedActionSet.Actions, action =>
@@ -440,8 +440,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 4, 8),
             CreatedAt = now,
-            CompletedAt = now,
-            Exercises = [],
+            PublishedExercises = [],
         };
         var openWorkout = new PlannedWorkout
         {
@@ -449,7 +448,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             TraineeId = traineeId,
             PlannedAt = new DateOnly(2026, 4, 10),
             CreatedAt = now,
-            Exercises = [],
+            PublishedExercises = [],
         };
 
         var plannedWorkoutRepository = new Mock<IPlannedWorkoutRepository>();
@@ -634,6 +633,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         return new ClarifyWorkoutPlanQueryHandler(
             (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
             workoutRepo.Object,
+            new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,
             (exerciseRepository ?? new Mock<IExerciseRepository>()).Object,
             new Mock<Mjolksyra.Domain.Messaging.IPlannedWorkoutDeletedPublisher>().Object,

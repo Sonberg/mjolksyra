@@ -18,7 +18,7 @@ const sampleCredits = {
 
 const samplePricing = [
   {
-    action: "AnalyzeWorkoutMedia",
+    action: "AnalyzeCompletedWorkoutMedia",
     creditCost: 5,
   },
 ];

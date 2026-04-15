@@ -75,7 +75,7 @@ public class GetPlannedWorkoutRequestHandlerTests
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 2, 28),
-                Exercises =
+                PublishedExercises =
                 [
                     new PlannedExercise
                     {
@@ -137,8 +137,8 @@ public class GetPlannedWorkoutRequestHandlerTests
         Assert.NotNull(result);
         Assert.Equal(workoutId, result.Id);
         Assert.Equal(traineeId, result.TraineeId);
-        Assert.Single(result.Exercises);
-        var mappedExercise = Assert.Single(result.Exercises);
+        Assert.Single(result.PublishedExercises);
+        var mappedExercise = Assert.Single(result.PublishedExercises);
         Assert.NotNull(mappedExercise.Prescription);
         Assert.NotNull(mappedExercise.Prescription!.Sets);
         Assert.Equal(2, mappedExercise.Prescription.Sets.Count);
@@ -146,7 +146,7 @@ public class GetPlannedWorkoutRequestHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenAthleteViewer_ReturnsOnlyPublishedExercises()
+    public async Task Handle_WhenAthleteViewer_ReturnsOnlyPublishedExercisesWithoutDraft()
     {
         var athleteUserId = Guid.NewGuid();
         var traineeId = Guid.NewGuid();
@@ -178,21 +178,22 @@ public class GetPlannedWorkoutRequestHandlerTests
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 2, 28),
-                Exercises =
+                PublishedExercises =
                 [
                     new PlannedExercise
                     {
                         Id = Guid.NewGuid(),
                         ExerciseId = publishedExerciseId,
                         Name = "Published",
-                        IsPublished = true
-                    },
+                    }
+                ],
+                DraftExercises =
+                [
                     new PlannedExercise
                     {
                         Id = Guid.NewGuid(),
                         ExerciseId = Guid.NewGuid(),
                         Name = "Draft",
-                        IsPublished = false
                     }
                 ],
                 CreatedAt = DateTimeOffset.UtcNow
@@ -220,8 +221,8 @@ public class GetPlannedWorkoutRequestHandlerTests
         var result = await sut.Handle(CreateRequest(traineeId, workoutId), CancellationToken.None);
 
         Assert.NotNull(result);
-        var exercise = Assert.Single(result.Exercises);
-        Assert.True(exercise.IsPublished);
+        Assert.Single(result.PublishedExercises);
+        Assert.Null(result.DraftExercises);
     }
 
     [Fact]
@@ -256,14 +257,14 @@ public class GetPlannedWorkoutRequestHandlerTests
                 Id = workoutId,
                 TraineeId = traineeId,
                 PlannedAt = new DateOnly(2026, 2, 28),
-                Exercises =
+                PublishedExercises = [],
+                DraftExercises =
                 [
                     new PlannedExercise
                     {
                         Id = Guid.NewGuid(),
                         ExerciseId = Guid.NewGuid(),
                         Name = "Draft",
-                        IsPublished = false
                     }
                 ],
                 CreatedAt = DateTimeOffset.UtcNow

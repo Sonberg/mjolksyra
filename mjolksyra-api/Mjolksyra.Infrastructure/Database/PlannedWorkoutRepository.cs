@@ -35,14 +35,12 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
 
         if (cursor.DraftOnly)
         {
-            filters.Add(Builders<PlannedWorkout>.Filter.ElemMatch(
-                x => x.Exercises,
-                exercise => !exercise.IsPublished));
+            filters.Add(Builders<PlannedWorkout>.Filter.Ne(x => x.DraftExercises, null));
         }
 
-        if (cursor.CompletedOnly == true)
+        if (cursor.SkippedOnly)
         {
-            filters.Add(Builders<PlannedWorkout>.Filter.Ne(x => x.CompletedAt, null));
+            filters.Add(Builders<PlannedWorkout>.Filter.Ne(x => x.SkippedAt, null));
         }
 
         if (cursor.SortBy is { } sortBy)
@@ -50,6 +48,11 @@ public class PlannedWorkoutRepository : IPlannedWorkoutRepository
             sort.AddRange(sortBy.Select(field => cursor.Order == SortOrder.Desc
                 ? Builders<PlannedWorkout>.Sort.Descending(field)
                 : Builders<PlannedWorkout>.Sort.Ascending(field)));
+        }
+
+        if (sort.Count == 0)
+        {
+            sort.Add(Builders<PlannedWorkout>.Sort.Ascending(x => x.PlannedAt));
         }
 
         var response = await _context.PlannedWorkout

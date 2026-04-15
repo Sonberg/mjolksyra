@@ -20,12 +20,21 @@ export function workoutChanged(
     return true;
   }
 
-  if (workout.exercises.length !== oldWorkout.exercises.length) {
+  const exercises = workout.draftExercises ?? workout.publishedExercises;
+  const oldExercises = oldWorkout.draftExercises ?? oldWorkout.publishedExercises;
+
+  if (exercises.length !== oldExercises.length) {
     return true;
   }
 
-  for (const exercise of workout.exercises) {
-    const oldExercise = oldWorkout.exercises.find((x) => x.id == exercise.id);
+  const exerciseIdOrder = exercises.map((x) => x.id).join(",");
+  const oldExerciseIdOrder = oldExercises.map((x) => x.id).join(",");
+  if (exerciseIdOrder !== oldExerciseIdOrder) {
+    return true;
+  }
+
+  for (const exercise of exercises) {
+    const oldExercise = oldExercises.find((x) => x.id == exercise.id);
 
     if (!oldExercise) {
       return true;

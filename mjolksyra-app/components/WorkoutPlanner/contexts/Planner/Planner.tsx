@@ -67,30 +67,29 @@ export function PlannerProvider({
 
       if (cloning) {
         if (cloning.targetWorkout) {
+          const targetDraft = cloning.targetWorkout.draftExercises ?? cloning.targetWorkout.publishedExercises;
           await plannedWorkouts.update({
             plannedWorkout: {
               ...cloning.targetWorkout,
-              exercises: insertAt(
-                cloning.targetWorkout.exercises,
-                cloning.index,
-                cloning.exercise
-              ),
+              draftExercises: insertAt(targetDraft, cloning.index, cloning.exercise),
             },
           });
         } else {
-          await plannedWorkouts.create({
+          const created = await plannedWorkouts.create({
             plannedWorkout: {
               id: v4(),
-                traineeId,
-                name: null,
-                note: null,
-                media: [],
-                exercises: [cloning.exercise],
-                plannedAt: cloning.targetDate,
-                createdAt: null,
-                completedAt: null,
+              traineeId,
+              name: null,
+              note: null,
+              publishedExercises: [],
+              draftExercises: [cloning.exercise],
+              plannedAt: cloning.targetDate,
+              createdAt: null,
               appliedBlock: null,
             },
+          });
+          await plannedWorkouts.update({
+            plannedWorkout: { ...created, draftExercises: [cloning.exercise] },
           });
         }
 
@@ -142,17 +141,27 @@ export function PlannerProvider({
       );
 
       await Promise.all(
-        result.update.map((plannedWorkout) =>
-          workoutEmpty(plannedWorkout)
-            ? plannedWorkouts.delete({ plannedWorkout })
-            : plannedWorkouts.update({ plannedWorkout })
-        )
+        result.update.map((plannedWorkout) => {
+          if (workoutEmpty(plannedWorkout)) {
+            return plannedWorkouts.delete({ plannedWorkout });
+          }
+          const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+          return plannedWorkouts.update({
+            plannedWorkout: { ...plannedWorkout, draftExercises: exercises },
+          });
+        })
       );
 
       await Promise.all(
-        result.create.map((plannedWorkout) =>
-          plannedWorkouts.create({ plannedWorkout })
-        )
+        result.create.map(async (plannedWorkout) => {
+          const created = await plannedWorkouts.create({ plannedWorkout });
+          const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+          if (exercises.length) {
+            await plannedWorkouts.update({
+              plannedWorkout: { ...created, draftExercises: exercises },
+            });
+          }
+        })
       );
 
       const updated = [...result.create, ...result.delete, ...result.update];

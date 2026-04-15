@@ -98,10 +98,6 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       names: formatNames(paymentBlocked),
       count: paymentBlocked.length,
       icon: WalletIcon,
-      tone:
-        paymentBlocked.length > 0
-          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
-          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
     {
       key: "feedback",
@@ -113,10 +109,6 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       names: formatNames(needsFeedback),
       count: needsFeedback.length,
       icon: MessageSquareIcon,
-      tone:
-        needsFeedback.length > 0
-          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
-          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
     {
       key: "pricing",
@@ -128,10 +120,6 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       names: formatNames(needsPrice),
       count: needsPrice.length,
       icon: AlertTriangleIcon,
-      tone:
-        needsPrice.length > 0
-          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
-          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
     {
       key: "program",
@@ -143,10 +131,6 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       names: formatNames(programEndingSoon),
       count: programEndingSoon.length,
       icon: CheckCircle2Icon,
-      tone:
-        programEndingSoon.length > 0
-          ? "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]"
-          : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
     },
   ];
 

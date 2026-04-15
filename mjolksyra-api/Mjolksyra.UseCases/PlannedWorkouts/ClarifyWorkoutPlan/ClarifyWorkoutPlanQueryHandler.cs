@@ -13,6 +13,7 @@ namespace Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 public class ClarifyWorkoutPlanQueryHandler(
     IAIWorkoutPlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
@@ -35,6 +36,7 @@ public class ClarifyWorkoutPlanQueryHandler(
 
         var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
+            completedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,
@@ -166,7 +168,7 @@ public class ClarifyWorkoutPlanQueryHandler(
                     return true;
                 }
 
-                return !workoutsById.TryGetValue(action.TargetWorkoutId.Value, out var workout) || workout.CompletedAt is null;
+                return !workoutsById.TryGetValue(action.TargetWorkoutId.Value, out var workout) || workout.PlannedAt >= DateOnly.FromDateTime(DateTime.UtcNow);
             })
             .ToList();
 
@@ -212,7 +214,6 @@ public class ClarifyWorkoutPlanQueryHandler(
             SortBy = ["plannedAt"],
             Order = SortOrder.Asc,
             DraftOnly = false,
-            CompletedOnly = null,
             Size = 200,
             Page = 0,
         }, cancellationToken);

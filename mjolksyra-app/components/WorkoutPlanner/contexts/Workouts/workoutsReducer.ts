@@ -74,20 +74,20 @@ export function workoutsReducer(
     case "MOVE_EXERCISE":
       return {
         ...state,
-        [action.payload.monthId]: (state[action.payload.monthId] ?? []).map((x) =>
-          x.id === action.payload.plannedWorkoutId
-            ? {
-                ...x,
-                exercises: arrayMove(
-                  x.exercises,
-                  x.exercises.findIndex(
-                    (y) => y.id === action.payload.plannedExerciseId,
-                  ),
-                  action.payload.index ?? x.exercises.length - 1,
-                ),
-              }
-            : x,
-        ),
+        [action.payload.monthId]: (state[action.payload.monthId] ?? []).map((x) => {
+          if (x.id !== action.payload.plannedWorkoutId) return x;
+          const draft = x.draftExercises ?? x.publishedExercises;
+          return {
+            ...x,
+            draftExercises: arrayMove(
+              draft,
+              draft.findIndex(
+                (y) => y.id === action.payload.plannedExerciseId,
+              ),
+              action.payload.index ?? draft.length - 1,
+            ),
+          };
+        }),
       };
 
     case "ADD_EXERCISE":
@@ -100,8 +100,8 @@ export function workoutsReducer(
       const workout = existingWorkout
         ? {
             ...existingWorkout,
-            exercises: insertAt(
-              existingWorkout.exercises,
+            draftExercises: insertAt(
+              existingWorkout.draftExercises ?? existingWorkout.publishedExercises,
               action.payload.index,
               action.payload.exercise,
             ),
@@ -112,8 +112,8 @@ export function workoutsReducer(
             note: null,
             traineeId: action.payload.traineeId,
             plannedAt: targetDate,
-            exercises: [action.payload.exercise],
-            media: [],
+            publishedExercises: [],
+            draftExercises: [action.payload.exercise],
             createdAt: null,
             appliedBlock: null,
           };
@@ -134,7 +134,7 @@ export function workoutsReducer(
           x.id === action.payload.plannedWorkoutId
             ? {
                 ...x,
-                exercises: x.exercises.filter(
+                draftExercises: (x.draftExercises ?? x.publishedExercises).filter(
                   (y) => y.id !== action.payload.plannedExerciseId,
                 ),
               }

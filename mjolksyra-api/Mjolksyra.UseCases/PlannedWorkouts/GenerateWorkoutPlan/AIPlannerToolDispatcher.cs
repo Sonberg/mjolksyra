@@ -6,12 +6,13 @@ using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
-using Mjolksyra.UseCases.PlannedWorkouts.AnalyzeWorkoutMedia;
+using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
 public class AIPlannerToolDispatcher(
     IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
@@ -24,7 +25,7 @@ public class AIPlannerToolDispatcher(
     };
 
     private readonly WorkoutAnalysisToolDispatcher _workoutDispatcher =
-        new(plannedWorkoutRepository, traineeId);
+        new(completedWorkoutRepository, traineeId);
 
     public Task<string> GetRecentCompletedWorkoutsAsync(string beforeDate, int count, CancellationToken ct)
         => _workoutDispatcher.GetRecentCompletedWorkoutsAsync(beforeDate, count, ct);
@@ -41,8 +42,8 @@ public class AIPlannerToolDispatcher(
             Id = w.Id,
             Date = w.PlannedAt.ToString("yyyy-MM-dd"),
             Name = w.Name,
-            ExerciseCount = w.Exercises.Count,
-            ExerciseNames = w.Exercises.Select(e => e.Name).ToList(),
+            ExerciseCount = w.PublishedExercises.Count,
+            ExerciseNames = w.PublishedExercises.Select(e => e.Name).ToList(),
         }).ToList();
 
         return JsonSerializer.Serialize(entries, JsonOptions);
@@ -58,7 +59,7 @@ public class AIPlannerToolDispatcher(
             PlannedAt = workout.PlannedAt.ToString("yyyy-MM-dd"),
             Name = workout.Name,
             Note = workout.Note,
-            Exercises = workout.Exercises.Select(exercise => new UpcomingWorkoutExerciseEntry
+            Exercises = workout.PublishedExercises.Select(exercise => new UpcomingWorkoutExerciseEntry
             {
                 Id = exercise.Id,
                 ExerciseId = exercise.ExerciseId,
@@ -142,16 +143,12 @@ public class AIPlannerToolDispatcher(
             SortBy = ["plannedAt"],
             Order = SortOrder.Asc,
             DraftOnly = false,
-            CompletedOnly = null,
             Size = count,
             Page = 0,
         };
 
         var result = await plannedWorkoutRepository.Get(cursor, ct);
-        return result.Data
-            .Where(workout => workout.CompletedAt is null)
-            .Take(count)
-            .ToList();
+        return result.Data.Take(count).ToList();
     }
 
     private class UpcomingWorkoutEntry

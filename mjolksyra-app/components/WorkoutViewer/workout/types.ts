@@ -1,7 +1,10 @@
 import { ExerciseType } from "@/lib/exercisePrescription";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { PlannedExercise } from "@/services/plannedWorkouts/type";
+import { CompletedExercise } from "@/services/completedWorkouts/type";
 
-export type WorkoutExercise = PlannedWorkout["exercises"][number];
+export type WorkoutExercise = (PlannedExercise | CompletedExercise) & {
+  addedBy?: "Coach" | "Athlete" | null;
+};
 export type WorkoutSet = NonNullable<
   NonNullable<WorkoutExercise["prescription"]>["sets"]
 >[number];

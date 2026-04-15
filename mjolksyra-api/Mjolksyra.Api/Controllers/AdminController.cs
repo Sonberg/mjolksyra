@@ -8,6 +8,7 @@ using Mjolksyra.UseCases.Admin.GetAdminStats;
 using Mjolksyra.UseCases.Admin.GetCoachRevenue;
 using Mjolksyra.UseCases.Admin.GetDiscountCodes;
 using Mjolksyra.UseCases.Admin.GetFeedbackReports;
+using Mjolksyra.UseCases.Admin.GetMediaIntegrity;
 using Mjolksyra.UseCases.Admin.GrantCoachCredits;
 using Mjolksyra.UseCases.Admin.UpdateFeedbackReportStatus;
 using Mjolksyra.UseCases.Coaches.EnsureCoachPlatformSubscription;
@@ -44,6 +45,15 @@ public class AdminController(IMediator mediator, IUserContext userContext, IUser
         if (!await userContext.IsAdminAsync(ct)) return Forbid();
 
         var result = await mediator.Send(new GetCoachRevenueRequest(), ct);
+        return Ok(result);
+    }
+
+    [HttpGet("attachment-integrity")]
+    public async Task<ActionResult<AttachmentIntegrityReportResponse>> GetAttachmentIntegrity(CancellationToken ct)
+    {
+        if (!await userContext.IsAdminAsync(ct)) return Forbid();
+
+        var result = await mediator.Send(new GetAttachmentIntegrityRequest(), ct);
         return Ok(result);
     }
 

@@ -1,15 +1,17 @@
 import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
-import { PlannedWorkout } from "@/services/plannedWorkouts/type";
+import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutChatComposerInput } from "@/components/WorkoutChat/WorkoutChatComposerInput";
 import { WorkoutChatComposerSendButton } from "@/components/WorkoutChat/WorkoutChatComposerSendButton";
 
+type WorkoutMedia = NonNullable<CompletedWorkout["media"]>[number];
+
 type Props = {
   traineeId: string;
-  plannedWorkoutId: string;
+  completedWorkoutId: string;
   message: string;
   onMessageChange: (value: string) => void;
-  media: PlannedWorkout["media"];
-  onMediaChange: (media: PlannedWorkout["media"]) => void;
+  media: WorkoutMedia[];
+  onMediaChange: (media: WorkoutMedia[]) => void;
   onMediaPendingChange: (isPending: boolean) => void;
   isSending: boolean;
   canSend: boolean;
@@ -18,7 +20,7 @@ type Props = {
 
 export function WorkoutChatComposer({
   traineeId,
-  plannedWorkoutId,
+  completedWorkoutId,
   message,
   onMessageChange,
   media,
@@ -42,7 +44,7 @@ export function WorkoutChatComposer({
         <div className="mt-2">
           <WorkoutMediaUploader
             traineeId={traineeId}
-            plannedWorkoutId={plannedWorkoutId}
+            workoutId={completedWorkoutId}
             media={media}
             onUploadComplete={onMediaChange}
             isPending={isSending}

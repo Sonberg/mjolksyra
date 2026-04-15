@@ -16,6 +16,8 @@ using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.Infrastructure.Notifications;
 using Mjolksyra.Infrastructure.Stripe;
 using Mjolksyra.Infrastructure.R2;
+using Mjolksyra.Infrastructure.Admin;
+using Mjolksyra.UseCases.Admin.GetMediaIntegrity;
 using Mjolksyra.UseCases.MediaStorage;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -68,7 +70,8 @@ public static class Configure
         services.AddScoped<ITraineeRepository, TraineeRepository>();
         services.AddScoped<ITraineeTransactionRepository, TraineeTransactionRepository>();
         services.AddScoped<IPlannedWorkoutRepository, PlannedWorkoutRepository>();
-        services.AddScoped<IPlannedWorkoutChatMessageRepository, PlannedWorkoutChatMessageRepository>();
+        services.AddScoped<ICompletedWorkoutRepository, CompletedWorkoutRepository>();
+        services.AddScoped<ICompletedWorkoutChatMessageRepository, CompletedWorkoutChatMessageRepository>();
         services.AddScoped<IBlockRepository, BlockRepository>();
         services.AddScoped<ITraineeInvitationsRepository, TraineeInvitationsRepository>();
         services.AddScoped<IDiscountCodeRepository, DiscountCodeRepository>();
@@ -80,6 +83,7 @@ public static class Configure
         services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
         services.AddScoped<IWorkoutMediaAnalysisRepository, WorkoutMediaAnalysisRepository>();
         services.AddScoped<IPlannerSessionRepository, PlannerSessionRepository>();
+        services.AddScoped<IAttachmentIntegrityReportService, AttachmentIntegrityReportService>();
         services.AddHostedService<PlanSeeder>();
         services.AddHostedService<CreditActionPricingSeeder>();
         services.AddHostedService<CreditPackSeeder>();

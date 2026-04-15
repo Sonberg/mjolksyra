@@ -1,21 +1,21 @@
 "use client";
 
-import { useWorkout } from "@/hooks/useWorkout";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import dayjs from "dayjs";
 import { useEffect, useMemo } from "react";
-import { CheckCircle2Icon } from "lucide-react";
 import Link from "next/link";
-import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
-import { WorkoutAnalysisSection } from "./workout/WorkoutAnalysisSection";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { startWorkoutSession } from "@/services/completedWorkouts/startWorkoutSession";
 import { StatusBadge } from "./StatusBadge";
+import { CheckCircle2Icon, PlayIcon } from "lucide-react";
 
 type Props = {
   workout: PlannedWorkout;
   viewerMode?: "athlete" | "coach";
   isHighlighted?: boolean;
   traineeId?: string;
-  backTab?: "past" | "future" | "changes";
+  backTab?: "planned" | "completed";
 };
 
 export function WorkoutCard({
@@ -25,8 +25,18 @@ export function WorkoutCard({
   traineeId,
   backTab,
 }: Props) {
-  const { saveCompletion, saveReview } = useWorkout({ workout });
+  const router = useRouter();
 
+  const startSessionMutation = useMutation({
+    mutationFn: () =>
+      startWorkoutSession({
+        traineeId: traineeId!,
+        plannedWorkoutId: workout.id,
+      }),
+    onSuccess: (created) => {
+      router.push(`/app/athlete/${traineeId}/workouts/${created.id}?tab=completed`);
+    },
+  });
   const date = useMemo(() => {
     const [year, month, day] = workout.plannedAt.split("-");
 
@@ -55,17 +65,17 @@ export function WorkoutCard({
     }
   }, [date]);
 
-  const isCompleted = !!workout.completedAt;
-  const isReviewed = !!workout.reviewedAt;
-  const totalExercises = workout.exercises.length;
-  const doneExercises = workout.exercises.filter(
+  const exercises = workout.publishedExercises;
+  const isStarted = !!workout.hasActiveSession && !workout.skippedAt;
+  const totalExercises = exercises.length;
+  const doneExercises = exercises.filter(
     (exercise) => exercise.isDone,
   ).length;
-  const totalSets = workout.exercises.reduce(
+  const totalSets = exercises.reduce(
     (count, exercise) => count + (exercise.prescription?.sets?.length ?? 0),
     0,
   );
-  const doneSets = workout.exercises.reduce(
+  const doneSets = exercises.reduce(
     (count, exercise) =>
       count +
       (exercise.prescription?.sets?.filter((set) => set.actual?.isDone)
@@ -73,14 +83,10 @@ export function WorkoutCard({
     0,
   );
 
-  const detailHref = traineeId
-    ? viewerMode === "coach"
-      ? backTab
-        ? `/app/coach/athletes/${traineeId}/workouts/${workout.id}?tab=${backTab}`
-        : `/app/coach/athletes/${traineeId}/workouts/${workout.id}`
-      : backTab
-      ? `/app/athlete/${traineeId}/workouts/${workout.id}?tab=${backTab}`
-      : `/app/athlete/${traineeId}/workouts/${workout.id}`
+  const coachDetailHref = traineeId
+    ? backTab
+      ? `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}?tab=${backTab}`
+      : `/app/coach/athletes/${traineeId}/workouts/planned/${workout.id}`
     : null;
 
   useEffect(() => {
@@ -109,28 +115,31 @@ export function WorkoutCard({
               {displayName}
             </p>
             <div className="flex items-center gap-2">
-              {isCompleted ? (
-                <StatusBadge variant="default">
-                  <CheckCircle2Icon className="h-3 w-3" />
-                  Completed
-                </StatusBadge>
-              ) : null}
-              {viewerMode === "coach" && isReviewed ? (
-                <StatusBadge variant="solid">Reviewed</StatusBadge>
-              ) : null}
+              <StatusBadge variant={isStarted ? "accent" : "subtle"}>
+                {isStarted ? "In progress" : "Planned"}
+              </StatusBadge>
             </div>
-            {viewerMode === "coach" && isCompleted && !isReviewed ? (
-              <StatusBadge variant="accent">Needs review</StatusBadge>
-            ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {detailHref ? (
+            {viewerMode === "coach" && coachDetailHref ? (
               <Link
-                href={detailHref}
+                href={coachDetailHref}
                 className="inline-flex items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-surface)] transition hover:brightness-95"
               >
-                {viewerMode === "coach" ? "Open" : "Start session"}
+                Open
               </Link>
+            ) : viewerMode === "athlete" && traineeId ? (
+              <button
+                type="button"
+                onClick={() => startSessionMutation.mutate()}
+                disabled={startSessionMutation.isPending}
+                className="inline-flex items-center rounded-none border border-transparent bg-[var(--shell-accent)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+              >
+                {isStarted ? <CheckCircle2Icon className="mr-1.5 h-3.5 w-3.5" /> : <PlayIcon className="mr-1.5 h-3.5 w-3.5" />}
+                {startSessionMutation.isPending
+                  ? (isStarted ? "Opening..." : "Starting...")
+                  : (isStarted ? "Open session" : "Start session")}
+              </button>
             ) : null}
           </div>
         </div>
@@ -157,7 +166,7 @@ export function WorkoutCard({
           ) : null}
 
           <div className="grid gap-2 sm:grid-cols-2">
-            {workout.exercises.slice(0, 4).map((exercise, index) => (
+            {exercises.slice(0, 4).map((exercise, index) => (
               <div
                 key={exercise.id}
                 className="bg-[var(--shell-surface-strong)] px-3 py-2"
@@ -178,22 +187,11 @@ export function WorkoutCard({
             ))}
           </div>
 
-          {workout.exercises.length > 4 ? (
+          {exercises.length > 4 ? (
             <p className="text-xs text-[var(--shell-muted)]">
-              +{workout.exercises.length - 4} more exercise
-              {workout.exercises.length - 4 > 1 ? "s" : ""}
+              +{exercises.length - 4} more exercise
+              {exercises.length - 4 > 1 ? "s" : ""}
             </p>
-          ) : null}
-
-          {workout.completedAt ? (
-            <span className="text-xs text-[var(--shell-muted)]">
-              Completed {new Date(workout.completedAt).toLocaleString()}
-            </span>
-          ) : null}
-          {viewerMode === "coach" && workout.reviewedAt ? (
-            <span className="text-xs text-[var(--shell-muted)]">
-              Reviewed {new Date(workout.reviewedAt).toLocaleString()}
-            </span>
           ) : null}
         </>
       </div>

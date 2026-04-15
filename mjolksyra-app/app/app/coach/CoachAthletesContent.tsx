@@ -44,7 +44,7 @@ export function CoachAthletesContent({ trainees }: Props) {
             });
 
             hasUnpublished = response.data.some((workout) =>
-              workout.exercises.some((exercise) => !exercise.isPublished),
+              (workout.draftExercises ?? workout.publishedExercises).some((exercise) => !exercise.isPublished),
             );
 
             if (!response.next) {

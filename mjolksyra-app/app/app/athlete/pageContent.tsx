@@ -16,8 +16,8 @@ type Props = {
   initialCoachTraineeId?: string;
   focusWorkoutId?: string;
   detailWorkoutId?: string;
-  detailBackTab?: "past" | "future";
-  initialWorkoutTab?: "past" | "future";
+  detailBackTab?: "planned" | "completed";
+  initialWorkoutTab?: "planned" | "completed";
   view?: "workouts" | "transactions" | "settings";
 };
 

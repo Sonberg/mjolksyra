@@ -6,7 +6,9 @@ using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.Domain.Messaging;
-using Mjolksyra.UseCases.Coaches.ConsumeCredits;
+using Mjolksyra.UseCases.Coaches.ReleaseCreditsReservation;
+using Mjolksyra.UseCases.Coaches.ReserveCredits;
+using Mjolksyra.UseCases.Coaches.SettleCreditsReservation;
 using OneOf;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
@@ -15,6 +17,7 @@ public class GenerateWorkoutPlanCommandHandler(
     IMediator mediator,
     IAIWorkoutPlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
+    ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
@@ -40,18 +43,19 @@ public class GenerateWorkoutPlanCommandHandler(
             return new GenerateWorkoutPlanForbidden();
         }
 
-        var consumeResult = await mediator.Send(
-            new ConsumeCreditsCommand(
+        var reserveResult = await mediator.Send(
+            new ReserveCreditsCommand(
                 userId,
                 CreditAction.GenerateWorkoutPlan,
                 request.SessionId?.ToString()),
             cancellationToken);
 
-        if (consumeResult.IsT1)
+        if (reserveResult.IsT1)
         {
-            return new GenerateWorkoutPlanInsufficientCredits(consumeResult.AsT1.Reason);
+            return new GenerateWorkoutPlanInsufficientCredits(reserveResult.AsT1.Reason);
         }
 
+        var reservation = reserveResult.AsT0;
         var endDate = startDate.AddDays(request.Params.NumberOfWeeks * 7 - 1);
 
         PlannerSession? session = null;
@@ -60,12 +64,22 @@ public class GenerateWorkoutPlanCommandHandler(
             session = await sessionRepository.GetById(request.SessionId.Value, cancellationToken);
             if (session is null || session.TraineeId != request.TraineeId || session.CoachUserId != userId)
             {
+                await mediator.Send(new ReleaseCreditsReservationCommand(
+                    userId,
+                    reservation.IncludedReserved,
+                    reservation.PurchasedReserved,
+                    request.SessionId?.ToString()), cancellationToken);
+
                 return new GenerateWorkoutPlanForbidden();
             }
         }
 
+        try
+        {
+
         var innerDispatcher = new AIPlannerToolDispatcher(
             plannedWorkoutRepository,
+            completedWorkoutRepository,
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,
@@ -89,6 +103,12 @@ public class GenerateWorkoutPlanCommandHandler(
 
         if (workoutOutputs.Count == 0)
         {
+            await mediator.Send(new ReleaseCreditsReservationCommand(
+                userId,
+                reservation.IncludedReserved,
+                reservation.PurchasedReserved,
+                request.SessionId?.ToString()), cancellationToken);
+
             return new GenerateWorkoutPlanResponse
             {
                 WorkoutsCreated = 0,
@@ -139,34 +159,39 @@ public class GenerateWorkoutPlanCommandHandler(
 
             if (strategy == "Append" && existingByDate.TryGetValue(plannedAt, out var existingWorkout) && existingWorkout is not null)
             {
-                var mergedExercises = existingWorkout.Exercises.ToList();
-                mergedExercises.AddRange(await MapExercises(
+                var mergedDraft = (existingWorkout.DraftExercises ?? existingWorkout.PublishedExercises).ToList();
+                mergedDraft.AddRange(await MapExercises(
                     workoutOutput.Exercises,
                     isPublished: false,
                     createdByUserId: userId,
                     resolvedExercises: resolvedExercises,
                     cancellationToken: cancellationToken));
-                existingWorkout.Exercises = mergedExercises;
+                existingWorkout.DraftExercises = mergedDraft;
                 await plannedWorkoutRepository.Update(existingWorkout, cancellationToken);
                 created++;
                 continue;
             }
 
-            await plannedWorkoutRepository.Create(new PlannedWorkout
+            var newWorkout = await plannedWorkoutRepository.Create(new PlannedWorkout
             {
                 Id = Guid.NewGuid(),
                 TraineeId = request.TraineeId,
                 Name = workoutOutput.Name,
                 Note = workoutOutput.Note,
                 PlannedAt = plannedAt,
-                Exercises = await MapExercises(
-                    workoutOutput.Exercises,
-                    isPublished: false,
-                    createdByUserId: userId,
-                    resolvedExercises: resolvedExercises,
-                    cancellationToken: cancellationToken),
+                PublishedExercises = [],
                 CreatedAt = DateTimeOffset.UtcNow,
             }, cancellationToken);
+
+            var newDraftExercises = await MapExercises(
+                workoutOutput.Exercises,
+                isPublished: false,
+                createdByUserId: userId,
+                resolvedExercises: resolvedExercises,
+                cancellationToken: cancellationToken);
+
+            newWorkout.DraftExercises = newDraftExercises;
+            await plannedWorkoutRepository.Update(newWorkout, cancellationToken);
 
             created++;
         }
@@ -199,7 +224,25 @@ public class GenerateWorkoutPlanCommandHandler(
             await sessionRepository.Update(session, cancellationToken);
         }
 
+        await mediator.Send(new SettleCreditsReservationCommand(
+            userId,
+            reservation.IncludedReserved,
+            reservation.PurchasedReserved,
+            CreditAction.GenerateWorkoutPlan,
+            request.SessionId?.ToString()), cancellationToken);
+
         return response;
+
+        } // end try
+        catch
+        {
+            await mediator.Send(new ReleaseCreditsReservationCommand(
+                userId,
+                reservation.IncludedReserved,
+                reservation.PurchasedReserved,
+                request.SessionId?.ToString()), cancellationToken);
+            throw;
+        }
     }
 
     private async Task<Dictionary<DateOnly, PlannedWorkout?>> GetExistingByDate(

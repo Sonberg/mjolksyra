@@ -5,6 +5,8 @@ import { WorkoutEditorExercise } from "./WorkoutEditorExercise";
 import { PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePlannedWorkoutActions } from "../PlannedWorkoutActions";
+import { updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { publishDraftExercises } from "@/services/plannedWorkouts/publishDraftExercises";
 import dayjs from "dayjs";
 import { RotateCcwIcon, UploadIcon } from "lucide-react";
 import { monthId } from "@/lib/monthId";
@@ -24,35 +26,43 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       .find((x) => x.id == plannedWorkoutId);
   }, [data, plannedWorkoutId]);
 
-  const updateDebounce = useDebounce(async (plannedWorkout: PlannedWorkout) => {
-    await update({ plannedWorkout });
+  const updateDraftExercisesDebounce = useDebounce(async (plannedWorkout: PlannedWorkout) => {
+    const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
+    const updated = await updatePlannedWorkout({
+      plannedWorkout: { ...plannedWorkout, draftExercises: exercises },
+    });
+    dispatch({
+      type: "SET_WORKOUT",
+      payload: {
+        monthId: monthId(plannedWorkout.plannedAt),
+        plannedWorkout: updated,
+      },
+    });
   }, 600);
   const isPastDay = dayjs(plannedWorkout?.plannedAt)
     .startOf("day")
     .isBefore(dayjs().startOf("day"));
-  const isPast = !!plannedWorkout?.completedAt || isPastDay;
+  const isPast = isPastDay;
   const isLocked = isPast;
-  const hasDraftExercises = !!plannedWorkout?.exercises.some((x) => !x.isPublished);
+  const currentDraftExercises = plannedWorkout?.draftExercises ?? plannedWorkout?.publishedExercises ?? [];
+  const hasDraftExercises = currentDraftExercises.some((x) => !x.isPublished);
 
   async function onPublish() {
     if (!plannedWorkout) {
       return;
     }
 
-    const publishedWorkout = {
-      ...plannedWorkout,
-      exercises: plannedWorkout.exercises.map((exercise) => ({
-        ...exercise,
-        isPublished: true,
-      })),
-    };
+    const published = await publishDraftExercises({
+      traineeId: plannedWorkout.traineeId,
+      plannedWorkoutId: plannedWorkout.id,
+      exercises: currentDraftExercises,
+    });
 
-    await update({ plannedWorkout: publishedWorkout });
     dispatch({
       type: "SET_WORKOUT",
       payload: {
         monthId: monthId(plannedWorkout.plannedAt),
-        plannedWorkout: publishedWorkout,
+        plannedWorkout: published,
       },
     });
   }
@@ -62,7 +72,7 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       return;
     }
 
-    const publishedOnly = plannedWorkout.exercises.filter((exercise) => exercise.isPublished);
+    const publishedOnly = plannedWorkout.publishedExercises.filter((exercise) => exercise.isPublished);
 
     if (publishedOnly.length === 0) {
       await deleteWorkout({ plannedWorkout });
@@ -79,7 +89,8 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
 
     const revertedWorkout = {
       ...plannedWorkout,
-      exercises: publishedOnly,
+      publishedExercises: publishedOnly,
+      draftExercises: null,
     };
 
     await update({ plannedWorkout: revertedWorkout });
@@ -143,12 +154,12 @@ export function WorkoutEditor({ children }: { children: ReactNode }) {
       </div>
       <div className="overflow-y-auto flex-1">
         <div className="flex flex-col gap-8 px-6 py-8">
-          {plannedWorkout.exercises.map((x) => (
+          {currentDraftExercises.map((x) => (
             <WorkoutEditorExercise
               key={x.id}
               plannedExercise={x}
               plannedWorkout={plannedWorkout}
-              update={updateDebounce}
+              update={updateDraftExercisesDebounce}
             />
           ))}
         </div>

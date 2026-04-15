@@ -77,7 +77,7 @@ public class ApplyBlockCommandHandler : IRequestHandler<ApplyBlockCommand>
                 Name = blockWorkout.Name,
                 Note = blockWorkout.Note,
                 PlannedAt = plannedAt,
-                Exercises = blockWorkout.Exercises.Select(e => new PlannedExercise
+                PublishedExercises = blockWorkout.Exercises.Select(e => new PlannedExercise
                 {
                     Id = Guid.NewGuid(),
                     ExerciseId = e.ExerciseId,
