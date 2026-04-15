@@ -16,7 +16,7 @@ import { parse, Payload } from "./parse";
 import { transform } from "./transformers";
 import { DeletePlannedWorkout } from "@/services/plannedWorkouts/deletePlannedWorkout";
 import { CreatePlannedWorkout } from "@/services/plannedWorkouts/createPlannedWorkout";
-import { UpdatePlannedWorkout, updatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
+import { UpdatePlannedWorkout } from "@/services/plannedWorkouts/updatePlannedWorkout";
 import { PlannedExercise, PlannedWorkout } from "@/services/plannedWorkouts/type";
 import { ApplyBlock } from "@/services/blocks/applyBlock";
 import { useWorkouts } from "../Workouts";
@@ -68,7 +68,7 @@ export function PlannerProvider({
       if (cloning) {
         if (cloning.targetWorkout) {
           const targetDraft = cloning.targetWorkout.draftExercises ?? cloning.targetWorkout.publishedExercises;
-          await updatePlannedWorkout({
+          await plannedWorkouts.update({
             plannedWorkout: {
               ...cloning.targetWorkout,
               draftExercises: insertAt(targetDraft, cloning.index, cloning.exercise),
@@ -88,7 +88,7 @@ export function PlannerProvider({
               appliedBlock: null,
             },
           });
-          await updatePlannedWorkout({
+          await plannedWorkouts.update({
             plannedWorkout: { ...created, draftExercises: [cloning.exercise] },
           });
         }
@@ -146,7 +146,7 @@ export function PlannerProvider({
             return plannedWorkouts.delete({ plannedWorkout });
           }
           const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
-          return updatePlannedWorkout({
+          return plannedWorkouts.update({
             plannedWorkout: { ...plannedWorkout, draftExercises: exercises },
           });
         })
@@ -157,7 +157,7 @@ export function PlannerProvider({
           const created = await plannedWorkouts.create({ plannedWorkout });
           const exercises = plannedWorkout.draftExercises ?? plannedWorkout.publishedExercises;
           if (exercises.length) {
-            await updatePlannedWorkout({
+            await plannedWorkouts.update({
               plannedWorkout: { ...created, draftExercises: exercises },
             });
           }
