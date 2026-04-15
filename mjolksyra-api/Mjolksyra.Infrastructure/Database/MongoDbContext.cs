@@ -46,6 +46,10 @@ public interface IMongoDbContext
     IMongoCollection<PlannerSession> PlannerSessions { get; }
 
     IMongoCollection<CompletedWorkout> CompletedWorkouts { get; }
+
+    IMongoCollection<TraineeInsights> TraineeInsights { get; }
+
+    IMongoCollection<CoachInsights> CoachInsights { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -93,6 +97,10 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<PlannerSession> PlannerSessions => Database.GetCollection<PlannerSession>("ai-planner-sessions");
 
     public IMongoCollection<CompletedWorkout> CompletedWorkouts => Database.GetCollection<CompletedWorkout>("completed-workouts");
+
+    public IMongoCollection<TraineeInsights> TraineeInsights => Database.GetCollection<TraineeInsights>("trainee-insights");
+
+    public IMongoCollection<CoachInsights> CoachInsights => Database.GetCollection<CoachInsights>("coach-insights");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

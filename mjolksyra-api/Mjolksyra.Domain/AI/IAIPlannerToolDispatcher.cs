@@ -11,4 +11,8 @@ public interface IAIPlannerToolDispatcher : IWorkoutAnalysisToolDispatcher
     Task<string> SearchExercisesAsync(string name, CancellationToken ct);
 
     Task<string> ConvertTimestampToWeekContextAsync(string timestamp, CancellationToken ct);
+
+    Task<string> GetTraineeInsightsAsync(CancellationToken ct);
+
+    Task<string> GetCoachInsightsAsync(CancellationToken ct);
 }

@@ -2,6 +2,7 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
@@ -354,7 +355,8 @@ public class UpdateWorkoutSessionCommandHandlerTests
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object,
-            (notificationService ?? new Mock<INotificationService>()).Object);
+            (notificationService ?? new Mock<INotificationService>()).Object,
+            new Mock<ITraineeInsightsRebuildPublisher>().Object);
     }
 
     private static UpdateWorkoutSessionCommand CreateCommand()

@@ -83,6 +83,8 @@ public static class Configure
         services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
         services.AddScoped<IWorkoutMediaAnalysisRepository, WorkoutMediaAnalysisRepository>();
         services.AddScoped<IPlannerSessionRepository, PlannerSessionRepository>();
+        services.AddScoped<ITraineeInsightsRepository, TraineeInsightsRepository>();
+        services.AddScoped<ICoachInsightsRepository, CoachInsightsRepository>();
         services.AddScoped<IAttachmentIntegrityReportService, AttachmentIntegrityReportService>();
         services.AddHostedService<PlanSeeder>();
         services.AddHostedService<CreditActionPricingSeeder>();
@@ -99,8 +101,12 @@ public static class Configure
         services.AddScoped<IR2FileUploader, R2FileUploader>();
         services.AddScoped<IR2FileDeleter, R2FileDeleter>();
         services.AddScoped<IMediaCompressionPublisher, MassTransitMediaCompressionPublisher>();
+        services.AddScoped<ITraineeInsightsRebuildPublisher, MassTransitTraineeInsightsRebuildPublisher>();
+        services.AddScoped<ICoachInsightsRebuildPublisher, MassTransitCoachInsightsRebuildPublisher>();
         services.AddScoped<IWorkoutMediaAnalysisAgent, GeminiWorkoutMediaAnalysisAgent>();
         services.AddScoped<IAIWorkoutPlannerAgent, GeminiAIWorkoutPlannerAgent>();
+        services.AddScoped<ITraineeInsightsAgent, GeminiTraineeInsightsAgent>();
+        services.AddScoped<ICoachInsightsAgent, GeminiCoachInsightsAgent>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>

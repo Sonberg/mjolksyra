@@ -2,6 +2,7 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
 
@@ -193,7 +194,8 @@ public class PublishDraftExercisesCommandHandlerTests
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
-            (userContext ?? new Mock<IUserContext>()).Object);
+            (userContext ?? new Mock<IUserContext>()).Object,
+            new Mock<ICoachInsightsRebuildPublisher>().Object);
     }
 
     private static PublishDraftExercisesCommand CreateCommand()

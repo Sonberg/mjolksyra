@@ -155,6 +155,8 @@ builder.Services
         opt.AddConsumer<PlannedWorkoutDeletedConsumer>();
         opt.AddConsumer<MediaCompressConsumer>();
         opt.AddConsumer<PingPongConsumer>();
+        opt.AddConsumer<TraineeInsightsRebuildConsumer>();
+        opt.AddConsumer<CoachInsightsRebuildConsumer>();
 
         var rabbitMqUrl = builder.Configuration.GetConnectionString("rabbitmq")
                           ?? throw new InvalidOperationException("RabbitMQ URL must be configured via RabbitMq:Url or ConnectionStrings:rabbitmq.");

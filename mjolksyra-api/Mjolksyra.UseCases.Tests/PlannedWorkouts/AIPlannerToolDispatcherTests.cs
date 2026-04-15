@@ -32,7 +32,10 @@ public class AIPlannerToolDispatcherTests
             new Mock<IWorkoutMediaAnalysisRepository>().Object,
             new Mock<IExerciseRepository>().Object,
             new Mock<IPlannedWorkoutDeletedPublisher>().Object,
-            traineeId);
+            new Mock<ITraineeInsightsRepository>().Object,
+            new Mock<ICoachInsightsRepository>().Object,
+            traineeId,
+            Guid.NewGuid());
 
         var result = await sut.GetUpcomingWorkoutsAsync("2026-04-07", 10, CancellationToken.None);
 
@@ -65,7 +68,10 @@ public class AIPlannerToolDispatcherTests
             new Mock<IWorkoutMediaAnalysisRepository>().Object,
             new Mock<IExerciseRepository>().Object,
             new Mock<IPlannedWorkoutDeletedPublisher>().Object,
-            traineeId);
+            new Mock<ITraineeInsightsRepository>().Object,
+            new Mock<ICoachInsightsRepository>().Object,
+            traineeId,
+            Guid.NewGuid());
 
         var result = await sut.GetUpcomingWorkoutDetailsAsync("2026-04-07", 10, CancellationToken.None);
 

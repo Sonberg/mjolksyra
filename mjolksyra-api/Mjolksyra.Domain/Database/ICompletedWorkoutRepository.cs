@@ -18,4 +18,6 @@ public interface ICompletedWorkoutRepository
     Task Update(CompletedWorkout workout, CancellationToken cancellationToken);
 
     Task<Paginated<CompletedWorkout>> Get(CompletedWorkoutCursor cursor, CancellationToken cancellationToken);
+
+    Task<long> CountCompletedByTraineeId(Guid traineeId, CancellationToken cancellationToken);
 }
