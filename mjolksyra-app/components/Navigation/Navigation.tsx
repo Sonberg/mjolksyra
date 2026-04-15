@@ -11,8 +11,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
-import { ChevronDownIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ChevronDownIcon, HandshakeIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +28,7 @@ type NavigationAuthSnapshot = {
   isAdmin?: boolean;
   completedRoles?: ("coach" | "athlete")[];
   activeRole?: "coach" | "athlete" | null;
+  showOnboardingNav?: boolean;
 };
 
 type NavigationProps = {
@@ -57,6 +57,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
   const isAuthenticated = initialAuth?.isAuthenticated ?? auth.isAuthenticated;
   const completedRoles = initialAuth?.completedRoles ?? [];
   const activeRole = initialAuth?.activeRole ?? null;
+  const showOnboardingNav = initialAuth?.showOnboardingNav ?? false;
 
   const user = {
     name: initialAuth?.name ?? auth.name ?? null,
@@ -65,21 +66,13 @@ export function Navigation({ initialAuth }: NavigationProps) {
     familyName: initialAuth?.familyName ?? auth.familyName ?? null,
   };
 
-  // Track the last role route visited so the label stays stable when
-  // navigating to neutral pages like /app/profile.
-  const [selectedRole, setSelectedRole] = useState<"coach" | "athlete" | null>(
-    activeRole,
-  );
-
-  useEffect(() => {
-    if (pathname.startsWith("/app/coach")) {
-      setSelectedRole("coach");
-    } else if (pathname.startsWith("/app/athlete")) {
-      setSelectedRole("athlete");
-    }
-  }, [pathname]);
-
-  const currentRole = selectedRole;
+  const currentRole: "coach" | "athlete" | null = pathname.startsWith(
+    "/app/coach",
+  )
+    ? "coach"
+    : pathname.startsWith("/app/athlete")
+      ? "athlete"
+      : activeRole;
 
   const otherRole: "coach" | "athlete" | null =
     completedRoles.length === 2
@@ -101,20 +94,15 @@ export function Navigation({ initialAuth }: NavigationProps) {
       otherRole ? (
         // Both roles complete — split button: label navigates, chevron opens dropdown
         <div
-          className={cn(
-            "inline-flex h-9 items-stretch rounded-none text-sm font-semibold transition-colors",
-            isOnRoleRoute
-              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-              : "bg-transparent text-[var(--shell-muted)]",
-          )}
+          className="inline-flex h-9 items-stretch rounded-none text-sm font-semibold text-[var(--shell-muted)] transition-colors"
         >
           <Link
             href={roleHrefs[currentRole]}
             className={cn(
               "inline-flex items-center px-4 transition-colors",
               isOnRoleRoute
-                ? "hover:bg-[var(--shell-ink-soft)]"
-                : "hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
+                ? "bg-[var(--shell-ink)] text-[var(--shell-surface)] hover:bg-[var(--shell-accent-hover)]"
+                : "bg-transparent hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
             )}
           >
             {roleLabels[currentRole]}
@@ -122,9 +110,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
           <div
             className={cn(
               "w-px self-stretch",
-              isOnRoleRoute
-                ? "bg-[var(--shell-surface)]/20"
-                : "bg-[var(--shell-border)]",
+              isOnRoleRoute ? "bg-[var(--shell-border)]" : "bg-[var(--shell-border)]",
             )}
           />
           <DropdownMenu modal={false}>
@@ -132,9 +118,9 @@ export function Navigation({ initialAuth }: NavigationProps) {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex items-center px-2 transition-colors focus-visible:outline-none",
+                  "inline-flex items-center bg-transparent px-2 transition-colors focus-visible:outline-none",
                   isOnRoleRoute
-                    ? "hover:bg-[var(--shell-ink-soft)]"
+                    ? "text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
                     : "hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
                 )}
               >
@@ -170,6 +156,23 @@ export function Navigation({ initialAuth }: NavigationProps) {
       )
     ) : null;
 
+  const onboardingTab =
+    isAuthenticated && showOnboardingNav ? (
+      <Link
+        href="/app/onboard"
+        className={cn(
+          "inline-flex h-9 items-center gap-2 rounded-none px-3 text-sm font-semibold transition-colors",
+          pathname.startsWith("/app/onboard")
+            ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
+            : "bg-transparent text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
+        )}
+        aria-label="Open onboarding"
+      >
+        <HandshakeIcon className="h-4 w-4" />
+        <span className="hidden sm:inline">Onboarding</span>
+      </Link>
+    ) : null;
+
   return (
     <header
       className={cn(
@@ -200,6 +203,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
           {isAuthenticated ? (
             <>
               {roleTab}
+              {onboardingTab}
               <ThemeToggle />
               <NavigationNotifications forceVisible={isAuthenticated} />
               <NavigationUser
