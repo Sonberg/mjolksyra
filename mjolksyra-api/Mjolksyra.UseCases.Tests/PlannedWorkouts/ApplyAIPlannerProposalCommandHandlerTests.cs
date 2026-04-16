@@ -27,13 +27,17 @@ public class ApplyAIPlannerProposalCommandHandlerTests
         var targetWorkoutId = Guid.NewGuid();
         var createdWorkoutId = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;
+        var sourceDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
+        var targetDate = sourceDate.AddDays(1);
+        var sourceDateText = sourceDate.ToString("yyyy-MM-dd");
+        var targetDateText = targetDate.ToString("yyyy-MM-dd");
 
         var existingWorkout = new PlannedWorkout
         {
             Id = targetWorkoutId,
             TraineeId = traineeId,
             Name = "Upper",
-            PlannedAt = new DateOnly(2026, 4, 14),
+            PlannedAt = sourceDate,
             PublishedExercises = [],
             CreatedAt = now,
         };
@@ -44,8 +48,8 @@ public class ApplyAIPlannerProposalCommandHandlerTests
             Status = AIPlannerProposalStatus.Pending,
             Summary = "Create one workout and move another.",
             CreditCost = 1,
-            AffectedDateFrom = "2026-04-14",
-            AffectedDateTo = "2026-04-15",
+            AffectedDateFrom = sourceDateText,
+            AffectedDateTo = targetDateText,
             SourceSnapshotHash = AIPlannerProposalFingerprint.ComputeWorkoutsFingerprint([existingWorkout]),
             Actions =
             [
@@ -53,10 +57,10 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                 {
                     ActionType = AIPlannerProposalActionTypes.CreateWorkout,
                     Summary = "Create Tue Apr 15 workout.",
-                    TargetDate = "2026-04-15",
+                    TargetDate = targetDateText,
                     Workout = new PlannedWorkoutRequestPayload
                     {
-                        PlannedAt = "2026-04-15",
+                        PlannedAt = targetDateText,
                         Name = "Lower",
                         Exercises = [],
                     },
@@ -66,12 +70,12 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                     ActionType = AIPlannerProposalActionTypes.MoveWorkout,
                     Summary = "Move Upper from Apr 14 to Apr 15.",
                     TargetWorkoutId = targetWorkoutId,
-                    PreviousDate = "2026-04-14",
-                    TargetDate = "2026-04-15",
+                    PreviousDate = sourceDateText,
+                    TargetDate = targetDateText,
                     BeforeStateFingerprint = AIPlannerProposalFingerprint.ComputeWorkoutFingerprint(existingWorkout),
                     Workout = new PlannedWorkoutRequestPayload
                     {
-                        PlannedAt = "2026-04-15",
+                        PlannedAt = targetDateText,
                         Name = "Upper",
                         Exercises = [],
                     },
@@ -104,7 +108,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                 Name = "Lower",
                 Note = null,
                 PublishedExercises = [],
-                PlannedAt = new DateOnly(2026, 4, 15),
+                PlannedAt = targetDate,
                 CreatedAt = now,
             });
         mediator
@@ -116,7 +120,7 @@ public class ApplyAIPlannerProposalCommandHandlerTests
                 Name = "Upper",
                 Note = null,
                 PublishedExercises = [],
-                PlannedAt = new DateOnly(2026, 4, 15),
+                PlannedAt = targetDate,
                 CreatedAt = now,
             });
 
