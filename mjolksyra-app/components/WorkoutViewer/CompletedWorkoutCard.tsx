@@ -88,15 +88,17 @@ export function CompletedWorkoutCard({
           : "relative overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)]"
       }
     >
-      {workout.hasUnreadActivity ? (
-        <span className="absolute right-2 top-2 z-10 h-2.5 w-2.5 rounded-full bg-[var(--shell-accent)]" />
-      ) : null}
       <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="min-w-0 flex gap-4">
-            <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
-              {displayName}
-            </p>
+            <div className="flex items-center gap-2">
+              {workout.hasUnreadActivity ? (
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--shell-accent)]" />
+              ) : null}
+              <p className="truncate text-base font-semibold text-[var(--shell-ink)]">
+                {displayName}
+              </p>
+            </div>
             <div className="flex items-center gap-2">
               <StatusBadge
                 variant={
