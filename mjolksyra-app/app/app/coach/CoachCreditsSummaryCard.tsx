@@ -31,17 +31,24 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
         </div>
       </div>
 
-      <p className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">{credits?.totalRemaining ?? 0}</p>
+      <p className="mt-3 font-mono text-3xl font-semibold text-[var(--shell-ink)]">{credits?.totalRemaining ?? 0}</p>
       <p className="mt-1 text-xs text-[var(--shell-muted)]">Total credits remaining</p>
 
-      <div className="mt-4 flex gap-8">
+      <div className="mt-3 h-1 w-full bg-[var(--shell-border)]">
+        <div
+          className="h-1 bg-[var(--shell-accent)]"
+          style={{ width: `${Math.min(100, ((credits?.includedRemaining ?? 0) / Math.max(1, credits?.totalRemaining ?? 1)) * 100)}%` }}
+        />
+      </div>
+
+      <div className="mt-4 border-t border-[var(--shell-border)] pt-4 flex gap-8">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Included</p>
-          <p className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{credits?.includedRemaining ?? 0}</p>
+          <p className="mt-1 font-mono text-2xl font-semibold text-[var(--shell-ink)]">{credits?.includedRemaining ?? 0}</p>
         </div>
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Purchased</p>
-          <p className="mt-1 text-lg font-semibold text-[var(--shell-ink)]">{credits?.purchasedRemaining ?? 0}</p>
+          <p className="mt-1 font-mono text-2xl font-semibold text-[var(--shell-ink)]">{credits?.purchasedRemaining ?? 0}</p>
         </div>
       </div>
 

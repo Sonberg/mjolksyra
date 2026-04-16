@@ -15,6 +15,7 @@ import {
   CoachDashboardTodoSection,
   type CoachTodoItem,
 } from "./CoachDashboardTodoSection";
+import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 
 const STARTER_FALLBACK: Plan = {
   id: "00000000-0000-0000-0000-000000000001",
@@ -134,8 +135,19 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
     },
   ];
 
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  })();
+
   return (
     <div className="space-y-8">
+      <PageSectionHeader
+        eyebrow="Coach workspace"
+        title={`${greeting}, ${user.givenName}`}
+      />
       <CoachDashboardMetrics
         recurringAthleteBilling={recurringAthleteBilling}
         coachPlanMonthlySek={coachPlanMonthlySek}

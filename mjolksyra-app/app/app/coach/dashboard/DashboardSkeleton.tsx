@@ -1,50 +1,43 @@
 import { CoachWorkspaceShell } from "../CoachWorkspaceShell";
 
-function SkeletonBlock({ className }: { className: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] ${className}`}
-    />
-  );
+function Sk({ className }: { className: string }) {
+  return <div className={`skeleton ${className}`} />;
 }
 
 export function DashboardSkeleton() {
   return (
     <CoachWorkspaceShell>
       <div className="space-y-8">
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <SkeletonBlock className="h-36 w-full" />
-          <SkeletonBlock className="h-36 w-full" />
-          <SkeletonBlock className="h-36 w-full" />
-          <SkeletonBlock className="h-36 w-full" />
+        {/* Page header */}
+        <div className="space-y-2">
+          <Sk className="h-3 w-28" />
+          <Sk className="h-8 w-56" />
+        </div>
+
+        {/* Metrics — 4-col */}
+        <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+          <Sk className="h-28 w-full" />
+          <Sk className="h-28 w-full" />
+          <Sk className="h-28 w-full" />
+          <Sk className="h-28 w-full" />
         </section>
 
-        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
-          <div className="space-y-3">
-            <SkeletonBlock className="h-5 w-44 border-0" />
-            <SkeletonBlock className="h-12 w-72 border-0" />
-            <SkeletonBlock className="h-5 w-full max-w-2xl border-0" />
-          </div>
-          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <SkeletonBlock className="h-24 w-full" />
-            <SkeletonBlock className="h-24 w-full" />
-            <SkeletonBlock className="h-24 w-full" />
-            <SkeletonBlock className="h-24 w-full" />
-          </div>
-        </section>
+        {/* Credits */}
+        <Sk className="h-44 w-full" />
 
-        <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 md:p-7">
-          <div className="space-y-3">
-            <SkeletonBlock className="h-5 w-44 border-0" />
-            <SkeletonBlock className="h-8 w-96 border-0" />
-            <SkeletonBlock className="h-4 w-full max-w-2xl border-0" />
+        {/* Todo — 2-col */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Sk className="h-3 w-20" />
+            <Sk className="h-7 w-36" />
           </div>
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-            <SkeletonBlock className="h-20 w-full" />
-            <SkeletonBlock className="h-20 w-full" />
-            <SkeletonBlock className="h-20 w-full" />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <Sk className="h-24 w-full" />
+            <Sk className="h-24 w-full" />
+            <Sk className="h-24 w-full" />
+            <Sk className="h-24 w-full" />
           </div>
-        </section>
+        </div>
       </div>
     </CoachWorkspaceShell>
   );
