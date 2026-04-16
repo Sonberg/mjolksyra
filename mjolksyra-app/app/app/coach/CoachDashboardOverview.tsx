@@ -32,11 +32,20 @@ type Props = {
   trainees: Trainee[];
 };
 
-const formatNames = (items: Trainee[], limit = 3) => {
-  const names = items.slice(0, limit).map((x) => x.athlete.name);
+const formatAthletes = (
+  items: Trainee[],
+  hrefFn: (id: string) => string,
+  limit = 3
+): { name: string; href: string }[] => {
+  const shown = items.slice(0, limit).map((x) => ({
+    name: x.athlete.name,
+    href: hrefFn(x.id),
+  }));
   const rest = Math.max(0, items.length - limit);
-  if (names.length === 0) return null;
-  return rest > 0 ? `${names.join(", ")} +${rest} more` : names.join(", ");
+  if (rest > 0) {
+    shown.push({ name: `+${rest} more`, href: "/app/coach/athletes" });
+  }
+  return shown;
 };
 
 export function CoachDashboardOverview({ user, trainees }: Props) {
@@ -96,9 +105,10 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         paymentBlocked.length > 0
           ? `${paymentBlocked.length} athlete${paymentBlocked.length === 1 ? "" : "s"} blocked by payment/Stripe setup.`
           : "No payment setup blockers right now.",
-      names: formatNames(paymentBlocked),
+      athletes: formatAthletes(paymentBlocked, (id) => `/app/coach/athletes/${id}`),
       count: paymentBlocked.length,
       icon: WalletIcon,
+      href: "/app/coach/payments",
     },
     {
       key: "feedback",
@@ -107,9 +117,10 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         needsFeedback.length > 0
           ? `${needsFeedback.length} athlete${needsFeedback.length === 1 ? "" : "s"} trained recently and may need feedback.`
           : "No recent workouts waiting for feedback.",
-      names: formatNames(needsFeedback),
+      athletes: formatAthletes(needsFeedback, (id) => `/app/coach/athletes/${id}/workouts`),
       count: needsFeedback.length,
       icon: MessageSquareIcon,
+      href: "/app/coach/athletes",
     },
     {
       key: "pricing",
@@ -118,9 +129,10 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         needsPrice.length > 0
           ? `${needsPrice.length} athlete${needsPrice.length === 1 ? "" : "s"} need a monthly price before billing can start.`
           : "All active athletes have a price set.",
-      names: formatNames(needsPrice),
+      athletes: formatAthletes(needsPrice, (id) => `/app/coach/athletes/${id}`),
       count: needsPrice.length,
       icon: AlertTriangleIcon,
+      href: "/app/coach/athletes",
     },
     {
       key: "program",
@@ -129,9 +141,10 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
         programEndingSoon.length > 0
           ? `${programEndingSoon.length} athlete${programEndingSoon.length === 1 ? "" : "s"} need a fresh plan or next workout soon.`
           : "No programs need renewal this week.",
-      names: formatNames(programEndingSoon),
+      athletes: formatAthletes(programEndingSoon, (id) => `/app/coach/athletes/${id}/planner`),
       count: programEndingSoon.length,
       icon: CheckCircle2Icon,
+      href: "/app/coach/athletes",
     },
   ];
 
