@@ -34,6 +34,13 @@ public class RebuildTraineeInsightsCommandHandler(
         }
 
         var existing = await traineeInsightsRepository.GetByTraineeId(request.TraineeId, cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+
+        if (TraineeInsightsRecovery.RecoverExpiredPending(existing, now) && existing is not null)
+        {
+            await traineeInsightsRepository.Upsert(existing, cancellationToken);
+        }
+
         if (existing?.Status == InsightsStatus.Pending)
         {
             return new RebuildTraineeInsightsAlreadyPending();
@@ -54,7 +61,6 @@ public class RebuildTraineeInsightsCommandHandler(
             return new RebuildTraineeInsightsInsufficientCredits(reserveResult.AsT1.Reason);
         }
 
-        var now = DateTimeOffset.UtcNow;
         var document = existing ?? new TraineeInsights
         {
             Id = request.TraineeId,

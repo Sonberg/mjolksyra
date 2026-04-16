@@ -34,6 +34,11 @@ public class GetTraineeInsightsQueryHandler(
             return null;
         }
 
+        if (TraineeInsightsRecovery.RecoverExpiredPending(insights, DateTimeOffset.UtcNow))
+        {
+            await traineeInsightsRepository.Upsert(insights, cancellationToken);
+        }
+
         var isCoach = trainee.CoachUserId == userId;
 
         // Athletes only see insights when the coach has made them visible
