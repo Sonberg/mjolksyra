@@ -8,6 +8,7 @@ import { useAuth } from "@/context/Auth";
 import { LoginDialog } from "@/dialogs/LoginDialog";
 import { RegisterDialog } from "@/dialogs/RegisterDialog";
 import Image from "next/image";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
@@ -73,6 +74,22 @@ export function Navigation({ initialAuth }: NavigationProps) {
     : pathname.startsWith("/app/athlete")
       ? "athlete"
       : activeRole;
+
+  // Keep the cookie in sync with the pathname-detected role so that navigating
+  // to a non-role route (e.g. the home page) always reflects where the user was.
+  useEffect(() => {
+    const pathnameRole: "coach" | "athlete" | null = pathname.startsWith(
+      "/app/coach",
+    )
+      ? "coach"
+      : pathname.startsWith("/app/athlete")
+        ? "athlete"
+        : null;
+
+    if (pathnameRole && pathnameRole !== activeRole) {
+      setActiveRoleCookie(pathnameRole);
+    }
+  }, [pathname]);
 
   const otherRole: "coach" | "athlete" | null =
     completedRoles.length === 2
