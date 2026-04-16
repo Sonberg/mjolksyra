@@ -23,6 +23,8 @@ public class GenerateWorkoutPlanCommandHandler(
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
     IPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
+    ITraineeInsightsRepository traineeInsightsRepository,
+    ICoachInsightsRepository coachInsightsRepository,
     IUserContext userContext) : IRequestHandler<GenerateWorkoutPlanCommand, OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>>
 {
     public async Task<OneOf<GenerateWorkoutPlanResponse, GenerateWorkoutPlanForbidden, GenerateWorkoutPlanInsufficientCredits>> Handle(GenerateWorkoutPlanCommand request, CancellationToken cancellationToken)
@@ -83,7 +85,10 @@ public class GenerateWorkoutPlanCommandHandler(
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,
-            request.TraineeId);
+            traineeInsightsRepository,
+            coachInsightsRepository,
+            request.TraineeId,
+            userId);
 
         var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
 

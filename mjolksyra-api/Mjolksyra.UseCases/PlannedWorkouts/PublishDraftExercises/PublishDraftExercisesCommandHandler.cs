@@ -1,6 +1,7 @@
 using MediatR;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.PublishDraftExercises;
@@ -9,7 +10,8 @@ public class PublishDraftExercisesCommandHandler(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
-    IUserContext userContext) : IRequestHandler<PublishDraftExercisesCommand, PlannedWorkoutResponse?>
+    IUserContext userContext,
+    ICoachInsightsRebuildPublisher coachInsightsRebuildPublisher) : IRequestHandler<PublishDraftExercisesCommand, PlannedWorkoutResponse?>
 {
     public async Task<PlannedWorkoutResponse?> Handle(PublishDraftExercisesCommand request, CancellationToken cancellationToken)
     {
@@ -89,6 +91,10 @@ public class PublishDraftExercisesCommandHandler(
             .ToList();
 
         var exercises = await exerciseRepository.GetMany(exerciseIds, cancellationToken);
+
+        await coachInsightsRebuildPublisher.Publish(new CoachInsightsRebuildRequestedMessage(
+            CoachUserId: userId,
+            RequestedAt: DateTimeOffset.UtcNow), cancellationToken);
 
         return PlannedWorkoutResponse.From(workout, exercises);
     }

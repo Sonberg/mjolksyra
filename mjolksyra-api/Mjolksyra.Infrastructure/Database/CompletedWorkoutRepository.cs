@@ -112,4 +112,13 @@ public class CompletedWorkoutRepository : ICompletedWorkoutRepository
             Cursor = Cursor.From(response, cursor)
         };
     }
+
+    public async Task<long> CountCompletedByTraineeId(Guid traineeId, CancellationToken cancellationToken)
+    {
+        var filter = Builders<CompletedWorkout>.Filter.And(
+            Builders<CompletedWorkout>.Filter.Eq(x => x.TraineeId, traineeId),
+            Builders<CompletedWorkout>.Filter.Ne(x => x.CompletedAt, null));
+
+        return await _context.CompletedWorkouts.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
+    }
 }

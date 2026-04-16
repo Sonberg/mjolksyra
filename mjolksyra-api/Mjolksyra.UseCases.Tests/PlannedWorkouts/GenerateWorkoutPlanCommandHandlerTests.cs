@@ -559,6 +559,8 @@ public class GenerateWorkoutPlanCommandHandlerTests
             (deletedPublisher ?? new Mock<IPlannedWorkoutDeletedPublisher>()).Object,
             (sessionRepository ?? new Mock<IPlannerSessionRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
+            new Mock<ITraineeInsightsRepository>().Object,
+            new Mock<ICoachInsightsRepository>().Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }
 

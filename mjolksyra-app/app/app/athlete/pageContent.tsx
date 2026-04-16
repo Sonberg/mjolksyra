@@ -9,6 +9,7 @@ import { AthleteTransactions } from "./AthleteTransactions";
 import { AthleteSettings } from "./AthleteSettings";
 import { AthleteCoaches } from "./AthleteCoaches";
 import { AthleteSectionTabs } from "./AthleteSectionTabs";
+import { AthleteInsights } from "./AthleteInsights";
 import { PageLayout } from "@/app/components/PageLayout";
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
   detailWorkoutId?: string;
   detailBackTab?: "planned" | "completed";
   initialWorkoutTab?: "planned" | "completed";
-  view?: "workouts" | "transactions" | "settings";
+  view?: "workouts" | "transactions" | "settings" | "insights";
 };
 
 export function PageContent({
@@ -140,6 +141,8 @@ export function PageContent({
           />
         ) : view === "transactions" ? (
           <AthleteTransactions coach={coach} />
+        ) : view === "insights" ? (
+          <AthleteInsights traineeId={coach.traineeId} />
         ) : (
           <AthleteSettings coach={coach} />
         )

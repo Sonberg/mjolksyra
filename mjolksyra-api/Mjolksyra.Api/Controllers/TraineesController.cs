@@ -7,7 +7,10 @@ using Mjolksyra.UseCases.Trainees.ChargeNowTrainee;
 using Mjolksyra.UseCases.Trainees.CreateTrainee;
 using Mjolksyra.UseCases.Trainees.GetTraineeById;
 using Mjolksyra.UseCases.Trainees.GetTrainees;
+using Mjolksyra.UseCases.Trainees.GetTraineeInsights;
+using Mjolksyra.UseCases.Trainees.RebuildTraineeInsights;
 using Mjolksyra.UseCases.Trainees.RefundTraineeTransaction;
+using Mjolksyra.UseCases.Trainees.SetTraineeInsightsVisibility;
 using Mjolksyra.UseCases.Trainees.UpdateTrianeeCost;
 using System.Net;
 
@@ -116,6 +119,42 @@ public class TraineesController : Controller
                 title: "Unable to create trainee"));
     }
 
+    [HttpGet("{traineeId:guid}/insights")]
+    public async Task<ActionResult<TraineeInsightsResponse>> GetInsights(Guid traineeId, CancellationToken cancellationToken)
+    {
+        var insights = await _mediator.Send(new GetTraineeInsightsQuery(traineeId), cancellationToken);
+        if (insights is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(insights);
+    }
+
+    [HttpPost("{traineeId:guid}/insights/rebuild")]
+    public async Task<IActionResult> RebuildInsights(Guid traineeId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RebuildTraineeInsightsCommand(traineeId), cancellationToken);
+        return result.Match<IActionResult>(
+            _ => Accepted(),
+            _ => Forbid(),
+            _ => Conflict(new { error = "A rebuild is already in progress." }),
+            insufficient => UnprocessableEntity(new { error = insufficient.Reason }),
+            credits => StatusCode((int)HttpStatusCode.PaymentRequired, new { error = credits.Reason }));
+    }
+
+    [HttpPatch("{traineeId:guid}/insights/visibility")]
+    public async Task<IActionResult> SetInsightsVisibility(Guid traineeId, [FromBody] SetInsightsVisibilityBody body, CancellationToken cancellationToken)
+    {
+        var success = await _mediator.Send(new SetTraineeInsightsVisibilityCommand(traineeId, body.VisibleToAthlete), cancellationToken);
+        if (!success)
+        {
+            return Forbid();
+        }
+
+        return Ok();
+    }
+
     private static int GetStatusCode(CreateTraineeErrorCode code)
     {
         return code switch
@@ -125,3 +164,5 @@ public class TraineesController : Controller
         };
     }
 }
+
+public record SetInsightsVisibilityBody(bool VisibleToAthlete);
