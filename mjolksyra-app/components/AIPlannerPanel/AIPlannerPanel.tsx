@@ -668,7 +668,7 @@ export function AIPlannerPanel({
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))]">
+          <div className="border-t border-[var(--shell-border)]">
             <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
               <div className="flex items-end gap-2">
                 <div className="min-h-11 min-w-0 flex-1 px-3">
@@ -734,7 +734,7 @@ export function AIPlannerPanel({
         </div>
       ) : (
         <div
-          className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))]"
+          className="border-t border-[var(--shell-border)]"
           data-testid="ai-planner-attachment-dropzone"
           onDragEnter={handleAttachmentDragEnter}
           onDragOver={handleAttachmentDragOver}
