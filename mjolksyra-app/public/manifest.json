@@ -4,8 +4,8 @@
   "description": "Coaching platform for athletes and coaches.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#f5f5f5",
+  "theme_color": "#ff5252",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
