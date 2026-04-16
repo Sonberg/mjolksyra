@@ -16,7 +16,10 @@ public class AIPlannerToolDispatcher(
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
-    Guid traineeId) : IAIPlannerToolDispatcher
+    ITraineeInsightsRepository traineeInsightsRepository,
+    ICoachInsightsRepository coachInsightsRepository,
+    Guid traineeId,
+    Guid coachUserId) : IAIPlannerToolDispatcher
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -109,6 +112,70 @@ public class AIPlannerToolDispatcher(
         }).ToList();
 
         return JsonSerializer.Serialize(entries, JsonOptions);
+    }
+
+    public async Task<string> GetTraineeInsightsAsync(CancellationToken ct)
+    {
+        var insights = await traineeInsightsRepository.GetByTraineeId(traineeId, ct);
+        if (insights is null || insights.Status != "ready")
+        {
+            return JsonSerializer.Serialize(new { available = false }, JsonOptions);
+        }
+
+        var summary = new
+        {
+            athleteProfile = insights.AthleteProfile is null ? null : new
+            {
+                summary = insights.AthleteProfile.Summary,
+                trainingAge = insights.AthleteProfile.TrainingAge,
+            },
+            fatigueRisk = insights.FatigueRisk is null ? null : new
+            {
+                level = insights.FatigueRisk.Level,
+                score = insights.FatigueRisk.Score,
+                explanation = insights.FatigueRisk.Explanation,
+            },
+            progressionSummary = insights.ProgressionSummary is null ? null : new
+            {
+                overall = insights.ProgressionSummary.Overall,
+                summary = insights.ProgressionSummary.Summary,
+                exercises = insights.ProgressionSummary.Exercises.Select(e => new
+                {
+                    name = e.Name,
+                    trend = e.Trend,
+                    detail = e.Detail,
+                }),
+            },
+            topRecommendations = insights.Recommendations
+                .OrderBy(r => r.Priority == "high" ? 0 : r.Priority == "medium" ? 1 : 2)
+                .Take(3)
+                .Select(r => new { label = r.Label, detail = r.Detail, priority = r.Priority }),
+            generatedAt = insights.GeneratedAt,
+        };
+
+        return JsonSerializer.Serialize(summary, JsonOptions);
+    }
+
+    public async Task<string> GetCoachInsightsAsync(CancellationToken ct)
+    {
+        var insights = await coachInsightsRepository.GetByCoachUserId(coachUserId, ct);
+        if (insights is null || insights.Status != "ready")
+        {
+            return JsonSerializer.Serialize(new { available = false }, JsonOptions);
+        }
+
+        var summary = new
+        {
+            coachingStyleSummary = insights.CoachingStyleSummary,
+            effectivenessPatterns = insights.EffectivenessPatterns.Select(p => new
+            {
+                pattern = p.Pattern,
+                detail = p.Detail,
+            }),
+            lastRebuiltAt = insights.LastRebuiltAt,
+        };
+
+        return JsonSerializer.Serialize(summary, JsonOptions);
     }
 
     public Task<string> ConvertTimestampToWeekContextAsync(string timestamp, CancellationToken ct)

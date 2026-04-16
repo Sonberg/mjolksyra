@@ -100,6 +100,7 @@ export function useCompletedWorkouts({
       skippedAt: w.skippedAt ?? null,
       media: [],
       createdAt: w.createdAt,
+      hasUnreadActivity: false,
     }));
 
     const merged = uniqBy(

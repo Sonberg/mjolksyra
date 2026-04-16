@@ -183,12 +183,22 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             [Description("Exercise name to search for (e.g. 'squat', 'deadlift').")] string name)
             => await dispatcher.SearchExercisesAsync(name, ct);
 
+        [Description("Returns the latest AI-generated insights for the athlete including fatigue risk, training age, progression summary, strengths, weaknesses, and top recommendations. Use to personalize program design and volume decisions.")]
+        async Task<string> GetTraineeInsights()
+            => await dispatcher.GetTraineeInsightsAsync(ct);
+
+        [Description("Returns the coach's style profile and cross-athlete effectiveness patterns. Use to align new programs with the coach's proven coaching patterns and preferences.")]
+        async Task<string> GetCoachInsights()
+            => await dispatcher.GetCoachInsightsAsync(ct);
+
         return
         [
             AIFunctionFactory.Create(GetRecentCompletedWorkouts),
             AIFunctionFactory.Create(GetWorkoutsForExercise),
             AIFunctionFactory.Create(GetRecentWorkoutAnalyses),
             AIFunctionFactory.Create(SearchExercises),
+            AIFunctionFactory.Create(GetTraineeInsights),
+            AIFunctionFactory.Create(GetCoachInsights),
         ];
     }
 

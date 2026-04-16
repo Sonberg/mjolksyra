@@ -51,7 +51,7 @@ export function HeroIllustration() {
         <path className="hi-line-strong" d="M19,108.1s13-11,34,0,34,0,34,0a58.41,58.41,0,0,0,11-10c5-6,11-5,11-5" />
       </g>
       <text x="98" y="71" className="hi-ink hi-display" fontSize="26" fontWeight="700">
-        mjolksyra
+        mjölksyra
       </text>
       <text x="872" y="71" className="hi-muted hi-body" fontSize="12" fontWeight="700" letterSpacing="2.4">
         COACH TRAINING SYSTEM

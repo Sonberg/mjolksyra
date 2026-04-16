@@ -17,4 +17,6 @@ public class Notification
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? ReadAt { get; set; }
+
+    public Guid? CompletedWorkoutId { get; set; }
 }

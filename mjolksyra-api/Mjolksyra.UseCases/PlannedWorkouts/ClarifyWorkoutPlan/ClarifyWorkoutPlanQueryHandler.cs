@@ -19,6 +19,8 @@ public class ClarifyWorkoutPlanQueryHandler(
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
     IPlannerSessionRepository sessionRepository,
     ITraineeRepository traineeRepository,
+    ITraineeInsightsRepository traineeInsightsRepository,
+    ICoachInsightsRepository coachInsightsRepository,
     IUserContext userContext) : IRequestHandler<ClarifyWorkoutPlanQuery, ClarifyWorkoutPlanResponse?>
 {
     public async Task<ClarifyWorkoutPlanResponse?> Handle(ClarifyWorkoutPlanQuery request, CancellationToken cancellationToken)
@@ -40,7 +42,10 @@ public class ClarifyWorkoutPlanQueryHandler(
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,
-            request.TraineeId);
+            traineeInsightsRepository,
+            coachInsightsRepository,
+            request.TraineeId,
+            userId);
 
         var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
 

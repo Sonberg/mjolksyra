@@ -11,6 +11,8 @@ public class NotificationSideEffectMessage
     public string? Body { get; set; }
 
     public string? Href { get; set; }
+
+    public Guid? CompletedWorkoutId { get; set; }
 }
 
 public class NotificationSideEffectManyMessage
@@ -24,4 +26,6 @@ public class NotificationSideEffectManyMessage
     public string? Body { get; set; }
 
     public string? Href { get; set; }
+
+    public Guid? CompletedWorkoutId { get; set; }
 }

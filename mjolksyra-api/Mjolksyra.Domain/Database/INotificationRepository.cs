@@ -13,4 +13,8 @@ public interface INotificationRepository
     Task MarkRead(Guid userId, Guid notificationId, CancellationToken ct);
 
     Task MarkAllRead(Guid userId, CancellationToken ct);
+
+    Task MarkReadByCompletedWorkoutId(Guid userId, Guid completedWorkoutId, CancellationToken ct);
+
+    Task<ICollection<Guid>> GetUnreadCompletedWorkoutIds(Guid userId, CancellationToken ct);
 }

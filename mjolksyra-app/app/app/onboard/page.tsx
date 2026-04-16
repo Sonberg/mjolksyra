@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAuth } from "@/context/Auth";
 import { getUserMe } from "@/services/users/getUserMe";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default async function OnboardPage() {
   const auth = await getAuth({ redirect: true });
@@ -47,9 +48,12 @@ export default async function OnboardPage() {
                 Manage athletes, build workout programs, and receive payments for your coaching services.
               </p>
               <div className="pt-2">
-                <span className="inline-block border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition-colors group-hover:bg-[var(--shell-ink-soft)]">
+                <Button
+                  variant="default"
+                  className="pointer-events-none rounded-none"
+                >
                   Set up as coach
-                </span>
+                </Button>
               </div>
             </div>
           </Link>
@@ -70,9 +74,12 @@ export default async function OnboardPage() {
                 Train with a coach, follow structured programs, and track your workouts in one place.
               </p>
               <div className="pt-2">
-                <span className="inline-block border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition-colors group-hover:bg-[var(--shell-ink-soft)]">
+                <Button
+                  variant="default"
+                  className="pointer-events-none rounded-none"
+                >
                   Set up as athlete
-                </span>
+                </Button>
               </div>
             </div>
           </Link>

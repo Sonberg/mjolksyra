@@ -2,6 +2,7 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.CompletedWorkouts;
 using Mjolksyra.UseCases.CompletedWorkouts.AddCompletedWorkoutChatMessage;
@@ -230,6 +231,7 @@ public class AddCompletedWorkoutChatMessageCommandHandlerTests
             (chatRepository ?? new Mock<ICompletedWorkoutChatMessageRepository>()).Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object,
+            new Mock<INotificationService>().Object,
             (compressionPublisher ?? new Mock<IMediaCompressionPublisher>()).Object);
     }
 

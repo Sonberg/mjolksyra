@@ -108,28 +108,34 @@ public class AcceptTraineeInvitationCommandHandler(
             }, cancellationToken);
         }
 
-        await notificationService.Notify(coach.Id,
-            "invite.accepted",
-            "Invitation accepted",
-            $"{athlete.DisplayName} accepted your invitation.",
-            "/app/coach/athletes",
-            cancellationToken);
+        await notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "invite.accepted",
+            Title = "Invitation accepted",
+            Body = $"{athlete.DisplayName} accepted your invitation.",
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
 
-        await notificationService.Notify(athlete.Id,
-            "invite.accepted",
-            "Coach connection active",
-            $"You are now connected with {coach.DisplayName}.",
-            "/app/athlete",
-            cancellationToken);
+        await notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "invite.accepted",
+            Title = "Coach connection active",
+            Body = $"You are now connected with {coach.DisplayName}.",
+            Href = "/app/athlete",
+        }, cancellationToken);
 
         if (athleteNeedsPaymentSetup)
         {
-            await notificationService.Notify(athlete.Id,
-                "billing.setup-required",
-                "Payment setup required",
-                "Add your payment method to enable coaching billing.",
-                "/app/athlete",
-                cancellationToken);
+            await notificationService.Notify(new NotificationRequest
+            {
+                UserId = athlete.Id,
+                Type = "billing.setup-required",
+                Title = "Payment setup required",
+                Body = "Add your payment method to enable coaching billing.",
+                Href = "/app/athlete",
+            }, cancellationToken);
         }
     }
 }

@@ -2,6 +2,7 @@ using Moq;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
+using Mjolksyra.Domain.Messaging;
 using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 using Mjolksyra.UseCases.CompletedWorkouts.UpdateWorkoutSession;
@@ -259,7 +260,9 @@ public class UpdateWorkoutSessionCommandHandlerTests
         Assert.Null(result.ReviewedAt); // Cleared when completed
 
         notificationService.Verify(
-            x => x.Notify(coachUserId, "workout.completed", It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            x => x.Notify(
+                It.Is<NotificationRequest>(n => n.UserId == coachUserId && n.Type == "workout.completed"),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -354,7 +357,8 @@ public class UpdateWorkoutSessionCommandHandlerTests
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
             (userContext ?? new Mock<IUserContext>()).Object,
-            (notificationService ?? new Mock<INotificationService>()).Object);
+            (notificationService ?? new Mock<INotificationService>()).Object,
+            new Mock<ITraineeInsightsRebuildPublisher>().Object);
     }
 
     private static UpdateWorkoutSessionCommand CreateCommand()

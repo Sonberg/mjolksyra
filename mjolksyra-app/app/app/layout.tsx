@@ -33,7 +33,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
         const coachDone = user.onboarding.coach === "Completed";
         const athleteDone = user.onboarding.athlete === "Completed";
 
-        if (!coachDone && !athleteDone) {
+        if (!coachDone || !athleteDone) {
           redirect("/app/onboard");
         }
       } catch {

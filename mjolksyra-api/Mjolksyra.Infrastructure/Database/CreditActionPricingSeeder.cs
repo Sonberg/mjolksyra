@@ -26,6 +26,13 @@ public class CreditActionPricingSeeder(IServiceProvider serviceProvider) : IHost
             Action = CreditAction.GenerateWorkoutPlan,
             CreditCost = 5,
         }, cancellationToken);
+
+        await repo.Upsert(new CreditActionPricing
+        {
+            Id = new Guid("10000000-0000-0000-0000-000000000006"),
+            Action = CreditAction.RebuildTraineeInsights,
+            CreditCost = 1,
+        }, cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

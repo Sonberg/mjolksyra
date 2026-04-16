@@ -15,6 +15,8 @@ public class PreviewWorkoutPlanQueryHandler(
     IExerciseRepository exerciseRepository,
     IPlannedWorkoutDeletedPublisher plannedWorkoutDeletedPublisher,
     ITraineeRepository traineeRepository,
+    ITraineeInsightsRepository traineeInsightsRepository,
+    ICoachInsightsRepository coachInsightsRepository,
     IUserContext userContext) : IRequestHandler<PreviewWorkoutPlanQuery, PreviewWorkoutPlanResponse?>
 {
     public async Task<PreviewWorkoutPlanResponse?> Handle(PreviewWorkoutPlanQuery request, CancellationToken cancellationToken)
@@ -36,7 +38,10 @@ public class PreviewWorkoutPlanQueryHandler(
             workoutMediaAnalysisRepository,
             exerciseRepository,
             plannedWorkoutDeletedPublisher,
-            request.TraineeId);
+            traineeInsightsRepository,
+            coachInsightsRepository,
+            request.TraineeId,
+            userId);
 
         var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
 

@@ -31,7 +31,7 @@ export function WorkoutChatComposer({
   onSend,
 }: Props) {
   return (
-    <div className="border-t border-[var(--shell-border)] bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.03))]">
+    <div className="border-t border-[var(--shell-border)]">
       <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
         <div className="flex items-end gap-2">
           <WorkoutChatComposerInput value={message} onChange={onMessageChange} />

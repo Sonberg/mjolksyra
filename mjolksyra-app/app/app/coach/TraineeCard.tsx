@@ -11,6 +11,7 @@ import {
   MoreHorizontalIcon,
   PencilIcon,
   ReceiptIcon,
+  SparklesIcon,
   UndoIcon,
   XIcon,
 } from "lucide-react";
@@ -427,6 +428,15 @@ export function TraineeCard({
         >
           <ClipboardCheckIcon className="h-4 w-4" />
           Workouts
+        </button>
+        <button
+          className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+          onClick={() =>
+            router.push(`/app/coach/athletes/${trainee.id}/insights`)
+          }
+        >
+          <SparklesIcon className="h-4 w-4" />
+          Insights
         </button>
       </div>
 

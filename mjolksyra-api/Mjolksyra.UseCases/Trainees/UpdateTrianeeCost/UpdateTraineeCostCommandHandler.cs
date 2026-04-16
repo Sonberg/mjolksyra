@@ -66,18 +66,22 @@ public class UpdateTraineeCostCommandHandler : IRequestHandler<UpdateTraineeCost
             }, cancellationToken);
         }
 
-        await _notificationService.Notify(coach.Id,
-            "billing.price-changed",
-            "Price updated",
-            $"Monthly coaching price set to {trainee.Cost.Amount} SEK for {athlete.DisplayName}.",
-            "/app/coach/athletes",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "billing.price-changed",
+            Title = "Price updated",
+            Body = $"Monthly coaching price set to {trainee.Cost.Amount} SEK for {athlete.DisplayName}.",
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
 
-        await _notificationService.Notify(athlete.Id,
-            "billing.price-changed",
-            "Price updated",
-            $"{coach.DisplayName} set your monthly coaching price to {trainee.Cost.Amount} SEK.",
-            "/app/athlete",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "billing.price-changed",
+            Title = "Price updated",
+            Body = $"{coach.DisplayName} set your monthly coaching price to {trainee.Cost.Amount} SEK.",
+            Href = "/app/athlete",
+        }, cancellationToken);
     }
 }

@@ -32,11 +32,13 @@ public class DeclineTraineeInvitationCommandHandler(
             PriceSek = invitation.MonthlyPriceAmount
         }, cancellationToken);
 
-        await notificationService.Notify(coach.Id,
-            "invite.declined",
-            "Invitation declined",
-            $"{athlete.DisplayName} declined your invitation.",
-            "/app/coach/athletes",
-            cancellationToken);
+        await notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "invite.declined",
+            Title = "Invitation declined",
+            Body = $"{athlete.DisplayName} declined your invitation.",
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
     }
 }

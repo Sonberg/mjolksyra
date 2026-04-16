@@ -100,19 +100,23 @@ public class InvoiceWebhookHandler
             NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
         }, CancellationToken.None);
 
-        await _notificationService.Notify(athlete.Id,
-            "billing.payment-succeeded",
-            "Payment succeeded",
-            $"Payment for {trainee.Cost.Amount} SEK to {coach.DisplayName} was successful.",
-            "/app/athlete",
-            CancellationToken.None);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "billing.payment-succeeded",
+            Title = "Payment succeeded",
+            Body = $"Payment for {trainee.Cost.Amount} SEK to {coach.DisplayName} was successful.",
+            Href = "/app/athlete",
+        }, CancellationToken.None);
 
-        await _notificationService.Notify(coach.Id,
-            "billing.payment-succeeded",
-            "Athlete payment succeeded",
-            $"{athlete.DisplayName} payment of {trainee.Cost.Amount} SEK succeeded.",
-            "/app/coach/athletes",
-            CancellationToken.None);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "billing.payment-succeeded",
+            Title = "Athlete payment succeeded",
+            Body = $"{athlete.DisplayName} payment of {trainee.Cost.Amount} SEK succeeded.",
+            Href = "/app/coach/athletes",
+        }, CancellationToken.None);
     }
 
     public async Task HandleFailed(Invoice invoice, string eventId)
@@ -156,18 +160,22 @@ public class InvoiceWebhookHandler
         await _emailSender.SendPaymentFailedToAthlete(athlete.Email.Value, billingEmail, CancellationToken.None);
         await _emailSender.SendPaymentFailedToCoach(coach.Email.Value, billingEmail, CancellationToken.None);
 
-        await _notificationService.Notify(athlete.Id,
-            "billing.payment-failed",
-            "Payment failed",
-            "Your coaching payment failed. Update your payment method to continue.",
-            "/app/athlete",
-            CancellationToken.None);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "billing.payment-failed",
+            Title = "Payment failed",
+            Body = "Your coaching payment failed. Update your payment method to continue.",
+            Href = "/app/athlete",
+        }, CancellationToken.None);
 
-        await _notificationService.Notify(coach.Id,
-            "billing.payment-failed",
-            "Athlete payment failed",
-            $"{athlete.DisplayName} payment failed.",
-            "/app/coach/athletes",
-            CancellationToken.None);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "billing.payment-failed",
+            Title = "Athlete payment failed",
+            Body = $"{athlete.DisplayName} payment failed.",
+            Href = "/app/coach/athletes",
+        }, CancellationToken.None);
     }
 }

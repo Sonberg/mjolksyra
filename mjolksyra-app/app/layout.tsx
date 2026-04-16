@@ -116,6 +116,7 @@ export default async function RootLayout({
     cookieRole && completedRoles.includes(cookieRole)
       ? cookieRole
       : completedRoles[0] ?? null;
+  const showOnboardingNav = Boolean(userId) && completedRoles.length === 0;
 
   const initialAuth = {
     isAuthenticated: Boolean(userId),
@@ -126,6 +127,7 @@ export default async function RootLayout({
     isAdmin,
     completedRoles,
     activeRole,
+    showOnboardingNav,
   };
 
   return (

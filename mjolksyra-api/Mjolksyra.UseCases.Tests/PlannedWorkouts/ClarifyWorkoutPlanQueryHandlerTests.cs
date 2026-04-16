@@ -639,6 +639,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
             new Mock<Mjolksyra.Domain.Messaging.IPlannedWorkoutDeletedPublisher>().Object,
             sessionRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
+            new Mock<ITraineeInsightsRepository>().Object,
+            new Mock<ICoachInsightsRepository>().Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }
 

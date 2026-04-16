@@ -146,10 +146,16 @@ public class GetWorkoutsRequestHandlerTests
                 .ReturnsAsync(false);
         }
 
+        var notificationRepo = new Mock<INotificationRepository>();
+        notificationRepo
+            .Setup(x => x.GetUnreadCompletedWorkoutIds(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Guid>());
+
         return new GetWorkoutsRequestHandler(
             completedWorkoutRepo.Object,
             exerciseRepo.Object,
             traineeRepo.Object,
+            notificationRepo.Object,
             (userContext ?? new Mock<IUserContext>()).Object);
     }
 

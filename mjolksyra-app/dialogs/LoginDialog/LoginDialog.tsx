@@ -6,5 +6,9 @@ type Props = {
 };
 
 export function LoginDialog({ trigger }: Props) {
-  return <SignInButton mode="redirect">{trigger}</SignInButton>;
+  return (
+    <SignInButton mode="redirect" forceRedirectUrl="/app">
+      {trigger}
+    </SignInButton>
+  );
 }

@@ -91,7 +91,7 @@ export function WorkoutChatPanel({
       className="flex h-full flex-col overflow-hidden"
       data-testid="workout-chat-panel"
     >
-      <div className="border-b border-[var(--shell-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent)] px-4 py-3">
+      <div className="border-b border-[var(--shell-border)] px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
@@ -108,7 +108,7 @@ export function WorkoutChatPanel({
       </div>
 
       <div
-        className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_22%)] px-3 py-4 sm:px-4"
+        className="flex-1 overflow-y-auto px-3 py-4 sm:px-4"
         data-testid="workout-chat-messages"
       >
         <div className="flex min-h-full flex-col justify-end">

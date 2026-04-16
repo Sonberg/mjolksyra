@@ -59,6 +59,20 @@ public class LoggingAIPlannerToolDispatcher(IAIPlannerToolDispatcher inner) : IA
         return result;
     }
 
+    public async Task<string> GetTraineeInsightsAsync(CancellationToken ct)
+    {
+        var result = await inner.GetTraineeInsightsAsync(ct);
+        Log("get_trainee_insights", new { }, result);
+        return result;
+    }
+
+    public async Task<string> GetCoachInsightsAsync(CancellationToken ct)
+    {
+        var result = await inner.GetCoachInsightsAsync(ct);
+        Log("get_coach_insights", new { }, result);
+        return result;
+    }
+
     private void Log(string tool, object arguments, string result)
     {
         _calls.Add(new WorkoutAnalysisToolCall
