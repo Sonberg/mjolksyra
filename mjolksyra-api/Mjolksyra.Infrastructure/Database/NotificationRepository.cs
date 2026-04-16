@@ -1,12 +1,38 @@
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System.Text.RegularExpressions;
 
 namespace Mjolksyra.Infrastructure.Database;
 
 public class NotificationRepository(IMongoDbContext context) : INotificationRepository
 {
+    internal static bool IsConnectedToCompletedWorkout(Notification notification, Guid completedWorkoutId)
+    {
+        return notification.CompletedWorkoutId == completedWorkoutId
+            || (!string.IsNullOrWhiteSpace(notification.Href)
+                && notification.Href.Contains(
+                    completedWorkoutId.ToString(),
+                    StringComparison.OrdinalIgnoreCase));
+    }
+
+    internal static FilterDefinition<Notification> BuildMarkReadByCompletedWorkoutFilter(Guid userId, Guid completedWorkoutId)
+    {
+        var workoutIdText = Regex.Escape(completedWorkoutId.ToString());
+
+        return Builders<Notification>.Filter.And(
+            Builders<Notification>.Filter.Eq(x => x.UserId, userId),
+            Builders<Notification>.Filter.Eq(x => x.ReadAt, null as DateTimeOffset?),
+            Builders<Notification>.Filter.Or(
+                Builders<Notification>.Filter.Eq(x => x.CompletedWorkoutId, completedWorkoutId),
+                Builders<Notification>.Filter.Regex(
+                    x => x.Href,
+                    new BsonRegularExpression(workoutIdText, "i"))));
+    }
+
     public async Task<Notification> Create(Notification notification, CancellationToken ct)
     {
         await context.Notifications.InsertOneAsync(notification, cancellationToken: ct);
@@ -49,7 +75,7 @@ public class NotificationRepository(IMongoDbContext context) : INotificationRepo
     public async Task MarkReadByCompletedWorkoutId(Guid userId, Guid completedWorkoutId, CancellationToken ct)
     {
         await context.Notifications.UpdateManyAsync(
-            x => x.UserId == userId && x.CompletedWorkoutId == completedWorkoutId && x.ReadAt == null,
+            BuildMarkReadByCompletedWorkoutFilter(userId, completedWorkoutId),
             Builders<Notification>.Update.Set(x => x.ReadAt, DateTimeOffset.UtcNow),
             cancellationToken: ct);
     }
