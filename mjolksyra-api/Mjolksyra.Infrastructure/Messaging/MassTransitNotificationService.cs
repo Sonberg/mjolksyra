@@ -6,39 +6,29 @@ namespace Mjolksyra.Infrastructure.Messaging;
 
 public class MassTransitNotificationService(IPublishEndpoint publishEndpoint) : INotificationService
 {
-    public Task Notify(
-        Guid userId,
-        string type,
-        string title,
-        string? body = null,
-        string? href = null,
-        CancellationToken cancellationToken = default)
+    public Task Notify(NotificationRequest notification, CancellationToken cancellationToken = default)
     {
         return publishEndpoint.Publish(new NotificationSideEffectMessage
         {
-            UserId = userId,
-            Type = type,
-            Title = title,
-            Body = body,
-            Href = href,
+            UserId = notification.UserId,
+            Type = notification.Type,
+            Title = notification.Title,
+            Body = notification.Body,
+            Href = notification.Href,
+            CompletedWorkoutId = notification.CompletedWorkoutId,
         }, cancellationToken);
     }
 
-    public Task NotifyMany(
-        IEnumerable<Guid> userIds,
-        string type,
-        string title,
-        string? body = null,
-        string? href = null,
-        CancellationToken cancellationToken = default)
+    public Task NotifyMany(IEnumerable<Guid> userIds, NotificationRequest notification, CancellationToken cancellationToken = default)
     {
         return publishEndpoint.Publish(new NotificationSideEffectManyMessage
         {
             UserIds = userIds.Distinct().ToArray(),
-            Type = type,
-            Title = title,
-            Body = body,
-            Href = href,
+            Type = notification.Type,
+            Title = notification.Title,
+            Body = notification.Body,
+            Href = notification.Href,
+            CompletedWorkoutId = notification.CompletedWorkoutId,
         }, cancellationToken);
     }
 }

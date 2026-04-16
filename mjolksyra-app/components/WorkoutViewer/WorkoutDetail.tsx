@@ -2,7 +2,7 @@
 
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import dayjs from "dayjs";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PlusIcon, SparklesIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ExerciseQuickSearchOverlay } from "@/components/ExerciseLibrary/ExerciseQuickSearchOverlay";
@@ -11,6 +11,8 @@ import { WorkoutChatPanel } from "@/components/WorkoutChat/WorkoutChatPanel";
 import { WorkoutAnalysis } from "./workout/WorkoutAnalysisSection";
 import { WorkoutDetailHeader } from "./WorkoutDetailHeader";
 import { useWorkout } from "@/hooks/useWorkout";
+import { useAuth } from "@/context/Auth";
+import { markNotificationsReadByWorkout } from "@/services/notifications/markNotificationsReadByWorkout";
 import { v4 } from "uuid";
 import { ExerciseType } from "@/lib/exercisePrescription";
 import { ToggleExerciseDoneInput, ToggleSetDoneInput, UpdateSetActualInput, WorkoutSet } from "./workout/types";
@@ -37,6 +39,19 @@ export function WorkoutDetail({
   workout,
   viewerMode = "athlete",
 }: Props) {
+  const auth = useAuth();
+
+  useEffect(() => {
+    let cancelled = false;
+    async function markRead() {
+      const token = await auth.getAccessToken();
+      if (cancelled) return;
+      await markNotificationsReadByWorkout({ completedWorkoutId: workout.id, accessToken: token });
+    }
+    markRead().catch(() => {});
+    return () => { cancelled = true; };
+  }, [workout.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const {
     saveCompletion,
     toggleExerciseDone,

@@ -69,18 +69,22 @@ public class ChargeNowTraineeCommandHandler : IRequestHandler<ChargeNowTraineeCo
             NextChargeDate = DateTimeOffset.UtcNow.AddMonths(1).ToString("yyyy-MM-dd")
         }, cancellationToken);
 
-        await _notificationService.Notify(coach.Id,
-            "billing.charge-now",
-            "Charged athlete now",
-            $"Charged {athlete.DisplayName} {trainee.Cost.Amount} SEK and reset billing cycle.",
-            "/app/coach/athletes",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "billing.charge-now",
+            Title = "Charged athlete now",
+            Body = $"Charged {athlete.DisplayName} {trainee.Cost.Amount} SEK and reset billing cycle.",
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
 
-        await _notificationService.Notify(athlete.Id,
-            "billing.charge-now",
-            "You were charged",
-            $"{coach.DisplayName} charged {trainee.Cost.Amount} SEK today and reset your monthly billing cycle.",
-            "/app/athlete",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "billing.charge-now",
+            Title = "You were charged",
+            Body = $"{coach.DisplayName} charged {trainee.Cost.Amount} SEK today and reset your monthly billing cycle.",
+            Href = "/app/athlete",
+        }, cancellationToken);
     }
 }

@@ -10,6 +10,7 @@ public class GetWorkoutsRequestHandler(
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
+    INotificationRepository notificationRepository,
     IUserContext userContext) : IRequestHandler<GetWorkoutsRequest, PaginatedResponse<CompletedWorkoutResponse>>
 {
     public async Task<PaginatedResponse<CompletedWorkoutResponse>> Handle(GetWorkoutsRequest request, CancellationToken cancellationToken)
@@ -54,8 +55,16 @@ public class GetWorkoutsRequestHandler(
 
         var masterExercises = await exerciseRepository.GetMany(exerciseIds, cancellationToken);
 
+        var unreadWorkoutIds = new HashSet<Guid>(
+            await notificationRepository.GetUnreadCompletedWorkoutIds(userId, cancellationToken));
+
         var data = workouts.Data
-            .Select(workout => CompletedWorkoutResponse.From(workout, masterExercises))
+            .Select(workout =>
+            {
+                var response = CompletedWorkoutResponse.From(workout, masterExercises);
+                response.HasUnreadActivity = unreadWorkoutIds.Contains(workout.Id);
+                return response;
+            })
             .ToList();
 
         return new PaginatedResponse<CompletedWorkoutResponse>

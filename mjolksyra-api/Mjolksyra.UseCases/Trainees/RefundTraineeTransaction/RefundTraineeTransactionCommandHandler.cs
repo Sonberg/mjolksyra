@@ -54,21 +54,23 @@ public class RefundTraineeTransactionCommandHandler : IRequestHandler<RefundTrai
         var coachName = DisplayName(coach);
         var athleteName = DisplayName(athlete);
 
-        await _notificationService.Notify(
-            athlete.Id,
-            "billing.refunded",
-            "Payment refunded",
-            $"Your payment of {amount} {currency} was refunded by {coachName}.",
-            "/app/athlete",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "billing.refunded",
+            Title = "Payment refunded",
+            Body = $"Your payment of {amount} {currency} was refunded by {coachName}.",
+            Href = "/app/athlete",
+        }, cancellationToken);
 
-        await _notificationService.Notify(
-            coach.Id,
-            "billing.refunded",
-            "Refund issued",
-            $"You refunded {athleteName} {amount} {currency}.",
-            "/app/coach/athletes",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "billing.refunded",
+            Title = "Refund issued",
+            Body = $"You refunded {athleteName} {amount} {currency}.",
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
     }
 
     private static string DisplayName(Mjolksyra.Domain.Database.Models.User user)

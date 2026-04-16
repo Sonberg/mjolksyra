@@ -81,13 +81,15 @@ public class LogWorkoutSessionCommandHandler(
 
         if (previousCompletedAt is null && session.CompletedAt is not null && trainee is not null)
         {
-            await notificationService.Notify(
-                trainee.CoachUserId,
-                type: "workout.completed",
-                title: "Workout completed",
-                body: $"Athlete completed the workout for {session.PlannedAt:yyyy-MM-dd}.",
-                href: $"/app/coach/athletes/{trainee.Id}/workouts/completed/{session.Id}",
-                cancellationToken: cancellationToken);
+            await notificationService.Notify(new NotificationRequest
+            {
+                UserId = trainee.CoachUserId,
+                Type = "workout.completed",
+                Title = "Workout completed",
+                Body = $"Athlete completed the workout for {session.PlannedAt:yyyy-MM-dd}.",
+                Href = $"/app/coach/athletes/{trainee.Id}/workouts/completed/{session.Id}",
+                CompletedWorkoutId = session.Id,
+            }, cancellationToken);
         }
 
         var sessionExerciseIds = session.Exercises

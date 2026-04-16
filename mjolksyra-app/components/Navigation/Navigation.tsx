@@ -89,7 +89,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
     if (pathnameRole && pathnameRole !== activeRole) {
       setActiveRoleCookie(pathnameRole);
     }
-  }, [pathname]);
+  }, [activeRole, pathname]);
 
   const otherRole: "coach" | "athlete" | null =
     completedRoles.length === 2

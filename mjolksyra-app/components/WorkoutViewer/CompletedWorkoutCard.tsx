@@ -84,10 +84,13 @@ export function CompletedWorkoutCard({
       id={`completed-workout-${workout.id}`}
       className={
         isHighlighted
-          ? "overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] ring-2 ring-[var(--shell-accent)]/30"
-          : "overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+          ? "relative overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] ring-2 ring-[var(--shell-accent)]/30"
+          : "relative overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)]"
       }
     >
+      {workout.hasUnreadActivity ? (
+        <span className="absolute right-2 top-2 z-10 h-2.5 w-2.5 rounded-full bg-[var(--shell-accent)]" />
+      ) : null}
       <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-3 font-semibold text-[var(--shell-ink)] sm:p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="min-w-0 flex gap-4">

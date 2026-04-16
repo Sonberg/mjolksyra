@@ -23,7 +23,7 @@ type Props = {
 export function WorkoutViewer({
   traineeId,
   mode: viewerMode = "athlete",
-  initialTab = "planned",
+  initialTab = "completed",
   focusWorkoutId,
 }: Props) {
   const router = useRouter();
@@ -173,14 +173,14 @@ export function WorkoutViewer({
             <SelectionTabs
               items={[
                 {
-                  key: "planned",
-                  label: "Planned",
-                  onSelect: () => setModeWithUrl("planned"),
-                },
-                {
                   key: "completed",
                   label: "Completed",
                   onSelect: () => setModeWithUrl("completed"),
+                },
+                  {
+                  key: "planned",
+                  label: "Planned",
+                  onSelect: () => setModeWithUrl("planned"),
                 },
               ]}
               activeKey={mode}

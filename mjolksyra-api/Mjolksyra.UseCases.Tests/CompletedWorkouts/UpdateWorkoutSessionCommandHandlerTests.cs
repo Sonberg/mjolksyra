@@ -260,7 +260,9 @@ public class UpdateWorkoutSessionCommandHandlerTests
         Assert.Null(result.ReviewedAt); // Cleared when completed
 
         notificationService.Verify(
-            x => x.Notify(coachUserId, "workout.completed", It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            x => x.Notify(
+                It.Is<NotificationRequest>(n => n.UserId == coachUserId && n.Type == "workout.completed"),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

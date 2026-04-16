@@ -1,6 +1,7 @@
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Mjolksyra.Infrastructure.Database;
 
@@ -43,5 +44,25 @@ public class NotificationRepository(IMongoDbContext context) : INotificationRepo
             x => x.UserId == userId && x.ReadAt == null,
             Builders<Notification>.Update.Set(x => x.ReadAt, DateTimeOffset.UtcNow),
             cancellationToken: ct);
+    }
+
+    public async Task MarkReadByCompletedWorkoutId(Guid userId, Guid completedWorkoutId, CancellationToken ct)
+    {
+        await context.Notifications.UpdateManyAsync(
+            x => x.UserId == userId && x.CompletedWorkoutId == completedWorkoutId && x.ReadAt == null,
+            Builders<Notification>.Update.Set(x => x.ReadAt, DateTimeOffset.UtcNow),
+            cancellationToken: ct);
+    }
+
+    public async Task<ICollection<Guid>> GetUnreadCompletedWorkoutIds(Guid userId, CancellationToken ct)
+    {
+        var ids = await context.Notifications
+            .AsQueryable()
+            .Where(x => x.UserId == userId && x.ReadAt == null && x.CompletedWorkoutId != null)
+            .Select(x => x.CompletedWorkoutId!.Value)
+            .Distinct()
+            .ToListAsync(ct);
+
+        return ids;
     }
 }

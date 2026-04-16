@@ -100,13 +100,15 @@ public class UpdateWorkoutSessionCommandHandler(
         // Notify coach and trigger insights rebuild when athlete marks workout as completed for the first time
         if (previousCompletedAt is null && session.CompletedAt is not null && trainee is not null)
         {
-            await notificationService.Notify(
-                trainee.CoachUserId,
-                type: "workout.completed",
-                title: "Workout completed",
-                body: $"Athlete completed the workout for {session.PlannedAt:yyyy-MM-dd}. It now needs review.",
-                href: $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={session.Id}",
-                cancellationToken: cancellationToken);
+            await notificationService.Notify(new NotificationRequest
+            {
+                UserId = trainee.CoachUserId,
+                Type = "workout.completed",
+                Title = "Workout completed",
+                Body = $"Athlete completed the workout for {session.PlannedAt:yyyy-MM-dd}. It now needs review.",
+                Href = $"/app/coach/athletes/{trainee.Id}/workouts?tab=changes&workoutId={session.Id}",
+                CompletedWorkoutId = session.Id,
+            }, cancellationToken);
 
             await traineeInsightsRebuildPublisher.Publish(new TraineeInsightsRebuildRequestedMessage(
                 TraineeId: request.TraineeId,

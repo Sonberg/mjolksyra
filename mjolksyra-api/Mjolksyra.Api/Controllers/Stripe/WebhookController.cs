@@ -222,12 +222,14 @@ public class WebhookController : Controller
                 Status = coach.Stripe.Status
             }, CancellationToken.None);
 
-            await _notificationService.Notify(user.Id,
-                "coach.stripe-status",
-                "Stripe account status updated",
-                coach.Stripe.Message,
-                "/app/coach/dashboard",
-                CancellationToken.None);
+            await _notificationService.Notify(new NotificationRequest
+            {
+                UserId = user.Id,
+                Type = "coach.stripe-status",
+                Title = "Stripe account status updated",
+                Body = coach.Stripe.Message,
+                Href = "/app/coach/dashboard",
+            }, CancellationToken.None);
         }
     }
 
@@ -245,10 +247,12 @@ public class WebhookController : Controller
 
         await _notificationService.NotifyMany(
             [trainee.CoachUserId, trainee.AthleteUserId],
-            "billing.subscription-ended",
-            "Subscription ended",
-            "Recurring billing subscription was cancelled.",
-            trainee.CoachUserId == trainee.AthleteUserId ? "/app" : null,
+            new NotificationRequest
+            {
+                Type = "billing.subscription-ended",
+                Title = "Subscription ended",
+                Body = "Recurring billing subscription was cancelled.",
+            },
             CancellationToken.None);
     }
 
