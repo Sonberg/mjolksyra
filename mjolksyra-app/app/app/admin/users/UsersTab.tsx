@@ -5,6 +5,7 @@ import { type CoachRevenueItem } from "@/services/admin/schema";
 import { grantCoachCredits } from "@/services/admin/grantCoachCredits";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
@@ -295,11 +296,13 @@ function StatusBox({
   helper: string;
 }) {
   return (
-    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">{label}</p>
-      <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{value}</p>
-      <p className="mt-1 text-xs text-[var(--shell-muted)]">{helper}</p>
-    </div>
+    <Card>
+      <CardContent className="p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">{label}</p>
+        <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{value}</p>
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">{helper}</p>
+      </CardContent>
+    </Card>
   );
 }
 

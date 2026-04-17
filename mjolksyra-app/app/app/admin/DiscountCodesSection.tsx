@@ -1,7 +1,9 @@
 "use client";
 
 import { Spinner } from "@/components/Spinner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { DiscountCode } from "@/services/admin/schema";
 import type { DiscountType, DiscountDuration } from "@/services/admin/createDiscountCode";
 import { useState } from "react";
@@ -85,13 +87,14 @@ export function DiscountCodesSection({ initialCodes }: Props) {
   }
 
   return (
-    <section className="mt-8 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
-      <div className="mb-4">
-        <h2 className="text-lg text-[var(--shell-ink)]">Discount codes</h2>
-        <p className="mt-1 text-sm text-[var(--shell-muted)]">
+    <Card className="mt-8">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg">Discount codes</CardTitle>
+        <CardDescription>
           Create and manage discount codes for coaches. Codes create Stripe coupons applied to the platform subscription.
-        </p>
-      </div>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-5 pb-5 pt-0">
 
       {codes.length > 0 && (
         <div className="mb-6 overflow-x-auto">
@@ -114,15 +117,9 @@ export function DiscountCodesSection({ initialCodes }: Props) {
                     {c.redeemedCount} / {c.maxRedemptions ?? "∞"}
                   </td>
                   <td className="px-3 py-3">
-                    <span
-                      className={
-                        c.isActive
-                          ? "inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-surface)]"
-                          : "inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-muted)]"
-                      }
-                    >
+                    <Badge variant={c.isActive ? "default" : "secondary"} className="rounded-none">
                       {c.isActive ? "Active" : "Inactive"}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="px-3 py-3 text-[var(--shell-muted)]">
                     {new Date(c.createdAt).toLocaleDateString("sv-SE")}
@@ -134,7 +131,8 @@ export function DiscountCodesSection({ initialCodes }: Props) {
         </div>
       )}
 
-      <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+      <Card className="bg-[var(--shell-surface-strong)]">
+        <CardContent className="p-4">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
           Create new code
         </p>
@@ -222,11 +220,13 @@ export function DiscountCodesSection({ initialCodes }: Props) {
           type="button"
           onClick={handleCreate}
           disabled={isCreating}
-          className="mt-4 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-5 text-sm font-semibold text-[var(--shell-surface)] hover:opacity-80 disabled:opacity-50"
+          className="mt-4 rounded-none"
         >
           {isCreating ? <Spinner size={14} /> : "Create"}
         </Button>
-      </div>
-    </section>
+        </CardContent>
+      </Card>
+      </CardContent>
+    </Card>
   );
 }

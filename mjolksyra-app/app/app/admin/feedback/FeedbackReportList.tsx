@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { type FeedbackReportItem } from "@/services/admin/schema";
 import { updateFeedbackReportStatus } from "@/services/admin/updateFeedbackReportStatus";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
   reports: FeedbackReportItem[];
@@ -37,38 +39,39 @@ export function FeedbackReportList({ reports: initialReports, accessToken }: Pro
   return (
     <div className="flex flex-col gap-3">
       {reports.map((report) => (
-        <div
-          key={report.id}
-          className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <StatusBadge status={report.status} />
-                {report.email && (
-                  <span className="text-xs text-[var(--shell-muted)]">{report.email}</span>
+        <Card key={report.id}>
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={report.status} />
+                  {report.email && (
+                    <span className="text-xs text-[var(--shell-muted)]">{report.email}</span>
+                  )}
+                  <span className="ml-auto text-xs text-[var(--shell-muted)]">
+                    {new Date(report.createdAt).toLocaleDateString("sv-SE")}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-[var(--shell-ink)]">{report.message}</p>
+                {report.pageUrl && (
+                  <p className="mt-1 text-xs text-[var(--shell-muted)]">{report.pageUrl}</p>
                 )}
-                <span className="ml-auto text-xs text-[var(--shell-muted)]">
-                  {new Date(report.createdAt).toLocaleDateString("sv-SE")}
-                </span>
               </div>
-              <p className="mt-2 text-sm text-[var(--shell-ink)]">{report.message}</p>
-              {report.pageUrl && (
-                <p className="mt-1 text-xs text-[var(--shell-muted)]">{report.pageUrl}</p>
+              {report.status !== "Resolved" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={updating.has(report.id)}
+                  onClick={() => handleMarkResolved(report.id)}
+                  className="shrink-0 rounded-none"
+                >
+                  {updating.has(report.id) ? "Saving…" : "Mark Resolved"}
+                </Button>
               )}
             </div>
-            {report.status !== "Resolved" && (
-              <button
-                type="button"
-                disabled={updating.has(report.id)}
-                onClick={() => handleMarkResolved(report.id)}
-                className="shrink-0 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
-              >
-                {updating.has(report.id) ? "Saving…" : "Mark Resolved"}
-              </button>
-            )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
@@ -76,15 +79,11 @@ export function FeedbackReportList({ reports: initialReports, accessToken }: Pro
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-none border border-[var(--shell-border)] px-2 py-0.5 text-xs font-medium",
-        status === "Resolved"
-          ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-          : "bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
-      )}
+    <Badge
+      variant={status === "Resolved" ? "default" : "secondary"}
+      className="rounded-none"
     >
       {status}
-    </span>
+    </Badge>
   );
 }

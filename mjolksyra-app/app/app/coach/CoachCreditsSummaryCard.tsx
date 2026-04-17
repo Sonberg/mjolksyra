@@ -7,6 +7,7 @@ import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
 import { formatActionName } from "./CoachCreditsSection";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -19,7 +20,8 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   return (
-    <div className="bg-[var(--shell-surface-strong)] p-4">
+    <Card className="bg-[var(--shell-surface-strong)]">
+    <CardContent className="p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits</p>
         <div className="flex shrink-0 items-center gap-2">
@@ -70,6 +72,7 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
         open={purchaseDialogOpen}
         onOpenChange={setPurchaseDialogOpen}
       />
-    </div>
+    </CardContent>
+    </Card>
   );
 }
