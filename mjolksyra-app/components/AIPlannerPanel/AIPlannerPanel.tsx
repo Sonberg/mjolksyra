@@ -9,6 +9,7 @@ import {
   CheckIcon,
   RotateCcwIcon,
   Trash2Icon,
+  LoaderCircle,
 } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import dayjs from "dayjs";
@@ -25,6 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
@@ -662,68 +664,24 @@ export function AIPlannerPanel({
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
           <div className="border-t border-[var(--shell-border)]">
-            <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
-              <div className="flex items-end gap-2">
-                <div className="min-h-11 min-w-0 flex-1 px-3">
-                  <Textarea
-                    rows={5}
-                    placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                        void handleSendInitial();
-                      }
-                    }}
-                    className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={!description.trim() || isLoading}
-                  onClick={() => void handleSendInitial()}
-                  className="shrink-0 self-end"
-                >
-                  {isLoading ? "Sending..." : "Send"}
-                </Button>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  id={attachmentInputId}
-                  data-testid="ai-planner-attachment-input"
-                  accept={ACCEPTED_EXTENSIONS}
-                  multiple
-                  onChange={handleFileChange}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  data-testid="ai-planner-attachment-button"
-                  className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <PaperclipIcon data-icon="inline-start" />
-                  {isAttachmentDragActive
-                    ? "Drop files here"
-                    : "Attach context"}
-                </Button>
-                {attachedFiles.map((file, i) => (
-                  <AttachmentPill
-                    key={`${file.name}-${i}`}
-                    fileName={file.name}
-                    onRemove={() => removeFile(i)}
-                  />
-                ))}
-                <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                  Cmd/Ctrl + Enter to send
-                </span>
-              </div>
-            </div>
+            <AIPlannerComposer
+              value={description}
+              onChange={setDescription}
+              onSend={() => void handleSendInitial()}
+              onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendInitial(); }}
+              canSend={!!description.trim()}
+              isLoading={isLoading}
+              rows={5}
+              placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
+              fileInputRef={fileInputRef}
+              fileInputId={attachmentInputId}
+              attachedFiles={attachedFiles}
+              isAttachmentDragActive={isAttachmentDragActive}
+              attachmentButtonLabel="Attach context"
+              onAttachmentClick={() => fileInputRef.current?.click()}
+              onRemoveFile={removeFile}
+              onFileChange={handleFileChange}
+            />
           </div>
         </div>
       ) : (
@@ -735,71 +693,25 @@ export function AIPlannerPanel({
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
-            <div className="flex items-end gap-2">
-              <div className="min-h-11 min-w-0 flex-1 px-3">
-                <Textarea
-                  rows={3}
-                  placeholder={
-                    hasPendingProposal
-                      ? "Ask for changes or explain what to revise..."
-                      : "Reply with the next detail..."
-                  }
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                      void handleSendFollowUp();
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
-                />
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                disabled={!userInput.trim() || isLoading}
-                onClick={() => void handleSendFollowUp()}
-                className="shrink-0 self-end"
-              >
-                {isLoading ? "Sending..." : "Send"}
-              </Button>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                id={attachmentInputId}
-                data-testid="ai-planner-attachment-input"
-                accept={ACCEPTED_EXTENSIONS}
-                multiple
-                onChange={handleFileChange}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                data-testid="ai-planner-attachment-button"
-                className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <PaperclipIcon data-icon="inline-start" />
-                {isAttachmentDragActive ? "Drop files here" : "Attach"}
-              </Button>
-              {attachedFiles.map((file, i) => (
-                <AttachmentPill
-                  key={`${file.name}-${i}`}
-                  fileName={file.name}
-                  onRemove={() => removeFile(i)}
-                />
-              ))}
-              <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                Cmd/Ctrl + Enter to send
-              </span>
-            </div>
-          </div>
+          <AIPlannerComposer
+            value={userInput}
+            onChange={setUserInput}
+            onSend={() => void handleSendFollowUp()}
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendFollowUp(); }}
+            canSend={!!userInput.trim()}
+            isLoading={isLoading}
+            rows={3}
+            placeholder={hasPendingProposal ? "Ask for changes or explain what to revise..." : "Reply with the next detail..."}
+            textareaDisabled={isLoading}
+            fileInputRef={fileInputRef}
+            fileInputId={attachmentInputId}
+            attachedFiles={attachedFiles}
+            isAttachmentDragActive={isAttachmentDragActive}
+            attachmentButtonLabel="Attach"
+            onAttachmentClick={() => fileInputRef.current?.click()}
+            onRemoveFile={removeFile}
+            onFileChange={handleFileChange}
+          />
         </div>
       )}
       <PurchaseCreditsDialog
@@ -885,7 +797,7 @@ function AttachmentPill({
         className="transition hover:text-[var(--shell-ink)]"
         aria-label={`Remove attachment ${fileName}`}
       >
-        <XIcon className="h-3 w-3" />
+        <XIcon className="size-3" />
       </button>
     </Badge>
   );
@@ -1054,7 +966,9 @@ function ProposalReviewCard({
         </div>
       </CardContent>
 
-      <CardContent className="max-h-[260px] overflow-y-auto border-b border-[var(--shell-border)] p-4">
+      <CardContent className="border-b border-[var(--shell-border)] p-0">
+      <ScrollArea className="max-h-[260px]">
+      <div className="p-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Preview
         </p>
@@ -1129,6 +1043,8 @@ function ProposalReviewCard({
             ))}
           </div>
         )}
+      </div>
+      </ScrollArea>
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
@@ -1172,7 +1088,7 @@ function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
           {formatActionType(action.actionType)}
         </Badge>
       </div>
-      <div className="mt-2 space-y-1 text-xs text-[var(--shell-muted)]">
+      <div className="mt-2 flex flex-col gap-1 text-xs text-[var(--shell-muted)]">
         {action.previousDate &&
           action.targetDate &&
           action.previousDate !== action.targetDate && (
@@ -1241,9 +1157,102 @@ function formatDateRange(
 function LoadingDots() {
   return (
     <span className="flex gap-1">
-      <span className="blocks-pulse h-1.5 w-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "0ms" }} />
-      <span className="blocks-pulse h-1.5 w-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "200ms" }} />
-      <span className="blocks-pulse h-1.5 w-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "400ms" }} />
+      <span className="blocks-pulse size-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "0ms" }} />
+      <span className="blocks-pulse size-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "200ms" }} />
+      <span className="blocks-pulse size-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "400ms" }} />
     </span>
+  );
+}
+
+type AIPlannerComposerProps = {
+  value: string;
+  onChange: (value: string) => void;
+  onSend: () => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  canSend: boolean;
+  isLoading: boolean;
+  rows: number;
+  placeholder: string;
+  textareaDisabled?: boolean;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  fileInputId: string;
+  attachedFiles: PlannerFileContent[];
+  isAttachmentDragActive: boolean;
+  attachmentButtonLabel: string;
+  onAttachmentClick: () => void;
+  onRemoveFile: (index: number) => void;
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+function AIPlannerComposer({
+  value, onChange, onSend, onKeyDown,
+  canSend, isLoading, rows, placeholder, textareaDisabled,
+  fileInputRef, fileInputId, attachedFiles,
+  isAttachmentDragActive, attachmentButtonLabel,
+  onAttachmentClick, onRemoveFile, onFileChange,
+}: AIPlannerComposerProps) {
+  return (
+    <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
+      <div className="flex items-end gap-2">
+        <div className="min-h-11 min-w-0 flex-1 px-3">
+          <Textarea
+            rows={rows}
+            placeholder={placeholder}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={onKeyDown}
+            disabled={textareaDisabled}
+            className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
+          />
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          disabled={!canSend || isLoading}
+          onClick={onSend}
+          className="shrink-0 self-end"
+        >
+          {isLoading ? (
+            <LoaderCircle data-icon="inline-start" className="animate-spin" />
+          ) : (
+            <SendIcon data-icon="inline-start" />
+          )}
+          {isLoading ? "Sending..." : "Send"}
+        </Button>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          id={fileInputId}
+          data-testid="ai-planner-attachment-input"
+          accept={ACCEPTED_EXTENSIONS}
+          multiple
+          onChange={onFileChange}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          data-testid="ai-planner-attachment-button"
+          className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
+          onClick={onAttachmentClick}
+        >
+          <PaperclipIcon data-icon="inline-start" />
+          {isAttachmentDragActive ? "Drop files here" : attachmentButtonLabel}
+        </Button>
+        {attachedFiles.map((file, i) => (
+          <AttachmentPill
+            key={`${file.name}-${i}`}
+            fileName={file.name}
+            onRemove={() => onRemoveFile(i)}
+          />
+        ))}
+        <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+          Cmd/Ctrl + Enter to send
+        </span>
+      </div>
+    </div>
   );
 }

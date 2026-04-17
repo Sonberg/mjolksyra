@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LoaderCircle, SendIcon } from "lucide-react";
 
 type Props = {
   isSending: boolean;
@@ -15,6 +16,11 @@ export function WorkoutChatComposerSendButton({ isSending, canSend, onSend }: Pr
       onClick={onSend}
       className="shrink-0 self-end"
     >
+      {isSending ? (
+        <LoaderCircle data-icon="inline-start" className="animate-spin" />
+      ) : (
+        <SendIcon data-icon="inline-start" />
+      )}
       {isSending ? "Sending..." : "Send"}
     </Button>
   );

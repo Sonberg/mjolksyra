@@ -8,6 +8,8 @@ import { updateCompletedWorkoutChatMessage } from "@/services/completedWorkouts/
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutChatComposer } from "@/components/WorkoutChat/WorkoutChatComposer";
 import { WorkoutChatMessageItem } from "@/components/WorkoutChat/WorkoutChatMessageItem";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
@@ -102,17 +104,14 @@ export function WorkoutChatPanel({
               {viewerMode === "coach" ? "Athlete chat" : "Coach chat"}
             </p>
           </div>
-          <span className="shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+          <Badge variant="secondary" className="shrink-0 rounded-none">
             Shared thread
-          </span>
+          </Badge>
         </div>
       </div>
 
-      <div
-        className="flex-1 overflow-y-auto px-3 py-4 sm:px-4"
-        data-testid="workout-chat-messages"
-      >
-        <div className="flex min-h-full flex-col justify-end">
+      <ScrollArea className="flex-1" data-testid="workout-chat-messages">
+        <div className="flex min-h-full flex-col justify-end px-3 py-4 sm:px-4">
           {chatMessages.isLoading ? (
             <div className="flex flex-col gap-3">
               {[0, 1, 2].map((index) => (
@@ -168,7 +167,7 @@ export function WorkoutChatPanel({
             })}
           </div>
         </div>
-      </div>
+      </ScrollArea>
 
       <WorkoutChatComposer
         traineeId={traineeId}
