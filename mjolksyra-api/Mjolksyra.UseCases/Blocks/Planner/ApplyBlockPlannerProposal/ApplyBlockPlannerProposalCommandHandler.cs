@@ -120,24 +120,74 @@ public class ApplyBlockPlannerProposalCommandHandler(
                     break;
 
                 case BlockPlannerProposalActionTypes.AddBlockExercise:
-                case BlockPlannerProposalActionTypes.UpdateBlockExercise:
-                case BlockPlannerProposalActionTypes.DeleteBlockExercise:
                     if (action.Workout is null) break;
 
-                    var targetForExercise = action.TargetWorkoutId.HasValue
+                    var addTarget = action.TargetWorkoutId.HasValue
                         ? workouts.FirstOrDefault(w => w.Id == action.TargetWorkoutId.Value)
                         : (action.TargetWeek.HasValue && action.TargetDayOfWeek.HasValue
                             ? workouts.FirstOrDefault(w =>
                                 w.Week == action.TargetWeek.Value &&
                                 w.DayOfWeek == action.TargetDayOfWeek.Value)
                             : null);
-                    if (targetForExercise is null) break;
+                    if (addTarget is null) break;
 
-                    var exerciseUpdated = await BuildBlockWorkoutAsync(action.Workout, cancellationToken);
-                    exerciseUpdated.Id = targetForExercise.Id;
-                    workouts.Remove(targetForExercise);
-                    workouts.Add(exerciseUpdated);
+                    var newExercises = await BuildExercisesAsync(action.Workout.Exercises, cancellationToken);
+                    addTarget.Exercises = addTarget.Exercises.Concat(newExercises).ToList();
                     actionsApplied++;
+                    break;
+
+                case BlockPlannerProposalActionTypes.UpdateBlockExercise:
+                    if (action.Workout is null) break;
+
+                    var updateExTarget = action.TargetWorkoutId.HasValue
+                        ? workouts.FirstOrDefault(w => w.Id == action.TargetWorkoutId.Value)
+                        : (action.TargetWeek.HasValue && action.TargetDayOfWeek.HasValue
+                            ? workouts.FirstOrDefault(w =>
+                                w.Week == action.TargetWeek.Value &&
+                                w.DayOfWeek == action.TargetDayOfWeek.Value)
+                            : null);
+                    if (updateExTarget is null) break;
+
+                    var updatedExercises = await BuildExercisesAsync(action.Workout.Exercises, cancellationToken);
+                    var exList = updateExTarget.Exercises.ToList();
+                    foreach (var updated in updatedExercises)
+                    {
+                        var idx = exList.FindIndex(e => e.Id == updated.Id);
+                        if (idx >= 0) exList[idx] = updated;
+                        else exList.Add(updated);
+                    }
+                    updateExTarget.Exercises = exList;
+                    actionsApplied++;
+                    break;
+
+                case BlockPlannerProposalActionTypes.DeleteBlockExercise:
+                    var deleteExTarget = action.TargetWorkoutId.HasValue
+                        ? workouts.FirstOrDefault(w => w.Id == action.TargetWorkoutId.Value)
+                        : (action.TargetWeek.HasValue && action.TargetDayOfWeek.HasValue
+                            ? workouts.FirstOrDefault(w =>
+                                w.Week == action.TargetWeek.Value &&
+                                w.DayOfWeek == action.TargetDayOfWeek.Value)
+                            : null);
+                    if (deleteExTarget is null) break;
+
+                    if (action.TargetExerciseId.HasValue)
+                    {
+                        deleteExTarget.Exercises = deleteExTarget.Exercises
+                            .Where(e => e.Id != action.TargetExerciseId.Value)
+                            .ToList();
+                        actionsApplied++;
+                    }
+                    else if (action.Workout?.Exercises.Count > 0)
+                    {
+                        var idsToDelete = action.Workout.Exercises
+                            .Where(e => e.Id.HasValue)
+                            .Select(e => e.Id!.Value)
+                            .ToHashSet();
+                        deleteExTarget.Exercises = deleteExTarget.Exercises
+                            .Where(e => !idsToDelete.Contains(e.Id))
+                            .ToList();
+                        actionsApplied++;
+                    }
                     break;
             }
         }
@@ -163,7 +213,22 @@ public class ApplyBlockPlannerProposalCommandHandler(
         BlockWorkoutRequestPayload payload,
         CancellationToken cancellationToken)
     {
-        var exercises = (await Task.WhenAll(payload.Exercises.Select(async exercise =>
+        return new BlockWorkout
+        {
+            Id = Guid.NewGuid(),
+            Week = payload.Week,
+            DayOfWeek = payload.DayOfWeek,
+            Name = payload.Name,
+            Note = payload.Note,
+            Exercises = await BuildExercisesAsync(payload.Exercises, cancellationToken),
+        };
+    }
+
+    private async Task<List<BlockExercise>> BuildExercisesAsync(
+        ICollection<PlannedExerciseRequestPayload> exercises,
+        CancellationToken cancellationToken)
+    {
+        return (await Task.WhenAll(exercises.Select(async exercise =>
         {
             var exerciseType = exercise.PrescriptionType switch
             {
@@ -210,15 +275,5 @@ public class ApplyBlockPlannerProposalCommandHandler(
                 },
             };
         }))).ToList();
-
-        return new BlockWorkout
-        {
-            Id = Guid.NewGuid(),
-            Week = payload.Week,
-            DayOfWeek = payload.DayOfWeek,
-            Name = payload.Name,
-            Note = payload.Note,
-            Exercises = exercises,
-        };
     }
 }
