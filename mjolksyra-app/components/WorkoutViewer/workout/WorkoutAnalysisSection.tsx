@@ -17,17 +17,17 @@ type Props = {
 function AnalysisSkeleton() {
   return (
     <div className="space-y-3" aria-label="Loading analysis" aria-busy>
-      <div className="border-l-2 border-[var(--shell-accent)] pl-3 space-y-2">
-        <div className="h-3 w-3/4 rounded bg-[var(--shell-border)] animate-pulse" />
-        <div className="h-2.5 w-1/2 rounded bg-[var(--shell-border)] animate-pulse" />
+      <div className="space-y-2 pl-3">
+        <div className="h-3 w-3/4 rounded-none bg-[var(--shell-border)] animate-pulse" />
+        <div className="h-2.5 w-1/2 rounded-none bg-[var(--shell-border)] animate-pulse" />
       </div>
       {[3, 2, 3].map((rows, i) => (
         <div key={i} className="space-y-1.5">
-          <div className="h-2 w-14 rounded bg-[var(--shell-border)] animate-pulse" />
+          <div className="h-2 w-14 rounded-none bg-[var(--shell-border)] animate-pulse" />
           {Array.from({ length: rows }).map((_, j) => (
             <div
               key={j}
-              className={`h-2 rounded bg-[var(--shell-border)] animate-pulse ${
+              className={`h-2 rounded-none bg-[var(--shell-border)] animate-pulse ${
                 j === 0 ? "w-full" : j === 1 ? "w-5/6" : "w-4/6"
               }`}
             />

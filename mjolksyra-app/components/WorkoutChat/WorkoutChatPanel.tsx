@@ -119,10 +119,10 @@ export function WorkoutChatPanel({
                   key={index}
                   className={`flex ${index === 1 ? "justify-end" : "justify-start"}`}
                 >
-                  <div className="w-[78%] max-w-[320px] rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-                    <div className="h-2.5 w-24 animate-pulse rounded bg-[var(--shell-border)]" />
-                    <div className="mt-2 h-2.5 w-full animate-pulse rounded bg-[var(--shell-border)]" />
-                    <div className="mt-1.5 h-2.5 w-3/4 animate-pulse rounded bg-[var(--shell-border)]" />
+                  <div className="w-[78%] max-w-[320px] rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+                    <div className="h-2.5 w-24 animate-pulse rounded-none bg-[var(--shell-border)]" />
+                    <div className="mt-2 h-2.5 w-full animate-pulse rounded-none bg-[var(--shell-border)]" />
+                    <div className="mt-1.5 h-2.5 w-3/4 animate-pulse rounded-none bg-[var(--shell-border)]" />
                   </div>
                 </div>
               ))}

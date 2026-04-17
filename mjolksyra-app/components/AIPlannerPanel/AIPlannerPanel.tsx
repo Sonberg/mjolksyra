@@ -3,7 +3,6 @@
 import { ReactNode, useEffect, useRef, useState, useId } from "react";
 import { isAxiosError } from "axios";
 import {
-  SparklesIcon,
   SendIcon,
   XIcon,
   PaperclipIcon,
@@ -11,6 +10,7 @@ import {
   RotateCcwIcon,
   Trash2Icon,
 } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
@@ -533,12 +533,9 @@ export function AIPlannerPanel({
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-                  Planning assistant
-                </p>
-              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
+                Planning assistant
+              </p>
               <CardTitle className="mt-1 text-base">
                 Build, adjust, and approve the next block
               </CardTitle>
@@ -626,28 +623,24 @@ export function AIPlannerPanel({
               />
             )}
             {insufficientCredits && (
-              <Card className="border border-[var(--shell-border)] shadow-none">
-                <CardContent className="flex items-center justify-between gap-3 p-4">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-[var(--shell-ink)]">
-                      Not enough credits for this proposal.
-                    </p>
-                    <p className="text-xs text-[var(--shell-muted)]">
-                      Buy more credits and then apply this{" "}
-                      {proposedActionSet?.creditCost || 1} credit proposal
-                      again.
-                    </p>
-                  </div>
+              <Alert variant="destructive">
+                <AlertTitle>Not enough credits for this proposal.</AlertTitle>
+                <AlertDescription className="flex items-center justify-between gap-3">
+                  <span>
+                    Buy more credits and then apply this{" "}
+                    {proposedActionSet?.creditCost || 1} credit proposal again.
+                  </span>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
+                    className="shrink-0"
                     onClick={() => setPurchaseDialogOpen(true)}
                   >
                     Buy credits
                   </Button>
-                </CardContent>
-              </Card>
+                </AlertDescription>
+              </Alert>
             )}
           </div>
           <div ref={bottomRef} />
@@ -1138,9 +1131,9 @@ function ProposalReviewCard({
 
       <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
         {error && (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs text-[var(--shell-ink)]">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertTitle>{error}</AlertTitle>
+          </Alert>
         )}
         <div className="flex items-center gap-2">
           <Button
@@ -1248,9 +1241,9 @@ function formatDateRange(
 function LoadingDots() {
   return (
     <span className="flex gap-1">
-      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:0ms]" />
-      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:150ms]" />
-      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:300ms]" />
+      <span className="blocks-pulse h-1.5 w-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "0ms" }} />
+      <span className="blocks-pulse h-1.5 w-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "200ms" }} />
+      <span className="blocks-pulse h-1.5 w-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "400ms" }} />
     </span>
   );
 }
