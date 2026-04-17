@@ -9,7 +9,7 @@ using OpenAI;
 
 namespace Mjolksyra.Infrastructure.AI;
 
-public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIWorkoutPlannerAgent
+public class GeminiTraineePlannerAgent(IOptions<GeminiOptions> options) : ITraineePlannerAgent
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -124,7 +124,7 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             .Build();
     }
 
-    private static AIFunction[] BuildClarifyTools(IAIPlannerToolDispatcher dispatcher, CancellationToken ct)
+    private static AIFunction[] BuildClarifyTools(ITraineePlannerToolDispatcher dispatcher, CancellationToken ct)
     {
         [Description("Returns all planned workouts (completed or upcoming) starting from a given date. Use to check what workouts are already scheduled before asking about start date or conflicts.")]
         async Task<string> GetUpcomingWorkouts(
@@ -157,7 +157,7 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
         ];
     }
 
-    private static AIFunction[] BuildGenerateTools(IAIPlannerToolDispatcher dispatcher, CancellationToken ct)
+    private static AIFunction[] BuildGenerateTools(ITraineePlannerToolDispatcher dispatcher, CancellationToken ct)
     {
         [Description("Returns the N most recently completed workouts. Use to understand the athlete's training load, frequency, exercise selection, and volume patterns.")]
         async Task<string> GetRecentCompletedWorkouts(

@@ -8,7 +8,7 @@ using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
 namespace Mjolksyra.UseCases.Tests.PlannedWorkouts;
 
-public class AIPlannerToolDispatcherTests
+public class TraineePlannerToolDispatcherTests
 {
     [Fact]
     public async Task GetUpcomingWorkoutsAsync_ReturnsWorkoutsAfterFromDate()
@@ -26,7 +26,7 @@ public class AIPlannerToolDispatcherTests
                 ],
             });
 
-        var sut = new AIPlannerToolDispatcher(
+        var sut = new TraineePlannerToolDispatcher(
             repository.Object,
             new Mock<ICompletedWorkoutRepository>().Object,
             new Mock<IWorkoutMediaAnalysisRepository>().Object,
@@ -62,7 +62,7 @@ public class AIPlannerToolDispatcherTests
                 ],
             });
 
-        var sut = new AIPlannerToolDispatcher(
+        var sut = new TraineePlannerToolDispatcher(
             repository.Object,
             new Mock<ICompletedWorkoutRepository>().Object,
             new Mock<IWorkoutMediaAnalysisRepository>().Object,

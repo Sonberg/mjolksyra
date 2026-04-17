@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { SaveIcon } from "lucide-react";
+import { SaveIcon, SparklesIcon } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -39,6 +39,8 @@ import { searchExercises } from "@/services/exercises/searchExercises";
 import { starExercises } from "@/services/exercises/starExercise";
 import { starredExercises } from "@/services/exercises/starredExercises";
 import { CoachWorkspaceShell } from "../../CoachWorkspaceShell";
+import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
+import { BlockPlannerPanel } from "@/components/BlockPlannerPanel";
 
 type Props = {
   blockId: string;
@@ -99,6 +101,7 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
     week: number;
     dayOfWeek: number;
   } | null>(null);
+  const [rightTab, setRightTab] = useState<"exercises" | "ai">("exercises");
 
   const activeWorkout = useMemo(
     () =>
@@ -179,6 +182,10 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
         w.week === updated.week && w.dayOfWeek === updated.dayOfWeek ? updated : w,
       ),
     );
+  };
+
+  const handlePlannerGenerated = async () => {
+    await client.invalidateQueries({ queryKey: ["blocks", blockId] });
   };
 
   return (
@@ -289,16 +296,50 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
                     onClose={() => setSelectedWorkout(null)}
                   />
                 ) : (
-                  <ExerciseLibrary
-                    exercies={{
-                      starred: starredExercises,
-                      star: starExercises,
-                      search: searchExercises,
-                      get: getExercises,
-                      delete: deleteExercise,
-                      create: createExercise,
-                    }}
-                  />
+                  <div className="flex h-full min-h-0 flex-col">
+                    <SelectionTabs
+                      size="sm"
+                      activeKey={rightTab}
+                      className="border-b border-[var(--shell-border)] px-2"
+                      items={[
+                        {
+                          key: "exercises",
+                          label: "Exercises",
+                          onSelect: () => setRightTab("exercises"),
+                        },
+                        {
+                          key: "ai",
+                          label: (
+                            <span className="flex items-center gap-1.5">
+                              <SparklesIcon className="size-3.5" />
+                              AI
+                            </span>
+                          ),
+                          onSelect: () => setRightTab("ai"),
+                        },
+                      ]}
+                    />
+                    <div className="min-h-0 flex-1 overflow-hidden">
+                      {rightTab === "exercises" ? (
+                        <ExerciseLibrary
+                          exercies={{
+                            starred: starredExercises,
+                            star: starExercises,
+                            search: searchExercises,
+                            get: getExercises,
+                            delete: deleteExercise,
+                            create: createExercise,
+                          }}
+                        />
+                      ) : (
+                        <BlockPlannerPanel
+                          blockId={blockId}
+                          numberOfWeeks={numberOfWeeks}
+                          onGenerated={handlePlannerGenerated}
+                        />
+                      )}
+                    </div>
+                  </div>
                 )}
               </ResizablePanel>
             </ResizablePanelGroup>

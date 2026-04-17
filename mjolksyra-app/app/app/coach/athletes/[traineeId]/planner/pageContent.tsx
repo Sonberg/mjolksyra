@@ -22,7 +22,7 @@ import { WorkoutPlanner } from "@/components/WorkoutPlanner/WorkoutPlanner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
-import { AIPlannerPanel } from "@/components/AIPlannerPanel";
+import { TraineePlannerPanel } from "@/components/TraineePlannerPanel";
 import { ChevronDownIcon, ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -429,7 +429,7 @@ export function PageContent({ traineeId }: Props) {
             forceMount
             className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden"
           >
-            <AIPlannerPanel
+            <TraineePlannerPanel
               traineeId={traineeId}
               onGenerated={refetchDraftWorkouts}
             />

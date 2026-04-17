@@ -88,7 +88,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT1(new ReserveCreditsError("Insufficient credits.")));
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
 
         var sut = CreateSut(mediator: mediator, plannerAgent: plannerAgent, traineeRepository: traineeRepository, userContext: userContext);
 
@@ -129,7 +129,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             .Setup(x => x.Send(It.IsAny<ReleaseCreditsReservationCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ReleaseCreditsReservationResult(true));
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
@@ -181,7 +181,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
                 Description = "Other coach session",
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
 
         var sut = CreateSut(
             plannerAgent: plannerAgent,
@@ -236,7 +236,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             .Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [existingWorkout] });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([
@@ -304,7 +304,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             .Setup(x => x.Create(It.IsAny<PlannedWorkout>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PlannedWorkout w, CancellationToken _) => w);
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([
@@ -378,7 +378,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
                 },
             ]);
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([
@@ -473,7 +473,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
             .Callback<Exercise, CancellationToken>((exercise, _) => createdExercise = exercise)
             .ReturnsAsync((Exercise exercise, CancellationToken _) => exercise);
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([
@@ -526,7 +526,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
     private static GenerateWorkoutPlanCommandHandler CreateSut(
         Mock<IMediator>? mediator = null,
-        Mock<IAIWorkoutPlannerAgent>? plannerAgent = null,
+        Mock<ITraineePlannerAgent>? plannerAgent = null,
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
@@ -551,7 +551,7 @@ public class GenerateWorkoutPlanCommandHandlerTests
 
         return new GenerateWorkoutPlanCommandHandler(
             mediator.Object,
-            (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
+            (plannerAgent ?? new Mock<ITraineePlannerAgent>()).Object,
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,

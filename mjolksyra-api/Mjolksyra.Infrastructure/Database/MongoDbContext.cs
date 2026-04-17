@@ -45,6 +45,8 @@ public interface IMongoDbContext
 
     IMongoCollection<PlannerSession> PlannerSessions { get; }
 
+    IMongoCollection<BlockPlannerSession> BlockPlannerSessions { get; }
+
     IMongoCollection<CompletedWorkout> CompletedWorkouts { get; }
 
     IMongoCollection<TraineeInsights> TraineeInsights { get; }
@@ -95,6 +97,8 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<ProcessedStripeEvent> ProcessedStripeEvents => Database.GetCollection<ProcessedStripeEvent>("processed-stripe-events");
 
     public IMongoCollection<PlannerSession> PlannerSessions => Database.GetCollection<PlannerSession>("ai-planner-sessions");
+
+    public IMongoCollection<BlockPlannerSession> BlockPlannerSessions => Database.GetCollection<BlockPlannerSession>("block-planner-sessions");
 
     public IMongoCollection<CompletedWorkout> CompletedWorkouts => Database.GetCollection<CompletedWorkout>("completed-workouts");
 

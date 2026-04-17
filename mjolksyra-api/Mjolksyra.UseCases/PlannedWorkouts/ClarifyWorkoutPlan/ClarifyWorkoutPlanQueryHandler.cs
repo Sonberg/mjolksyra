@@ -11,7 +11,7 @@ using Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 namespace Mjolksyra.UseCases.PlannedWorkouts.ClarifyWorkoutPlan;
 
 public class ClarifyWorkoutPlanQueryHandler(
-    IAIWorkoutPlannerAgent plannerAgent,
+    ITraineePlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
@@ -36,7 +36,7 @@ public class ClarifyWorkoutPlanQueryHandler(
             return null;
         }
 
-        var innerDispatcher = new AIPlannerToolDispatcher(
+        var innerDispatcher = new TraineePlannerToolDispatcher(
             plannedWorkoutRepository,
             completedWorkoutRepository,
             workoutMediaAnalysisRepository,
@@ -47,7 +47,7 @@ public class ClarifyWorkoutPlanQueryHandler(
             request.TraineeId,
             userId);
 
-        var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
+        var loggingDispatcher = new LoggingTraineePlannerToolDispatcher(innerDispatcher);
 
         var output = await plannerAgent.ClarifyAsync(new AIPlannerClarifyInput
         {

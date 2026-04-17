@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { AIPlannerPanel } from "./AIPlannerPanel";
+import { TraineePlannerPanel } from "./TraineePlannerPanel";
 
 const meta = {
-  title: "AIPlannerPanel",
+  title: "TraineePlannerPanel",
 } satisfies Meta;
 
 export default meta;
@@ -21,7 +21,7 @@ function StoryFrame({ children }: { children: React.ReactNode }) {
 export const Idle: Story = {
   render: () => (
     <StoryFrame>
-      <AIPlannerPanel traineeId="trainee-1" onGenerated={async () => {}} />
+      <TraineePlannerPanel traineeId="trainee-1" onGenerated={async () => {}} />
     </StoryFrame>
   ),
 };
@@ -29,7 +29,7 @@ export const Idle: Story = {
 export const AskingFollowUp: Story = {
   render: () => (
     <StoryFrame>
-      <AIPlannerPanel
+      <TraineePlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
         initialState={{
@@ -48,7 +48,7 @@ export const AskingFollowUp: Story = {
 export const PendingApproval: Story = {
   render: () => (
     <StoryFrame>
-      <AIPlannerPanel
+      <TraineePlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
         initialState={{
@@ -136,7 +136,7 @@ export const PendingApproval: Story = {
 export const PendingMidCostProposal: Story = {
   render: () => (
     <StoryFrame>
-      <AIPlannerPanel
+      <TraineePlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
         initialState={{
@@ -212,7 +212,7 @@ export const PendingMidCostProposal: Story = {
 export const PendingFutureDelete: Story = {
   render: () => (
     <StoryFrame>
-      <AIPlannerPanel
+      <TraineePlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
         initialState={{
@@ -264,7 +264,7 @@ export const PendingFutureDelete: Story = {
 export const AfterGeneration: Story = {
   render: () => (
     <StoryFrame>
-      <AIPlannerPanel
+      <TraineePlannerPanel
         traineeId="trainee-1"
         onGenerated={async () => {}}
         initialState={{

@@ -12,10 +12,6 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
-
-dayjs.extend(isoWeek);
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,33 +25,29 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
-import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
-import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
-import { discardPlannerProposal } from "@/services/aiPlanner/discardPlannerProposal";
-import { getLatestPlannerSession } from "@/services/aiPlanner/getLatestPlannerSession";
+import { clarifyBlockPlan } from "@/services/blockPlanner/clarifyBlockPlan";
+import { applyBlockPlannerProposal } from "@/services/blockPlanner/applyBlockPlannerProposal";
+import { deleteBlockPlannerSession } from "@/services/blockPlanner/deleteBlockPlannerSession";
+import { discardBlockPlannerProposal } from "@/services/blockPlanner/discardBlockPlannerProposal";
+import { getLatestBlockPlannerSession } from "@/services/blockPlanner/getLatestBlockPlannerSession";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import type {
   PlannerFileContent,
-  AIPlannerActionProposal,
-  AIPlannerActionSet,
-  AIPlannerCreditBreakdownItem,
-  AIPlannerApplyProposalResponse,
-  PreviewWorkoutPlanWorkout,
-} from "@/services/aiPlanner/types";
+  BlockPlannerActionProposal,
+  BlockPlannerActionSet,
+  BlockPlannerCreditBreakdownItem,
+  ApplyBlockPlannerProposalResponse,
+} from "@/services/blockPlanner/types";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  traineeId: string;
+  blockId: string;
+  numberOfWeeks: number;
   onGenerated: () => Promise<unknown>;
   initialState?: {
     sessionId?: string | null;
-    description?: string;
     messages?: Message[];
-    attachedFiles?: PlannerFileContent[];
-    proposedActionSet?: AIPlannerActionSet | null;
-    previewWorkouts?: PreviewWorkoutPlanWorkout[] | null;
-    generationResult?: GenerationResult | null;
+    proposedActionSet?: BlockPlannerActionSet | null;
   };
 };
 
@@ -65,7 +57,7 @@ type Message = {
   options?: string[];
 };
 
-type GenerationResult = AIPlannerApplyProposalResponse & {
+type GenerationResult = ApplyBlockPlannerProposalResponse & {
   generatedAt: string;
 };
 
@@ -123,8 +115,9 @@ async function parseFileToContent(file: File): Promise<PlannerFileContent> {
   return { name: file.name, type: file.type || "text", content: text };
 }
 
-export function AIPlannerPanel({
-  traineeId,
+export function BlockPlannerPanel({
+  blockId,
+  numberOfWeeks,
   onGenerated,
   initialState,
 }: Props) {
@@ -132,26 +125,19 @@ export function AIPlannerPanel({
   const [sessionId, setSessionId] = useState<string | null>(
     initialState?.sessionId ?? null,
   );
-  const [description, setDescription] = useState(
-    initialState?.description ?? "",
-  );
+  const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>(
     initialState?.messages ?? [],
   );
-  const [attachedFiles, setAttachedFiles] = useState<PlannerFileContent[]>(
-    initialState?.attachedFiles ?? [],
-  );
+  const [attachedFiles, setAttachedFiles] = useState<PlannerFileContent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
   const [generationResult, setGenerationResult] =
-    useState<GenerationResult | null>(initialState?.generationResult ?? null);
+    useState<GenerationResult | null>(null);
   const [proposedActionSet, setProposedActionSet] =
-    useState<AIPlannerActionSet | null>(
+    useState<BlockPlannerActionSet | null>(
       initialState?.proposedActionSet ?? null,
     );
-  const [previewData, setPreviewData] = useState<
-    PreviewWorkoutPlanWorkout[] | null
-  >(initialState?.previewWorkouts ?? null);
   const [userInput, setUserInput] = useState("");
   const [insufficientCredits, setInsufficientCredits] = useState(false);
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
@@ -179,12 +165,12 @@ export function AIPlannerPanel({
 
     async function clearPersistedSession() {
       try {
-        const session = await getLatestPlannerSession({ traineeId });
+        const session = await getLatestBlockPlannerSession({ blockId });
         if (cancelled || !session) {
           return;
         }
 
-        await deletePlannerSession({ traineeId, sessionId: session.sessionId });
+        await deleteBlockPlannerSession({ blockId, sessionId: session.sessionId });
       } catch {
         // stale session cleanup is best-effort
       } finally {
@@ -199,7 +185,7 @@ export function AIPlannerPanel({
     return () => {
       cancelled = true;
     };
-  }, [initialState, traineeId]);
+  }, [initialState, blockId]);
 
   function scrollToBottom() {
     setTimeout(() => {
@@ -217,8 +203,8 @@ export function AIPlannerPanel({
     scrollToBottom();
 
     try {
-      const response = await clarifyWorkoutPlan({
-        traineeId,
+      const response = await clarifyBlockPlan({
+        blockId,
         sessionId,
         description: description.trim(),
         filesContent: attachedFiles,
@@ -233,11 +219,7 @@ export function AIPlannerPanel({
         options: response.options?.length ? response.options : undefined,
       };
       setMessages([...newMessages, aiMessage]);
-
       setProposedActionSet(response.proposedActionSet);
-      setPreviewData(
-        response.previewWorkouts?.length ? response.previewWorkouts : null,
-      );
       setProposalError(null);
     } catch {
       setMessages([
@@ -273,8 +255,8 @@ export function AIPlannerPanel({
     scrollToBottom();
 
     try {
-      const response = await clarifyWorkoutPlan({
-        traineeId,
+      const response = await clarifyBlockPlan({
+        blockId,
         sessionId,
         description,
         filesContent: attachedFiles,
@@ -292,11 +274,7 @@ export function AIPlannerPanel({
         options: response.options?.length ? response.options : undefined,
       };
       setMessages([...newMessages, aiMessage]);
-
       setProposedActionSet(response.proposedActionSet);
-      setPreviewData(
-        response.previewWorkouts?.length ? response.previewWorkouts : null,
-      );
       setProposalError(null);
     } catch {
       setMessages([
@@ -319,23 +297,16 @@ export function AIPlannerPanel({
     setInsufficientCredits(false);
 
     try {
-      const result = await applyPlannerProposal({
-        traineeId,
+      const result = await applyBlockPlannerProposal({
+        blockId,
         proposalId: proposedActionSet.id,
       });
 
       setGenerationResult({ ...result, generatedAt: new Date().toISOString() });
       setProposedActionSet(null);
-      setPreviewData(null);
       await onGenerated();
     } catch (err) {
-      if (isAxiosError(err) && err.response?.status === 409) {
-        setProposalError(
-          typeof err.response?.data?.error === "string"
-            ? err.response.data.error
-            : "This proposal is stale. Ask the planner to refresh it.",
-        );
-      } else if (isAxiosError(err) && err.response?.status === 422) {
+      if (isAxiosError(err) && err.response?.status === 422) {
         setInsufficientCredits(true);
       } else {
         setMessages([
@@ -356,12 +327,11 @@ export function AIPlannerPanel({
 
     setIsLoading(true);
     try {
-      await discardPlannerProposal({
-        traineeId,
+      await discardBlockPlannerProposal({
+        blockId,
         proposalId: proposedActionSet.id,
       });
       setProposedActionSet(null);
-      setPreviewData(null);
       setProposalError(null);
       setMessages((current) => [
         ...current,
@@ -383,19 +353,16 @@ export function AIPlannerPanel({
     setUserInput("");
     setGenerationResult(null);
     setProposedActionSet(null);
-    setPreviewData(null);
     setProposalError(null);
   }
 
   async function handleClearSession() {
-    if (isLoading || isClearingSession) {
-      return;
-    }
+    if (isLoading || isClearingSession) return;
 
     setIsClearingSession(true);
     try {
       if (sessionId) {
-        await deletePlannerSession({ traineeId, sessionId });
+        await deleteBlockPlannerSession({ blockId, sessionId });
       }
       handleReset();
     } catch {
@@ -412,10 +379,7 @@ export function AIPlannerPanel({
   }
 
   async function addAttachedFiles(files: File[]) {
-    if (!files.length) {
-      return;
-    }
-
+    if (!files.length) return;
     const parsed = await Promise.all(files.map(parseFileToContent));
     setAttachedFiles((prev) => [...prev, ...parsed]);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -428,37 +392,25 @@ export function AIPlannerPanel({
   const isAttachmentDragActive = attachmentDragDepth > 0;
 
   function handleAttachmentDragEnter(e: React.DragEvent<HTMLDivElement>) {
-    if (!e.dataTransfer.types.includes("Files")) {
-      return;
-    }
-
+    if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
-    setAttachmentDragDepth((value) => value + 1);
+    setAttachmentDragDepth((v) => v + 1);
   }
 
   function handleAttachmentDragOver(e: React.DragEvent<HTMLDivElement>) {
-    if (!e.dataTransfer.types.includes("Files")) {
-      return;
-    }
-
+    if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
   }
 
   function handleAttachmentDragLeave(e: React.DragEvent<HTMLDivElement>) {
-    if (!e.dataTransfer.types.includes("Files")) {
-      return;
-    }
-
+    if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
-    setAttachmentDragDepth((value) => Math.max(0, value - 1));
+    setAttachmentDragDepth((v) => Math.max(0, v - 1));
   }
 
   async function handleAttachmentDrop(e: React.DragEvent<HTMLDivElement>) {
-    if (!e.dataTransfer.files.length) {
-      return;
-    }
-
+    if (!e.dataTransfer.files.length) return;
     e.preventDefault();
     setAttachmentDragDepth(0);
     await addAttachedFiles(Array.from(e.dataTransfer.files));
@@ -487,7 +439,7 @@ export function AIPlannerPanel({
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                  Planner complete
+                  Block planner complete
                 </p>
                 <CardTitle className="mt-1 text-base">
                   Changes applied
@@ -504,14 +456,10 @@ export function AIPlannerPanel({
                 label="Actions applied"
                 value={`${generationResult.actionsApplied}`}
               />
-              <StatTile label="Next step" value="Review changes" />
+              <StatTile label="Next step" value="Review block" />
             </div>
             <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-              Planned workouts were updated. Review them in the{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                Changes
-              </span>{" "}
-              tab, then publish when ready.
+              The block template was updated. Review the changes in the grid.
             </p>
           </CardContent>
           <CardFooter className="border-t border-[var(--shell-border)] p-4 pt-4">
@@ -537,14 +485,14 @@ export function AIPlannerPanel({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-                Planning assistant
+                Block planner
               </p>
               <CardTitle className="mt-1 text-base">
-                Build, adjust, and approve the next block
+                Design your {numberOfWeeks}-week block
               </CardTitle>
               <CardDescription className="mt-1 text-xs leading-5">
-                Coach the assistant with a brief, review staged changes, and
-                apply them only when you approve.
+                Describe the block, review proposed workouts, and apply only
+                when you approve.
               </CardDescription>
             </div>
             {hasSessionDraft && (
@@ -553,7 +501,6 @@ export function AIPlannerPanel({
                 variant="outline"
                 size="sm"
                 disabled={isLoading || isClearingSession}
-                className=""
                 onClick={() => void handleClearSession()}
               >
                 <RotateCcwIcon data-icon="inline-start" />
@@ -609,7 +556,7 @@ export function AIPlannerPanel({
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
                     <LoadingDots />
-                    <span>Thinking through the plan…</span>
+                    <span>Designing the block…</span>
                   </div>
                 </div>
               )}
@@ -618,7 +565,6 @@ export function AIPlannerPanel({
             {hasPendingProposal && proposedActionSet && (
               <ProposalReviewCard
                 proposal={proposedActionSet}
-                workouts={previewData ?? []}
                 isLoading={isLoading}
                 error={proposalError}
                 onApply={() => void handleApplyProposal()}
@@ -658,22 +604,25 @@ export function AIPlannerPanel({
               ? "bg-[color-mix(in_srgb,var(--shell-surface)_72%,white_28%)]"
               : "",
           ].join(" ")}
-          data-testid="ai-planner-attachment-dropzone"
+          data-testid="block-planner-attachment-dropzone"
           onDragEnter={handleAttachmentDragEnter}
           onDragOver={handleAttachmentDragOver}
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
           <Separator />
-          <AIPlannerComposer
+          <PlannerComposer
             value={description}
             onChange={setDescription}
             onSend={() => void handleSendInitial()}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendInitial(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                void handleSendInitial();
+            }}
             canSend={!!description.trim()}
             isLoading={isLoading}
             rows={5}
-            placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
+            placeholder={`e.g. Build a ${numberOfWeeks}-week strength block, 3 days per week, focusing on the big 3.`}
             fileInputRef={fileInputRef}
             fileInputId={attachmentInputId}
             attachedFiles={attachedFiles}
@@ -686,34 +635,41 @@ export function AIPlannerPanel({
         </div>
       ) : (
         <>
-        <Separator />
-        <div
-          data-testid="ai-planner-attachment-dropzone"
-          onDragEnter={handleAttachmentDragEnter}
-          onDragOver={handleAttachmentDragOver}
-          onDragLeave={handleAttachmentDragLeave}
-          onDrop={(e) => void handleAttachmentDrop(e)}
-        >
-          <AIPlannerComposer
-            value={userInput}
-            onChange={setUserInput}
-            onSend={() => void handleSendFollowUp()}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendFollowUp(); }}
-            canSend={!!userInput.trim()}
-            isLoading={isLoading}
-            rows={3}
-            placeholder={hasPendingProposal ? "Ask for changes or explain what to revise..." : "Reply with the next detail..."}
-            textareaDisabled={isLoading}
-            fileInputRef={fileInputRef}
-            fileInputId={attachmentInputId}
-            attachedFiles={attachedFiles}
-            isAttachmentDragActive={isAttachmentDragActive}
-            attachmentButtonLabel="Attach"
-            onAttachmentClick={() => fileInputRef.current?.click()}
-            onRemoveFile={removeFile}
-            onFileChange={handleFileChange}
-          />
-        </div>
+          <Separator />
+          <div
+            data-testid="block-planner-attachment-dropzone"
+            onDragEnter={handleAttachmentDragEnter}
+            onDragOver={handleAttachmentDragOver}
+            onDragLeave={handleAttachmentDragLeave}
+            onDrop={(e) => void handleAttachmentDrop(e)}
+          >
+            <PlannerComposer
+              value={userInput}
+              onChange={setUserInput}
+              onSend={() => void handleSendFollowUp()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                  void handleSendFollowUp();
+              }}
+              canSend={!!userInput.trim()}
+              isLoading={isLoading}
+              rows={3}
+              placeholder={
+                hasPendingProposal
+                  ? "Ask for changes or explain what to revise..."
+                  : "Reply with the next detail..."
+              }
+              textareaDisabled={isLoading}
+              fileInputRef={fileInputRef}
+              fileInputId={attachmentInputId}
+              attachedFiles={attachedFiles}
+              isAttachmentDragActive={isAttachmentDragActive}
+              attachmentButtonLabel="Attach"
+              onAttachmentClick={() => fileInputRef.current?.click()}
+              onRemoveFile={removeFile}
+              onFileChange={handleFileChange}
+            />
+          </div>
         </>
       )}
       <PurchaseCreditsDialog
@@ -733,35 +689,6 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="text-[var(--shell-muted)]">{label}</dt>
       <dd className="font-medium text-[var(--shell-ink)]">{value}</dd>
     </div>
-  );
-}
-
-function AssistantSection({
-  eyebrow,
-  title,
-  description,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  description?: string;
-  children: ReactNode;
-}) {
-  return (
-    <Card className="border border-[var(--shell-border)] shadow-none">
-      <CardHeader className="border-b border-[var(--shell-border)] p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-          {eyebrow}
-        </p>
-        <CardTitle className="mt-1 text-sm">{title}</CardTitle>
-        {description && (
-          <CardDescription className="mt-1 text-xs leading-5">
-            {description}
-          </CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-4">{children}</CardContent>
-    </Card>
   );
 }
 
@@ -813,7 +740,6 @@ function PlannerBubble({
   children: ReactNode;
 }) {
   const isUser = role === "user";
-
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
       <div className="max-w-[92%]">
@@ -840,70 +766,18 @@ function PlannerBubble({
   );
 }
 
-type WeekGroup = {
-  weekLabel: string;
-  weekRange: string;
-  workouts: PreviewWorkoutPlanWorkout[];
-};
+const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function groupByWeek(workouts: PreviewWorkoutPlanWorkout[]): WeekGroup[] {
-  const map = new Map<string, PreviewWorkoutPlanWorkout[]>();
-  for (const workout of workouts) {
-    const d = dayjs(workout.plannedAt);
-    const key = `${d.isoWeekYear()}-W${String(d.isoWeek()).padStart(2, "0")}`;
-    map.set(key, [...(map.get(key) ?? []), workout]);
-  }
-  const groups: WeekGroup[] = [];
-  let weekIndex = 1;
-  for (const [, weekWorkouts] of map) {
-    const monday = dayjs(weekWorkouts[0].plannedAt).startOf(
-      "isoWeek" as dayjs.OpUnitType,
-    );
-    const sunday = monday.add(6, "day");
-    groups.push({
-      weekLabel: `Week ${weekIndex}`,
-      weekRange: `${monday.format("MMM D")} – ${sunday.format("MMM D")}`,
-      workouts: weekWorkouts.sort((a, b) =>
-        a.plannedAt.localeCompare(b.plannedAt),
-      ),
-    });
-    weekIndex++;
-  }
-  return groups;
-}
-
-function formatSet(
-  set: PreviewWorkoutPlanWorkout["exercises"][0]["sets"][0],
-  type?: string,
-): string {
-  if (type === "DurationSeconds" && set.durationSeconds)
-    return `${set.durationSeconds}s`;
-  if (type === "DistanceMeters" && set.distanceMeters)
-    return `${set.distanceMeters}m`;
+function formatWeekDay(week?: number | null, dayOfWeek?: number | null): string {
+  if (!week && !dayOfWeek) return "Not specified";
   const parts: string[] = [];
-  if (set.reps) parts.push(`${set.reps}`);
-  if (set.weightKg) parts.push(`${set.weightKg}kg`);
-  return parts.join(" @ ");
-}
-
-function formatPrescription(
-  exercise: PreviewWorkoutPlanWorkout["exercises"][0],
-): string {
-  if (!exercise.sets.length) return "";
-  const type = exercise.prescriptionType;
-  if (exercise.sets.length === 1)
-    return formatSet(exercise.sets[0], type ?? undefined);
-  const first = formatSet(exercise.sets[0], type ?? undefined);
-  const allSame = exercise.sets.every(
-    (s) => formatSet(s, type ?? undefined) === first,
-  );
-  if (allSame) return `${exercise.sets.length}×${first}`;
-  return exercise.sets.map((s) => formatSet(s, type ?? undefined)).join(", ");
+  if (week) parts.push(`Week ${week}`);
+  if (dayOfWeek) parts.push(DAY_NAMES[(dayOfWeek - 1) % 7] ?? `Day ${dayOfWeek}`);
+  return parts.join(" / ");
 }
 
 type ProposalReviewCardProps = {
-  proposal: AIPlannerActionSet;
-  workouts: PreviewWorkoutPlanWorkout[];
+  proposal: BlockPlannerActionSet;
   isLoading: boolean;
   error: string | null;
   onApply: () => void;
@@ -912,13 +786,11 @@ type ProposalReviewCardProps = {
 
 function ProposalReviewCard({
   proposal,
-  workouts,
   isLoading,
   error,
   onApply,
   onDiscard,
 }: ProposalReviewCardProps) {
-  const weeks = groupByWeek(workouts);
   const creditCost = proposal.creditCost || 1;
   const breakdownSummary = summarizeCreditBreakdown(proposal.creditBreakdown);
 
@@ -939,13 +811,6 @@ function ProposalReviewCard({
             label="Actions"
             value={`${proposal.actions.length} staged change${proposal.actions.length !== 1 ? "s" : ""}`}
           />
-          <StatTile
-            label="Date range"
-            value={formatDateRange(
-              proposal.affectedDateFrom,
-              proposal.affectedDateTo,
-            )}
-          />
           <StatTile label="Price" value={`${creditCost} cr`} />
         </div>
         <p className="mt-3 text-xs text-[var(--shell-muted)]">
@@ -958,95 +823,16 @@ function ProposalReviewCard({
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Review changes
         </p>
-        <div className="mt-3 flex flex-col gap-2">
-          {proposal.actions.map((action, index) => (
-            <ProposalActionRow
-              key={`${action.actionType}-${action.targetWorkoutId ?? action.targetDate ?? index}`}
-              action={action}
-            />
-          ))}
-        </div>
-      </CardContent>
-
-      <CardContent className="border-b border-[var(--shell-border)] p-0">
-      <ScrollArea className="max-h-[260px]">
-      <div className="p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-          Preview
-        </p>
-        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          {workouts.length === 0
-            ? "No preview workouts were returned for this proposal."
-            : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
-        </p>
-        {workouts.length === 0 ? (
-          <p className="mt-3 text-xs text-[var(--shell-muted)]">
-            Ask the planner to refine the proposal if you want a clearer preview
-            before approving.
-          </p>
-        ) : (
-          <div className="mt-3 flex flex-col gap-3">
-            {weeks.map((week) => (
-              <div
-                key={week.weekLabel}
-                className="border border-[var(--shell-border)] bg-[var(--shell-surface)]"
-              >
-                <div className="border-b border-[var(--shell-border)] px-3 py-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
-                      {week.weekLabel}
-                    </span>
-                    <span className="text-[10px] text-[var(--shell-muted)]">
-                      {week.weekRange}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 p-3">
-                  {week.workouts.map((workout) => (
-                    <div
-                      key={`${workout.plannedAt}-${workout.name ?? "workout"}`}
-                      className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
-                    >
-                      <p className="text-xs font-medium text-[var(--shell-ink)]">
-                        {dayjs(workout.plannedAt).format("ddd, MMM D")}
-                        {workout.name && (
-                          <span className="ml-1.5 font-normal text-[var(--shell-muted)]">
-                            - {workout.name}
-                          </span>
-                        )}
-                      </p>
-                      {workout.note && (
-                        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                          {workout.note}
-                        </p>
-                      )}
-                      {workout.exercises.length > 0 && (
-                        <ul className="mt-2 flex flex-col gap-1">
-                          {workout.exercises.map((exercise, i) => {
-                            const prescription = formatPrescription(exercise);
-                            return (
-                              <li
-                                key={`${exercise.name}-${i}`}
-                                className="text-xs text-[var(--shell-muted)]"
-                              >
-                                <span className="font-medium text-[var(--shell-ink)]">
-                                  {exercise.name}
-                                </span>
-                                {prescription ? ` · ${prescription}` : ""}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+        <ScrollArea className="mt-3 max-h-[260px]">
+          <div className="flex flex-col gap-2">
+            {proposal.actions.map((action, index) => (
+              <ProposalActionRow
+                key={`${action.actionType}-${action.targetWorkoutId ?? index}`}
+                action={action}
+              />
             ))}
           </div>
-        )}
-      </div>
-      </ScrollArea>
+        </ScrollArea>
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
@@ -1056,11 +842,7 @@ function ProposalReviewCard({
           </Alert>
         )}
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            disabled={isLoading}
-            onClick={onApply}
-          >
+          <Button type="button" disabled={isLoading} onClick={onApply}>
             <CheckIcon data-icon="inline-start" />
             {`Apply changes (${creditCost} cr)`}
           </Button>
@@ -1079,7 +861,7 @@ function ProposalReviewCard({
   );
 }
 
-function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
+function ProposalActionRow({ action }: { action: BlockPlannerActionProposal }) {
   return (
     <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2">
       <div className="flex items-center justify-between gap-3">
@@ -1091,18 +873,19 @@ function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
         </Badge>
       </div>
       <div className="mt-2 flex flex-col gap-1 text-xs text-[var(--shell-muted)]">
-        {action.previousDate &&
-          action.targetDate &&
-          action.previousDate !== action.targetDate && (
+        {action.previousWeek &&
+          action.targetWeek &&
+          (action.previousWeek !== action.targetWeek ||
+            action.previousDayOfWeek !== action.targetDayOfWeek) && (
             <Row
-              label="Date"
-              value={`${dayjs(action.previousDate).format("MMM D")} -> ${dayjs(action.targetDate).format("MMM D")}`}
+              label="Move"
+              value={`${formatWeekDay(action.previousWeek, action.previousDayOfWeek)} → ${formatWeekDay(action.targetWeek, action.targetDayOfWeek)}`}
             />
           )}
-        {!action.previousDate && action.targetDate && (
+        {!action.previousWeek && action.targetWeek && (
           <Row
-            label="Date"
-            value={dayjs(action.targetDate).format("ddd, MMM D")}
+            label="Position"
+            value={formatWeekDay(action.targetWeek, action.targetDayOfWeek)}
           />
         )}
         {action.workout?.name && (
@@ -1120,53 +903,40 @@ function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
 }
 
 function formatActionType(
-  actionType: AIPlannerActionProposal["actionType"],
+  actionType: BlockPlannerActionProposal["actionType"],
 ): string {
   return actionType.replaceAll("_", " ");
 }
 
 function summarizeCreditBreakdown(
-  breakdown: AIPlannerCreditBreakdownItem[],
+  breakdown: BlockPlannerCreditBreakdownItem[],
 ): string | null {
-  if (!breakdown.length) {
-    return null;
-  }
-
+  if (!breakdown.length) return null;
   return breakdown
-    .map((item) => `${item.count} ${formatActionType(item.actionType)}`)
+    .map((item) => `${item.count} ${item.actionType.replaceAll("_", " ")}`)
     .join(" + ");
-}
-
-function formatDateRange(
-  dateFrom?: string | null,
-  dateTo?: string | null,
-): string {
-  if (!dateFrom && !dateTo) {
-    return "Not specified";
-  }
-
-  if (dateFrom && dateTo) {
-    if (dateFrom === dateTo) {
-      return dayjs(dateFrom).format("ddd, MMM D");
-    }
-
-    return `${dayjs(dateFrom).format("MMM D")} - ${dayjs(dateTo).format("MMM D")}`;
-  }
-
-  return dayjs(dateFrom ?? dateTo ?? "").format("ddd, MMM D");
 }
 
 function LoadingDots() {
   return (
     <span className="flex gap-1">
-      <span className="blocks-pulse size-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "0ms" }} />
-      <span className="blocks-pulse size-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "200ms" }} />
-      <span className="blocks-pulse size-1.5 bg-[var(--shell-muted)]" style={{ animationDelay: "400ms" }} />
+      <span
+        className="blocks-pulse size-1.5 bg-[var(--shell-muted)]"
+        style={{ animationDelay: "0ms" }}
+      />
+      <span
+        className="blocks-pulse size-1.5 bg-[var(--shell-muted)]"
+        style={{ animationDelay: "200ms" }}
+      />
+      <span
+        className="blocks-pulse size-1.5 bg-[var(--shell-muted)]"
+        style={{ animationDelay: "400ms" }}
+      />
     </span>
   );
 }
 
-type AIPlannerComposerProps = {
+type PlannerComposerProps = {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
@@ -1186,13 +956,25 @@ type AIPlannerComposerProps = {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-function AIPlannerComposer({
-  value, onChange, onSend, onKeyDown,
-  canSend, isLoading, rows, placeholder, textareaDisabled,
-  fileInputRef, fileInputId, attachedFiles,
-  isAttachmentDragActive, attachmentButtonLabel,
-  onAttachmentClick, onRemoveFile, onFileChange,
-}: AIPlannerComposerProps) {
+function PlannerComposer({
+  value,
+  onChange,
+  onSend,
+  onKeyDown,
+  canSend,
+  isLoading,
+  rows,
+  placeholder,
+  textareaDisabled,
+  fileInputRef,
+  fileInputId,
+  attachedFiles,
+  isAttachmentDragActive,
+  attachmentButtonLabel,
+  onAttachmentClick,
+  onRemoveFile,
+  onFileChange,
+}: PlannerComposerProps) {
   return (
     <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
       <div className="flex items-end gap-2">
@@ -1228,7 +1010,7 @@ function AIPlannerComposer({
           type="file"
           className="hidden"
           id={fileInputId}
-          data-testid="ai-planner-attachment-input"
+          data-testid="block-planner-attachment-input"
           accept={ACCEPTED_EXTENSIONS}
           multiple
           onChange={onFileChange}
@@ -1237,7 +1019,7 @@ function AIPlannerComposer({
           type="button"
           variant="ghost"
           size="sm"
-          data-testid="ai-planner-attachment-button"
+          data-testid="block-planner-attachment-button"
           className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
           onClick={onAttachmentClick}
         >

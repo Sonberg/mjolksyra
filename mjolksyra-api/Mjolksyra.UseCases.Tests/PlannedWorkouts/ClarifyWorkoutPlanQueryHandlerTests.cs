@@ -71,7 +71,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -112,7 +112,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -162,7 +162,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -295,7 +295,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -409,7 +409,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -514,7 +514,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -607,7 +607,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
     }
 
     private static ClarifyWorkoutPlanQueryHandler CreateSut(
-        Mock<IAIWorkoutPlannerAgent>? plannerAgent = null,
+        Mock<ITraineePlannerAgent>? plannerAgent = null,
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
@@ -635,7 +635,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         }
 
         return new ClarifyWorkoutPlanQueryHandler(
-            (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
+            (plannerAgent ?? new Mock<ITraineePlannerAgent>()).Object,
             workoutRepo.Object,
             new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,

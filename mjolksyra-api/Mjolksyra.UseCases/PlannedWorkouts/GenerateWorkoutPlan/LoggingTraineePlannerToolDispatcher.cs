@@ -4,7 +4,7 @@ using Mjolksyra.Domain.Database.Models;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
-public class LoggingAIPlannerToolDispatcher(IAIPlannerToolDispatcher inner) : IAIPlannerToolDispatcher
+public class LoggingTraineePlannerToolDispatcher(ITraineePlannerToolDispatcher inner) : ITraineePlannerToolDispatcher
 {
     private readonly List<WorkoutAnalysisToolCall> _calls = [];
 

@@ -10,7 +10,7 @@ using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 
 namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
-public class AIPlannerToolDispatcher(
+public class TraineePlannerToolDispatcher(
     IPlannedWorkoutRepository plannedWorkoutRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
@@ -19,7 +19,7 @@ public class AIPlannerToolDispatcher(
     ITraineeInsightsRepository traineeInsightsRepository,
     ICoachInsightsRepository coachInsightsRepository,
     Guid traineeId,
-    Guid coachUserId) : IAIPlannerToolDispatcher
+    Guid coachUserId) : ITraineePlannerToolDispatcher
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

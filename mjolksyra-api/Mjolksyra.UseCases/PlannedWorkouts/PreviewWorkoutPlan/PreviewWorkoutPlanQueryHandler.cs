@@ -8,7 +8,7 @@ using Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 namespace Mjolksyra.UseCases.PlannedWorkouts.PreviewWorkoutPlan;
 
 public class PreviewWorkoutPlanQueryHandler(
-    IAIWorkoutPlannerAgent plannerAgent,
+    ITraineePlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
@@ -32,7 +32,7 @@ public class PreviewWorkoutPlanQueryHandler(
             return null;
         }
 
-        var innerDispatcher = new AIPlannerToolDispatcher(
+        var innerDispatcher = new TraineePlannerToolDispatcher(
             plannedWorkoutRepository,
             completedWorkoutRepository,
             workoutMediaAnalysisRepository,
@@ -43,7 +43,7 @@ public class PreviewWorkoutPlanQueryHandler(
             request.TraineeId,
             userId);
 
-        var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
+        var loggingDispatcher = new LoggingTraineePlannerToolDispatcher(innerDispatcher);
 
         var workoutOutputs = await plannerAgent.GenerateAsync(new AIPlannerGenerateInput
         {

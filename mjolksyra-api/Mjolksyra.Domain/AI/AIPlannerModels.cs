@@ -24,7 +24,7 @@ public class AIPlannerClarifyInput
 
     public ICollection<AIPlannerConversationMessage> ConversationHistory { get; set; } = [];
 
-    public required IAIPlannerToolDispatcher ToolDispatcher { get; set; }
+    public required ITraineePlannerToolDispatcher ToolDispatcher { get; set; }
 }
 
 public class AIPlannerClarifyOutput
@@ -65,7 +65,7 @@ public class AIPlannerGenerateInput
 
     public required AIPlannerGenerateParams Params { get; set; }
 
-    public required IAIPlannerToolDispatcher ToolDispatcher { get; set; }
+    public required ITraineePlannerToolDispatcher ToolDispatcher { get; set; }
 }
 
 public class AIPlannerGenerateParams

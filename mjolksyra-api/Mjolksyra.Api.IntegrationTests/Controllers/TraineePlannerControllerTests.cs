@@ -11,19 +11,19 @@ using Mjolksyra.UseCases.PlannedWorkouts.DiscardAIPlannerProposal;
 
 namespace Mjolksyra.Api.IntegrationTests.Controllers;
 
-public class AIWorkoutPlannerControllerTests
+public class TraineePlannerControllerTests
 {
     private readonly Guid _traineeId = Guid.NewGuid();
     private readonly Guid _userId = Guid.NewGuid();
     private readonly Mock<IMediator> _mediator = new();
     private readonly Mock<IUserEventPublisher> _publisher = new();
     private readonly Mock<IUserContext> _userContext = new();
-    private readonly AiWorkoutPlannerController _sut;
+    private readonly TraineePlannerController _sut;
 
-    public AIWorkoutPlannerControllerTests()
+    public TraineePlannerControllerTests()
     {
         _userContext.Setup(x => x.GetUserId(It.IsAny<CancellationToken>())).ReturnsAsync(_userId);
-        _sut = new AiWorkoutPlannerController(_mediator.Object, _publisher.Object, _userContext.Object);
+        _sut = new TraineePlannerController(_mediator.Object, _publisher.Object, _userContext.Object);
     }
 
     [Fact]
