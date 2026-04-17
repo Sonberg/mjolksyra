@@ -5,7 +5,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
 
@@ -18,35 +17,21 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-const STORAGE_KEY = "mjolksyra-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") {
-      return "light";
-    }
-
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "light" || stored === "dark") {
-      return stored;
-    }
-
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "dark" : "light";
-  });
+  const theme: ThemeMode = "dark";
 
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.theme = theme;
-    root.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    root.dataset.theme = "dark";
+    root.classList.add("dark");
+  }, []);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
       theme,
-      setTheme: (next) => setThemeState(next),
-      toggleTheme: () => setThemeState((prev) => (prev === "dark" ? "light" : "dark")),
+      setTheme: () => {},
+      toggleTheme: () => {},
     }),
     [theme],
   );
