@@ -83,7 +83,21 @@ public class CancelTraineeRequestHandler : IRequestHandler<CancelTraineeRequest>
             cancellationToken);
 
         var body = $"{athlete.DisplayName} and {coach.DisplayName} relationship was cancelled by {cancelledBy}.";
-        await _notificationService.Notify(athlete.Id, "relationship.cancelled", "Relationship cancelled", body, "/app/athlete", cancellationToken);
-        await _notificationService.Notify(coach.Id, "relationship.cancelled", "Relationship cancelled", body, "/app/coach/athletes", cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = athlete.Id,
+            Type = "relationship.cancelled",
+            Title = "Relationship cancelled",
+            Body = body,
+            Href = "/app/athlete",
+        }, cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = coach.Id,
+            Type = "relationship.cancelled",
+            Title = "Relationship cancelled",
+            Body = body,
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
     }
 }

@@ -70,21 +70,25 @@ public class InviteTraineeCommandHandler(
             PriceSek = request.MonthlyPriceAmount
         }, cancellationToken);
 
-        await notificationService.Notify(request.CoachUserId,
-            "invite.sent",
-            "Invitation sent",
-            $"Sent invite to {request.Email} for {request.MonthlyPriceAmount} SEK/mo.",
-            "/app/coach/athletes",
-            cancellationToken);
+        await notificationService.Notify(new NotificationRequest
+        {
+            UserId = request.CoachUserId,
+            Type = "invite.sent",
+            Title = "Invitation sent",
+            Body = $"Sent invite to {request.Email} for {request.MonthlyPriceAmount} SEK/mo.",
+            Href = "/app/coach/athletes",
+        }, cancellationToken);
 
         if (athlete is not null)
         {
-            await notificationService.Notify(athlete.Id,
-                "invite.received",
-                "New coach invitation",
-                $"{coach.DisplayName} invited you to coaching for {request.MonthlyPriceAmount} SEK/mo.",
-                "/app/athlete",
-                cancellationToken);
+            await notificationService.Notify(new NotificationRequest
+            {
+                UserId = athlete.Id,
+                Type = "invite.received",
+                Title = "New coach invitation",
+                Body = $"{coach.DisplayName} invited you to coaching for {request.MonthlyPriceAmount} SEK/mo.",
+                Href = "/app/athlete",
+            }, cancellationToken);
         }
 
         return TraineeInvitationsResponse.From(invitation, [coach]);

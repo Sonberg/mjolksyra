@@ -232,11 +232,7 @@ public class UpdateTraineeCostCommandHandlerTests
             It.IsAny<AthleteBillingEmail>(),
             It.IsAny<CancellationToken>()), Times.Never);
         notificationService.Verify(x => x.Notify(
-            It.IsAny<Guid>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
+            It.IsAny<NotificationRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 

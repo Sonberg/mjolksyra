@@ -29,6 +29,8 @@ public class CompletedWorkoutResponse
 
     public required DateTimeOffset CreatedAt { get; set; }
 
+    public bool HasUnreadActivity { get; set; }
+
     public static CompletedWorkoutResponse From(CompletedWorkout session, ICollection<Exercise> exercises)
     {
         return new CompletedWorkoutResponse

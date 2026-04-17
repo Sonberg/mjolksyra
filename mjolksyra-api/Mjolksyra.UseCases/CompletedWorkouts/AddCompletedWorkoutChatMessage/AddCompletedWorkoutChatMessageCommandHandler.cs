@@ -3,6 +3,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Media;
 using Mjolksyra.Domain.Messaging;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Domain.UserContext;
 
 namespace Mjolksyra.UseCases.CompletedWorkouts.AddCompletedWorkoutChatMessage;
@@ -12,6 +13,7 @@ public class AddCompletedWorkoutChatMessageCommandHandler(
     ICompletedWorkoutChatMessageRepository completedWorkoutChatMessageRepository,
     ITraineeRepository traineeRepository,
     IUserContext userContext,
+    INotificationService notificationService,
     IMediaCompressionPublisher mediaCompressionPublisher)
     : IRequestHandler<AddCompletedWorkoutChatMessageCommand, CompletedWorkoutChatMessageResponse?>
 {
@@ -110,6 +112,33 @@ public class AddCompletedWorkoutChatMessageCommandHandler(
                 FileUrl = url,
                 CompletedWorkoutId = request.CompletedWorkoutId,
                 CompletedWorkoutChatMessageId = saved.Id,
+            }, cancellationToken);
+        }
+
+        var preview = messageBody.Length > 60 ? messageBody[..60] + "…" : messageBody;
+
+        if (saved.Role == CompletedWorkoutChatRole.Athlete)
+        {
+            await notificationService.Notify(new NotificationRequest
+            {
+                UserId = trainee.CoachUserId,
+                Type = "workout.chat.athlete",
+                Title = "New message from athlete",
+                Body = preview,
+                Href = $"/app/coach/athletes/{trainee.Id}/workouts/{request.CompletedWorkoutId}",
+                CompletedWorkoutId = request.CompletedWorkoutId,
+            }, cancellationToken);
+        }
+        else if (saved.Role == CompletedWorkoutChatRole.Coach)
+        {
+            await notificationService.Notify(new NotificationRequest
+            {
+                UserId = trainee.AthleteUserId,
+                Type = "workout.chat.coach",
+                Title = "Coach replied to your workout",
+                Body = preview,
+                Href = $"/app/athlete/{trainee.Id}/workouts/{request.CompletedWorkoutId}",
+                CompletedWorkoutId = request.CompletedWorkoutId,
             }, cancellationToken);
         }
 

@@ -71,6 +71,20 @@ public class NotificationsController(
         await notificationRealtimePublisher.PublishChanged(userId.Value, cancellationToken);
         return NoContent();
     }
+
+    [HttpPost("read-by-workout/{completedWorkoutId:guid}")]
+    public async Task<ActionResult> MarkReadByWorkout(Guid completedWorkoutId, CancellationToken cancellationToken)
+    {
+        var userId = await userContext.GetUserId(cancellationToken);
+        if (userId is null || userId == Guid.Empty)
+        {
+            return BadRequest();
+        }
+
+        await notificationRepository.MarkReadByCompletedWorkoutId(userId.Value, completedWorkoutId, cancellationToken);
+        await notificationRealtimePublisher.PublishChanged(userId.Value, cancellationToken);
+        return NoContent();
+    }
 }
 
 public class GetNotificationsResponse

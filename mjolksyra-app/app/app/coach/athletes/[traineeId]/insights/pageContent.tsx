@@ -24,6 +24,19 @@ type Props = {
   traineeId: string;
 };
 
+function hasRenderableInsights(insights: TraineeInsights | null | undefined) {
+  if (!insights) return false;
+
+  return Boolean(
+    insights.athleteProfile ||
+      insights.fatigueRisk ||
+      insights.progressionSummary ||
+      insights.strengths.length > 0 ||
+      insights.weaknesses.length > 0 ||
+      insights.recommendations.length > 0,
+  );
+}
+
 function FatigueRiskBadge({ level }: { level: "low" | "medium" | "high" }) {
   return (
     <span
@@ -222,6 +235,9 @@ export function PageContent({ traineeId }: Props) {
   const { data: insights } = useTraineeInsights(traineeId);
   const rebuild = useRebuildTraineeInsights(traineeId);
   const setVisibility = useSetTraineeInsightsVisibility(traineeId);
+  const hasInsightsContent = hasRenderableInsights(insights);
+  const showPendingRefreshNotice =
+    insights?.status === "pending" && hasInsightsContent;
 
   const athleteName =
     trainee?.athlete?.givenName || trainee?.athlete?.familyName
@@ -298,7 +314,7 @@ export function PageContent({ traineeId }: Props) {
       ) : null}
 
       {/* Visibility toggle */}
-      {insights && insights.status === "ready" ? (
+      {insights && hasInsightsContent && insights.status !== "failed" ? (
         <div className="flex items-center justify-between border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
           <div>
             <p className="text-sm font-semibold text-[var(--shell-ink)]">Visible to athlete</p>
@@ -309,13 +325,24 @@ export function PageContent({ traineeId }: Props) {
           <Switch
             checked={insights.visibleToAthlete}
             onCheckedChange={handleVisibilityToggle}
-            disabled={isTogglingVisibility}
+            disabled={isTogglingVisibility || insights.status === "pending"}
           />
         </div>
       ) : null}
 
+      {showPendingRefreshNotice ? (
+        <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-4">
+          <p className="text-sm font-semibold text-[var(--shell-ink)]">
+            Refreshing insights…
+          </p>
+          <p className="mt-1 text-xs text-[var(--shell-muted)]">
+            The previous result stays visible until the rebuild finishes.
+          </p>
+        </div>
+      ) : null}
+
       {/* Status or content */}
-      {!insights || insights.status === "pending" ? (
+      {!insights || (insights.status === "pending" && !hasInsightsContent) ? (
         <div className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] p-6 text-center">
           <p className="text-sm font-semibold text-[var(--shell-ink)]">
             {insights?.status === "pending" ? "Generating insights…" : "No insights yet."}

@@ -258,12 +258,14 @@ public class AccountController : Controller
             Status = status
         }, cancellationToken);
 
-        await _notificationService.Notify(user.Id,
-            "coach.stripe-status",
-            "Stripe account status updated",
-            message,
-            "/app/coach/dashboard",
-            cancellationToken);
+        await _notificationService.Notify(new NotificationRequest
+        {
+            UserId = user.Id,
+            Type = "coach.stripe-status",
+            Title = "Stripe account status updated",
+            Body = message,
+            Href = "/app/coach/dashboard",
+        }, cancellationToken);
 
         return Ok(new AccountSyncResponse
         {

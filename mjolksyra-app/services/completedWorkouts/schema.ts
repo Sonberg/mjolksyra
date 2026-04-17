@@ -62,6 +62,7 @@ export const completedWorkoutSchema = z.object({
   skippedAt: z.coerce.date().nullable().optional().default(null),
   media: z.array(completedWorkoutMediaSchema).optional().default([]),
   createdAt: z.coerce.date().nullable(),
+  hasUnreadActivity: z.boolean().optional().default(false),
 });
 
 export const workoutChatMessageSchema = z.object({

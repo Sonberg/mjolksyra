@@ -8,39 +8,28 @@ public class NotificationService(
     INotificationRepository notificationRepository,
     INotificationRealtimePublisher notificationRealtimePublisher) : INotificationService
 {
-    public async Task Notify(
-        Guid userId,
-        string type,
-        string title,
-        string? body = null,
-        string? href = null,
-        CancellationToken cancellationToken = default)
+    public async Task Notify(NotificationRequest notification, CancellationToken cancellationToken = default)
     {
         await notificationRepository.Create(new Notification
         {
             Id = Guid.NewGuid(),
-            UserId = userId,
-            Type = type,
-            Title = title,
-            Body = body,
-            Href = href,
+            UserId = notification.UserId,
+            Type = notification.Type,
+            Title = notification.Title,
+            Body = notification.Body,
+            Href = notification.Href,
+            CompletedWorkoutId = notification.CompletedWorkoutId,
             CreatedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
 
-        await notificationRealtimePublisher.PublishChanged(userId, cancellationToken);
+        await notificationRealtimePublisher.PublishChanged(notification.UserId, cancellationToken);
     }
 
-    public async Task NotifyMany(
-        IEnumerable<Guid> userIds,
-        string type,
-        string title,
-        string? body = null,
-        string? href = null,
-        CancellationToken cancellationToken = default)
+    public async Task NotifyMany(IEnumerable<Guid> userIds, NotificationRequest notification, CancellationToken cancellationToken = default)
     {
         foreach (var userId in userIds.Distinct())
         {
-            await Notify(userId, type, title, body, href, cancellationToken);
+            await Notify(notification with { UserId = userId }, cancellationToken);
         }
     }
 }

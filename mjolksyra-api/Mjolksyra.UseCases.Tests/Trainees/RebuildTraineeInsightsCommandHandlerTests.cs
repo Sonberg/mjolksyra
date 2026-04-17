@@ -125,6 +125,87 @@ public class RebuildTraineeInsightsCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WhenPendingIsExpired_AllowsNewRebuild()
+    {
+        var userId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        var statuses = new List<string>();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = userId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var completedWorkoutRepository = new Mock<ICompletedWorkoutRepository>();
+        completedWorkoutRepository
+            .Setup(x => x.CountCompletedByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(5L);
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Pending,
+                RebuildRequestedAt = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(30),
+                AthleteProfile = new InsightsAthleteProfile
+                {
+                    Summary = "Previous result",
+                    TrainingAge = InsightsTrainingAge.Intermediate,
+                },
+                CreatedAt = DateTimeOffset.UtcNow,
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+        traineeInsightsRepository
+            .Setup(x => x.Upsert(It.IsAny<TraineeInsights>(), It.IsAny<CancellationToken>()))
+            .Callback<TraineeInsights, CancellationToken>((doc, _) =>
+            {
+                statuses.Add(doc.Status);
+            })
+            .Returns(Task.CompletedTask);
+
+        var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(It.IsAny<ReserveCreditsCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OneOf<ReserveCreditsSuccess, ReserveCreditsError>.FromT0(new ReserveCreditsSuccess(1, 0, 1)));
+
+        var publisher = new Mock<ITraineeInsightsRebuildPublisher>();
+
+        var sut = CreateSut(
+            mediator: mediator,
+            traineeRepository: traineeRepository,
+            completedWorkoutRepository: completedWorkoutRepository,
+            traineeInsightsRepository: traineeInsightsRepository,
+            publisher: publisher,
+            userContext: userContext);
+
+        var result = await sut.Handle(new RebuildTraineeInsightsCommand(traineeId), CancellationToken.None);
+
+        Assert.True(result.IsT0);
+        Assert.Contains(InsightsStatus.Ready, statuses);
+        Assert.Contains(InsightsStatus.Pending, statuses);
+        publisher.Verify(
+            x => x.Publish(
+                It.Is<TraineeInsightsRebuildRequestedMessage>(m => m.TraineeId == traineeId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_WhenFewerThanThreeCompletedWorkouts_ReturnsInsufficientData()
     {
         var userId = Guid.NewGuid();

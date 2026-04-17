@@ -247,4 +247,117 @@ public class GetTraineeInsightsQueryHandlerTests
         Assert.NotNull(result);
         Assert.True(result.VisibleToAthlete);
     }
+
+    [Fact]
+    public async Task Handle_WhenPendingIsExpiredAndHasPreviousContent_RollsBackToReady()
+    {
+        var coachUserId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+        TraineeInsights? upserted = null;
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(coachUserId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.HasAccess(traineeId, coachUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = coachUserId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Pending,
+                RebuildRequestedAt = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(30),
+                AthleteProfile = new InsightsAthleteProfile
+                {
+                    Summary = "Previous result",
+                    TrainingAge = InsightsTrainingAge.Intermediate,
+                },
+                CreatedAt = DateTimeOffset.UtcNow,
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+        traineeInsightsRepository
+            .Setup(x => x.Upsert(It.IsAny<TraineeInsights>(), It.IsAny<CancellationToken>()))
+            .Callback<TraineeInsights, CancellationToken>((doc, _) => upserted = doc)
+            .Returns(Task.CompletedTask);
+
+        var sut = CreateSut(
+            traineeRepository: traineeRepository,
+            traineeInsightsRepository: traineeInsightsRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(new GetTraineeInsightsQuery(traineeId), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(InsightsStatus.Ready, result.Status);
+        Assert.NotNull(upserted);
+        Assert.Equal(InsightsStatus.Ready, upserted!.Status);
+        Assert.Null(upserted.RebuildRequestedAt);
+    }
+
+    [Fact]
+    public async Task Handle_WhenPendingIsExpiredWithoutPreviousContent_RollsBackToFailed()
+    {
+        var coachUserId = Guid.NewGuid();
+        var traineeId = Guid.NewGuid();
+
+        var userContext = new Mock<IUserContext>();
+        userContext
+            .Setup(x => x.GetUserId(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(coachUserId);
+
+        var traineeRepository = new Mock<ITraineeRepository>();
+        traineeRepository
+            .Setup(x => x.HasAccess(traineeId, coachUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        traineeRepository
+            .Setup(x => x.GetById(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Trainee
+            {
+                Id = traineeId,
+                CoachUserId = coachUserId,
+                AthleteUserId = Guid.NewGuid(),
+                Status = TraineeStatus.Active,
+            });
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Pending,
+                RebuildRequestedAt = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(30),
+                CreatedAt = DateTimeOffset.UtcNow,
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var sut = CreateSut(
+            traineeRepository: traineeRepository,
+            traineeInsightsRepository: traineeInsightsRepository,
+            userContext: userContext);
+
+        var result = await sut.Handle(new GetTraineeInsightsQuery(traineeId), CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(InsightsStatus.Failed, result.Status);
+    }
 }
