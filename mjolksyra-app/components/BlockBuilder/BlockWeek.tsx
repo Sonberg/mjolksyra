@@ -138,7 +138,7 @@ function BlockDayHeader({
                 ref={setDraggableNodeRef}
                 className="grid h-10 w-8 cursor-pointer place-content-center rounded-none text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]  hover:bg-white/40"
               >
-                <RectangleEllipsisIcon className="h-4 w-4" />
+                <RectangleEllipsisIcon className="size-4" />
               </div>
             }
             listeners={listeners}
@@ -154,7 +154,7 @@ function BlockDayHeader({
             title={isActiveWorkout ? "Close editor" : "Edit workout"}
             aria-label={isActiveWorkout ? "Close editor" : "Edit workout"}
           >
-            <PencilIcon className="h-4 w-4" />
+            <PencilIcon className="size-4" />
           </button>
         </div>
       ) : (

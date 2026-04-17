@@ -62,7 +62,7 @@ export function PaymentStep({ onBack, clientSecret }: PaymentStepProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <OnboardingCard
         title="Add Payment Method"
         text="To complete your registration, please add a payment method. You won't be charged until your coach confirms the subscription."

@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { TraineeInsights } from "@/services/trainees/traineeInsightsSchema";
 import { cn } from "@/lib/utils";
 
@@ -27,16 +28,17 @@ export function FatigueRiskBadge({
   level: "low" | "medium" | "high";
 }) {
   return (
-    <span
+    <Badge
+      variant="secondary"
       className={cn(
-        "rounded-none px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+        "rounded-none px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em]",
         level === "low" && "bg-emerald-900/30 text-emerald-400",
         level === "medium" && "bg-amber-900/30 text-amber-400",
         level === "high" && "bg-red-900/30 text-red-400",
       )}
     >
       {level}
-    </span>
+    </Badge>
   );
 }
 
@@ -46,16 +48,17 @@ export function TrendBadge({
   trend: "improving" | "plateauing" | "declining";
 }) {
   return (
-    <span
+    <Badge
+      variant="secondary"
       className={cn(
-        "rounded-none px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+        "rounded-none px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em]",
         trend === "improving" && "bg-emerald-900/30 text-emerald-400",
         trend === "plateauing" && "bg-amber-900/30 text-amber-400",
         trend === "declining" && "bg-red-900/30 text-red-400",
       )}
     >
       {trend}
-    </span>
+    </Badge>
   );
 }
 
@@ -65,9 +68,10 @@ export function PriorityBadge({
   priority: "high" | "medium" | "low";
 }) {
   return (
-    <span
+    <Badge
+      variant="secondary"
       className={cn(
-        "rounded-none px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
+        "rounded-none px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em]",
         priority === "high" && "bg-red-900/30 text-red-400",
         priority === "medium" && "bg-amber-900/30 text-amber-400",
         priority === "low" &&
@@ -75,7 +79,7 @@ export function PriorityBadge({
       )}
     >
       {priority}
-    </span>
+    </Badge>
   );
 }
 
@@ -112,7 +116,7 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
               <FatigueRiskBadge level={insights.fatigueRisk.level} />
             </span>
           </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4 pt-0 space-y-2">
+          <AccordionContent className="px-4 pb-4 pt-0 flex flex-col gap-2">
             <div className="flex items-center gap-3">
               <div className="h-1.5 flex-1 overflow-hidden rounded-none bg-[var(--shell-surface-strong)]">
                 <div
@@ -146,7 +150,7 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
               <TrendBadge trend={insights.progressionSummary.overall} />
             </span>
           </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4 pt-0 space-y-3">
+          <AccordionContent className="px-4 pb-4 pt-0 flex flex-col gap-3">
             <p className="text-sm text-[var(--shell-muted)]">
               {insights.progressionSummary.summary}
             </p>
@@ -230,7 +234,7 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
             Recommendations
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4 pt-0">
-            <ul className="space-y-3">
+            <ul className="flex flex-col gap-3">
               {insights.recommendations.map((r, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <PriorityBadge priority={r.priority} />

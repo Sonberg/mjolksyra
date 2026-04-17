@@ -4,6 +4,7 @@ import { UserInvitation } from "@/services/users/type";
 import { useMutation } from "@tanstack/react-query";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   invitations: UserInvitation[];
@@ -24,7 +25,7 @@ export function AthleteInvitations({ invitations }: Props) {
   });
 
   return (
-    <div className="mt-2 space-y-3">
+    <div className="mt-2 flex flex-col gap-3">
       {invitations.map((x) => (
         <div
           key={x.id}
@@ -34,18 +35,23 @@ export function AthleteInvitations({ invitations }: Props) {
             {x.givenName} {x.familyName}
           </div>
           <div className="flex gap-4">
-            <button
-              className="grid h-9 w-9 place-items-center rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
+            <Button
+              type="button"
+              size="icon"
+              className="size-9 rounded-none"
               onClick={() => accept.mutateAsync(x.id)}
             >
-              <CheckIcon className="h-4 w-4" />
-            </button>
-            <button
-              className="grid h-9 w-9 place-items-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+              <CheckIcon data-icon />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="size-9 rounded-none"
               onClick={() => decline.mutateAsync(x.id)}
             >
-              <XIcon className="h-4 w-4" />
-            </button>
+              <XIcon data-icon />
+            </Button>
           </div>
         </div>
       ))}

@@ -46,7 +46,7 @@ export function PageContent({
   if (needsOnboarding || shouldShowInviteOnboarding) {
     return (
       <PageLayout>
-        <div className="space-y-8 px-4 pb-8 md:px-6 md:pb-10">
+        <div className="flex flex-col gap-8 px-4 pb-8 md:px-6 md:pb-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <PageSectionHeader
               eyebrow="Athlete"
@@ -67,7 +67,7 @@ export function PageContent({
                 <AthleteCoaches user={user} selected={coach} onSelect={setCoach} />
               </div>
               {isPaymentSetupComplete ? (
-                <div className="space-y-4 lg:col-span-7">
+                <div className="flex flex-col gap-4 lg:col-span-7">
                   <PageSectionHeader
                     eyebrow="Status"
                     title="You are ready to start"

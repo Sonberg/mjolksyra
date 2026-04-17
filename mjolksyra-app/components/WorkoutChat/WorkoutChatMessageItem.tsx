@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import { WorkoutMediaGallery } from "@/components/WorkoutMediaGallery/WorkoutMediaGallery";
 import { CompletedWorkoutChatMessage } from "@/services/plannedWorkouts/type";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   chatMessage: CompletedWorkoutChatMessage;
@@ -58,31 +60,32 @@ export function WorkoutChatMessageItem({
                 : "inline-flex max-w-full flex-col px-3 py-2 text-[var(--shell-ink)]"
             }
           >
-            <div className="space-y-2">
-              <textarea
+            <div className="flex flex-col gap-2">
+              <Textarea
                 value={editingMessageBody}
                 onChange={(e) => onEditMessageBodyChange(e.target.value)}
                 rows={3}
-                className="w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
+                className="resize-y"
               />
               <div className="flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={onCancelEditing}
-                  className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1 text-[11px] font-semibold text-[var(--shell-ink)]"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  size="sm"
                   disabled={
                     isEditPending || editingMessageBody.trim().length === 0
                   }
                   onClick={onSaveEditing}
-                  className="border border-transparent bg-[var(--shell-ink)] px-3 py-1 text-[11px] font-semibold text-[var(--shell-surface)] disabled:opacity-60"
                 >
                   {isEditPending ? "Saving..." : "Save"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

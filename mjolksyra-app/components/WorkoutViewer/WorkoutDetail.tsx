@@ -4,6 +4,7 @@ import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { PlusIcon, SparklesIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ExerciseQuickSearchOverlay } from "@/components/ExerciseLibrary/ExerciseQuickSearchOverlay";
 import { WorkoutExerciseCard } from "./workout/WorkoutExerciseCard";
@@ -167,7 +168,7 @@ export function WorkoutDetail({
             onDragEnd={handleExerciseDragEnd}
           >
             <SortableContext items={exerciseIds} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 {workout.exercises.map((exercise, index) => (
                   <WorkoutExerciseCard
                     key={exercise.id}
@@ -204,25 +205,27 @@ export function WorkoutDetail({
           {viewerMode === "athlete" && !isEditMode ? (
             workout.exercises.length === 0 ? (
               <div className="flex items-center justify-center py-12">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setAddExerciseOpen(true)}
-                  className="inline-flex items-center gap-2 border border-dashed border-[var(--shell-border)] px-6 py-3 text-sm font-semibold text-[var(--shell-muted)] transition hover:border-[var(--shell-ink)] hover:text-[var(--shell-ink)]"
+                  className="rounded-none border-dashed"
                 >
-                  <PlusIcon className="h-4 w-4" />
+                  <PlusIcon data-icon="inline-start" />
                   Add exercise
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="mt-2 px-1">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setAddExerciseOpen(true)}
-                  className="inline-flex w-full items-center justify-center gap-2 border border-dashed border-[var(--shell-border)] py-3 text-sm font-semibold text-[var(--shell-muted)] transition hover:border-[var(--shell-ink)] hover:text-[var(--shell-ink)]"
+                  className="w-full rounded-none border-dashed"
                 >
-                  <PlusIcon className="h-4 w-4" />
+                  <PlusIcon data-icon="inline-start" />
                   Add exercise
-                </button>
+                </Button>
               </div>
             )
           ) : null}

@@ -71,7 +71,7 @@ function renderBlockPreview(block: Block) {
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
               Week {weekNumber}
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               {sortedDays.map(([dayIndex, exercises]) => (
                 <p key={dayIndex} className="text-xs text-[var(--shell-ink)]">
                   <span className="mr-1 text-[var(--shell-muted)]">
@@ -150,9 +150,9 @@ export function BlocksPageContent() {
             className="inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-60"
           >
             {createMutation.isPending ? (
-              <Loader2Icon className="h-4 w-4 animate-spin" />
+              <Loader2Icon data-icon="inline-start" className="animate-spin" />
             ) : (
-              <PlusIcon className="h-4 w-4" />
+              <PlusIcon data-icon="inline-start" />
             )}
             New Block
           </Button>
@@ -216,7 +216,7 @@ export function BlocksPageContent() {
             onClick={handleCreate}
             className="mt-6 inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-5 py-2 font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon data-icon="inline-start" />
             Create your first block
           </Button>
         </div>
@@ -267,9 +267,9 @@ export function BlocksPageContent() {
                       }
                       className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] font-semibold text-[var(--shell-surface)] hover:bg-[var(--shell-border)]"
                     >
-                      <Pencil className="mr-1 h-4 w-4" />
+                      <Pencil data-icon="inline-start" />
                       Open
-                      <ArrowRightIcon className="ml-1 h-4 w-4" />
+                      <ArrowRightIcon data-icon="inline-end" />
                     </Button>
                     <ConfirmDialog
                       title={`Delete "${block.name}"?`}
@@ -288,9 +288,9 @@ export function BlocksPageContent() {
                           className="rounded-none border border-[var(--shell-border)] bg-transparent text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
                         >
                           {isDeleting ? (
-                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                            <Loader2Icon data-icon className="animate-spin" />
                           ) : (
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 data-icon />
                           )}
                         </Button>
                       }

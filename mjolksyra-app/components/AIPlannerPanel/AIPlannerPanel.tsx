@@ -25,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
 import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
@@ -479,7 +480,7 @@ export function AIPlannerPanel({
           <CardHeader className="border-b border-[var(--shell-border)] p-4">
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
-                <CheckIcon className="h-3.5 w-3.5 text-[var(--shell-accent-ink)]" />
+                <CheckIcon data-icon className="text-[var(--shell-accent-ink)]" />
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
@@ -515,10 +516,9 @@ export function AIPlannerPanel({
               type="button"
               variant="outline"
               disabled={isClearingSession}
-              className="gap-1.5"
               onClick={() => void handleClearSession()}
             >
-              <RotateCcwIcon className="h-3 w-3" />
+              <RotateCcwIcon data-icon="inline-start" />
               Clear session
             </Button>
           </CardFooter>
@@ -550,10 +550,10 @@ export function AIPlannerPanel({
                 variant="outline"
                 size="sm"
                 disabled={isLoading || isClearingSession}
-                className="gap-1.5"
+                className=""
                 onClick={() => void handleClearSession()}
               >
-                <RotateCcwIcon className="h-3 w-3" />
+                <RotateCcwIcon data-icon="inline-start" />
                 Clear session
               </Button>
             )}
@@ -665,7 +665,7 @@ export function AIPlannerPanel({
             <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
               <div className="flex items-end gap-2">
                 <div className="min-h-11 min-w-0 flex-1 px-3">
-                  <textarea
+                  <Textarea
                     rows={5}
                     placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
                     value={description}
@@ -675,17 +675,18 @@ export function AIPlannerPanel({
                         void handleSendInitial();
                       }
                     }}
-                    className="w-full min-h-10 resize-none border-0 bg-transparent py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+                    className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
                   />
                 </div>
-                <button
+                <Button
                   type="button"
+                  size="sm"
                   disabled={!description.trim() || isLoading}
                   onClick={() => void handleSendInitial()}
-                  className="shrink-0 self-end border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                  className="shrink-0 self-end"
                 >
                   {isLoading ? "Sending..." : "Send"}
-                </button>
+                </Button>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <input
@@ -706,7 +707,7 @@ export function AIPlannerPanel({
                   className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <PaperclipIcon className="h-3 w-3" />
+                  <PaperclipIcon data-icon="inline-start" />
                   {isAttachmentDragActive
                     ? "Drop files here"
                     : "Attach context"}
@@ -737,7 +738,7 @@ export function AIPlannerPanel({
           <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
             <div className="flex items-end gap-2">
               <div className="min-h-11 min-w-0 flex-1 px-3">
-                <textarea
+                <Textarea
                   rows={3}
                   placeholder={
                     hasPendingProposal
@@ -752,17 +753,18 @@ export function AIPlannerPanel({
                     }
                   }}
                   disabled={isLoading}
-                  className="w-full min-h-10 resize-none border-0 bg-transparent py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)] disabled:opacity-50"
+                  className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
                 />
               </div>
-              <button
+              <Button
                 type="button"
+                size="sm"
                 disabled={!userInput.trim() || isLoading}
                 onClick={() => void handleSendFollowUp()}
-                className="shrink-0 self-end border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
+                className="shrink-0 self-end"
               >
                 {isLoading ? "Sending..." : "Send"}
-              </button>
+              </Button>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <input
@@ -783,7 +785,7 @@ export function AIPlannerPanel({
                 className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <PaperclipIcon className="h-3 w-3" />
+                <PaperclipIcon data-icon="inline-start" />
                 {isAttachmentDragActive ? "Drop files here" : "Attach"}
               </Button>
               {attachedFiles.map((file, i) => (
@@ -1139,20 +1141,18 @@ function ProposalReviewCard({
           <Button
             type="button"
             disabled={isLoading}
-            className="gap-1.5"
             onClick={onApply}
           >
-            <CheckIcon className="h-3 w-3" />
+            <CheckIcon data-icon="inline-start" />
             {`Apply changes (${creditCost} cr)`}
           </Button>
           <Button
             type="button"
             variant="outline"
             disabled={isLoading}
-            className="gap-1.5"
             onClick={onDiscard}
           >
-            <Trash2Icon className="h-3 w-3" />
+            <Trash2Icon data-icon="inline-start" />
             Discard
           </Button>
         </div>

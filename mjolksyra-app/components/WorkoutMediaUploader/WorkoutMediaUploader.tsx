@@ -237,10 +237,10 @@ export function WorkoutMediaUploader({
                     type="button"
                     disabled={disabled}
                     onClick={() => removeMedia(item)}
-                    className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
+                    className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
                     aria-label="Remove video"
                   >
-                    <XIcon className="h-3 w-3" />
+                    <XIcon className="size-3" />
                   </button>
                 }
               />
@@ -255,10 +255,10 @@ export function WorkoutMediaUploader({
                     type="button"
                     disabled={disabled}
                     onClick={() => removeMedia(item)}
-                    className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
+                    className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center bg-[var(--shell-surface)]/90 text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-40"
                     aria-label="Remove image"
                   >
-                    <XIcon className="h-3 w-3" />
+                    <XIcon className="size-3" />
                   </button>
                 }
               />
@@ -316,16 +316,16 @@ export function WorkoutMediaUploader({
             </p>
           </div>
           {compact ? (
-            <ImageIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+            <ImageIcon className="size-4 shrink-0 text-[var(--shell-muted)]" />
           ) : (
-            <UploadIcon className="h-4 w-4 shrink-0 text-[var(--shell-muted)]" />
+            <UploadIcon className="size-4 shrink-0 text-[var(--shell-muted)]" />
           )}
         </label>
         <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[var(--shell-muted)]">
           {compact ? "Tap or drop to add media" : "This whole area is clickable"}
         </p>
         {uploadError && (
-          <p className="mt-1 text-xs text-red-500">{uploadError}</p>
+          <p className="mt-1 text-xs text-destructive">{uploadError}</p>
         )}
       </div>
     </div>

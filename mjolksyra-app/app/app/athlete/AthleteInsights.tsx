@@ -27,7 +27,7 @@ export function AthleteInsights({ traineeId }: Props) {
     : null;
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="flex flex-col gap-8 pb-8">
       <PageSectionHeader
         eyebrow="Intelligence"
         title="Your Insights"

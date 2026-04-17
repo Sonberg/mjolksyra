@@ -7,6 +7,7 @@ import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { UserTrainee } from "@/services/users/type";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   coach: UserTrainee;
@@ -30,7 +31,7 @@ export function AthleteSettings({ coach }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <PageSectionHeader
         title="Settings"
         titleClassName="text-xl md:text-2xl"
@@ -73,25 +74,25 @@ export function AthleteSettings({ coach }: Props) {
                 Card used for monthly billing
               </p>
             </div>
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setChangeCardOpen(true)}
-              className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
             >
               Change card
-            </button>
+            </Button>
           </div>
         </div>
 
         <div className="mt-6">
-          <button
+          <Button
             type="button"
+            variant="outline"
             disabled={cancel.isPending}
             onClick={() => cancel.mutateAsync()}
-            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
-          </button>
+          </Button>
         </div>
       </div>
       <ChangePaymentMethodDialog

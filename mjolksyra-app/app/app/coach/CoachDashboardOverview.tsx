@@ -156,7 +156,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
   })();
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageSectionHeader
         eyebrow="Coach workspace"
         title={`${greeting}, ${user.givenName}`}

@@ -25,6 +25,7 @@ import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
 import { AIPlannerPanel } from "@/components/AIPlannerPanel";
 import { ChevronDownIcon, ChevronLeftIcon, RotateCcwIcon, SparklesIcon, UploadIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -156,26 +157,27 @@ function PlannerChangesPanel({
             : `${draftWorkouts.length} workout${draftWorkouts.length > 1 ? "s" : ""} have unpublished changes.`}
         </p>
         <div className="mt-3 flex items-center gap-2">
-          <button
+          <Button
             type="button"
-            className="inline-flex items-center gap-1 rounded-none border border-transparent bg-[var(--shell-accent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+            size="sm"
             title="Publish all draft changes"
             onClick={onPublishAll}
             disabled={isSaving || draftWorkouts.length === 0}
           >
-            <UploadIcon className="h-3 w-3" />
+            <UploadIcon data-icon="inline-start" />
             Publish all
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
+            variant="outline"
+            size="sm"
             title="Revert all drafts to the latest published state"
             onClick={onRevertAll}
             disabled={isSaving || draftWorkouts.length === 0}
           >
-            <RotateCcwIcon className="h-3 w-3" />
+            <RotateCcwIcon data-icon="inline-start" />
             Revert all
-          </button>
+          </Button>
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
@@ -326,14 +328,16 @@ export function PageContent({ traineeId }: Props) {
       <div className="flex h-full min-h-0 flex-col">
         <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
           <div className="flex w-full items-center gap-2">
-            <button
+            <Button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+              variant="outline"
+              size="icon"
+              className="size-8 rounded-none text-[var(--shell-muted)]"
               onClick={() => router.push("/app/coach/athletes")}
               aria-label="Back to athletes"
             >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </button>
+              <ChevronLeftIcon data-icon />
+            </Button>
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">

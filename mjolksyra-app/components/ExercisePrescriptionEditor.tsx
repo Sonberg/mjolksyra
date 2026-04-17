@@ -3,6 +3,8 @@
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   ExercisePrescription,
   ExerciseType,
@@ -86,7 +88,7 @@ export function ExercisePrescriptionEditor({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <select
         value={prescription.type}
         onChange={(ev) =>
@@ -108,7 +110,7 @@ export function ExercisePrescriptionEditor({
         </option>
       </select>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {sets.map((set, setIndex) => (
           <div
             key={`${exerciseId}-set-${setIndex}`}
@@ -131,22 +133,24 @@ export function ExercisePrescriptionEditor({
               >
                 Set {setIndex + 1}
               </p>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => removeSet(setIndex)}
                 disabled={sets.length <= 1}
-                className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1 text-[11px] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:opacity-40"
+                className="h-auto px-2 py-1 text-[11px]"
               >
-                <Trash2Icon className="h-3 w-3" />
+                <Trash2Icon data-icon="inline-start" />
                 Remove
-              </button>
+              </Button>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {prescription.type === ExerciseType.SetsReps ? (
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <input
+                    <Input
                       type="number"
                       min={1}
                       value={set.target?.reps ?? ""}
@@ -158,8 +162,8 @@ export function ExercisePrescriptionEditor({
                         })
                       }
                       className={cn(
-                        "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-10 text-[var(--shell-ink)]",
-                        isSm ? "h-8 text-xs" : "py-1.5 text-sm",
+                        "rounded-none pr-10",
+                        isSm ? "h-8 text-xs" : "",
                       )}
                       placeholder="0"
                       aria-label="Reps"
@@ -174,7 +178,7 @@ export function ExercisePrescriptionEditor({
                     </span>
                   </div>
                   <div className="relative flex-1">
-                    <input
+                    <Input
                       type="number"
                       min={0}
                       step="0.5"
@@ -187,8 +191,8 @@ export function ExercisePrescriptionEditor({
                         })
                       }
                       className={cn(
-                        "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
-                        isSm ? "h-8 text-xs" : "py-1.5 text-sm",
+                        "rounded-none pr-7",
+                        isSm ? "h-8 text-xs" : "",
                       )}
                       placeholder="0"
                       aria-label="Target weight in kilograms"
@@ -207,7 +211,7 @@ export function ExercisePrescriptionEditor({
 
               {prescription.type === ExerciseType.DurationSeconds ? (
                 <div className="relative w-40">
-                  <input
+                  <Input
                     type="number"
                     min={1}
                     value={set.target?.durationSeconds ?? ""}
@@ -219,8 +223,8 @@ export function ExercisePrescriptionEditor({
                       })
                     }
                     className={cn(
-                      "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
-                      isSm ? "h-8 text-xs" : "py-1.5 text-sm",
+                      "rounded-none pr-7",
+                      isSm ? "h-8 text-xs" : "",
                     )}
                     placeholder="0"
                     aria-label="Seconds"
@@ -238,7 +242,7 @@ export function ExercisePrescriptionEditor({
 
               {prescription.type === ExerciseType.DistanceMeters ? (
                 <div className="relative w-40">
-                  <input
+                  <Input
                     type="number"
                     min={1}
                     value={set.target?.distanceMeters ?? ""}
@@ -250,8 +254,8 @@ export function ExercisePrescriptionEditor({
                       })
                     }
                     className={cn(
-                      "w-full rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] pl-2 pr-7 text-[var(--shell-ink)]",
-                      isSm ? "h-8 text-xs" : "py-1.5 text-sm",
+                      "rounded-none pr-7",
+                      isSm ? "h-8 text-xs" : "",
                     )}
                     placeholder="0"
                     aria-label="Meters"
@@ -282,14 +286,16 @@ export function ExercisePrescriptionEditor({
           </div>
         ))}
 
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={addSet}
-          className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+          className="rounded-none"
         >
-          <PlusIcon className="h-3.5 w-3.5" />
+          <PlusIcon data-icon="inline-start" />
           Add set
-        </button>
+        </Button>
       </div>
     </div>
   );

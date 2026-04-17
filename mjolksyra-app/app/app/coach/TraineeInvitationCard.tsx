@@ -10,7 +10,7 @@ export function TraineeInvitationCard({ invitation }: Props) {
   return (
     <div className="group border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 transition-[background-color,transform] duration-[200ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-[var(--shell-surface-strong)] hover:-translate-y-0.5">
       <div className="flex items-center gap-4">
-        <Avatar className="h-10 w-10 border border-[var(--shell-border)]">
+        <Avatar className="size-10 border border-[var(--shell-border)]">
           <AvatarFallback className="bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
             {invitation.email[0].toUpperCase()}
           </AvatarFallback>

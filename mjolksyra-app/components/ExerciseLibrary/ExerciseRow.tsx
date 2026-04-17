@@ -72,9 +72,9 @@ export function ExerciseRow({ exercise, exercises }: Props) {
               <div
                 {...listeners}
                 {...attributes}
-                className="grid h-6 w-6 shrink-0 cursor-move place-items-center rounded-none border border-transparent text-[var(--shell-muted)] transition hover:border-[var(--shell-border)]/40 hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
+                className="grid size-6 shrink-0 cursor-move place-items-center rounded-none border border-transparent text-[var(--shell-muted)] transition hover:border-[var(--shell-border)]/40 hover:bg-[var(--shell-surface)] hover:text-[var(--shell-ink)]"
               >
-                <GripVertical className="h-4 w-4" />
+                <GripVertical className="size-4" />
               </div>
               <HoverCardTrigger asChild>
                 <button

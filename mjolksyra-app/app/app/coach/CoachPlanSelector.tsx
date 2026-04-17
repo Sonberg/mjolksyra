@@ -76,7 +76,7 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
                   {plan.monthlyPriceSek} kr
                   <span className="text-sm font-normal text-[var(--shell-muted)]">/mo</span>
                 </p>
-                <ul className="text-xs text-[var(--shell-muted)] space-y-0.5">
+                <ul className="flex flex-col gap-0.5 text-xs text-[var(--shell-muted)]">
                   <li>{plan.includedAthletes} athletes included</li>
                   <li>+{plan.extraAthletePriceSek} kr/extra athlete</li>
                   <li className="font-medium text-[var(--shell-ink)]">

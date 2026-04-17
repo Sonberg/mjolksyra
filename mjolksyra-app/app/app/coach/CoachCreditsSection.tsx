@@ -7,6 +7,7 @@ import type { Credits } from "@/services/coaches/getCredits";
 import type { CreditLedgerItem } from "@/services/coaches/getCreditLedger";
 import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   credits: Credits | null;
@@ -18,20 +19,20 @@ export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Pr
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <div className="flex items-start justify-between gap-4">
         <PageSectionHeader
           eyebrow="Credits"
           title="Usage and balance"
           description="Track remaining credits, review action costs, and see how credits are spent over time."
         />
-        <button
+        <Button
           type="button"
           onClick={() => setPurchaseDialogOpen(true)}
-          className="shrink-0 border border-transparent bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95"
+          className="shrink-0"
         >
           Buy credits
-        </button>
+        </Button>
       </div>
 
       <PurchaseCreditsDialog
@@ -41,7 +42,7 @@ export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Pr
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Balance + action costs */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits balance</p>
             <div className="mt-3 grid grid-cols-3 gap-4">

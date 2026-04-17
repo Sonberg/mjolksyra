@@ -40,7 +40,7 @@ export const HeroSection = () => {
               </span>
             ))}
           </div>
-          <div className="space-y-3 flex gap-4 flex-col sm:flex-row sm:space-x-3 sm:space-y-0 sm:items-center">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             {isBeta ? (
               <SignupForm />
             ) : (

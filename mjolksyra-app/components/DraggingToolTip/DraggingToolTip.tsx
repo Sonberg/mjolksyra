@@ -144,16 +144,16 @@ export function DraggingToolTip({
                 <MoveIcon
                   {...listeners}
                   data-action="move"
-                  className="h-8 w-8 cursor-move border border-[var(--shell-border)] p-2 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+                  className="size-8 cursor-move border border-[var(--shell-border)] p-2 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
                 />
                 <CopyIcon
                   {...listeners}
                   data-action="clone"
-                  className="h-8 w-8 cursor-copy border border-[var(--shell-border)] p-2 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+                  className="size-8 cursor-copy border border-[var(--shell-border)] p-2 text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
                 />
                 <TrashIcon
                   onClick={onDelete}
-                  className="h-8 w-8 cursor-pointer border border-[var(--shell-border)] p-2 text-[var(--shell-accent)] transition hover:brightness-90"
+                  className="size-8 cursor-pointer border border-[var(--shell-border)] p-2 text-[var(--shell-accent)] transition hover:brightness-90"
                 />
               </div>
             </div>,

@@ -119,7 +119,7 @@ export function WorkoutExerciseCard({
             {...listeners}
             aria-label="Drag to reorder exercise"
           >
-            <GripVerticalIcon className="h-4 w-4" />
+            <GripVerticalIcon className="size-4" />
           </button>
         ) : null}
 
@@ -146,7 +146,7 @@ export function WorkoutExerciseCard({
                       type="button"
                       className="mt-0.5 inline-flex items-center gap-1 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-1.5 py-0.5 text-xs text-[var(--shell-muted)] transition hover:border-[var(--shell-ink)] hover:text-[var(--shell-ink)]"
                     >
-                      <ClipboardListIcon className="h-3 w-3 shrink-0" />
+                      <ClipboardListIcon className="size-3 shrink-0" />
                       {formatPrescription(exercise.prescription)}
                     </button>
                   </PopoverTrigger>
@@ -251,9 +251,9 @@ export function WorkoutExerciseCard({
                   }
                 >
                   {exercise.isDone ? (
-                    <CheckCircle2Icon className="h-3 w-3" />
+                    <CheckCircle2Icon className="size-3" />
                   ) : (
-                    <CircleIcon className="h-3 w-3" />
+                    <CircleIcon className="size-3" />
                   )}
                   {exercise.isDone ? "Done" : "Mark done"}
                 </button>
@@ -264,16 +264,16 @@ export function WorkoutExerciseCard({
                 <button
                   type="button"
                   onClick={() => onDeleteExercise(exercise.id)}
-                  className="inline-flex h-7 w-7 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:border-red-300 hover:text-red-500"
+                  className="inline-flex size-7 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:border-destructive hover:text-destructive"
                   title="Remove exercise"
                 >
-                  <Trash2Icon className="h-3.5 w-3.5" />
+                  <Trash2Icon className="size-3.5" />
                 </button>
               ) : null}
             </div>
           ) : exercise.isDone ? (
             <span className="inline-flex items-center gap-1.5 border border-transparent bg-[var(--shell-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)]">
-              <CheckCircle2Icon className="h-3 w-3" />
+              <CheckCircle2Icon className="size-3" />
               Done
             </span>
           ) : null}
@@ -347,7 +347,7 @@ export function WorkoutExerciseCard({
                 onClick={() => onAddSetRow(exercise.id)}
                 className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
               >
-                <PlusIcon className="h-3 w-3" />
+                <PlusIcon className="size-3" />
                 Add set
               </button>
             </div>
@@ -363,7 +363,7 @@ export function WorkoutExerciseCard({
             onClick={() => onAddSetRow(exercise.id)}
             className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
           >
-            <PlusIcon className="h-3 w-3" />
+            <PlusIcon className="size-3" />
             Add set
           </button>
         </div>

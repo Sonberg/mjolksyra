@@ -10,6 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 type Props = {
   traineeId: string;
@@ -52,34 +56,37 @@ export function NewSessionDialog({
           </p>
         </DialogHeader>
 
-        <div className="px-4 py-5">
-          <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+        <div className="flex flex-col gap-2 px-4 py-5">
+          <Label
+            htmlFor="session-date"
+            className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]"
+          >
             Date
-          </label>
-          <input
+          </Label>
+          <Input
+            id="session-date"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="mt-1.5 h-10 w-full border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 text-sm text-[var(--shell-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--shell-accent)]"
           />
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-          <button
+        <Separator />
+        <div className="flex items-center justify-end gap-2 bg-[var(--shell-surface-strong)] px-4 py-3">
+          <Button
             type="button"
+            variant="outline"
             onClick={() => onOpenChange(false)}
-            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             disabled={!date || create.isPending}
             onClick={() => create.mutate()}
-            className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-2 text-xs font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
           >
             {create.isPending ? "Creating..." : "Create session"}
-          </button>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

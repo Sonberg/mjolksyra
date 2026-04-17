@@ -46,7 +46,7 @@ export function FeatureDemosSection() {
               Coach follow-up
             </div>
             <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between border border-[var(--home-border)] bg-[var(--home-surface)] px-2 py-1.5 text-xs">
                   <span className="text-[var(--home-text)]">Athlete A</span>
                   <span className="border border-[var(--home-border)] bg-[var(--home-accent)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--home-accent-ink)]">
@@ -74,7 +74,7 @@ export function FeatureDemosSection() {
               <ClipboardCheckIcon className="h-3.5 w-3.5" />
               Feedback workflow
             </div>
-            <div className="space-y-2 border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3">
+            <div className="flex flex-col gap-2 border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3">
               <div className="border border-[var(--home-border)] bg-[var(--home-surface)] p-2 text-xs text-[var(--home-text)]">
                 Athlete: “Front squat felt heavy at top set.”
               </div>

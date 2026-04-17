@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   isOpen: boolean;
@@ -52,14 +53,15 @@ export function WorkoutMediaLightbox({
         className="relative flex max-h-screen max-w-screen-lg flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="absolute -right-3 -top-3 z-10 flex h-8 w-8 items-center justify-center bg-white/10 text-white transition hover:bg-white/20"
+          className="absolute -right-3 -top-3 z-10 size-8 rounded-none bg-white/10 text-white hover:bg-white/20"
           aria-label="Close preview"
         >
-          <XIcon className="h-4 w-4" />
-        </button>
+          <XIcon data-icon />
+        </Button>
 
         {isVideo ? (
           <video
@@ -81,25 +83,27 @@ export function WorkoutMediaLightbox({
 
         {totalCount > 1 ? (
           <div className="mt-3 flex items-center gap-4">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onPrev}
-              className="flex h-8 w-8 items-center justify-center bg-white/10 text-white transition hover:bg-white/20"
+              className="size-8 rounded-none bg-white/10 text-white hover:bg-white/20"
               aria-label="Previous"
             >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </button>
+              <ChevronLeftIcon data-icon />
+            </Button>
             <span className="text-xs font-semibold tabular-nums text-white/70">
               {currentIndex + 1} / {totalCount}
             </span>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onNext}
-              className="flex h-8 w-8 items-center justify-center bg-white/10 text-white transition hover:bg-white/20"
+              className="size-8 rounded-none bg-white/10 text-white hover:bg-white/20"
               aria-label="Next"
             >
-              <ChevronRightIcon className="h-4 w-4" />
-            </button>
+              <ChevronRightIcon data-icon />
+            </Button>
           </div>
         ) : null}
       </div>

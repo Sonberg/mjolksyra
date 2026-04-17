@@ -1,17 +1,18 @@
-"use client";
-
-import { ChevronDownIcon } from "lucide-react";
-import { useState } from "react";
 import type { Plan } from "@/services/plans/type";
-import { cn } from "@/lib/utils";
 import { getHomeFaqs } from "./faqData";
+import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 type FAQSectionProps = {
   plans?: Plan[];
 };
 
 export const FAQSection = ({ plans = [] }: FAQSectionProps) => {
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const faqs = getHomeFaqs(plans);
 
   return (
@@ -20,30 +21,20 @@ export const FAQSection = ({ plans = [] }: FAQSectionProps) => {
         <h2 className="font-[var(--font-display)] mb-12 text-center text-3xl font-semibold text-[var(--home-text)] md:text-4xl">
           Frequently Asked Questions
         </h2>
-        <div className="mx-auto max-w-3xl border-t border-[var(--home-border)]">
-          {faqs.map((faq, index) => (
-            <div key={faq.question} className="border-b border-[var(--home-border)]">
-              <button
-                onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                className="flex w-full items-center justify-between gap-4 py-5 text-left"
-              >
-                <span className="font-[var(--font-display)] text-base font-semibold text-[var(--home-text)]">
+        <div className="mx-auto max-w-3xl">
+          <Separator />
+          <Accordion type="single" collapsible>
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.question} value={faq.question} className="border-b border-[var(--home-border)]">
+                <AccordionTrigger className="py-5 text-left font-[var(--font-display)] text-base font-semibold text-[var(--home-text)] hover:no-underline [&>svg]:text-[var(--home-muted)]">
                   {faq.question}
-                </span>
-                <ChevronDownIcon
-                  className={cn(
-                    "h-5 w-5 shrink-0 text-[var(--home-muted)] transition-transform duration-200",
-                    openFaqIndex === index && "rotate-180",
-                  )}
-                />
-              </button>
-              {openFaqIndex === index && (
-                <div className="pb-5">
-                  <p className="leading-relaxed text-[var(--home-muted)]">{faq.answer}</p>
-                </div>
-              )}
-            </div>
-          ))}
+                </AccordionTrigger>
+                <AccordionContent className="pb-5 text-[var(--home-muted)]">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </section>

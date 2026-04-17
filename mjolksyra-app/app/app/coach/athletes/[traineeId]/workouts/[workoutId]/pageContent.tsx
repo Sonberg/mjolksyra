@@ -53,7 +53,7 @@ export function PageContent({ traineeId, workoutId, backTab, initialWorkoutRespo
             className="inline-flex items-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
             aria-label="Back to workouts"
           >
-            <ChevronLeftIcon className="h-4 w-4" />
+            <ChevronLeftIcon className="size-4" />
           </Link>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">Completed workout</p>

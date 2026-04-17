@@ -7,6 +7,7 @@ import { ReactNode } from "react";
 import { AuthProvider } from "@/context/Auth";
 import { UserEventsProvider } from "@/context/UserEvents";
 import { ThemeProvider } from "@/context/Theme";
+import { Toaster } from "@/components/ui/sonner";
 
 const client = new QueryClient();
 
@@ -18,6 +19,7 @@ export function Providers({ children }: { children: ReactNode }) {
           <UserEventsProvider>
             <QueryClientProvider client={client}>
               <PostHog>{children}</PostHog>
+              <Toaster position="bottom-right" />
             </QueryClientProvider>
           </UserEventsProvider>
         </AuthProvider>

@@ -144,7 +144,7 @@ export function WorkoutCard({
           </div>
         </div>
       </div>
-      <div className="space-y-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:space-y-4 sm:p-4">
+      <div className="flex flex-col gap-3 bg-[var(--shell-surface)] p-3 text-[var(--shell-ink)] sm:gap-4 sm:p-4">
         <>
           <div className="flex flex-wrap items-baseline gap-2">
             <StatusBadge variant="subtle">{totalExercises} exercises</StatusBadge>

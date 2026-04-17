@@ -23,8 +23,8 @@ export default async function OnboardAthletePage() {
   const hasCoachContext = user.coaches.length > 0;
 
   return (
-    <div className="space-y-10">
-      <div className="space-y-2">
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
           Athlete setup
         </p>

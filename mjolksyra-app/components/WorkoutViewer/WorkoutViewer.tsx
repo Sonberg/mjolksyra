@@ -3,6 +3,7 @@
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlusIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
@@ -217,20 +218,21 @@ export function WorkoutViewer({
             <>
               {missedWorkouts.length > 0 ? (
                 <div>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setMissedExpanded((prev) => !prev)}
-                    className="mb-3 flex w-full items-center justify-between border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2.5 text-left"
+                    className="mb-3 flex h-auto w-full items-center justify-between rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2.5 text-left"
                   >
                     <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
                       Missed ({missedWorkouts.length})
                     </span>
                     {missedExpanded ? (
-                      <ChevronUpIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+                      <ChevronUpIcon className="size-4 text-[var(--shell-muted)]" />
                     ) : (
-                      <ChevronDownIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+                      <ChevronDownIcon className="size-4 text-[var(--shell-muted)]" />
                     )}
-                  </button>
+                  </Button>
                   {missedExpanded ? (
                     <div className="grid gap-4 sm:gap-8">
                       {missedWorkouts.map((workout) => (

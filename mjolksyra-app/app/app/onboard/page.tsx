@@ -17,8 +17,8 @@ export default async function OnboardPage() {
   }
 
   return (
-    <div className="space-y-10">
-      <div className="space-y-2">
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
           Get started
         </p>
@@ -35,8 +35,8 @@ export default async function OnboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {!coachDone && (
           <Link href="/app/onboard/coach" className="group block">
-            <div className="h-full space-y-4 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 transition-colors hover:bg-[var(--shell-surface-strong)]">
-              <div className="space-y-1">
+            <div className="h-full flex flex-col gap-4 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 transition-colors hover:bg-[var(--shell-surface-strong)]">
+              <div className="flex flex-col gap-1">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
                   Role
                 </p>
@@ -61,8 +61,8 @@ export default async function OnboardPage() {
 
         {!athleteDone && (
           <Link href="/app/onboard/athlete" className="group block">
-            <div className="h-full space-y-4 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 transition-colors hover:bg-[var(--shell-surface-strong)]">
-              <div className="space-y-1">
+            <div className="h-full flex flex-col gap-4 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 transition-colors hover:bg-[var(--shell-surface-strong)]">
+              <div className="flex flex-col gap-1">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
                   Role
                 </p>

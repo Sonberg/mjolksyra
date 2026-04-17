@@ -26,14 +26,14 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
           </p>
         </div>
         <span className="text-[var(--shell-muted)]">
-          {isOpen ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+          {isOpen ? <ChevronUpIcon className="size-4" /> : <ChevronDownIcon className="size-4" />}
         </span>
       </div>
 
       {isOpen ? (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 flex flex-col gap-4">
           {user.coaches.length > 0 ? (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="text-[11px] uppercase tracking-widest text-[var(--shell-muted)]">Active</p>
               {user.coaches.map((x) => (
                 <AthleteCoach
@@ -48,7 +48,7 @@ export function AthleteCoaches({ user, selected, onSelect }: Props) {
           ) : null}
 
           {user.invitations.length > 0 ? (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="text-[11px] uppercase tracking-widest text-[var(--shell-muted)]">Pending invitations</p>
               <AthleteInvitations invitations={user.invitations} />
             </div>

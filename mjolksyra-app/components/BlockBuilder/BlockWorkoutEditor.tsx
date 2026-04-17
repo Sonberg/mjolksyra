@@ -4,6 +4,7 @@ import { ArrowUpIcon, ArrowDownIcon, PlusIcon, XIcon } from "lucide-react";
 import { arrayMove } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { BlockWorkout } from "@/services/blocks/type";
 import { ExercisePrescription } from "@/lib/exercisePrescription";
 import { ExercisePrescriptionEditor } from "@/components/ExercisePrescriptionEditor";
@@ -61,27 +62,29 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
               onClick={onAddExercise}
-              className="inline-flex items-center gap-1 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              className="rounded-none"
             >
-              <PlusIcon className="h-3.5 w-3.5" />
+              <PlusIcon data-icon="inline-start" />
               Add
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
               onClick={onClose}
-              className="grid h-8 w-8 place-content-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+              className="size-8 rounded-none"
             >
-              <XIcon className="h-4 w-4" />
-            </button>
+              <XIcon data-icon />
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {workout.exercises.map((exercise, index) => (
             <article
               key={exercise.id}
@@ -98,32 +101,24 @@ export function BlockWorkoutEditor({ workout, onUpdate, onAddExercise, onClose }
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button
-                    type="button"
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => moveExercise(index, "up")}
                     disabled={index === 0}
-                    className={cn(
-                      "inline-flex h-8 w-8 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
-                      index === 0
-                        ? "opacity-40"
-                        : "cursor-pointer hover:bg-[var(--shell-surface)]",
-                    )}
+                    className="size-8 rounded-none"
                   >
-                    <ArrowUpIcon className="h-4 w-4 text-[var(--shell-ink)]" />
-                  </button>
-                  <button
-                    type="button"
+                    <ArrowUpIcon data-icon />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => moveExercise(index, "down")}
                     disabled={index === workout.exercises.length - 1}
-                    className={cn(
-                      "inline-flex h-8 w-8 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
-                      index === workout.exercises.length - 1
-                        ? "opacity-40"
-                        : "cursor-pointer hover:bg-[var(--shell-surface)]",
-                    )}
+                    className="size-8 rounded-none"
                   >
-                    <ArrowDownIcon className="h-4 w-4 text-[var(--shell-ink)]" />
-                  </button>
+                    <ArrowDownIcon data-icon />
+                  </Button>
                 </div>
               </div>
 

@@ -1,3 +1,5 @@
+import { Textarea } from "@/components/ui/textarea";
+
 type Props = {
   value: string;
   onChange: (value: string) => void;
@@ -6,13 +8,13 @@ type Props = {
 export function WorkoutChatComposerInput({ value, onChange }: Props) {
   return (
     <div className="min-h-11 min-w-0 flex-1 px-3">
-      <textarea
+      <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={1}
         placeholder="Write a message..."
         data-testid="workout-chat-composer"
-        className="w-full min-h-10 resize-none border-0 bg-transparent py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
+        className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
       />
     </div>
   );

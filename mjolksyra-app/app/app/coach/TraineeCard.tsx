@@ -41,6 +41,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { toast } from "sonner";
 import axios from "axios";
 
 type TraineeCardProps = {
@@ -77,11 +84,6 @@ export function TraineeCard({
   const [isPriceEditorOpen, setPriceEditorOpen] = useState(false);
   const [isActionsOpen, setActionsOpen] = useState(false);
   const [isTransactionsOpen, setTransactionsOpen] = useState(false);
-  const [chargeNowMessage, setChargeNowMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
   useEffect(() => {
     setPrice(initialPrice);
   }, [initialPrice]);
@@ -99,26 +101,14 @@ export function TraineeCard({
       }
       await updateTraineeCost({ traineeId: trainee.id, amount, billingMode });
     },
-    onMutate: () => {
-      setChargeNowMessage(null);
-    },
     onSuccess: () => {
       if (billingMode === "ChargeNow") {
-        setChargeNowMessage({
-          type: "success",
-          text: "Price saved and charge completed. Billing cycle was reset.",
-        });
+        toast.success("Price saved and charge completed. Billing cycle was reset.");
       }
     },
     onError: (error) => {
       if (billingMode === "ChargeNow") {
-        setChargeNowMessage({
-          type: "error",
-          text: getMutationErrorMessage(
-            error,
-            "Price was not saved and charge failed. Try again in a moment.",
-          ),
-        });
+        toast.error(getMutationErrorMessage(error, "Price was not saved. Try again in a moment."));
       }
     },
     onSettled: () => router.refresh(),
@@ -126,24 +116,8 @@ export function TraineeCard({
   const chargeNow = useMutation({
     mutationKey: ["trainee", trainee.id, "charge-now"],
     mutationFn: () => chargeTrainee({ traineeId: trainee.id }),
-    onMutate: () => {
-      setChargeNowMessage(null);
-    },
-    onSuccess: () => {
-      setChargeNowMessage({
-        type: "success",
-        text: "Charge completed. Billing cycle was reset.",
-      });
-    },
-    onError: (error) => {
-      setChargeNowMessage({
-        type: "error",
-        text: getMutationErrorMessage(
-          error,
-          "Charge failed. Try again in a moment.",
-        ),
-      });
-    },
+    onSuccess: () => toast.success("Charge completed. Billing cycle was reset."),
+    onError: (error) => toast.error(getMutationErrorMessage(error, "Charge failed. Try again in a moment.")),
     onSettled: () => router.refresh(),
   });
   const refund = useMutation({
@@ -236,7 +210,7 @@ export function TraineeCard({
   return (
     <article className="group overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-colors hover:bg-[var(--shell-surface-strong)]">
       <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
-        <Avatar className="h-12 w-12 border border-[var(--shell-border)]">
+        <Avatar className="size-12 border border-[var(--shell-border)]">
           <AvatarImage src={url} alt={trainee.athlete.name} />
           <AvatarFallback className="bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
             {trainee.athlete.givenName?.[0] || trainee.athlete.name[0]}
@@ -262,14 +236,9 @@ export function TraineeCard({
             {trainee.athlete.email}
           </p>
           <div className="mt-2">
-            <span
-              className={cn(
-                "inline-flex items-center rounded-none border px-2 py-1 text-xs font-semibold",
-                billingBadge.className,
-              )}
-            >
+            <Badge variant="secondary" className={cn("rounded-none", billingBadge.className)}>
               {billingBadge.label}
-            </span>
+            </Badge>
             <p className="mt-1 text-xs text-[var(--shell-muted)]">
               {billingBadge.hint}
             </p>
@@ -281,13 +250,14 @@ export function TraineeCard({
           onOpenChange={setActionsOpen}
         >
           <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-10 rounded-none border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
               aria-label="Open actions"
             >
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </button>
+              <MoreHorizontalIcon data-icon />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
@@ -301,7 +271,7 @@ export function TraineeCard({
               }}
               className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
-              <PencilIcon className="mr-2 h-4 w-4" />
+              <PencilIcon data-icon="inline-start" />
               Change price
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -312,7 +282,7 @@ export function TraineeCard({
               }}
               className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
-              <CreditCardIcon className="mr-2 h-4 w-4" />
+              <CreditCardIcon data-icon="inline-start" />
               {chargeNow.isPending ? "Charging..." : "Charge now (reset cycle)"}
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -323,7 +293,7 @@ export function TraineeCard({
               }}
               className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
-              <XIcon className="mr-2 h-4 w-4" />
+              <XIcon data-icon="inline-start" />
               {cancel.isPending ? "Cancelling..." : "Cancel relationship"}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -347,24 +317,24 @@ export function TraineeCard({
       </div>
 
       {trainee.transactions.length > 0 && (
-        <div className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)]">
-          <button
-            type="button"
-            onClick={() => setTransactionsOpen((v) => !v)}
-            className="flex w-full items-center justify-between px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] md:px-6"
-          >
+        <Collapsible
+          open={isTransactionsOpen}
+          onOpenChange={setTransactionsOpen}
+          className="border-b border-[var(--shell-border)] bg-[var(--shell-surface)]"
+        >
+          <CollapsibleTrigger className="flex w-full items-center justify-between px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] md:px-6">
             <span className="flex items-center gap-2">
-              <ReceiptIcon className="h-3.5 w-3.5" />
+              <ReceiptIcon className="size-3.5" />
               Transactions ({trainee.transactions.length})
             </span>
             <ChevronDownIcon
               className={cn(
-                "h-4 w-4 transition-transform",
+                "size-4 transition-transform",
                 isTransactionsOpen && "rotate-180",
               )}
             />
-          </button>
-          {isTransactionsOpen && (
+          </CollapsibleTrigger>
+          <CollapsibleContent>
             <div className="divide-y divide-[var(--shell-border)] px-5 pb-3 md:px-6">
               {trainee.transactions.map((tx) => (
                 <div
@@ -372,19 +342,16 @@ export function TraineeCard({
                   className="flex items-center justify-between gap-4 py-2.5"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span
+                    <Badge
+                      variant="secondary"
                       className={cn(
-                        "shrink-0 inline-flex items-center rounded-none border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
-                        tx.status === "Succeeded" &&
-                          "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
-                        tx.status === "Refunded" &&
-                          "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
-                        tx.status === "Failed" &&
-                          "border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+                        "shrink-0 rounded-none",
+                        tx.status === "Failed" && "text-[var(--shell-muted)]",
+                        tx.status === "Refunded" && "text-[var(--shell-muted)]",
                       )}
                     >
                       {tx.status}
-                    </span>
+                    </Badge>
                     <span className="text-sm text-[var(--shell-ink)]">
                       {tx.amount} {tx.currency.toUpperCase()}
                     </span>
@@ -393,67 +360,49 @@ export function TraineeCard({
                     </span>
                   </div>
                   {tx.status === "Succeeded" && (
-                    <button
-                      type="button"
+                    <Button
+                      variant="outline"
+                      size="sm"
                       disabled={refund.isPending}
                       onClick={() => refund.mutate(tx.id)}
-                      className="shrink-0 inline-flex items-center gap-1.5 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
+                      className="shrink-0 rounded-none"
                     >
-                      <UndoIcon className="h-3 w-3" />
+                      <UndoIcon data-icon="inline-start" />
                       Refund
-                    </button>
+                    </Button>
                   )}
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </CollapsibleContent>
+        </Collapsible>
       )}
 
       <div className="flex flex-wrap gap-3 bg-[var(--shell-surface)] px-5 py-4 md:px-6">
-        <button
-          className="inline-flex items-center gap-2 rounded-none border border-transparent bg-[var(--shell-accent)] px-4 py-2 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]"
-          onClick={() =>
-            router.push(`/app/coach/athletes/${trainee.id}/planner`)
-          }
+        <Button
+          className="rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+          onClick={() => router.push(`/app/coach/athletes/${trainee.id}/planner`)}
         >
-          <ClipboardCheckIcon className="h-4 w-4" />
+          <ClipboardCheckIcon data-icon="inline-start" />
           Planner
-        </button>
-        <button
-          className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
-          onClick={() =>
-            router.push(`/app/coach/athletes/${trainee.id}/workouts`)
-          }
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-none border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+          onClick={() => router.push(`/app/coach/athletes/${trainee.id}/workouts`)}
         >
-          <ClipboardCheckIcon className="h-4 w-4" />
+          <ClipboardCheckIcon data-icon="inline-start" />
           Workouts
-        </button>
-        <button
-          className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
-          onClick={() =>
-            router.push(`/app/coach/athletes/${trainee.id}/insights`)
-          }
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-none border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface)]"
+          onClick={() => router.push(`/app/coach/athletes/${trainee.id}/insights`)}
         >
-          <SparklesIcon className="h-4 w-4" />
+          <SparklesIcon data-icon="inline-start" />
           Insights
-        </button>
+        </Button>
       </div>
-
-      {chargeNowMessage && (
-        <div className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] px-5 py-3 md:px-6">
-          <p
-            className={cn(
-              "text-sm",
-              chargeNowMessage.type === "success"
-                ? "text-[var(--shell-ink)]"
-                : "text-[var(--shell-accent)]",
-            )}
-          >
-            {chargeNowMessage.text}
-          </p>
-        </div>
-      )}
 
       <Dialog open={isPriceEditorOpen} onOpenChange={setPriceEditorOpen}>
         <DialogContent className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] sm:max-w-md">
@@ -463,7 +412,7 @@ export function TraineeCard({
               Set the monthly coaching price charged to the athlete.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <label
               htmlFor={`trainee-price-dialog-${trainee.id}`}
               className="block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]"
@@ -490,7 +439,7 @@ export function TraineeCard({
                 Choose when the new price should take effect.
               </p>
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => setBillingMode("ChargeNow")}
@@ -510,13 +459,13 @@ export function TraineeCard({
                         : "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]",
                     )}
                   >
-                    <CreditCardIcon className="h-3.5 w-3.5" />
+                    <CreditCardIcon className="size-3.5" />
                   </span>
                   <span className="flex-1">
                     <span className="flex items-center justify-between gap-2 text-sm font-semibold">
                       Charge now
                       {billingMode === "ChargeNow" ? (
-                        <CheckCircle2Icon className="h-4 w-4 text-[var(--shell-accent)]" />
+                        <CheckCircle2Icon className="size-4 text-[var(--shell-accent)]" />
                       ) : null}
                     </span>
                     <span className="mt-1 block text-xs text-[var(--shell-muted)]">
@@ -544,13 +493,13 @@ export function TraineeCard({
                         : "border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)]",
                     )}
                   >
-                    <CalendarClockIcon className="h-3.5 w-3.5" />
+                    <CalendarClockIcon className="size-3.5" />
                   </span>
                   <span className="flex-1">
                     <span className="flex items-center justify-between gap-2 text-sm font-semibold">
                       Next cycle
                       {billingMode === "NextCycle" ? (
-                        <CheckCircle2Icon className="h-4 w-4 text-[var(--shell-accent)]" />
+                        <CheckCircle2Icon className="size-4 text-[var(--shell-accent)]" />
                       ) : null}
                     </span>
                     <span className="mt-1 block text-xs text-[var(--shell-muted)]">
@@ -561,12 +510,6 @@ export function TraineeCard({
                 </span>
               </button>
             </div>
-            {billingMode === "ChargeNow" &&
-              chargeNowMessage?.type === "error" && (
-                <p className="text-xs text-[var(--shell-accent)]">
-                  {chargeNowMessage.text}
-                </p>
-              )}
           </div>
           <DialogFooter>
             <Button

@@ -11,6 +11,8 @@ import { getCreditPacks } from "@/services/creditPacks/getCreditPacks";
 import { getCreditLedger } from "@/services/coaches/getCreditLedger";
 import { getCredits } from "@/services/coaches/getCredits";
 import { purchaseCreditPack } from "@/services/coaches/purchaseCreditPack";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -134,18 +136,15 @@ export function PurchaseCreditsDialog({ open, onOpenChange, onPurchased }: Props
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 py-2">
+        <div className="flex flex-col gap-2 py-2">
           {packs.isLoading ? (
             <>
               {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-14 rounded border border-[var(--shell-border)] animate-pulse bg-[var(--shell-border)]"
-                />
+                <Skeleton key={i} className="h-14 rounded" />
               ))}
             </>
           ) : packs.isError ? (
-            <p className="text-xs text-red-500">Could not load credit packs.</p>
+            <p className="text-xs text-destructive">Could not load credit packs.</p>
           ) : (
             packs.data?.map((pack) => {
               const selected = selectedPackId === pack.id;
@@ -154,11 +153,12 @@ export function PurchaseCreditsDialog({ open, onOpenChange, onPurchased }: Props
                   key={pack.id}
                   type="button"
                   onClick={() => setSelectedPackId(pack.id)}
-                  className={`w-full rounded border px-4 py-3 text-left transition ${
+                  className={cn(
+                    "w-full rounded border px-4 py-3 text-left transition",
                     selected
                       ? "border-[var(--shell-accent)] bg-[var(--shell-accent)]/5"
                       : "border-[var(--shell-border)] hover:border-[var(--shell-accent)]/40"
-                  }`}
+                  )}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[var(--shell-ink)]">
@@ -178,7 +178,7 @@ export function PurchaseCreditsDialog({ open, onOpenChange, onPurchased }: Props
         </div>
 
         {purchase.isError ? (
-          <p className="text-xs text-red-500">Purchase failed. Please try again.</p>
+          <p className="text-xs text-destructive">Purchase failed. Please try again.</p>
         ) : null}
 
         {statusMessage ? (

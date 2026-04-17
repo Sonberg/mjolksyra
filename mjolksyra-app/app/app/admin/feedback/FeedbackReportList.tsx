@@ -35,7 +35,7 @@ export function FeedbackReportList({ reports: initialReports, accessToken }: Pro
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {reports.map((report) => (
         <div
           key={report.id}

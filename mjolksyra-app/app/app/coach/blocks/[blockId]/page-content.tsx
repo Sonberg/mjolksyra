@@ -240,7 +240,7 @@ function BlockEditorWorkspace({ blockId, block }: BlockEditorWorkspaceProps) {
                           size="sm"
                           className="rounded-none border h-10 border-[var(--shell-border)] bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
                         >
-                          <SaveIcon className="mr-2 h-4 w-4" />
+                          <SaveIcon data-icon="inline-start" />
                           {saveMutation.isPending ? "Saving..." : "Save"}
                         </Button>
                       </div>

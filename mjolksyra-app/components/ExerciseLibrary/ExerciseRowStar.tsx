@@ -21,7 +21,7 @@ export function ExerciseRowStar({ exercise, exercises }: Props) {
     [exercise, starred.data]
   );
   const className = cn({
-    "h-4 w-4": true,
+    "size-4": true,
     "hover:text-[var(--shell-ink)]": !isStarred,
     "text-[var(--shell-ink)]": isStarred,
     "text-[var(--shell-muted)]": !isStarred,

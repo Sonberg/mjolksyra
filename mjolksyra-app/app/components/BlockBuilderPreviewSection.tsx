@@ -53,7 +53,7 @@ export function BlockBuilderPreviewSection() {
                     {item.focus}
                   </span>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {item.sessions.map((session) => (
                     <div
                       key={session}

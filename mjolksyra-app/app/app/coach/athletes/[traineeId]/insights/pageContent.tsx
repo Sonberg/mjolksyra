@@ -17,6 +17,7 @@ import { ChevronLeftIcon, RefreshCwIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   traineeId: string;
@@ -82,31 +83,33 @@ export function PageContent({ traineeId }: Props) {
         title={athleteName}
         titleClassName="text-xl md:text-2xl"
         leading={
-          <button
+          <Button
             type="button"
-            className="inline-flex items-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+            variant="ghost"
+            size="icon"
+            className="text-[var(--shell-muted)]"
             onClick={() => router.push("/app/coach/athletes")}
             aria-label="Back to athletes"
           >
-            <ChevronLeftIcon className="h-4 w-4" />
-          </button>
+            <ChevronLeftIcon data-icon />
+          </Button>
         }
         actions={
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={handleRebuild}
             disabled={rebuild.isPending || insights?.status === "pending"}
-            className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCwIcon
+              data-icon="inline-start"
               className={cn(
-                "h-4 w-4",
                 (rebuild.isPending || insights?.status === "pending") &&
                   "animate-spin",
               )}
             />
             Rebuild
-          </button>
+          </Button>
         }
       />
 

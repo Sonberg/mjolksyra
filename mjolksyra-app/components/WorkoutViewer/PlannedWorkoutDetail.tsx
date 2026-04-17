@@ -90,7 +90,7 @@ export function PlannedWorkoutDetail({ workout, viewerMode }: Props) {
           </div>
         ) : null}
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {workout.publishedExercises.map((exercise, index) => (
             <div
               key={exercise.id}
@@ -106,7 +106,7 @@ export function PlannedWorkoutDetail({ workout, viewerMode }: Props) {
                 <p className="mt-1 text-sm text-[var(--shell-muted)]">{exercise.note}</p>
               ) : null}
               {(exercise.prescription?.sets?.length ?? 0) > 0 ? (
-                <div className="mt-3 space-y-1.5">
+                <div className="mt-3 flex flex-col gap-1.5">
                   {exercise.prescription?.sets?.map((set, setIndex) => (
                     <div
                       key={`${exercise.id}-${setIndex}`}

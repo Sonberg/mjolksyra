@@ -64,11 +64,11 @@ export function CoachAthletesContent({ trainees }: Props) {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageSectionHeader
         title="Athletes"
         description={
-          <div className="space-y-0.5">
+          <div className="flex flex-col gap-0.5">
             <p>Manage pricing, workouts, and coach relationships.</p>
             <p>
               {trainees.length} active athlete{trainees.length === 1 ? "" : "s"}
@@ -118,7 +118,7 @@ export function CoachAthletesContent({ trainees }: Props) {
       )}
 
       {invitaions.data.length > 0 ? (
-        <section className="space-y-4">
+        <section className="flex flex-col gap-4">
           <h3 className="text-lg text-[var(--shell-ink)]">
             Pending invitations
           </h3>
