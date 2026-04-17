@@ -8,6 +8,7 @@ import type { CreditLedgerItem } from "@/services/coaches/getCreditLedger";
 import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
   credits: Credits | null;
@@ -40,68 +41,72 @@ export function CoachCreditsSection({ credits, creditPricing, creditLedger }: Pr
         onOpenChange={setPurchaseDialogOpen}
       />
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Balance + action costs */}
-        <div className="flex flex-col gap-6">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits balance</p>
-            <div className="mt-3 grid grid-cols-3 gap-4">
-              <Metric label="Included" value={`${credits?.includedRemaining ?? 0}`} />
-              <Metric label="Purchased" value={`${credits?.purchasedRemaining ?? 0}`} />
-              <Metric label="Total" value={`${credits?.totalRemaining ?? 0}`} />
+        <Card>
+          <CardContent className="flex flex-col gap-6 p-6">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits balance</p>
+              <div className="mt-3 grid grid-cols-3 gap-4">
+                <Metric label="Included" value={`${credits?.includedRemaining ?? 0}`} />
+                <Metric label="Purchased" value={`${credits?.purchasedRemaining ?? 0}`} />
+                <Metric label="Total" value={`${credits?.totalRemaining ?? 0}`} />
+              </div>
+              <p className="mt-2 text-xs text-[var(--shell-muted)]">
+                {credits?.nextResetAt
+                  ? `Included credits reset on ${new Date(credits.nextResetAt).toLocaleDateString("sv-SE")}.`
+                  : "Included credits reset after successful subscription billing."}
+              </p>
             </div>
-            <p className="mt-2 text-xs text-[var(--shell-muted)]">
-              {credits?.nextResetAt
-                ? `Included credits reset on ${new Date(credits.nextResetAt).toLocaleDateString("sv-SE")}.`
-                : "Included credits reset after successful subscription billing."}
-            </p>
-          </div>
 
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Action costs</p>
-            {creditPricing.length === 0 ? (
-              <p className="mt-2 text-xs text-[var(--shell-muted)]">No action pricing found.</p>
-            ) : (
-              <ul className="mt-2 divide-y divide-[var(--shell-border)]">
-                {creditPricing.map((item) => (
-                  <li key={item.action} className="flex items-center justify-between py-2 text-sm">
-                    <span className="text-[var(--shell-ink)]">{formatActionName(item.action)}</span>
-                    <span className="text-[var(--shell-muted)]">{item.creditCost} credits</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Action costs</p>
+              {creditPricing.length === 0 ? (
+                <p className="mt-2 text-xs text-[var(--shell-muted)]">No action pricing found.</p>
+              ) : (
+                <ul className="mt-2 divide-y divide-[var(--shell-border)]">
+                  {creditPricing.map((item) => (
+                    <li key={item.action} className="flex items-center justify-between py-2 text-sm">
+                      <span className="text-[var(--shell-ink)]">{formatActionName(item.action)}</span>
+                      <span className="text-[var(--shell-muted)]">{item.creditCost} credits</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Ledger */}
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits ledger</p>
-          {creditLedger.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--shell-muted)]">No credit activity yet.</p>
-          ) : (
-            <ul className="mt-2 divide-y divide-[var(--shell-border)]">
-              {creditLedger.map((entry) => {
-                const delta = entry.includedCreditsChanged + entry.purchasedCreditsChanged;
-                const isPositive = delta >= 0;
-                return (
-                  <li key={entry.id} className="flex items-center justify-between gap-2 py-2">
-                    <div>
-                      <p className="text-sm text-[var(--shell-ink)]">{formatLedgerTitle(entry.type, entry.action)}</p>
-                      <p className="text-xs text-[var(--shell-muted)]">
-                        {new Date(entry.createdAt).toLocaleString("sv-SE")}
-                        {entry.referenceId ? ` · ${entry.referenceId}` : ""}
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits ledger</p>
+            {creditLedger.length === 0 ? (
+              <p className="mt-3 text-sm text-[var(--shell-muted)]">No credit activity yet.</p>
+            ) : (
+              <ul className="mt-2 divide-y divide-[var(--shell-border)]">
+                {creditLedger.map((entry) => {
+                  const delta = entry.includedCreditsChanged + entry.purchasedCreditsChanged;
+                  const isPositive = delta >= 0;
+                  return (
+                    <li key={entry.id} className="flex items-center justify-between gap-2 py-2">
+                      <div>
+                        <p className="text-sm text-[var(--shell-ink)]">{formatLedgerTitle(entry.type, entry.action)}</p>
+                        <p className="text-xs text-[var(--shell-muted)]">
+                          {new Date(entry.createdAt).toLocaleString("sv-SE")}
+                          {entry.referenceId ? ` · ${entry.referenceId}` : ""}
+                        </p>
+                      </div>
+                      <p className={cn("shrink-0 text-xs font-semibold", isPositive ? "text-[var(--shell-ink)]" : "text-[var(--shell-accent)]")}>
+                        {isPositive ? "+" : ""}{delta}
                       </p>
-                    </div>
-                    <p className={cn("shrink-0 text-xs font-semibold", isPositive ? "text-[var(--shell-ink)]" : "text-[var(--shell-accent)]")}>
-                      {isPositive ? "+" : ""}{delta}
-                    </p>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

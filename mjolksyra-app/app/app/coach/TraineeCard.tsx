@@ -208,7 +208,7 @@ export function TraineeCard({
   ];
 
   return (
-    <article className="group overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-colors hover:bg-[var(--shell-surface-strong)]">
+    <article className="group overflow-hidden border border-[var(--shell-border)] bg-[var(--shell-surface)] transition-colors">
       <div className="flex flex-wrap items-start gap-4 px-5 py-5 md:px-6">
         <Avatar className="size-12 border border-[var(--shell-border)]">
           <AvatarImage src={url} alt={trainee.athlete.name} />

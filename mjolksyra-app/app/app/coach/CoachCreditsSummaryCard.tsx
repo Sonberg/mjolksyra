@@ -20,7 +20,7 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   return (
-    <Card className="bg-[var(--shell-surface-strong)]">
+    <Card>
     <CardContent className="p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits</p>
