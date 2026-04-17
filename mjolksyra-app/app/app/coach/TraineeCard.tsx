@@ -283,7 +283,7 @@ export function TraineeCard({
               className="cursor-pointer focus:bg-[var(--shell-surface-strong)] focus:text-[var(--shell-ink)]"
             >
               <CreditCardIcon data-icon="inline-start" />
-              {chargeNow.isPending ? "Charging..." : "Charge now (reset cycle)"}
+              {chargeNow.isPending ? "Charging..." : "Charge now"}
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={cancel.isPending}
