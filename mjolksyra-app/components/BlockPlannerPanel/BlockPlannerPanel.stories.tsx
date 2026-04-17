@@ -151,6 +151,29 @@ export const PendingLargeProposal: Story = {
   ),
 };
 
+export const MultiSelectOptions: Story = {
+  render: () => (
+    <StoryFrame>
+      <BlockPlannerPanel
+        blockId="block-1"
+        numberOfWeeks={12}
+        onGenerated={async () => {}}
+        initialState={{
+          sessionId: "session-ms",
+          messages: [
+            { role: "user", content: "Build a 12-week strength block, 3 days per week" },
+            {
+              role: "assistant",
+              content: "Which days should be the training days?",
+              options: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            },
+          ],
+        }}
+      />
+    </StoryFrame>
+  ),
+};
+
 export const AfterGeneration: Story = {
   render: () => (
     <StoryFrame>

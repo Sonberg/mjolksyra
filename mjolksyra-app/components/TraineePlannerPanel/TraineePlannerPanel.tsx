@@ -40,7 +40,6 @@ import type {
   AIPlannerActionProposal,
   AIPlannerActionSet,
   AIPlannerCreditBreakdownItem,
-  AIPlannerApplyProposalResponse,
   PreviewWorkoutPlanWorkout,
 } from "@/services/traineePlanner/types";
 import { cn } from "@/lib/utils";
@@ -55,7 +54,6 @@ type Props = {
     attachedFiles?: PlannerFileContent[];
     proposedActionSet?: AIPlannerActionSet | null;
     previewWorkouts?: PreviewWorkoutPlanWorkout[] | null;
-    generationResult?: GenerationResult | null;
   };
 };
 
@@ -63,10 +61,6 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   options?: string[];
-};
-
-type GenerationResult = AIPlannerApplyProposalResponse & {
-  generatedAt: string;
 };
 
 const ACCEPTED_EXTENSIONS =
@@ -143,8 +137,6 @@ export function TraineePlannerPanel({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
-  const [generationResult, setGenerationResult] =
-    useState<GenerationResult | null>(initialState?.generationResult ?? null);
   const [proposedActionSet, setProposedActionSet] =
     useState<AIPlannerActionSet | null>(
       initialState?.proposedActionSet ?? null,
@@ -158,6 +150,7 @@ export function TraineePlannerPanel({
   const [isClearingSession, setIsClearingSession] = useState(false);
   const [proposalError, setProposalError] = useState<string | null>(null);
   const [attachmentDragDepth, setAttachmentDragDepth] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const hasPendingProposal = proposedActionSet?.status === "pending";
@@ -166,8 +159,7 @@ export function TraineePlannerPanel({
     hasStarted ||
     attachedFiles.length > 0 ||
     !!description.trim() ||
-    !!proposedActionSet ||
-    !!generationResult;
+    !!proposedActionSet;
 
   useEffect(() => {
     if (initialState) {
@@ -253,8 +245,17 @@ export function TraineePlannerPanel({
     }
   }
 
-  async function handleOptionSelect(option: string) {
-    await handleSendFollowUpWithText(option);
+  function toggleOption(option: string) {
+    setSelectedOptions((prev) =>
+      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option],
+    );
+  }
+
+  async function handleSendOptions() {
+    if (!selectedOptions.length) return;
+    const text = selectedOptions.join(", ");
+    setSelectedOptions([]);
+    await handleSendFollowUpWithText(text);
   }
 
   async function handleSendFollowUp() {
@@ -266,6 +267,7 @@ export function TraineePlannerPanel({
   async function handleSendFollowUpWithText(text: string) {
     if (!text.trim()) return;
 
+    setSelectedOptions([]);
     const userMessage: Message = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
@@ -324,10 +326,16 @@ export function TraineePlannerPanel({
         proposalId: proposedActionSet.id,
       });
 
-      setGenerationResult({ ...result, generatedAt: new Date().toISOString() });
       setProposedActionSet(null);
       setPreviewData(null);
       await onGenerated();
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: `Done — ${result.actionsApplied} change${result.actionsApplied !== 1 ? "s" : ""} applied. ${result.summary} What would you like to adjust next?`,
+        },
+      ]);
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 409) {
         setProposalError(
@@ -381,7 +389,6 @@ export function TraineePlannerPanel({
     setMessages([]);
     setAttachedFiles([]);
     setUserInput("");
-    setGenerationResult(null);
     setProposedActionSet(null);
     setPreviewData(null);
     setProposalError(null);
@@ -476,59 +483,6 @@ export function TraineePlannerPanel({
     );
   }
 
-  if (generationResult) {
-    return (
-      <div className="flex h-full flex-col gap-4 bg-[var(--shell-surface)] p-4">
-        <Card className="border border-[var(--shell-border)] shadow-none">
-          <CardHeader className="border-b border-[var(--shell-border)] p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
-                <CheckIcon data-icon className="text-[var(--shell-accent-ink)]" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                  Planner complete
-                </p>
-                <CardTitle className="mt-1 text-base">
-                  Changes applied
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm">
-                  {generationResult.summary}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-2">
-              <StatTile
-                label="Actions applied"
-                value={`${generationResult.actionsApplied}`}
-              />
-              <StatTile label="Next step" value="Review changes" />
-            </div>
-            <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-              Planned workouts were updated. Review them in the{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                Changes
-              </span>{" "}
-              tab, then publish when ready.
-            </p>
-          </CardContent>
-          <CardFooter className="border-t border-[var(--shell-border)] p-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isClearingSession}
-              onClick={() => void handleClearSession()}
-            >
-              <RotateCcwIcon data-icon="inline-start" />
-              Clear session
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--shell-surface)]">
@@ -585,18 +539,34 @@ export function TraineePlannerPanel({
                       {message.content}
                     </PlannerBubble>
                     {showOptions && (
-                      <div className="flex flex-wrap gap-2">
-                        {message.options!.map((option) => (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          {message.options!.map((option) => {
+                            const isSelected = selectedOptions.includes(option);
+                            return (
+                              <Button
+                                key={option}
+                                type="button"
+                                variant={isSelected ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => toggleOption(option)}
+                              >
+                                {isSelected && <CheckIcon className="mr-1 size-3" />}
+                                {option}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                        {selectedOptions.length > 0 && (
                           <Button
-                            key={option}
                             type="button"
-                            variant="outline"
                             size="sm"
-                            onClick={() => void handleOptionSelect(option)}
+                            onClick={() => void handleSendOptions()}
                           >
-                            {option}
+                            <SendIcon data-icon="inline-start" />
+                            {selectedOptions.join(", ")}
                           </Button>
-                        ))}
+                        )}
                       </div>
                     )}
                   </div>

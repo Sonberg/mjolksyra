@@ -40,6 +40,7 @@ public class GeminiBlockPlannerAgent(IOptions<GeminiOptions> options) : IBlockPl
                 "Ask ONE focused question at a time. If the coach has already answered something, do not ask again. " +
                 "When you have enough information, set requiresApproval=true, isReadyToApply=true, and return proposedActionSet.\n\n" +
                 "When your question has a fixed set of valid answers, include them in the 'options' array. " +
+                "Options support multi-select: if a question accepts multiple valid answers (e.g. training days of the week, muscle groups), list all valid choices and ask once — the coach may select several before sending. For single-value questions (e.g. number of weeks, training style), list choices as before. " +
                 "Leave options as [] for open-ended questions.\n\n" +
                 "Always respond with strict JSON only:\n" +
                 "{ \"message\": \"string\", \"isReadyToApply\": bool, \"requiresApproval\": bool, \"options\": [\"string\"], " +

@@ -10,6 +10,9 @@ import {
   RotateCcwIcon,
   Trash2Icon,
   LoaderCircle,
+  PlusIcon,
+  PencilIcon,
+  MinusIcon,
 } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { clarifyBlockPlan } from "@/services/blockPlanner/clarifyBlockPlan";
@@ -36,7 +38,6 @@ import type {
   BlockPlannerActionProposal,
   BlockPlannerActionSet,
   BlockPlannerCreditBreakdownItem,
-  ApplyBlockPlannerProposalResponse,
 } from "@/services/blockPlanner/types";
 import { cn } from "@/lib/utils";
 
@@ -55,10 +56,6 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   options?: string[];
-};
-
-type GenerationResult = ApplyBlockPlannerProposalResponse & {
-  generatedAt: string;
 };
 
 const ACCEPTED_EXTENSIONS =
@@ -132,8 +129,6 @@ export function BlockPlannerPanel({
   const [attachedFiles, setAttachedFiles] = useState<PlannerFileContent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
-  const [generationResult, setGenerationResult] =
-    useState<GenerationResult | null>(null);
   const [proposedActionSet, setProposedActionSet] =
     useState<BlockPlannerActionSet | null>(
       initialState?.proposedActionSet ?? null,
@@ -144,6 +139,7 @@ export function BlockPlannerPanel({
   const [isClearingSession, setIsClearingSession] = useState(false);
   const [proposalError, setProposalError] = useState<string | null>(null);
   const [attachmentDragDepth, setAttachmentDragDepth] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const hasPendingProposal = proposedActionSet?.status === "pending";
@@ -152,8 +148,7 @@ export function BlockPlannerPanel({
     hasStarted ||
     attachedFiles.length > 0 ||
     !!description.trim() ||
-    !!proposedActionSet ||
-    !!generationResult;
+    !!proposedActionSet;
 
   useEffect(() => {
     if (initialState) {
@@ -235,8 +230,17 @@ export function BlockPlannerPanel({
     }
   }
 
-  async function handleOptionSelect(option: string) {
-    await handleSendFollowUpWithText(option);
+  function toggleOption(option: string) {
+    setSelectedOptions((prev) =>
+      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option],
+    );
+  }
+
+  async function handleSendOptions() {
+    if (!selectedOptions.length) return;
+    const text = selectedOptions.join(", ");
+    setSelectedOptions([]);
+    await handleSendFollowUpWithText(text);
   }
 
   async function handleSendFollowUp() {
@@ -248,6 +252,7 @@ export function BlockPlannerPanel({
   async function handleSendFollowUpWithText(text: string) {
     if (!text.trim()) return;
 
+    setSelectedOptions([]);
     const userMessage: Message = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
@@ -302,9 +307,15 @@ export function BlockPlannerPanel({
         proposalId: proposedActionSet.id,
       });
 
-      setGenerationResult({ ...result, generatedAt: new Date().toISOString() });
       setProposedActionSet(null);
       await onGenerated();
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: `Done — ${result.actionsApplied} change${result.actionsApplied !== 1 ? "s" : ""} applied. ${result.summary} What would you like to adjust next?`,
+        },
+      ]);
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 422) {
         setInsufficientCredits(true);
@@ -351,7 +362,6 @@ export function BlockPlannerPanel({
     setMessages([]);
     setAttachedFiles([]);
     setUserInput("");
-    setGenerationResult(null);
     setProposedActionSet(null);
     setProposalError(null);
   }
@@ -428,55 +438,6 @@ export function BlockPlannerPanel({
     );
   }
 
-  if (generationResult) {
-    return (
-      <div className="flex h-full flex-col gap-4 bg-[var(--shell-surface)] p-4">
-        <Card className="border border-[var(--shell-border)] shadow-none">
-          <CardHeader className="border-b border-[var(--shell-border)] p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
-                <CheckIcon data-icon className="text-[var(--shell-accent-ink)]" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                  Block planner complete
-                </p>
-                <CardTitle className="mt-1 text-base">
-                  Changes applied
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm">
-                  {generationResult.summary}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-2">
-              <StatTile
-                label="Actions applied"
-                value={`${generationResult.actionsApplied}`}
-              />
-              <StatTile label="Next step" value="Review block" />
-            </div>
-            <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-              The block template was updated. Review the changes in the grid.
-            </p>
-          </CardContent>
-          <CardFooter className="border-t border-[var(--shell-border)] p-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isClearingSession}
-              onClick={() => void handleClearSession()}
-            >
-              <RotateCcwIcon data-icon="inline-start" />
-              Clear session
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--shell-surface)]">
@@ -532,18 +493,34 @@ export function BlockPlannerPanel({
                       {message.content}
                     </PlannerBubble>
                     {showOptions && (
-                      <div className="flex flex-wrap gap-2">
-                        {message.options!.map((option) => (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          {message.options!.map((option) => {
+                            const isSelected = selectedOptions.includes(option);
+                            return (
+                              <Button
+                                key={option}
+                                type="button"
+                                variant={isSelected ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => toggleOption(option)}
+                              >
+                                {isSelected && <CheckIcon className="mr-1 size-3" />}
+                                {option}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                        {selectedOptions.length > 0 && (
                           <Button
-                            key={option}
                             type="button"
-                            variant="outline"
                             size="sm"
-                            onClick={() => void handleOptionSelect(option)}
+                            onClick={() => void handleSendOptions()}
                           >
-                            {option}
+                            <SendIcon data-icon="inline-start" />
+                            {selectedOptions.join(", ")}
                           </Button>
-                        ))}
+                        )}
                       </div>
                     )}
                   </div>
@@ -823,16 +800,14 @@ function ProposalReviewCard({
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Review changes
         </p>
-        <ScrollArea className="mt-3 max-h-[260px]">
-          <div className="flex flex-col gap-2">
-            {proposal.actions.map((action, index) => (
-              <ProposalActionRow
-                key={`${action.actionType}-${action.targetWorkoutId ?? index}`}
-                action={action}
-              />
-            ))}
-          </div>
-        </ScrollArea>
+        <div className="mt-3 flex max-h-[280px] flex-col gap-2 overflow-y-auto">
+          {proposal.actions.map((action, index) => (
+            <ProposalActionRow
+              key={`${action.actionType}-${action.targetWorkoutId ?? index}`}
+              action={action}
+            />
+          ))}
+        </div>
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
@@ -868,8 +843,8 @@ function ProposalActionRow({ action }: { action: BlockPlannerActionProposal }) {
         <p className="text-xs font-medium text-[var(--shell-ink)]">
           {action.summary}
         </p>
-        <Badge variant="secondary" className="shrink-0">
-          {formatActionType(action.actionType)}
+        <Badge variant="secondary" className="shrink-0 px-1.5 py-0.5" title={formatActionType(action.actionType)}>
+          <ActionTypeIcon actionType={action.actionType} />
         </Badge>
       </div>
       <div className="mt-2 flex flex-col gap-1 text-xs text-[var(--shell-muted)]">
@@ -906,6 +881,13 @@ function formatActionType(
   actionType: BlockPlannerActionProposal["actionType"],
 ): string {
   return actionType.replaceAll("_", " ");
+}
+
+function ActionTypeIcon({ actionType }: { actionType: BlockPlannerActionProposal["actionType"] }) {
+  if (actionType.startsWith("delete_")) return <Trash2Icon className="size-3" />;
+  if (actionType.startsWith("update_")) return <PencilIcon className="size-3" />;
+  if (actionType === "delete_block_exercise") return <MinusIcon className="size-3" />;
+  return <PlusIcon className="size-3" />;
 }
 
 function summarizeCreditBreakdown(

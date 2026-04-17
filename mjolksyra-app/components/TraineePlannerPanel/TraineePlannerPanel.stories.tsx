@@ -261,6 +261,29 @@ export const PendingFutureDelete: Story = {
   ),
 };
 
+export const MultiSelectOptions: Story = {
+  render: () => (
+    <StoryFrame>
+      <TraineePlannerPanel
+        traineeId="trainee-1"
+        onGenerated={async () => {}}
+        initialState={{
+          sessionId: "session-ms",
+          description: "3-day powerlifting block",
+          messages: [
+            { role: "user", content: "3-day powerlifting block" },
+            {
+              role: "assistant",
+              content: "Which days should be the training days?",
+              options: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            },
+          ],
+        }}
+      />
+    </StoryFrame>
+  ),
+};
+
 export const AfterGeneration: Story = {
   render: () => (
     <StoryFrame>
