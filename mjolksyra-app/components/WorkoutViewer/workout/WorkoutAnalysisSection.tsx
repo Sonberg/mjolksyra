@@ -9,6 +9,7 @@ import { addCompletedWorkoutChatMessage } from "@/services/completedWorkouts/add
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { WorkoutMediaAnalysis } from "@/services/plannedWorkouts/type";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -135,13 +136,13 @@ export function WorkoutAnalysisSection({
   return (
     <>
       {latestAnalysis.isError && !analysis ? (
-        <p className="text-xs text-red-500">Could not load previous analysis.</p>
+        <p className="text-xs text-destructive">Could not load previous analysis.</p>
       ) : null}
 
       {isPending && !analysis ? (
         <AnalysisSkeleton />
       ) : analysis ? (
-        <article className="space-y-3" data-testid="workout-analysis-outcome">
+        <article className="flex flex-col gap-3" data-testid="workout-analysis-outcome">
           <div className="border-l-2 border-[var(--shell-accent)] pl-3">
             <p className="text-sm font-medium text-[var(--shell-ink)]">{analysis.summary}</p>
             <p className="mt-1 text-[11px] text-[var(--shell-muted)]" data-testid="workout-analysis-timestamp">
@@ -149,11 +150,11 @@ export function WorkoutAnalysisSection({
             </p>
           </div>
           {(analysis.keyFindings.length > 0 || analysis.techniqueRisks.length > 0 || analysis.coachSuggestions.length > 0) ? (
-            <div className="space-y-2 text-xs text-[var(--shell-muted)]">
+            <div className="flex flex-col gap-2 text-xs text-[var(--shell-muted)]">
               {analysis.keyFindings.length > 0 ? (
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Findings</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     {analysis.keyFindings.map((f: string, i: number) => <li key={i}>{f}</li>)}
                   </ul>
                 </div>
@@ -161,7 +162,7 @@ export function WorkoutAnalysisSection({
               {analysis.techniqueRisks.length > 0 ? (
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Risks</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     {analysis.techniqueRisks.map((r: string, i: number) => <li key={i}>{r}</li>)}
                   </ul>
                 </div>
@@ -169,7 +170,7 @@ export function WorkoutAnalysisSection({
               {analysis.coachSuggestions.length > 0 ? (
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Suggestions</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     {analysis.coachSuggestions.map((s: string, i: number) => <li key={i}>{s}</li>)}
                   </ul>
                 </div>
@@ -268,7 +269,9 @@ export function WorkoutAnalysis({ traineeId, completedWorkoutId }: Props) {
       />
 
       {latestAnalysis.data ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--shell-border)] pt-3">
+        <>
+        <Separator />
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[var(--shell-muted)]">
             Share this analysis directly in the athlete chat for this workout.
           </p>
@@ -290,6 +293,7 @@ export function WorkoutAnalysis({ traineeId, completedWorkoutId }: Props) {
             </Button>
           </div>
         </div>
+        </>
       ) : null}
 
       {analyze.isError ? (
@@ -339,5 +343,5 @@ function AnalysisError({ error, onBuyCredits }: { error: Error; onBuyCredits: ()
     );
   }
 
-  return <p className="text-xs text-red-500">Could not analyze this check-in right now.</p>;
+  return <p className="text-xs text-destructive">Could not analyze this check-in right now.</p>;
 }

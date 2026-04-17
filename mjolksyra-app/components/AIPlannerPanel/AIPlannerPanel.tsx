@@ -27,6 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
 import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
@@ -663,30 +664,30 @@ export function AIPlannerPanel({
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div className="border-t border-[var(--shell-border)]">
-            <AIPlannerComposer
-              value={description}
-              onChange={setDescription}
-              onSend={() => void handleSendInitial()}
-              onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendInitial(); }}
-              canSend={!!description.trim()}
-              isLoading={isLoading}
-              rows={5}
-              placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
-              fileInputRef={fileInputRef}
-              fileInputId={attachmentInputId}
-              attachedFiles={attachedFiles}
-              isAttachmentDragActive={isAttachmentDragActive}
-              attachmentButtonLabel="Attach context"
-              onAttachmentClick={() => fileInputRef.current?.click()}
-              onRemoveFile={removeFile}
-              onFileChange={handleFileChange}
-            />
-          </div>
+          <Separator />
+          <AIPlannerComposer
+            value={description}
+            onChange={setDescription}
+            onSend={() => void handleSendInitial()}
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendInitial(); }}
+            canSend={!!description.trim()}
+            isLoading={isLoading}
+            rows={5}
+            placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
+            fileInputRef={fileInputRef}
+            fileInputId={attachmentInputId}
+            attachedFiles={attachedFiles}
+            isAttachmentDragActive={isAttachmentDragActive}
+            attachmentButtonLabel="Attach context"
+            onAttachmentClick={() => fileInputRef.current?.click()}
+            onRemoveFile={removeFile}
+            onFileChange={handleFileChange}
+          />
         </div>
       ) : (
+        <>
+        <Separator />
         <div
-          className="border-t border-[var(--shell-border)]"
           data-testid="ai-planner-attachment-dropzone"
           onDragEnter={handleAttachmentDragEnter}
           onDragOver={handleAttachmentDragOver}
@@ -713,6 +714,7 @@ export function AIPlannerPanel({
             onFileChange={handleFileChange}
           />
         </div>
+        </>
       )}
       <PurchaseCreditsDialog
         open={purchaseDialogOpen}
@@ -1019,7 +1021,7 @@ function ProposalReviewCard({
                         </p>
                       )}
                       {workout.exercises.length > 0 && (
-                        <ul className="mt-2 space-y-1">
+                        <ul className="mt-2 flex flex-col gap-1">
                           {workout.exercises.map((exercise, i) => {
                             const prescription = formatPrescription(exercise);
                             return (

@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
   RemoveSetRowInput,
   ToggleExerciseDoneInput,
@@ -289,7 +290,8 @@ export function WorkoutExerciseCard({
 
       {/* Sets table */}
       {hasSets ? (
-        <div className="border-t border-[var(--shell-border)]">
+        <div>
+          <Separator />
           {/* Column headers */}
           <div className="flex items-center gap-3 px-3 pb-1 pt-2 sm:px-4">
             {isEditMode ? (
@@ -341,15 +343,18 @@ export function WorkoutExerciseCard({
 
           {/* Add set — hidden in edit mode */}
           {viewerMode === "athlete" && onAddSetRow && !isEditMode ? (
-            <div className="border-t border-[var(--shell-border)] px-3 py-2 sm:px-4">
-              <button
-                type="button"
-                onClick={() => onAddSetRow(exercise.id)}
-                className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
-              >
-                <PlusIcon className="size-3" />
-                Add set
-              </button>
+            <div>
+              <Separator />
+              <div className="px-3 py-2 sm:px-4">
+                <button
+                  type="button"
+                  onClick={() => onAddSetRow(exercise.id)}
+                  className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+                >
+                  <PlusIcon className="size-3" />
+                  Add set
+                </button>
+              </div>
             </div>
           ) : null}
         </div>
@@ -357,15 +362,18 @@ export function WorkoutExerciseCard({
 
       {/* Add set when no sets yet — hidden in edit mode */}
       {!hasSets && viewerMode === "athlete" && isDetailView && onAddSetRow && !isEditMode ? (
-        <div className="border-t border-[var(--shell-border)] px-3 py-2 sm:px-4">
-          <button
-            type="button"
-            onClick={() => onAddSetRow(exercise.id)}
-            className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
-          >
-            <PlusIcon className="size-3" />
-            Add set
-          </button>
+        <div>
+          <Separator />
+          <div className="px-3 py-2 sm:px-4">
+            <button
+              type="button"
+              onClick={() => onAddSetRow(exercise.id)}
+              className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+            >
+              <PlusIcon className="size-3" />
+              Add set
+            </button>
+          </div>
         </div>
       ) : null}
     </div>

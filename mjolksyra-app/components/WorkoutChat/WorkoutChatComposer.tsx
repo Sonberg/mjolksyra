@@ -2,6 +2,7 @@ import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutM
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutChatComposerInput } from "@/components/WorkoutChat/WorkoutChatComposerInput";
 import { WorkoutChatComposerSendButton } from "@/components/WorkoutChat/WorkoutChatComposerSendButton";
+import { Separator } from "@/components/ui/separator";
 
 type WorkoutMedia = NonNullable<CompletedWorkout["media"]>[number];
 
@@ -31,7 +32,8 @@ export function WorkoutChatComposer({
   onSend,
 }: Props) {
   return (
-    <div className="border-t border-[var(--shell-border)]">
+    <>
+      <Separator />
       <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
         <div className="flex items-end gap-2">
           <WorkoutChatComposerInput value={message} onChange={onMessageChange} />
@@ -53,6 +55,6 @@ export function WorkoutChatComposer({
           />
         </div>
       </div>
-    </div>
+    </>
   );
 }
