@@ -32,9 +32,12 @@ export function FatigueRiskBadge({
       variant="secondary"
       className={cn(
         "rounded-none px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em]",
-        level === "low" && "bg-emerald-900/30 text-emerald-400",
-        level === "medium" && "bg-amber-900/30 text-amber-400",
-        level === "high" && "bg-red-900/30 text-red-400",
+        level === "low" &&
+          "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+        level === "medium" &&
+          "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+        level === "high" &&
+          "border-transparent bg-[var(--shell-ink)] text-[var(--shell-surface)]",
       )}
     >
       {level}
@@ -52,9 +55,12 @@ export function TrendBadge({
       variant="secondary"
       className={cn(
         "rounded-none px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em]",
-        trend === "improving" && "bg-emerald-900/30 text-emerald-400",
-        trend === "plateauing" && "bg-amber-900/30 text-amber-400",
-        trend === "declining" && "bg-red-900/30 text-red-400",
+        trend === "improving" &&
+          "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+        trend === "plateauing" &&
+          "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
+        trend === "declining" &&
+          "border-transparent bg-[var(--shell-ink)] text-[var(--shell-surface)]",
       )}
     >
       {trend}
@@ -72,10 +78,12 @@ export function PriorityBadge({
       variant="secondary"
       className={cn(
         "rounded-none px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em]",
-        priority === "high" && "bg-red-900/30 text-red-400",
-        priority === "medium" && "bg-amber-900/30 text-amber-400",
+        priority === "high" &&
+          "border-transparent bg-[var(--shell-ink)] text-[var(--shell-surface)]",
+        priority === "medium" &&
+          "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]",
         priority === "low" &&
-          "bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
+          "border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
       )}
     >
       {priority}
@@ -120,19 +128,14 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
             <div className="flex items-center gap-3">
               <div className="h-1.5 flex-1 overflow-hidden rounded-none bg-[var(--shell-surface-strong)]">
                 <div
-                  className={cn(
-                    "h-full",
-                    insights.fatigueRisk.level === "low" && "bg-emerald-500",
-                    insights.fatigueRisk.level === "medium" && "bg-amber-500",
-                    insights.fatigueRisk.level === "high" && "bg-red-500",
-                  )}
+                  className="h-full bg-[var(--shell-ink)]"
                   style={{
-                    width: `${Math.round(insights.fatigueRisk.score * 100)}%`,
+                    width: `${Math.min(Math.round(insights.fatigueRisk.score), 100)}%`,
                   }}
                 />
               </div>
               <span className="shrink-0 text-xs font-semibold text-[var(--shell-ink)]">
-                {Math.round(insights.fatigueRisk.score * 100)}
+                {Math.round(insights.fatigueRisk.score)}
               </span>
             </div>
             <p className="text-sm text-[var(--shell-muted)]">
@@ -157,19 +160,16 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
             {insights.progressionSummary.exercises.length > 0 ? (
               <ul className="divide-y divide-[var(--shell-border)]">
                 {insights.progressionSummary.exercises.map((ex, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start justify-between gap-3 py-2"
-                  >
-                    <p className="text-sm font-medium text-[var(--shell-ink)]">
-                      {ex.name}
-                    </p>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <TrendBadge trend={ex.trend} />
-                      <p className="text-xs text-[var(--shell-muted)]">
-                        {ex.detail}
+                  <li key={i} className="flex flex-col gap-1 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-[var(--shell-ink)]">
+                        {ex.name}
                       </p>
+                      <TrendBadge trend={ex.trend} />
                     </div>
+                    <p className="text-xs text-[var(--shell-muted)]">
+                      {ex.detail}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -187,7 +187,7 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
             <ul className="divide-y divide-[var(--shell-border)]">
               {insights.strengths.map((s, i) => (
                 <li key={i} className="flex items-start gap-3 py-2 first:pt-0">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-emerald-500" />
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-[var(--shell-ink)]" />
                   <div>
                     <p className="text-sm font-semibold text-[var(--shell-ink)]">
                       {s.label}
@@ -212,7 +212,7 @@ export function InsightsAccordion({ insights }: { insights: TraineeInsights }) {
             <ul className="divide-y divide-[var(--shell-border)]">
               {insights.weaknesses.map((w, i) => (
                 <li key={i} className="flex items-start gap-3 py-2 first:pt-0">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-amber-500" />
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-[var(--shell-muted)]" />
                   <div>
                     <p className="text-sm font-semibold text-[var(--shell-ink)]">
                       {w.label}
