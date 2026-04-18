@@ -22,7 +22,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChatMessage, ChatMessageAttachmentBar, ChatMessageComposer, ChatMessageTyping } from "@/components/Chat";
+import {
+  ChatMessage,
+  ChatMessageAttachmentBar,
+  ChatMessageComposer,
+  ChatMessageTyping,
+} from "@/components/Chat";
 import { clarifyBlockPlan } from "@/services/blockPlanner/clarifyBlockPlan";
 import { applyBlockPlannerProposal } from "@/services/blockPlanner/applyBlockPlannerProposal";
 import { deleteBlockPlannerSession } from "@/services/blockPlanner/deleteBlockPlannerSession";
@@ -160,7 +165,10 @@ export function BlockPlannerPanel({
           return;
         }
 
-        await deleteBlockPlannerSession({ blockId, sessionId: session.sessionId });
+        await deleteBlockPlannerSession({
+          blockId,
+          sessionId: session.sessionId,
+        });
       } catch {
         // stale session cleanup is best-effort
       } finally {
@@ -227,7 +235,9 @@ export function BlockPlannerPanel({
 
   function toggleOption(option: string) {
     setSelectedOptions((prev) =>
-      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option],
+      prev.includes(option)
+        ? prev.filter((o) => o !== option)
+        : [...prev, option],
     );
   }
 
@@ -433,7 +443,6 @@ export function BlockPlannerPanel({
     );
   }
 
-
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--shell-surface)]">
       <Card className="border-b border-[var(--shell-border)] border-x-0 border-t-0 shadow-none">
@@ -503,7 +512,9 @@ export function BlockPlannerPanel({
                                 size="sm"
                                 onClick={() => toggleOption(option)}
                               >
-                                {isSelected && <CheckIcon className="mr-1 size-3" />}
+                                {isSelected && (
+                                  <CheckIcon className="mr-1 size-3" />
+                                )}
                                 {option}
                               </Button>
                             );
@@ -526,10 +537,7 @@ export function BlockPlannerPanel({
               })}
               {isLoading && (
                 <ChatMessage align="start" label="Planner">
-                  <span className="flex items-center gap-2 text-[var(--shell-muted)]">
-                    <ChatMessageTyping />
-                    <span>Designing the block…</span>
-                  </span>
+                  <ChatMessageTyping />
                 </ChatMessage>
               )}
             </div>
@@ -683,11 +691,15 @@ function StatTile({ label, value }: { label: string; value: string }) {
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function formatWeekDay(week?: number | null, dayOfWeek?: number | null): string {
+function formatWeekDay(
+  week?: number | null,
+  dayOfWeek?: number | null,
+): string {
   if (!week && !dayOfWeek) return "Not specified";
   const parts: string[] = [];
   if (week) parts.push(`Week ${week}`);
-  if (dayOfWeek) parts.push(DAY_NAMES[(dayOfWeek - 1) % 7] ?? `Day ${dayOfWeek}`);
+  if (dayOfWeek)
+    parts.push(DAY_NAMES[(dayOfWeek - 1) % 7] ?? `Day ${dayOfWeek}`);
   return parts.join(" / ");
 }
 
@@ -781,7 +793,11 @@ function ProposalActionRow({ action }: { action: BlockPlannerActionProposal }) {
         <p className="text-xs font-medium text-[var(--shell-ink)]">
           {action.summary}
         </p>
-        <Badge variant="secondary" className="shrink-0 px-1.5 py-0.5" title={formatActionType(action.actionType)}>
+        <Badge
+          variant="secondary"
+          className="shrink-0 px-1.5 py-0.5"
+          title={formatActionType(action.actionType)}
+        >
           <ActionTypeIcon actionType={action.actionType} />
         </Badge>
       </div>
@@ -821,10 +837,17 @@ function formatActionType(
   return actionType.replaceAll("_", " ");
 }
 
-function ActionTypeIcon({ actionType }: { actionType: BlockPlannerActionProposal["actionType"] }) {
-  if (actionType.startsWith("delete_")) return <Trash2Icon className="size-3" />;
-  if (actionType.startsWith("update_")) return <PencilIcon className="size-3" />;
-  if (actionType === "delete_block_exercise") return <MinusIcon className="size-3" />;
+function ActionTypeIcon({
+  actionType,
+}: {
+  actionType: BlockPlannerActionProposal["actionType"];
+}) {
+  if (actionType.startsWith("delete_"))
+    return <Trash2Icon className="size-3" />;
+  if (actionType.startsWith("update_"))
+    return <PencilIcon className="size-3" />;
+  if (actionType === "delete_block_exercise")
+    return <MinusIcon className="size-3" />;
   return <PlusIcon className="size-3" />;
 }
 
@@ -836,4 +859,3 @@ function summarizeCreditBreakdown(
     .map((item) => `${item.count} ${item.actionType.replaceAll("_", " ")}`)
     .join(" + ");
 }
-

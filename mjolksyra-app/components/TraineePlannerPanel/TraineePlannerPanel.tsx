@@ -2,14 +2,14 @@
 
 import { ReactNode, useEffect, useRef, useState, useId } from "react";
 import { isAxiosError } from "axios";
-import {
-  SendIcon,
-  CheckIcon,
-  RotateCcwIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { SendIcon, CheckIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { ChatMessage, ChatMessageAttachmentBar, ChatMessageComposer, ChatMessageTyping } from "@/components/Chat";
+import {
+  ChatMessage,
+  ChatMessageAttachmentBar,
+  ChatMessageComposer,
+  ChatMessageTyping,
+} from "@/components/Chat";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
@@ -242,7 +242,9 @@ export function TraineePlannerPanel({
 
   function toggleOption(option: string) {
     setSelectedOptions((prev) =>
-      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option],
+      prev.includes(option)
+        ? prev.filter((o) => o !== option)
+        : [...prev, option],
     );
   }
 
@@ -478,7 +480,6 @@ export function TraineePlannerPanel({
     );
   }
 
-
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--shell-surface)]">
       <Card className="border-b border-[var(--shell-border)] border-x-0 border-t-0 shadow-none">
@@ -549,7 +550,9 @@ export function TraineePlannerPanel({
                                 size="sm"
                                 onClick={() => toggleOption(option)}
                               >
-                                {isSelected && <CheckIcon className="mr-1 size-3" />}
+                                {isSelected && (
+                                  <CheckIcon className="mr-1 size-3" />
+                                )}
                                 {option}
                               </Button>
                             );
@@ -572,10 +575,7 @@ export function TraineePlannerPanel({
               })}
               {isLoading && (
                 <ChatMessage align="start" label="Planner">
-                  <span className="flex items-center gap-2 text-[var(--shell-muted)]">
-                    <ChatMessageTyping />
-                    <span>Thinking through the plan…</span>
-                  </span>
+                  <ChatMessageTyping />
                 </ChatMessage>
               )}
             </div>
@@ -633,7 +633,10 @@ export function TraineePlannerPanel({
             value={description}
             onChange={setDescription}
             onSend={() => void handleSendInitial()}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendInitial(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                void handleSendInitial();
+            }}
             canSend={!!description.trim()}
             isSending={isLoading}
             rows={5}
@@ -664,11 +667,18 @@ export function TraineePlannerPanel({
             value={userInput}
             onChange={setUserInput}
             onSend={() => void handleSendFollowUp()}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSendFollowUp(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                void handleSendFollowUp();
+            }}
             canSend={!!userInput.trim()}
             isSending={isLoading}
             rows={3}
-            placeholder={hasPendingProposal ? "Ask for changes or explain what to revise..." : "Reply with the next detail..."}
+            placeholder={
+              hasPendingProposal
+                ? "Ask for changes or explain what to revise..."
+                : "Reply with the next detail..."
+            }
             disabled={isLoading}
           >
             <ChatMessageAttachmentBar
@@ -746,8 +756,6 @@ function StatTile({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-
 
 type WeekGroup = {
   weekLabel: string;
@@ -878,84 +886,85 @@ function ProposalReviewCard({
       </CardContent>
 
       <CardContent className="border-b border-[var(--shell-border)] p-0">
-      <ScrollArea className="max-h-[260px]">
-      <div className="p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-          Preview
-        </p>
-        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          {workouts.length === 0
-            ? "No preview workouts were returned for this proposal."
-            : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
-        </p>
-        {workouts.length === 0 ? (
-          <p className="mt-3 text-xs text-[var(--shell-muted)]">
-            Ask the planner to refine the proposal if you want a clearer preview
-            before approving.
-          </p>
-        ) : (
-          <div className="mt-3 flex flex-col gap-3">
-            {weeks.map((week) => (
-              <div
-                key={week.weekLabel}
-                className="border border-[var(--shell-border)] bg-[var(--shell-surface)]"
-              >
-                <div className="border-b border-[var(--shell-border)] px-3 py-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
-                      {week.weekLabel}
-                    </span>
-                    <span className="text-[10px] text-[var(--shell-muted)]">
-                      {week.weekRange}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 p-3">
-                  {week.workouts.map((workout) => (
-                    <div
-                      key={`${workout.plannedAt}-${workout.name ?? "workout"}`}
-                      className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
-                    >
-                      <p className="text-xs font-medium text-[var(--shell-ink)]">
-                        {dayjs(workout.plannedAt).format("ddd, MMM D")}
-                        {workout.name && (
-                          <span className="ml-1.5 font-normal text-[var(--shell-muted)]">
-                            - {workout.name}
-                          </span>
-                        )}
-                      </p>
-                      {workout.note && (
-                        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                          {workout.note}
-                        </p>
-                      )}
-                      {workout.exercises.length > 0 && (
-                        <ul className="mt-2 flex flex-col gap-1">
-                          {workout.exercises.map((exercise, i) => {
-                            const prescription = formatPrescription(exercise);
-                            return (
-                              <li
-                                key={`${exercise.name}-${i}`}
-                                className="text-xs text-[var(--shell-muted)]"
-                              >
-                                <span className="font-medium text-[var(--shell-ink)]">
-                                  {exercise.name}
-                                </span>
-                                {prescription ? ` · ${prescription}` : ""}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
+        <ScrollArea className="max-h-[260px]">
+          <div className="p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              Preview
+            </p>
+            <p className="mt-1 text-xs text-[var(--shell-muted)]">
+              {workouts.length === 0
+                ? "No preview workouts were returned for this proposal."
+                : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
+            </p>
+            {workouts.length === 0 ? (
+              <p className="mt-3 text-xs text-[var(--shell-muted)]">
+                Ask the planner to refine the proposal if you want a clearer
+                preview before approving.
+              </p>
+            ) : (
+              <div className="mt-3 flex flex-col gap-3">
+                {weeks.map((week) => (
+                  <div
+                    key={week.weekLabel}
+                    className="border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+                  >
+                    <div className="border-b border-[var(--shell-border)] px-3 py-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
+                          {week.weekLabel}
+                        </span>
+                        <span className="text-[10px] text-[var(--shell-muted)]">
+                          {week.weekRange}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex flex-col gap-2 p-3">
+                      {week.workouts.map((workout) => (
+                        <div
+                          key={`${workout.plannedAt}-${workout.name ?? "workout"}`}
+                          className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
+                        >
+                          <p className="text-xs font-medium text-[var(--shell-ink)]">
+                            {dayjs(workout.plannedAt).format("ddd, MMM D")}
+                            {workout.name && (
+                              <span className="ml-1.5 font-normal text-[var(--shell-muted)]">
+                                - {workout.name}
+                              </span>
+                            )}
+                          </p>
+                          {workout.note && (
+                            <p className="mt-1 text-xs text-[var(--shell-muted)]">
+                              {workout.note}
+                            </p>
+                          )}
+                          {workout.exercises.length > 0 && (
+                            <ul className="mt-2 flex flex-col gap-1">
+                              {workout.exercises.map((exercise, i) => {
+                                const prescription =
+                                  formatPrescription(exercise);
+                                return (
+                                  <li
+                                    key={`${exercise.name}-${i}`}
+                                    className="text-xs text-[var(--shell-muted)]"
+                                  >
+                                    <span className="font-medium text-[var(--shell-ink)]">
+                                      {exercise.name}
+                                    </span>
+                                    {prescription ? ` · ${prescription}` : ""}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
-      </ScrollArea>
+        </ScrollArea>
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
@@ -965,11 +974,7 @@ function ProposalReviewCard({
           </Alert>
         )}
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            disabled={isLoading}
-            onClick={onApply}
-          >
+          <Button type="button" disabled={isLoading} onClick={onApply}>
             <CheckIcon data-icon="inline-start" />
             {`Apply changes (${creditCost} cr)`}
           </Button>
@@ -1064,4 +1069,3 @@ function formatDateRange(
 
   return dayjs(dateFrom ?? dateTo ?? "").format("ddd, MMM D");
 }
-

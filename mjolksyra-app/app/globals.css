@@ -1,5 +1,19 @@
 @import "../packages/mjolksyra-ui-design-system/src/styles.css";
 
+@font-face {
+  font-family: "Geist";
+  src: url("./fonts/GeistVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("./fonts/GeistMonoVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,9 +49,11 @@ body {
 
 @layer base {
   :root {
-    --font-display: var(--font-geist), "Geist", system-ui, sans-serif;
-    --font-body: var(--font-geist), "Geist", system-ui, sans-serif;
-    --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+    --font-geist: "Geist";
+    --font-geist-mono: "Geist Mono";
+    --font-display: var(--font-geist), system-ui, sans-serif;
+    --font-body: var(--font-geist), system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
     /* Shell vars — derived from HSL tokens; update tokens only to retheme */
     --shell-bg: hsl(var(--background));

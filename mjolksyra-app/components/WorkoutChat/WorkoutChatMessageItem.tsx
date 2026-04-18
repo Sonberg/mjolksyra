@@ -36,7 +36,7 @@ export function WorkoutChatMessageItem({
     chatMessage.modifiedAt > chatMessage.createdAt;
 
   const editForm = isEditing ? (
-    <div className="inline-flex max-w-full flex-col border border-[var(--shell-border)] bg-[var(--shell-bg)] px-3 py-2 text-[var(--shell-ink)]">
+    <div className="inline-flex max-w-full flex-col bg-[var(--shell-surface-strong)] px-3 py-2 text-[var(--shell-ink)]">
       <div className="flex flex-col gap-2">
         <Textarea
           value={editingMessageBody}
@@ -66,7 +66,7 @@ export function WorkoutChatMessageItem({
       <button
         type="button"
         onClick={() => onStartEditing(chatMessage.id, chatMessage.message)}
-        className="px-2 py-1 text-[11px] font-semibold text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
+        className="px-2 py-1 text-[11px] font-semibold text-[var(--shell-muted)] border transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]"
       >
         Edit
       </button>

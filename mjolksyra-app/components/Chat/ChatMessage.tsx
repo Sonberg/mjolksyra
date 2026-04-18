@@ -42,10 +42,10 @@ export function ChatMessage({
         {editForm ?? (
           <div
             className={cn(
-              "inline-flex max-w-full border border-[var(--shell-border)] px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]",
+              "inline-flex max-w-full text-sm leading-6 text-[var(--shell-ink)]",
               isEnd
                 ? "bg-[var(--shell-bg)]"
-                : "bg-[var(--shell-surface-strong)]",
+                : "bg-[var(--shell-surface-strong)] px-4 py-2",
             )}
           >
             {children}

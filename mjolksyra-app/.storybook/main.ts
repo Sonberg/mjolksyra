@@ -17,6 +17,13 @@ const config: StorybookConfig = {
   },
   staticDirs: ["../public"],
   viteFinal: async (config) => {
+    config.resolve ??= {};
+    config.resolve.alias = {
+      ...(typeof config.resolve.alias === "object" && !Array.isArray(config.resolve.alias)
+        ? config.resolve.alias
+        : {}),
+      "@": path.resolve(__dirname, ".."),
+    };
     config.optimizeDeps ??= {};
     config.optimizeDeps.exclude = [
       ...(config.optimizeDeps.exclude ?? []),

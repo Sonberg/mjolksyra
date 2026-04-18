@@ -1,16 +1,18 @@
-"use client"
+"use client";
 
-import type { Meta, StoryObj } from "@storybook/nextjs-vite"
-import { ChatMessage } from "./ChatMessage"
-import { ChatMessageComposer } from "./ChatMessageComposer"
-import { ChatMessageTyping } from "./ChatMessageTyping"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { useRef } from "react";
+import { ChatMessage } from "./ChatMessage";
+import { ChatMessageAttachmentBar } from "./ChatMessageAttachmentBar";
+import { ChatMessageComposer } from "./ChatMessageComposer";
+import { ChatMessageTyping } from "./ChatMessageTyping";
 
 const meta = {
   title: "Chat/Primitives",
-} satisfies Meta
+} satisfies Meta;
 
-export default meta
-type Story = StoryObj<typeof meta>
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 export const MessageFromCoach: Story = {
   render: () => (
@@ -20,7 +22,7 @@ export const MessageFromCoach: Story = {
       </ChatMessage>
     </div>
   ),
-}
+};
 
 export const MessageFromAthlete: Story = {
   render: () => (
@@ -30,7 +32,7 @@ export const MessageFromAthlete: Story = {
       </ChatMessage>
     </div>
   ),
-}
+};
 
 export const MessageFromPlanner: Story = {
   render: () => (
@@ -41,7 +43,7 @@ export const MessageFromPlanner: Story = {
       </ChatMessage>
     </div>
   ),
-}
+};
 
 export const MessageWithTimestamp: Story = {
   render: () => (
@@ -63,7 +65,7 @@ export const MessageWithTimestamp: Story = {
       </ChatMessage>
     </div>
   ),
-}
+};
 
 export const Conversation: Story = {
   render: () => (
@@ -76,14 +78,11 @@ export const Conversation: Story = {
         a hypertrophy phase in the first block?
       </ChatMessage>
       <ChatMessage align="start" label="Planner">
-        <span className="flex items-center gap-2 text-[var(--shell-muted)]">
-          <ChatMessageTyping />
-          <span>Thinking through the plan…</span>
-        </span>
+        <ChatMessageTyping />
       </ChatMessage>
     </div>
   ),
-}
+};
 
 export const TypingIndicator: Story = {
   render: () => (
@@ -93,7 +92,7 @@ export const TypingIndicator: Story = {
       </ChatMessage>
     </div>
   ),
-}
+};
 
 export const Composer: Story = {
   render: () => (
@@ -107,7 +106,7 @@ export const Composer: Story = {
       />
     </div>
   ),
-}
+};
 
 export const ComposerWithContent: Story = {
   render: () => (
@@ -121,4 +120,79 @@ export const ComposerWithContent: Story = {
       />
     </div>
   ),
+};
+
+function AttachmentBarFixture({
+  attachedFiles = [],
+  isAttachmentDragActive = false,
+}: {
+  attachedFiles?: { name: string }[];
+  isAttachmentDragActive?: boolean;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <div className="max-w-lg bg-[var(--shell-surface-strong)] p-3">
+      <ChatMessageAttachmentBar
+        fileInputRef={ref}
+        fileInputId="story-attachment-input"
+        attachedFiles={attachedFiles}
+        isAttachmentDragActive={isAttachmentDragActive}
+        label="Attach context"
+        accept=".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp"
+        onAttachmentClick={() => ref.current?.click()}
+        onRemoveFile={() => {}}
+        onFileChange={() => {}}
+      />
+    </div>
+  );
 }
+
+export const AttachmentBarEmpty: Story = {
+  render: () => <AttachmentBarFixture />,
+};
+
+export const AttachmentBarWithFiles: Story = {
+  render: () => (
+    <AttachmentBarFixture
+      attachedFiles={[
+        { name: "program.xlsx" },
+        { name: "notes.txt" },
+        { name: "athlete-photo.jpg" },
+      ]}
+    />
+  ),
+};
+
+export const AttachmentBarDragActive: Story = {
+  render: () => <AttachmentBarFixture isAttachmentDragActive />,
+};
+
+export const ComposerWithAttachmentBar: Story = {
+  render: () => {
+    const ref = useRef<HTMLInputElement>(null);
+    return (
+      <div className="max-w-lg">
+        <ChatMessageComposer
+          value="Build a 12-week strength block"
+          onChange={() => {}}
+          onSend={() => {}}
+          canSend
+          rows={3}
+          placeholder="Describe the block..."
+        >
+          <ChatMessageAttachmentBar
+            fileInputRef={ref}
+            fileInputId="composer-attachment-input"
+            attachedFiles={[{ name: "program.xlsx" }, { name: "notes.txt" }]}
+            isAttachmentDragActive={false}
+            label="Attach"
+            accept=".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp"
+            onAttachmentClick={() => ref.current?.click()}
+            onRemoveFile={() => {}}
+            onFileChange={() => {}}
+          />
+        </ChatMessageComposer>
+      </div>
+    );
+  },
+};

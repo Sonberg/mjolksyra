@@ -124,12 +124,6 @@ export function Navigation({ initialAuth }: NavigationProps) {
           >
             {roleLabels[currentRole]}
           </Link>
-          <div
-            className={cn(
-              "w-px self-stretch",
-              isOnRoleRoute ? "bg-[var(--shell-border)]" : "bg-[var(--shell-border)]",
-            )}
-          />
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
