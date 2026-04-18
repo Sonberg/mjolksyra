@@ -4,14 +4,12 @@ import { ReactNode, useEffect, useRef, useState, useId } from "react";
 import { isAxiosError } from "axios";
 import {
   SendIcon,
-  XIcon,
-  PaperclipIcon,
   CheckIcon,
   RotateCcwIcon,
   Trash2Icon,
 } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { ChatMessage, ChatMessageComposer, ChatMessageTyping } from "@/components/Chat";
+import { ChatMessage, ChatMessageAttachmentBar, ChatMessageComposer, ChatMessageTyping } from "@/components/Chat";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
@@ -641,12 +639,13 @@ export function TraineePlannerPanel({
             rows={5}
             placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
           >
-            <PlannerAttachmentBar
+            <ChatMessageAttachmentBar
               fileInputRef={fileInputRef}
               fileInputId={attachmentInputId}
               attachedFiles={attachedFiles}
               isAttachmentDragActive={isAttachmentDragActive}
-              attachmentButtonLabel="Attach context"
+              label="Attach context"
+              accept={ACCEPTED_EXTENSIONS}
               onAttachmentClick={() => fileInputRef.current?.click()}
               onRemoveFile={removeFile}
               onFileChange={handleFileChange}
@@ -672,12 +671,13 @@ export function TraineePlannerPanel({
             placeholder={hasPendingProposal ? "Ask for changes or explain what to revise..." : "Reply with the next detail..."}
             disabled={isLoading}
           >
-            <PlannerAttachmentBar
+            <ChatMessageAttachmentBar
               fileInputRef={fileInputRef}
               fileInputId={attachmentInputId}
               attachedFiles={attachedFiles}
               isAttachmentDragActive={isAttachmentDragActive}
-              attachmentButtonLabel="Attach"
+              label="Attach"
+              accept={ACCEPTED_EXTENSIONS}
               onAttachmentClick={() => fileInputRef.current?.click()}
               onRemoveFile={removeFile}
               onFileChange={handleFileChange}
@@ -747,32 +747,6 @@ function StatTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AttachmentPill({
-  fileName,
-  onRemove,
-}: {
-  fileName: string;
-  onRemove: () => void;
-}) {
-  return (
-    <Badge
-      variant="secondary"
-      className="gap-1.5 py-1 normal-case tracking-[0.04em]"
-    >
-      <span className="text-[10px] font-medium text-[var(--shell-muted)]">
-        {fileName}
-      </span>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="transition hover:text-[var(--shell-ink)]"
-        aria-label={`Remove attachment ${fileName}`}
-      >
-        <XIcon className="size-3" />
-      </button>
-    </Badge>
-  );
-}
 
 
 type WeekGroup = {
@@ -1091,55 +1065,3 @@ function formatDateRange(
   return dayjs(dateFrom ?? dateTo ?? "").format("ddd, MMM D");
 }
 
-type PlannerAttachmentBarProps = {
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
-  fileInputId: string;
-  attachedFiles: PlannerFileContent[];
-  isAttachmentDragActive: boolean;
-  attachmentButtonLabel: string;
-  onAttachmentClick: () => void;
-  onRemoveFile: (index: number) => void;
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
-
-function PlannerAttachmentBar({
-  fileInputRef, fileInputId, attachedFiles,
-  isAttachmentDragActive, attachmentButtonLabel,
-  onAttachmentClick, onRemoveFile, onFileChange,
-}: PlannerAttachmentBarProps) {
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        id={fileInputId}
-        data-testid="ai-planner-attachment-input"
-        accept={ACCEPTED_EXTENSIONS}
-        multiple
-        onChange={onFileChange}
-      />
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        data-testid="ai-planner-attachment-button"
-        className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-        onClick={onAttachmentClick}
-      >
-        <PaperclipIcon data-icon="inline-start" />
-        {isAttachmentDragActive ? "Drop files here" : attachmentButtonLabel}
-      </Button>
-      {attachedFiles.map((file, i) => (
-        <AttachmentPill
-          key={`${file.name}-${i}`}
-          fileName={file.name}
-          onRemove={() => onRemoveFile(i)}
-        />
-      ))}
-      <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-        Cmd/Ctrl + Enter to send
-      </span>
-    </div>
-  );
-}
