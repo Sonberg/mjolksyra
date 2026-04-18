@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState, useId } from "react";
+import { useEffect, useRef, useState, useId } from "react";
 import { isAxiosError } from "axios";
 import {
   SendIcon,
@@ -9,7 +9,6 @@ import {
   CheckIcon,
   RotateCcwIcon,
   Trash2Icon,
-  LoaderCircle,
   PlusIcon,
   PencilIcon,
   MinusIcon,
@@ -25,8 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+import { ChatMessage, ChatMessageComposer, ChatMessageTyping } from "@/components/Chat";
 import { clarifyBlockPlan } from "@/services/blockPlanner/clarifyBlockPlan";
 import { applyBlockPlannerProposal } from "@/services/blockPlanner/applyBlockPlannerProposal";
 import { deleteBlockPlannerSession } from "@/services/blockPlanner/deleteBlockPlannerSession";
@@ -39,7 +37,6 @@ import type {
   BlockPlannerActionSet,
   BlockPlannerCreditBreakdownItem,
 } from "@/services/blockPlanner/types";
-import { cn } from "@/lib/utils";
 
 type Props = {
   blockId: string;
@@ -433,7 +430,7 @@ export function BlockPlannerPanel({
   if (isBootstrapping) {
     return (
       <div className="flex h-full items-center justify-center">
-        <LoadingDots />
+        <ChatMessageTyping />
       </div>
     );
   }
@@ -489,9 +486,12 @@ export function BlockPlannerPanel({
 
                 return (
                   <div key={index} className="flex flex-col gap-1.5">
-                    <PlannerBubble role={message.role}>
+                    <ChatMessage
+                      align={message.role === "user" ? "end" : "start"}
+                      label={message.role === "user" ? "Coach" : "Planner"}
+                    >
                       {message.content}
-                    </PlannerBubble>
+                    </ChatMessage>
                     {showOptions && (
                       <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap gap-2">
@@ -527,15 +527,12 @@ export function BlockPlannerPanel({
                 );
               })}
               {isLoading && (
-                <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                    Planner
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
-                    <LoadingDots />
+                <ChatMessage align="start" label="Planner">
+                  <span className="flex items-center gap-2 text-[var(--shell-muted)]">
+                    <ChatMessageTyping />
                     <span>Designing the block…</span>
-                  </div>
-                </div>
+                  </span>
+                </ChatMessage>
               )}
             </div>
 
@@ -587,8 +584,7 @@ export function BlockPlannerPanel({
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <Separator />
-          <PlannerComposer
+          <ChatMessageComposer
             value={description}
             onChange={setDescription}
             onSend={() => void handleSendInitial()}
@@ -597,46 +593,49 @@ export function BlockPlannerPanel({
                 void handleSendInitial();
             }}
             canSend={!!description.trim()}
-            isLoading={isLoading}
+            isSending={isLoading}
             rows={5}
             placeholder={`e.g. Build a ${numberOfWeeks}-week strength block, 3 days per week, focusing on the big 3.`}
-            fileInputRef={fileInputRef}
-            fileInputId={attachmentInputId}
-            attachedFiles={attachedFiles}
-            isAttachmentDragActive={isAttachmentDragActive}
-            attachmentButtonLabel="Attach context"
-            onAttachmentClick={() => fileInputRef.current?.click()}
-            onRemoveFile={removeFile}
-            onFileChange={handleFileChange}
-          />
+          >
+            <BlockPlannerAttachmentBar
+              fileInputRef={fileInputRef}
+              fileInputId={attachmentInputId}
+              attachedFiles={attachedFiles}
+              isAttachmentDragActive={isAttachmentDragActive}
+              attachmentButtonLabel="Attach context"
+              onAttachmentClick={() => fileInputRef.current?.click()}
+              onRemoveFile={removeFile}
+              onFileChange={handleFileChange}
+            />
+          </ChatMessageComposer>
         </div>
       ) : (
-        <>
-          <Separator />
-          <div
-            data-testid="block-planner-attachment-dropzone"
-            onDragEnter={handleAttachmentDragEnter}
-            onDragOver={handleAttachmentDragOver}
-            onDragLeave={handleAttachmentDragLeave}
-            onDrop={(e) => void handleAttachmentDrop(e)}
+        <div
+          data-testid="block-planner-attachment-dropzone"
+          onDragEnter={handleAttachmentDragEnter}
+          onDragOver={handleAttachmentDragOver}
+          onDragLeave={handleAttachmentDragLeave}
+          onDrop={(e) => void handleAttachmentDrop(e)}
+        >
+          <ChatMessageComposer
+            value={userInput}
+            onChange={setUserInput}
+            onSend={() => void handleSendFollowUp()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                void handleSendFollowUp();
+            }}
+            canSend={!!userInput.trim()}
+            isSending={isLoading}
+            rows={3}
+            placeholder={
+              hasPendingProposal
+                ? "Ask for changes or explain what to revise..."
+                : "Reply with the next detail..."
+            }
+            disabled={isLoading}
           >
-            <PlannerComposer
-              value={userInput}
-              onChange={setUserInput}
-              onSend={() => void handleSendFollowUp()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
-                  void handleSendFollowUp();
-              }}
-              canSend={!!userInput.trim()}
-              isLoading={isLoading}
-              rows={3}
-              placeholder={
-                hasPendingProposal
-                  ? "Ask for changes or explain what to revise..."
-                  : "Reply with the next detail..."
-              }
-              textareaDisabled={isLoading}
+            <BlockPlannerAttachmentBar
               fileInputRef={fileInputRef}
               fileInputId={attachmentInputId}
               attachedFiles={attachedFiles}
@@ -646,8 +645,8 @@ export function BlockPlannerPanel({
               onRemoveFile={removeFile}
               onFileChange={handleFileChange}
             />
-          </div>
-        </>
+          </ChatMessageComposer>
+        </div>
       )}
       <PurchaseCreditsDialog
         open={purchaseDialogOpen}
@@ -706,40 +705,6 @@ function AttachmentPill({
         <XIcon className="size-3" />
       </button>
     </Badge>
-  );
-}
-
-function PlannerBubble({
-  role,
-  children,
-}: {
-  role: Message["role"];
-  children: ReactNode;
-}) {
-  const isUser = role === "user";
-  return (
-    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
-      <div className="max-w-[92%]">
-        <div
-          className={cn(
-            "mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]",
-            isUser && "text-right",
-          )}
-        >
-          {isUser ? "Coach" : "Planner"}
-        </div>
-        <div
-          className={cn(
-            "border px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]",
-            isUser
-              ? "border-[var(--shell-border)] bg-[var(--shell-surface)]"
-              : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
-          )}
-        >
-          {children}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -899,35 +864,7 @@ function summarizeCreditBreakdown(
     .join(" + ");
 }
 
-function LoadingDots() {
-  return (
-    <span className="flex gap-1">
-      <span
-        className="blocks-pulse size-1.5 bg-[var(--shell-muted)]"
-        style={{ animationDelay: "0ms" }}
-      />
-      <span
-        className="blocks-pulse size-1.5 bg-[var(--shell-muted)]"
-        style={{ animationDelay: "200ms" }}
-      />
-      <span
-        className="blocks-pulse size-1.5 bg-[var(--shell-muted)]"
-        style={{ animationDelay: "400ms" }}
-      />
-    </span>
-  );
-}
-
-type PlannerComposerProps = {
-  value: string;
-  onChange: (value: string) => void;
-  onSend: () => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-  canSend: boolean;
-  isLoading: boolean;
-  rows: number;
-  placeholder: string;
-  textareaDisabled?: boolean;
+type BlockPlannerAttachmentBarProps = {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   fileInputId: string;
   attachedFiles: PlannerFileContent[];
@@ -938,87 +875,44 @@ type PlannerComposerProps = {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-function PlannerComposer({
-  value,
-  onChange,
-  onSend,
-  onKeyDown,
-  canSend,
-  isLoading,
-  rows,
-  placeholder,
-  textareaDisabled,
-  fileInputRef,
-  fileInputId,
-  attachedFiles,
-  isAttachmentDragActive,
-  attachmentButtonLabel,
-  onAttachmentClick,
-  onRemoveFile,
-  onFileChange,
-}: PlannerComposerProps) {
+function BlockPlannerAttachmentBar({
+  fileInputRef, fileInputId, attachedFiles,
+  isAttachmentDragActive, attachmentButtonLabel,
+  onAttachmentClick, onRemoveFile, onFileChange,
+}: BlockPlannerAttachmentBarProps) {
   return (
-    <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
-      <div className="flex items-end gap-2">
-        <div className="min-h-11 min-w-0 flex-1 px-3">
-          <Textarea
-            rows={rows}
-            placeholder={placeholder}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={onKeyDown}
-            disabled={textareaDisabled}
-            className="min-h-10 resize-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0"
-          />
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          disabled={!canSend || isLoading}
-          onClick={onSend}
-          className="shrink-0 self-end"
-        >
-          {isLoading ? (
-            <LoaderCircle data-icon="inline-start" className="animate-spin" />
-          ) : (
-            <SendIcon data-icon="inline-start" />
-          )}
-          {isLoading ? "Sending..." : "Send"}
-        </Button>
-      </div>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          id={fileInputId}
-          data-testid="block-planner-attachment-input"
-          accept={ACCEPTED_EXTENSIONS}
-          multiple
-          onChange={onFileChange}
+    <div className="flex flex-wrap items-center gap-2">
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        id={fileInputId}
+        data-testid="block-planner-attachment-input"
+        accept={ACCEPTED_EXTENSIONS}
+        multiple
+        onChange={onFileChange}
+      />
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        data-testid="block-planner-attachment-button"
+        className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
+        onClick={onAttachmentClick}
+      >
+        <PaperclipIcon data-icon="inline-start" />
+        {isAttachmentDragActive ? "Drop files here" : attachmentButtonLabel}
+      </Button>
+      {attachedFiles.map((file, i) => (
+        <AttachmentPill
+          key={`${file.name}-${i}`}
+          fileName={file.name}
+          onRemove={() => onRemoveFile(i)}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          data-testid="block-planner-attachment-button"
-          className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-          onClick={onAttachmentClick}
-        >
-          <PaperclipIcon data-icon="inline-start" />
-          {isAttachmentDragActive ? "Drop files here" : attachmentButtonLabel}
-        </Button>
-        {attachedFiles.map((file, i) => (
-          <AttachmentPill
-            key={`${file.name}-${i}`}
-            fileName={file.name}
-            onRemove={() => onRemoveFile(i)}
-          />
-        ))}
-        <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-          Cmd/Ctrl + Enter to send
-        </span>
-      </div>
+      ))}
+      <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+        Cmd/Ctrl + Enter to send
+      </span>
     </div>
   );
 }

@@ -1,8 +1,6 @@
 import { WorkoutMediaUploader } from "@/components/WorkoutMediaUploader/WorkoutMediaUploader";
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
-import { WorkoutChatComposerInput } from "@/components/WorkoutChat/WorkoutChatComposerInput";
-import { WorkoutChatComposerSendButton } from "@/components/WorkoutChat/WorkoutChatComposerSendButton";
-import { Separator } from "@/components/ui/separator";
+import { ChatMessageComposer } from "@/components/Chat";
 
 type WorkoutMedia = NonNullable<CompletedWorkout["media"]>[number];
 
@@ -32,29 +30,23 @@ export function WorkoutChatComposer({
   onSend,
 }: Props) {
   return (
-    <>
-      <Separator />
-      <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
-        <div className="flex items-end gap-2">
-          <WorkoutChatComposerInput value={message} onChange={onMessageChange} />
-          <WorkoutChatComposerSendButton
-            isSending={isSending}
-            canSend={canSend}
-            onSend={onSend}
-          />
-        </div>
-        <div className="mt-2">
-          <WorkoutMediaUploader
-            traineeId={traineeId}
-            workoutId={completedWorkoutId}
-            media={media}
-            onUploadComplete={onMediaChange}
-            isPending={isSending}
-            onPendingChange={onMediaPendingChange}
-            compact
-          />
-        </div>
-      </div>
-    </>
+    <ChatMessageComposer
+      value={message}
+      onChange={onMessageChange}
+      onSend={onSend}
+      isSending={isSending}
+      canSend={canSend}
+      placeholder="Write a message..."
+    >
+      <WorkoutMediaUploader
+        traineeId={traineeId}
+        workoutId={completedWorkoutId}
+        media={media}
+        onUploadComplete={onMediaChange}
+        isPending={isSending}
+        onPendingChange={onMediaPendingChange}
+        compact
+      />
+    </ChatMessageComposer>
   );
 }
