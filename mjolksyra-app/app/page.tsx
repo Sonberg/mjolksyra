@@ -7,6 +7,7 @@ import { AudienceSection } from "./components/AudienceSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { FeatureDemosSection } from "./components/FeatureDemosSection";
 import { AIFeaturesSection } from "./components/AIFeaturesSection";
+import { SwitchingCostSection } from "./components/SwitchingCostSection";
 import { InsightsSection } from "./components/InsightsSection";
 import { BenefitsSection } from "./components/BenefitsSection";
 import { CalculatorSection } from "./components/CalculatorSection";
@@ -127,6 +128,7 @@ export default async function Home() {
         <FeaturesSection />
         <FeatureDemosSection />
         <AIFeaturesSection />
+        <SwitchingCostSection />
         <InsightsSection />
         <MediaUploadSection />
         <BenefitsSection plans={plans} />
