@@ -69,7 +69,7 @@ export const HeroSection = () => {
           </div>
         </div>
         <div className="relative hidden lg:col-span-5 lg:mt-0 lg:flex">
-          <div className="relative z-10 h-auto w-full p-6">
+          <div className="relative z-10 h-auto w-full p-6 slide-from-right">
             <HeroIllustration />
           </div>
         </div>

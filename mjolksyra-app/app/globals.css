@@ -256,11 +256,16 @@ body {
 .stagger-children > *:nth-child(4) { animation-delay: 120ms; }
 .stagger-children > *:nth-child(5) { animation-delay: 160ms; }
 
+.slide-from-right {
+  animation: slideFromRight 0.7s var(--ease-out) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .blocks-rise,
   .blocks-pulse,
   .animate-bell-ring,
   .home-content,
+  .slide-from-right,
   .stagger-children > *,
   .skeleton {
     animation: none;
@@ -330,6 +335,11 @@ body {
 @keyframes homeEnter {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(48px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .home-content {
