@@ -6,16 +6,16 @@ export const CTASection = () => {
       <div className="mx-auto max-w-screen-xl px-4 text-center">
         <div className="mx-auto max-w-3xl rounded-none border border-[var(--home-border)] bg-[var(--home-surface)] px-6 py-12 md:px-10">
           <h2 className="font-[var(--font-display)] mb-6 text-3xl text-[var(--home-text)] md:text-4xl">
-          Ready to start your coaching journey?
+            Start coaching. Keep more of what you earn.
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-[var(--home-muted)]">
-            Create your coach account, connect Stripe, and start inviting
-            athletes to your training workspace.
+            14-day free trial. No credit card required. Create your account and
+            start inviting athletes today.
           </p>
           <RegisterDialog
             trigger={
               <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-8 py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
-                Get Started Now
+                Start your free trial
               </button>
             }
           />

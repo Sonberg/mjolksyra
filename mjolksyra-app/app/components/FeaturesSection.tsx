@@ -8,23 +8,23 @@ type Point = {
 
 const features: Point[] = [
   {
-    title: "For lifters, by lifters",
-    text: "Built by passionate athletes who understand your needs.",
-    icon: DumbbellIcon,
+    title: "One view per client",
+    text: "Every athlete gets their own inbox, program, and check-in feed. No spreadsheets, no switching tabs.",
+    icon: UsersIcon,
   },
   {
-    title: "Extensive exercise library",
-    text: "Access over 250 exercises with detailed instructions.",
+    title: "Exercise library",
+    text: "Over 250 exercises with detailed instructions. Add your own and reuse them across programs.",
     icon: CheckCircle2Icon,
   },
   {
-    title: "Drag-and-drop workouts",
-    text: "Easily design your workouts with our intuitive interface.",
+    title: "Drag-and-drop programming",
+    text: "Build and reorder sessions in seconds. Design once, deploy to any athlete.",
     icon: DumbbellIcon,
   },
   {
-    title: "Plans that scale with your roster",
-    text: "Start with included athlete capacity and add more active athletes as your coaching business grows.",
+    title: "Scales with your roster",
+    text: "Start small, add athletes as you grow. Pay only for the capacity you use.",
     icon: UsersIcon,
   },
 ];
