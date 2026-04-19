@@ -121,8 +121,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
 
         await Task.WhenAll(nextWorkoutTask, lastWorkoutTask);
 
-        var nextWorkoutAt = nextWorkoutTask.Result.Data.Select(x => (DateOnly?)x.PlannedAt).Min();
-        var lastWorkoutAt = lastWorkoutTask.Result.Data.Select(x => (DateOnly?)x.PlannedAt).Max();
+        var nextWorkoutAt = nextWorkoutTask.Result.Data.Min(x => x.PlannedAt);
+        var lastWorkoutAt = lastWorkoutTask.Result.Data.Max(x => x.PlannedAt);
 
         return new TraineeResponse
         {
