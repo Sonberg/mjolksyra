@@ -345,17 +345,29 @@ public class UpdateWorkoutSessionCommandHandlerTests
         Mock<IExerciseRepository>? exerciseRepository = null,
         Mock<ITraineeRepository>? traineeRepository = null,
         Mock<IUserContext>? userContext = null,
-        Mock<INotificationService>? notificationService = null)
+        Mock<INotificationService>? notificationService = null,
+        Mock<IUserRepository>? userRepository = null)
     {
         var exerciseRepo = exerciseRepository ?? new Mock<IExerciseRepository>();
         exerciseRepo
             .Setup(x => x.GetMany(It.IsAny<ICollection<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        var userRepo = userRepository ?? new Mock<IUserRepository>();
+        userRepo
+            .Setup(x => x.GetById(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Mjolksyra.Domain.Database.Models.User
+            {
+                Id = Guid.NewGuid(),
+                GivenName = "Test",
+                Email = Mjolksyra.Domain.Database.Models.Email.From("test@example.com"),
+            });
+
         return new UpdateWorkoutSessionCommandHandler(
             (completedWorkoutRepository ?? new Mock<ICompletedWorkoutRepository>()).Object,
             exerciseRepo.Object,
             (traineeRepository ?? new Mock<ITraineeRepository>()).Object,
+            userRepo.Object,
             (userContext ?? new Mock<IUserContext>()).Object,
             (notificationService ?? new Mock<INotificationService>()).Object,
             new Mock<ITraineeInsightsRebuildPublisher>().Object);

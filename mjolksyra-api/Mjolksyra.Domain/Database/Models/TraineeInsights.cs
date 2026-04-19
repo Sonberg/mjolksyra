@@ -19,6 +19,8 @@ public class TraineeInsights : IDocument
 
     public bool VisibleToAthlete { get; set; }
 
+    public DateTimeOffset? SignificantChangeDetectedAt { get; set; }
+
     public InsightsAthleteProfile? AthleteProfile { get; set; }
 
     public InsightsFatigueRisk? FatigueRisk { get; set; }

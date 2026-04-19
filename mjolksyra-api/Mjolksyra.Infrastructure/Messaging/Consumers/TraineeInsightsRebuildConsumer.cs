@@ -6,6 +6,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.UseCases.CompletedWorkouts.AnalyzeCompletedWorkoutMedia;
 using Mjolksyra.UseCases.Coaches.ReleaseCreditsReservation;
 using Mjolksyra.UseCases.Coaches.SettleCreditsReservation;
@@ -16,6 +17,7 @@ public class TraineeInsightsRebuildConsumer(
     ITraineeInsightsRepository traineeInsightsRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     ITraineeInsightsAgent traineeInsightsAgent,
+    INotificationService notificationService,
     IMediator mediator,
     ILogger<TraineeInsightsRebuildConsumer> logger)
     : IConsumer<TraineeInsightsRebuildRequestedMessage>
@@ -80,6 +82,12 @@ public class TraineeInsightsRebuildConsumer(
                 ToolDispatcher = dispatcher,
             }, ct);
 
+            // Detect change before mutating document (document == existing when existing != null)
+            var changeDescription = !msg.IsManual && result.Success
+                ? DetectSignificantChange(existing, result)
+                : null;
+            var alreadyPending = existing?.SignificantChangeDetectedAt != null;
+
             if (result.Success)
             {
                 document.Status = InsightsStatus.Ready;
@@ -112,6 +120,23 @@ public class TraineeInsightsRebuildConsumer(
                 document.Recommendations = result.Recommendations
                     .Select(r => new InsightsRecommendation { Label = r.Label, Detail = r.Detail, Priority = r.Priority })
                     .ToList();
+
+                if (changeDescription != null)
+                {
+                    document.SignificantChangeDetectedAt = DateTimeOffset.UtcNow;
+
+                    if (!alreadyPending)
+                    {
+                        await notificationService.Notify(new NotificationRequest
+                        {
+                            UserId = msg.CoachUserId,
+                            Type = "insights.significant_change",
+                            Title = "New insight alert",
+                            Body = $"{msg.AthleteName}: {changeDescription}",
+                            Href = $"/app/coach/athletes/{msg.TraineeId}/insights",
+                        }, ct);
+                    }
+                }
             }
             else
             {
@@ -154,5 +179,29 @@ public class TraineeInsightsRebuildConsumer(
                     msg.TraineeId.ToString()), ct);
             }
         }
+    }
+
+    private static string? DetectSignificantChange(TraineeInsights? before, TraineeInsightsGenerationResult after)
+    {
+        if (before?.FatigueRisk?.Level is { } prevFatigue &&
+            after.FatigueRisk?.Level is { } newFatigue &&
+            prevFatigue != newFatigue)
+            return $"Fatigue risk changed to {newFatigue}";
+
+        if (before?.ProgressionSummary?.Overall is { } prevTrend &&
+            after.ProgressionSummary?.Overall is { } newTrend &&
+            prevTrend != newTrend)
+            return $"Progression trend changed to {newTrend}";
+
+        var prevHighLabels = before?.Recommendations
+            .Where(r => r.Priority == InsightsPriority.High)
+            .Select(r => r.Label)
+            .ToHashSet() ?? [];
+        var newHighRec = after.Recommendations
+            .FirstOrDefault(r => r.Priority == InsightsPriority.High && !prevHighLabels.Contains(r.Label));
+        if (newHighRec != null)
+            return $"New high-priority recommendation: {newHighRec.Label}";
+
+        return null;
     }
 }

@@ -2,7 +2,7 @@
 
 import { Trainee } from "@/services/trainees/type";
 import { User } from "@/services/users/type";
-import { AlertTriangleIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } from "lucide-react";
+import { AlertTriangleIcon, BrainIcon, CheckCircle2Icon, MessageSquareIcon, WalletIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getCredits } from "@/services/coaches/getCredits";
 import { getCreditPricing } from "@/services/coaches/getCreditPricing";
@@ -96,6 +96,7 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       (nowMs - new Date(x.lastWorkoutAt).getTime()) / (1000 * 60 * 60);
     return hoursSince >= 0 && hoursSince <= 72;
   });
+  const hasInsightsAlert = trainees.filter((x) => x.hasInsightsAlert);
 
   const todoItems: CoachTodoItem[] = [
     {
@@ -132,6 +133,21 @@ export function CoachDashboardOverview({ user, trainees }: Props) {
       athletes: formatAthletes(needsPrice, (id) => `/app/coach/athletes/${id}`),
       count: needsPrice.length,
       icon: AlertTriangleIcon,
+      href: "/app/coach/athletes",
+    },
+    {
+      key: "insights",
+      title: "Insights need review",
+      text:
+        hasInsightsAlert.length > 0
+          ? `${hasInsightsAlert.length} athlete${hasInsightsAlert.length === 1 ? "" : "s"} have significant changes in their latest insights.`
+          : "No significant insight changes since your last review.",
+      athletes: formatAthletes(
+        hasInsightsAlert,
+        (id) => `/app/coach/athletes/${id}/insights`
+      ),
+      count: hasInsightsAlert.length,
+      icon: BrainIcon,
       href: "/app/coach/athletes",
     },
     {

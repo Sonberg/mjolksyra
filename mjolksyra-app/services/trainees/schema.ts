@@ -55,4 +55,5 @@ export const schema = z.object({
   lastWorkoutAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   transactions: z.array(transactionSchema).optional().default([]),
+  hasInsightsAlert: z.boolean().optional().default(false),
 });

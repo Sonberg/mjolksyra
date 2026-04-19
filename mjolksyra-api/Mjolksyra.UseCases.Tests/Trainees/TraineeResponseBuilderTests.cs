@@ -32,7 +32,11 @@ public class TraineeResponseBuilderTests
         // SubscriptionService.GetAsync will throw (no real Stripe client) — builder catches and falls back
         var stripeClient = Mock.Of<IStripeClient>();
 
-        return new TraineeResponseBuilder(userRepo.Object, workoutRepo.Object, stripeClient, txRepo.Object);
+        var insightsRepo = new Mock<ITraineeInsightsRepository>();
+        insightsRepo.Setup(x => x.GetByTraineeId(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TraineeInsights?)null);
+
+        return new TraineeResponseBuilder(userRepo.Object, workoutRepo.Object, stripeClient, txRepo.Object, insightsRepo.Object);
     }
 
     private static Trainee BuildTrainee(string? subscriptionId = null, DateTimeOffset? paymentFailedAt = null) => new()
@@ -118,5 +122,54 @@ public class TraineeResponseBuilderTests
         var result = await sut.Build(trainee, CancellationToken.None);
 
         Assert.Equal(TraineeBillingStatus.PriceNotSet, result.Billing.Status);
+    }
+
+    [Fact]
+    public async Task Build_WhenInsightsHaveSignificantChangeDetectedAt_ReturnsHasInsightsAlertTrue()
+    {
+        var trainee = BuildTrainee();
+
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(x => x.GetById(AthleteId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildUser(AthleteId, withPaymentMethod: true));
+        userRepo.Setup(x => x.GetById(CoachId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildUser(CoachId, withStripeAccount: true));
+
+        var workoutRepo = new Mock<IPlannedWorkoutRepository>();
+        workoutRepo.Setup(x => x.Get(It.IsAny<PlannedWorkoutCursor>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Paginated<PlannedWorkout> { Data = [] });
+
+        var txRepo = new Mock<ITraineeTransactionRepository>();
+        txRepo.Setup(x => x.GetByTraineeId(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<TraineeTransaction>());
+
+        var insightsRepo = new Mock<ITraineeInsightsRepository>();
+        insightsRepo.Setup(x => x.GetByTraineeId(trainee.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = trainee.Id,
+                CreatedAt = DateTimeOffset.UtcNow,
+                SignificantChangeDetectedAt = DateTimeOffset.UtcNow.AddMinutes(-5),
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var sut = new TraineeResponseBuilder(userRepo.Object, workoutRepo.Object, Mock.Of<IStripeClient>(), txRepo.Object, insightsRepo.Object);
+
+        var result = await sut.Build(trainee, CancellationToken.None);
+
+        Assert.True(result.HasInsightsAlert);
+    }
+
+    [Fact]
+    public async Task Build_WhenInsightsHaveNoSignificantChange_ReturnsHasInsightsAlertFalse()
+    {
+        var trainee = BuildTrainee();
+        var sut = CreateBuilder();
+
+        var result = await sut.Build(trainee, CancellationToken.None);
+
+        Assert.False(result.HasInsightsAlert);
     }
 }

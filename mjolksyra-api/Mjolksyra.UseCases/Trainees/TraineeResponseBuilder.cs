@@ -17,17 +17,20 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
     private readonly IPlannedWorkoutRepository _plannedWorkoutRepository;
     private readonly IStripeClient _stripeClient;
     private readonly ITraineeTransactionRepository _transactionRepository;
+    private readonly ITraineeInsightsRepository _traineeInsightsRepository;
 
     public TraineeResponseBuilder(
         IUserRepository userRepository,
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IStripeClient stripeClient,
-        ITraineeTransactionRepository transactionRepository)
+        ITraineeTransactionRepository transactionRepository,
+        ITraineeInsightsRepository traineeInsightsRepository)
     {
         _userRepository = userRepository;
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _stripeClient = stripeClient;
         _transactionRepository = transactionRepository;
+        _traineeInsightsRepository = traineeInsightsRepository;
     }
 
     public async Task<TraineeResponse> Build(Trainee trainee, CancellationToken cancellationToken)
@@ -35,8 +38,9 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
         var athleteTask = _userRepository.GetById(trainee.AthleteUserId, cancellationToken);
         var coachTask = _userRepository.GetById(trainee.CoachUserId, cancellationToken);
         var transactionsTask = _transactionRepository.GetByTraineeId(trainee.Id, cancellationToken);
+        var insightsTask = _traineeInsightsRepository.GetByTraineeId(trainee.Id, cancellationToken);
 
-        await Task.WhenAll(athleteTask, coachTask, transactionsTask);
+        await Task.WhenAll(athleteTask, coachTask, transactionsTask, insightsTask);
 
         var athlete = athleteTask.Result;
         var coach = coachTask.Result;
@@ -117,8 +121,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
 
         await Task.WhenAll(nextWorkoutTask, lastWorkoutTask);
 
-        var nextWorkoutAt = nextWorkoutTask.Result.Data.Min(x => x.PlannedAt);
-        var lastWorkoutAt = lastWorkoutTask.Result.Data.Max(x => x.PlannedAt);
+        var nextWorkoutAt = nextWorkoutTask.Result.Data.Select(x => (DateOnly?)x.PlannedAt).Min();
+        var lastWorkoutAt = lastWorkoutTask.Result.Data.Select(x => (DateOnly?)x.PlannedAt).Max();
 
         return new TraineeResponse
         {
@@ -148,7 +152,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
                     ReceiptUrl = t.ReceiptUrl
                 })
                 .ToList(),
-            CreatedAt = trainee.CreatedAt
+            CreatedAt = trainee.CreatedAt,
+            HasInsightsAlert = insightsTask.Result?.SignificantChangeDetectedAt != null,
         };
 
         static DateTimeOffset? ToDateTimeOffset(DateOnly? date) =>

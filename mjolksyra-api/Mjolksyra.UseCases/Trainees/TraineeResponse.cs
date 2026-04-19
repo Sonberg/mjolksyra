@@ -19,4 +19,6 @@ public class TraineeResponse
     public required DateTimeOffset CreatedAt { get; set; }
 
     public required ICollection<TraineeTransactionResponse> Transactions { get; set; }
+
+    public bool HasInsightsAlert { get; set; }
 }

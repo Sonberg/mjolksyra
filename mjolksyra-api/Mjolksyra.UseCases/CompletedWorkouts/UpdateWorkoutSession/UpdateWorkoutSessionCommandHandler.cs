@@ -12,6 +12,7 @@ public class UpdateWorkoutSessionCommandHandler(
     ICompletedWorkoutRepository completedWorkoutRepository,
     IExerciseRepository exerciseRepository,
     ITraineeRepository traineeRepository,
+    IUserRepository userRepository,
     IUserContext userContext,
     INotificationService notificationService,
     ITraineeInsightsRebuildPublisher traineeInsightsRebuildPublisher) : IRequestHandler<UpdateWorkoutSessionCommand, CompletedWorkoutResponse?>
@@ -110,10 +111,14 @@ public class UpdateWorkoutSessionCommandHandler(
                 CompletedWorkoutId = session.Id,
             }, cancellationToken);
 
+            var athleteUser = await userRepository.GetById(trainee.AthleteUserId, cancellationToken);
+            var athleteName = athleteUser.GivenName ?? athleteUser.FamilyName ?? "Athlete";
+
             await traineeInsightsRebuildPublisher.Publish(new TraineeInsightsRebuildRequestedMessage(
                 TraineeId: request.TraineeId,
                 CoachUserId: trainee.CoachUserId,
                 IsManual: false,
+                AthleteName: athleteName,
                 RequestedAt: DateTimeOffset.UtcNow), cancellationToken);
         }
 
