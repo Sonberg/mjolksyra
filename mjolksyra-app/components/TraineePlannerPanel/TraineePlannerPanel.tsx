@@ -38,6 +38,10 @@ import type {
   AIPlannerCreditBreakdownItem,
   PreviewWorkoutPlanWorkout,
 } from "@/services/traineePlanner/types";
+import {
+  ACCEPTED_EXTENSIONS,
+  parseFileToContent,
+} from "@/lib/plannerFileParser";
 
 type Props = {
   traineeId: string;
@@ -58,59 +62,6 @@ type Message = {
   options?: string[];
 };
 
-const ACCEPTED_EXTENSIONS =
-  ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif";
-const IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/jpg",
-  "image/heic",
-  "image/heif",
-]);
-const IMAGE_EXTENSIONS = new Set([
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-]);
-
-function isImageFile(file: File): boolean {
-  if (IMAGE_TYPES.has(file.type)) return true;
-  const ext = "." + (file.name.split(".").pop()?.toLowerCase() ?? "");
-  return IMAGE_EXTENSIONS.has(ext);
-}
-
-async function parseFileToContent(file: File): Promise<PlannerFileContent> {
-  if (isImageFile(file)) {
-    return {
-      name: file.name,
-      type: "image",
-      content: `[Image file: ${file.name} — upload to storage for AI vision analysis]`,
-    };
-  }
-
-  if (
-    file.name.endsWith(".xlsx") ||
-    file.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  ) {
-    const { read, utils } = await import("xlsx");
-    const buffer = await file.arrayBuffer();
-    const workbook = read(buffer);
-    const sheets = workbook.SheetNames.map((name) => {
-      const sheet = workbook.Sheets[name];
-      const json = utils.sheet_to_json(sheet);
-      return `Sheet: ${name}\n${JSON.stringify(json, null, 2)}`;
-    });
-    return { name: file.name, type: "excel", content: sheets.join("\n\n") };
-  }
-
-  const text = await file.text();
-  return { name: file.name, type: file.type || "text", content: text };
-}
 
 export function TraineePlannerPanel({
   traineeId,
