@@ -63,22 +63,24 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
         </div>
 
         <div className="hidden overflow-hidden border border-white/50 bg-white/5 md:block">
-          <div className="grid grid-cols-4 border-b border-white/40 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white">
+          <div className="grid grid-cols-5 border-b border-white/40 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white">
             <span>Plan</span>
             <span>Monthly</span>
             <span>Included athletes</span>
+            <span>Per athlete</span>
             <span>Extra athlete</span>
           </div>
           {sortedPlans.length > 0 ? (
             sortedPlans.map((plan) => {
               const isFeatured = plan.id === featuredPlanId;
+              const perAthlete = Math.round(plan.monthlyPriceSek / plan.includedAthletes);
               return (
                 <div
                   key={plan.id}
                   className={
                     isFeatured
-                      ? "group relative grid grid-cols-4 border-b border-white/35 bg-black px-5 py-5 text-white transition last:border-b-0"
-                      : "group relative grid grid-cols-4 border-b border-white/35 px-5 py-5 text-white transition hover:bg-white/10 last:border-b-0"
+                      ? "group relative grid grid-cols-5 border-b border-white/35 bg-black px-5 py-5 text-white transition last:border-b-0"
+                      : "group relative grid grid-cols-5 border-b border-white/35 px-5 py-5 text-white transition hover:bg-white/10 last:border-b-0"
                   }
                 >
                   {isFeatured ? (
@@ -91,6 +93,7 @@ export const BenefitsSection = ({ plans }: BenefitsSectionProps) => {
                     {plan.monthlyPriceSek.toLocaleString("en-US")} kr
                   </span>
                   <span className="text-2xl font-black">{plan.includedAthletes}</span>
+                  <span className="text-2xl font-black">{perAthlete} kr</span>
                   <span className="text-2xl font-black">
                     {plan.extraAthletePriceSek.toLocaleString("en-US")} kr
                   </span>
