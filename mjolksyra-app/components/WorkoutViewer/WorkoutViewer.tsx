@@ -199,8 +199,8 @@ export function WorkoutViewer({
               ]}
               activeKey={mode}
               size="md"
-              fullWidth={viewerMode !== "coach"}
-              className="w-full max-w-[24rem]"
+              fullWidth={false}
+              className=""
             />
             {viewerMode === "athlete" ? (
               <button
