@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/Spinner";
 import type { Plan } from "@/services/plans/type";
 import { updateCoachPlan } from "@/services/coaches/updateCoachPlan";
@@ -49,13 +50,11 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
           const isPending = selectingPlanId === plan.id;
           const cost = totalCost(plan);
           return (
-            <div
+            <Card
               key={plan.id}
               className={cn(
-                "rounded-none border flex flex-col overflow-hidden",
-                isActive
-                  ? "border-[var(--shell-accent)]"
-                  : "border-[var(--shell-border)] bg-[var(--shell-surface)]",
+                "flex flex-col overflow-hidden",
+                isActive && "border-[var(--shell-accent)]",
               )}
             >
               {isActive && (
@@ -63,7 +62,7 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
                   Current plan
                 </div>
               )}
-              <div className={cn("p-4 flex flex-col gap-2 flex-1", isActive && "bg-[var(--shell-surface-strong)]")}>
+              <CardContent className={cn("p-4 flex flex-col gap-2 flex-1", isActive && "bg-[var(--shell-surface-strong)]")}>
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-semibold text-[var(--shell-ink)]">{plan.name}</p>
                   {isCheapest && (
@@ -76,7 +75,7 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
                   {plan.monthlyPriceSek} kr
                   <span className="text-sm font-normal text-[var(--shell-muted)]">/mo</span>
                 </p>
-                <ul className="text-xs text-[var(--shell-muted)] space-y-0.5">
+                <ul className="flex flex-col gap-0.5 text-xs text-[var(--shell-muted)]">
                   <li>{plan.includedAthletes} athletes included</li>
                   <li>+{plan.extraAthletePriceSek} kr/extra athlete</li>
                   <li className="font-medium text-[var(--shell-ink)]">
@@ -96,8 +95,8 @@ export function CoachPlanSelector({ plans, currentPlanId, athleteCount }: Props)
                     {isPending && mutation.isPending ? <Spinner size={12} /> : "Select"}
                   </Button>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>

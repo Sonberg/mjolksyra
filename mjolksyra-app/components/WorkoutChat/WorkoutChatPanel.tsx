@@ -8,6 +8,9 @@ import { updateCompletedWorkoutChatMessage } from "@/services/completedWorkouts/
 import { CompletedWorkout } from "@/services/completedWorkouts/type";
 import { WorkoutChatComposer } from "@/components/WorkoutChat/WorkoutChatComposer";
 import { WorkoutChatMessageItem } from "@/components/WorkoutChat/WorkoutChatMessageItem";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
   traineeId: string;
@@ -101,28 +104,25 @@ export function WorkoutChatPanel({
               {viewerMode === "coach" ? "Athlete chat" : "Coach chat"}
             </p>
           </div>
-          <span className="shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+          <Badge variant="secondary" className="shrink-0 rounded-none">
             Shared thread
-          </span>
+          </Badge>
         </div>
       </div>
 
-      <div
-        className="flex-1 overflow-y-auto px-3 py-4 sm:px-4"
-        data-testid="workout-chat-messages"
-      >
-        <div className="flex min-h-full flex-col justify-end">
+      <ScrollArea className="flex-1" data-testid="workout-chat-messages">
+        <div className="flex min-h-full flex-col justify-end px-3 py-4 sm:px-4">
           {chatMessages.isLoading ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {[0, 1, 2].map((index) => (
                 <div
                   key={index}
                   className={`flex ${index === 1 ? "justify-end" : "justify-start"}`}
                 >
-                  <div className="w-[78%] max-w-[320px] rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
-                    <div className="h-2.5 w-24 animate-pulse rounded bg-[var(--shell-border)]" />
-                    <div className="mt-2 h-2.5 w-full animate-pulse rounded bg-[var(--shell-border)]" />
-                    <div className="mt-1.5 h-2.5 w-3/4 animate-pulse rounded bg-[var(--shell-border)]" />
+                  <div className="flex w-[78%] max-w-[320px] flex-col gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-3">
+                    <Skeleton className="h-2.5 w-24 rounded-none" />
+                    <Skeleton className="h-2.5 w-full rounded-none" />
+                    <Skeleton className="h-2.5 w-3/4 rounded-none" />
                   </div>
                 </div>
               ))}
@@ -142,7 +142,7 @@ export function WorkoutChatPanel({
             </div>
           ) : null}
 
-          <div className="space-y-2.5">
+          <div className="flex flex-col gap-2.5">
             {(chatMessages.data ?? []).map((chatMessage) => {
               return (
                 <WorkoutChatMessageItem
@@ -167,7 +167,7 @@ export function WorkoutChatPanel({
             })}
           </div>
         </div>
-      </div>
+      </ScrollArea>
 
       <WorkoutChatComposer
         traineeId={traineeId}

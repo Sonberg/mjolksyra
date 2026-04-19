@@ -47,6 +47,12 @@ public class GetTraineeInsightsQueryHandler(
             return null;
         }
 
+        if (isCoach && insights.SignificantChangeDetectedAt != null)
+        {
+            insights.SignificantChangeDetectedAt = null;
+            await traineeInsightsRepository.Upsert(insights, cancellationToken);
+        }
+
         return TraineeInsightsResponse.From(insights);
     }
 }

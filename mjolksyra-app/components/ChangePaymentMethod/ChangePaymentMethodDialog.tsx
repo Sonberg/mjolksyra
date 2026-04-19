@@ -54,7 +54,7 @@ function PaymentForm({ clientSecret, onClose }: { clientSecret: string; onClose:
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <PaymentElement
         onReady={() => setIsReady(true)}
         options={{ layout: { type: "tabs" } }}

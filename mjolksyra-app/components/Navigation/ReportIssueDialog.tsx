@@ -6,6 +6,7 @@ import { MessageSquareWarningIcon } from "lucide-react";
 import { createFeedbackReport } from "@/services/feedbackReports/createFeedbackReport";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -81,13 +82,14 @@ export function ReportIssueDialog({
       {!hideTrigger ? (
         <DialogTrigger asChild>
           {trigger ?? (
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-10 rounded-none border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]"
               aria-label="Report issue"
             >
-              <MessageSquareWarningIcon className="h-4 w-4" />
-            </button>
+              <MessageSquareWarningIcon data-icon />
+            </Button>
           )}
         </DialogTrigger>
       ) : null}
@@ -108,20 +110,20 @@ export function ReportIssueDialog({
           </div>
         ) : null}
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="report-issue-message"
             className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]"
           >
             Message
           </label>
-          <textarea
+          <Textarea
             id="report-issue-message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={5}
             placeholder="What happened? What did you expect to happen?"
-            className="w-full resize-y rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2 text-sm text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)] focus:border-[var(--shell-accent)]"
+            className="resize-y rounded-none border-[var(--shell-border)] bg-[var(--shell-surface-strong)] text-[var(--shell-ink)] placeholder:text-[var(--shell-muted)] focus-visible:ring-[var(--shell-accent)]"
           />
           {create.isError ? (
             <p className="text-sm text-[var(--shell-accent)]">

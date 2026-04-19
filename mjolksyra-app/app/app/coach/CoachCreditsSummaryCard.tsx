@@ -7,6 +7,8 @@ import type { CreditPricingItem } from "@/services/coaches/getCreditPricing";
 import { formatActionName } from "./CoachCreditsSection";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 type Props = {
   credits: Credits | null;
@@ -18,7 +20,8 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
   return (
-    <div className="bg-[var(--shell-surface-strong)] p-4">
+    <Card>
+    <CardContent className="p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Credits</p>
         <div className="flex shrink-0 items-center gap-2">
@@ -41,7 +44,8 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
         />
       </div>
 
-      <div className="mt-4 border-t border-[var(--shell-border)] pt-4 flex gap-8">
+      <Separator className="mt-4" />
+      <div className="mt-4 flex gap-8">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Included</p>
           <p className="mt-1 font-mono text-2xl font-semibold text-[var(--shell-ink)]">{credits?.includedRemaining ?? 0}</p>
@@ -68,6 +72,7 @@ export function CoachCreditsSummaryCard({ credits, creditPricing }: Props) {
         open={purchaseDialogOpen}
         onOpenChange={setPurchaseDialogOpen}
       />
-    </div>
+    </CardContent>
+    </Card>
   );
 }

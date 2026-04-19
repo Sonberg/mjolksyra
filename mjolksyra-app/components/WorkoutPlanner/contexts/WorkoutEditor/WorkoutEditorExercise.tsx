@@ -3,6 +3,7 @@ import {
   PlannedWorkout,
 } from "@/services/plannedWorkouts/type";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { useMemo } from "react";
@@ -119,26 +120,26 @@ export function WorkoutEditorExercise({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            disabled={!canMoveUp}
             onClick={onMoveUp}
-            className={cn({
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": true,
-              "cursor-pointer hover:bg-[var(--shell-surface)]": canMoveUp,
-              "text-[var(--shell-muted)] opacity-40": !canMoveUp,
-            })}
+            className="size-9 rounded-none"
           >
-            <ArrowUpIcon className="h-4 w-4 text-[var(--shell-ink)]" />
-          </div>
-          <div
+            <ArrowUpIcon data-icon />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            disabled={!canMoveDown}
             onClick={onMoveDown}
-            className={cn({
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)]": true,
-              "cursor-pointer hover:bg-[var(--shell-surface)]": canMoveDown,
-              "text-[var(--shell-muted)] opacity-40": !canMoveDown,
-            })}
+            className="size-9 rounded-none"
           >
-            <ArrowDownIcon className="h-4 w-4 text-[var(--shell-ink)]" />
-          </div>
+            <ArrowDownIcon data-icon />
+          </Button>
         </div>
       </div>
       <Textarea

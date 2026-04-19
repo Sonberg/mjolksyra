@@ -1,6 +1,7 @@
 import { getAuth } from "@/context/Auth";
 import { getAdminStats } from "@/services/admin/getAdminStats";
 import { UsersIcon, BriefcaseIcon, PersonStandingIcon, ActivityIcon, CircleDollarSignIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function AdminPage() {
   const auth = await getAuth({ redirect: true });
@@ -18,27 +19,27 @@ export default async function AdminPage() {
       <StatCard
         label="Total Users"
         value={stats.totalUsers.toString()}
-        icon={<UsersIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+        icon={<UsersIcon className="size-5 text-[var(--shell-muted)]" />}
       />
       <StatCard
         label="Coaches"
         value={stats.totalCoaches.toString()}
-        icon={<BriefcaseIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+        icon={<BriefcaseIcon className="size-5 text-[var(--shell-muted)]" />}
       />
       <StatCard
         label="Athletes"
         value={stats.totalAthletes.toString()}
-        icon={<PersonStandingIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+        icon={<PersonStandingIcon className="size-5 text-[var(--shell-muted)]" />}
       />
       <StatCard
         label="Active Subscriptions"
         value={stats.activeSubscriptions.toString()}
-        icon={<ActivityIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+        icon={<ActivityIcon className="size-5 text-[var(--shell-muted)]" />}
       />
       <StatCard
         label="Total Revenue"
         value={formatted}
-        icon={<CircleDollarSignIcon className="h-5 w-5 text-[var(--shell-muted)]" />}
+        icon={<CircleDollarSignIcon className="size-5 text-[var(--shell-muted)]" />}
       />
     </div>
   );
@@ -54,12 +55,14 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-[var(--shell-muted)]">{label}</p>
-        {icon}
-      </div>
-      <p className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">{value}</p>
-    </div>
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-[var(--shell-muted)]">{label}</p>
+          {icon}
+        </div>
+        <p className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">{value}</p>
+      </CardContent>
+    </Card>
   );
 }

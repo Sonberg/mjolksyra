@@ -22,7 +22,7 @@ const geistMonoFont = localFont({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mjolksyra.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -133,7 +133,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${geistFont.variable} ${geistMonoFont.variable}`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('mjolksyra-theme');var d=document.documentElement;var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){d.classList.add('dark');d.dataset.theme='dark';}else{d.dataset.theme='light';}}catch(e){}})()` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var d=document.documentElement;d.classList.add('dark');d.dataset.theme='dark';})()` }} />
       </head>
       <body
         className="antialiased flex h-[100dvh] flex-col overflow-hidden"

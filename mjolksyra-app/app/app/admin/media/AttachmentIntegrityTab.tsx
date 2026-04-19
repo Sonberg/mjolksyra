@@ -9,7 +9,7 @@ type Props = {
 
 export function AttachmentIntegrityTab({ report }: Props) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <div>
           <h2 className="text-lg text-[var(--shell-ink)]">Attachment integrity</h2>

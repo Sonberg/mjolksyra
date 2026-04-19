@@ -64,7 +64,7 @@ export function WorkoutDetailHeader({
 
           <div className="flex shrink-0 sm:justify-end">
             <StatusBadge variant={isCompleted ? "accent" : "default"} className="w-full justify-center sm:w-auto">
-              <CheckCircle2Icon className="h-3 w-3" />
+              <CheckCircle2Icon className="size-3" />
               {isCompleted ? "Completed" : "In progress"}
             </StatusBadge>
           </div>

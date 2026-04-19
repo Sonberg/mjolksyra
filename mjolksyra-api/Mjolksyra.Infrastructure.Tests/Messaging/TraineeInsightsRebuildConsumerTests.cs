@@ -7,6 +7,7 @@ using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Messaging;
+using Mjolksyra.Domain.Notifications;
 using Mjolksyra.Infrastructure.Messaging.Consumers;
 using Mjolksyra.UseCases.Coaches.ReleaseCreditsReservation;
 using Mjolksyra.UseCases.Coaches.SettleCreditsReservation;
@@ -28,6 +29,7 @@ public class TraineeInsightsRebuildConsumerTests
         Mock<ITraineeInsightsRepository>? traineeInsightsRepository = null,
         Mock<ICompletedWorkoutRepository>? completedWorkoutRepository = null,
         Mock<ITraineeInsightsAgent>? agent = null,
+        Mock<INotificationService>? notificationService = null,
         Mock<IMediator>? mediator = null)
     {
         if (completedWorkoutRepository is null)
@@ -56,6 +58,7 @@ public class TraineeInsightsRebuildConsumerTests
             (traineeInsightsRepository ?? new Mock<ITraineeInsightsRepository>()).Object,
             completedWorkoutRepository.Object,
             agent.Object,
+            (notificationService ?? new Mock<INotificationService>()).Object,
             (mediator ?? new Mock<IMediator>()).Object,
             NullLogger<TraineeInsightsRebuildConsumer>.Instance);
     }
@@ -359,5 +362,263 @@ public class TraineeInsightsRebuildConsumerTests
                 It.Is<ReleaseCreditsReservationCommand>(c => c.CoachUserId == coachUserId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Consume_WhenAutoRebuildAndFatigueRiskChanges_SetsSignificantChangeFlagAndSendsNotification()
+    {
+        var traineeId = Guid.NewGuid();
+        var coachUserId = Guid.NewGuid();
+        TraineeInsights? upserted = null;
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Ready,
+                CreatedAt = DateTimeOffset.UtcNow,
+                FatigueRisk = new InsightsFatigueRisk { Level = InsightsFatigueLevel.Low, Score = 20, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+        traineeInsightsRepository
+            .Setup(x => x.Upsert(It.IsAny<TraineeInsights>(), It.IsAny<CancellationToken>()))
+            .Callback<TraineeInsights, CancellationToken>((doc, _) => upserted = doc)
+            .Returns(Task.CompletedTask);
+
+        var agent = new Mock<ITraineeInsightsAgent>();
+        agent
+            .Setup(x => x.GenerateAsync(It.IsAny<TraineeInsightsGenerationInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsightsGenerationResult
+            {
+                Success = true,
+                FatigueRisk = new TraineeInsightsFatigueRiskResult { Level = InsightsFatigueLevel.High, Score = 85, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var notificationService = new Mock<INotificationService>();
+
+        var sut = CreateSut(
+            traineeInsightsRepository: traineeInsightsRepository,
+            agent: agent,
+            notificationService: notificationService);
+
+        await sut.Consume(BuildContext(new TraineeInsightsRebuildRequestedMessage(
+            TraineeId: traineeId,
+            CoachUserId: coachUserId,
+            IsManual: false,
+            AthleteName: "Alex",
+            RequestedAt: DateTimeOffset.UtcNow)).Object);
+
+        Assert.NotNull(upserted?.SignificantChangeDetectedAt);
+        notificationService.Verify(
+            x => x.Notify(
+                It.Is<NotificationRequest>(n =>
+                    n.UserId == coachUserId &&
+                    n.Type == "insights.significant_change"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Consume_WhenAutoRebuildAndSignificantChangeAlreadyPending_UpdatesFlagButSkipsNotification()
+    {
+        var traineeId = Guid.NewGuid();
+        var coachUserId = Guid.NewGuid();
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Ready,
+                CreatedAt = DateTimeOffset.UtcNow,
+                SignificantChangeDetectedAt = DateTimeOffset.UtcNow.AddHours(-1), // already pending
+                FatigueRisk = new InsightsFatigueRisk { Level = InsightsFatigueLevel.Low, Score = 20, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var agent = new Mock<ITraineeInsightsAgent>();
+        agent
+            .Setup(x => x.GenerateAsync(It.IsAny<TraineeInsightsGenerationInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsightsGenerationResult
+            {
+                Success = true,
+                FatigueRisk = new TraineeInsightsFatigueRiskResult { Level = InsightsFatigueLevel.High, Score = 90, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var notificationService = new Mock<INotificationService>();
+
+        var sut = CreateSut(
+            traineeInsightsRepository: traineeInsightsRepository,
+            agent: agent,
+            notificationService: notificationService);
+
+        await sut.Consume(BuildContext(new TraineeInsightsRebuildRequestedMessage(
+            TraineeId: traineeId,
+            CoachUserId: coachUserId,
+            IsManual: false,
+            AthleteName: "Alex",
+            RequestedAt: DateTimeOffset.UtcNow)).Object);
+
+        notificationService.Verify(
+            x => x.Notify(It.IsAny<NotificationRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Consume_WhenAutoRebuildAndNoSignificantChange_DoesNotSetFlagOrNotify()
+    {
+        var traineeId = Guid.NewGuid();
+        TraineeInsights? upserted = null;
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Ready,
+                CreatedAt = DateTimeOffset.UtcNow,
+                FatigueRisk = new InsightsFatigueRisk { Level = InsightsFatigueLevel.Medium, Score = 50, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+        traineeInsightsRepository
+            .Setup(x => x.Upsert(It.IsAny<TraineeInsights>(), It.IsAny<CancellationToken>()))
+            .Callback<TraineeInsights, CancellationToken>((doc, _) => upserted = doc)
+            .Returns(Task.CompletedTask);
+
+        var agent = new Mock<ITraineeInsightsAgent>();
+        agent
+            .Setup(x => x.GenerateAsync(It.IsAny<TraineeInsightsGenerationInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsightsGenerationResult
+            {
+                Success = true,
+                FatigueRisk = new TraineeInsightsFatigueRiskResult { Level = InsightsFatigueLevel.Medium, Score = 55, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var notificationService = new Mock<INotificationService>();
+
+        var sut = CreateSut(
+            traineeInsightsRepository: traineeInsightsRepository,
+            agent: agent,
+            notificationService: notificationService);
+
+        await sut.Consume(BuildContext(new TraineeInsightsRebuildRequestedMessage(
+            TraineeId: traineeId,
+            CoachUserId: Guid.NewGuid(),
+            IsManual: false,
+            RequestedAt: DateTimeOffset.UtcNow)).Object);
+
+        Assert.Null(upserted?.SignificantChangeDetectedAt);
+        notificationService.Verify(
+            x => x.Notify(It.IsAny<NotificationRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Consume_WhenAutoRebuildAndNoPreviousInsights_DoesNotNotify()
+    {
+        var traineeId = Guid.NewGuid();
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TraineeInsights?)null);
+
+        var agent = new Mock<ITraineeInsightsAgent>();
+        agent
+            .Setup(x => x.GenerateAsync(It.IsAny<TraineeInsightsGenerationInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsightsGenerationResult
+            {
+                Success = true,
+                FatigueRisk = new TraineeInsightsFatigueRiskResult { Level = InsightsFatigueLevel.High, Score = 90, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var notificationService = new Mock<INotificationService>();
+
+        var sut = CreateSut(
+            traineeInsightsRepository: traineeInsightsRepository,
+            agent: agent,
+            notificationService: notificationService);
+
+        await sut.Consume(BuildContext(new TraineeInsightsRebuildRequestedMessage(
+            TraineeId: traineeId,
+            CoachUserId: Guid.NewGuid(),
+            IsManual: false,
+            RequestedAt: DateTimeOffset.UtcNow)).Object);
+
+        notificationService.Verify(
+            x => x.Notify(It.IsAny<NotificationRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Consume_WhenManualRebuildWithSignificantChange_DoesNotNotify()
+    {
+        var traineeId = Guid.NewGuid();
+
+        var traineeInsightsRepository = new Mock<ITraineeInsightsRepository>();
+        traineeInsightsRepository
+            .Setup(x => x.GetByTraineeId(traineeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsights
+            {
+                Id = traineeId,
+                Status = InsightsStatus.Ready,
+                CreatedAt = DateTimeOffset.UtcNow,
+                FatigueRisk = new InsightsFatigueRisk { Level = InsightsFatigueLevel.Low, Score = 20, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var agent = new Mock<ITraineeInsightsAgent>();
+        agent
+            .Setup(x => x.GenerateAsync(It.IsAny<TraineeInsightsGenerationInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TraineeInsightsGenerationResult
+            {
+                Success = true,
+                FatigueRisk = new TraineeInsightsFatigueRiskResult { Level = InsightsFatigueLevel.High, Score = 90, Explanation = "" },
+                Strengths = [],
+                Weaknesses = [],
+                Recommendations = [],
+            });
+
+        var notificationService = new Mock<INotificationService>();
+
+        var sut = CreateSut(
+            traineeInsightsRepository: traineeInsightsRepository,
+            agent: agent,
+            notificationService: notificationService);
+
+        await sut.Consume(BuildContext(new TraineeInsightsRebuildRequestedMessage(
+            TraineeId: traineeId,
+            CoachUserId: Guid.NewGuid(),
+            IsManual: true,
+            RequestedAt: DateTimeOffset.UtcNow,
+            IncludedReserved: 1)).Object);
+
+        notificationService.Verify(
+            x => x.Notify(It.IsAny<NotificationRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

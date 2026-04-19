@@ -15,7 +15,7 @@ type Props = {
 export function ExerciseRowDelete({ exercise, exercises }: Props) {
   const client = useQueryClient();
   const className = cn({
-    "h-4 w-4": true,
+    "size-4": true,
     "hover:text-[var(--shell-ink)]": true,
     "text-[var(--shell-muted)]": true,
     "cursor-pointer": true,

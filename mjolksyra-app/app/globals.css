@@ -1,5 +1,19 @@
 @import "../packages/mjolksyra-ui-design-system/src/styles.css";
 
+@font-face {
+  font-family: "Geist";
+  src: url("./fonts/GeistVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("./fonts/GeistMonoVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,41 +26,10 @@ body {
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
 }
 
-.theme-shell-two {
-  --shell-bg: #f4f4f5;
-  --shell-surface: #ffffff;
-  --shell-surface-strong: #e4e4e7;
-  --shell-ink: #18181b;
-  --shell-border: #d4d4d8;
-  --shell-muted: #71717a;
-  --shell-accent: #18181b;
-  --shell-accent-ink: #ffffff;
-  --shell-accent-hover: #09090b;
-}
-
 .shell-dropdown {
-  background-color: #ffffff;
-  color: #18181b;
-  border-color: #d4d4d8;
-}
-
-.dark .shell-dropdown {
-  background-color: #18181b;
-  color: #fafafa;
-  border-color: #3f3f46;
-}
-
-.dark .theme-shell-two,
-[data-theme="dark"] .theme-shell-two {
-  --shell-bg: #09090b;
-  --shell-surface: #18181b;
-  --shell-surface-strong: #27272a;
-  --shell-ink: #fafafa;
-  --shell-border: #3f3f46;
-  --shell-muted: #a1a1aa;
-  --shell-accent: #e4e4e7;
-  --shell-accent-ink: #18181b;
-  --shell-accent-hover: #f4f4f5;
+  background-color: var(--shell-surface);
+  color: var(--shell-ink);
+  border-color: var(--shell-border);
 }
 
 .shell-two-canvas {
@@ -66,19 +49,22 @@ body {
 
 @layer base {
   :root {
-    --font-display: var(--font-geist), "Geist", system-ui, sans-serif;
-    --font-body: var(--font-geist), "Geist", system-ui, sans-serif;
-    --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+    --font-geist: "Geist";
+    --font-geist-mono: "Geist Mono";
+    --font-display: var(--font-geist), system-ui, sans-serif;
+    --font-body: var(--font-geist), system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-    --shell-bg: #f4f4f5;
-    --shell-surface: #ffffff;
-    --shell-surface-strong: #e4e4e7;
-    --shell-ink: #18181b;
-    --shell-border: #d4d4d8;
-    --shell-muted: #71717a;
-    --shell-accent: #18181b;
-    --shell-accent-ink: #ffffff;
-    --shell-accent-hover: #09090b;
+    /* Shell vars — derived from HSL tokens; update tokens only to retheme */
+    --shell-bg: hsl(var(--background));
+    --shell-surface: hsl(var(--card));
+    --shell-surface-strong: hsl(var(--surface-strong));
+    --shell-ink: hsl(var(--foreground));
+    --shell-border: hsl(var(--border));
+    --shell-muted: hsl(var(--muted-foreground));
+    --shell-accent: hsl(var(--accent));
+    --shell-accent-ink: hsl(var(--accent-foreground));
+    --shell-accent-hover: hsl(var(--accent-hover));
 
     /* Motion */
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -88,7 +74,7 @@ body {
     --duration-base: 200ms;
     --duration-slow: 300ms;
 
-    --background: 240 4.8% 95.9%;
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -96,12 +82,12 @@ body {
     --popover-foreground: 240 10% 3.9%;
     --primary: 240 10% 3.9%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 4.8% 95.9%;
+    --secondary: 240 5.9% 89.4%;
     --secondary-foreground: 240 10% 3.9%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 10% 3.9%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 10% 3.9%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 83%;
@@ -112,29 +98,17 @@ body {
     --chart-3: 240 4% 55%;
     --chart-4: 240 3.7% 63%;
     --chart-5: 240 3% 15.9%;
-    --radius: var(--mjolksyra-radius-md);
+    --surface-strong: 240 5.9% 89.4%;
+    --accent-hover: 240 5.9% 83%;
+    --radius: 0rem;
   }
 
   .dark {
-    --font-display: var(--font-geist), "Geist", system-ui, sans-serif;
-    --font-body: var(--font-geist), "Geist", system-ui, sans-serif;
-    --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
-
-    --shell-bg: #09090b;
-    --shell-surface: #18181b;
-    --shell-surface-strong: #27272a;
-    --shell-ink: #fafafa;
-    --shell-border: #3f3f46;
-    --shell-muted: #a1a1aa;
-    --shell-accent: #e4e4e7;
-    --shell-accent-ink: #18181b;
-    --shell-accent-hover: #f4f4f5;
-
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 9.3%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 9.3%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 10% 3.9%;
@@ -144,7 +118,7 @@ body {
     --muted-foreground: 240 5% 64.9%;
     --accent: 0 0% 89.4%;
     --accent-foreground: 240 10% 3.9%;
-    --destructive: 0 63% 31%;
+    --destructive: 0 72% 38%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 27.5%;
     --input: 240 3.7% 27.5%;
@@ -154,18 +128,8 @@ body {
     --chart-3: 240 4% 46.1%;
     --chart-4: 0 0% 75%;
     --chart-5: 240 3.7% 55%;
-  }
-
-  :root[data-theme="dark"] {
-    --shell-bg: #09090b;
-    --shell-surface: #18181b;
-    --shell-surface-strong: #27272a;
-    --shell-ink: #fafafa;
-    --shell-border: #3f3f46;
-    --shell-muted: #a1a1aa;
-    --shell-accent: #e4e4e7;
-    --shell-accent-ink: #18181b;
-    --shell-accent-hover: #f4f4f5;
+    --surface-strong: 240 3.7% 15.9%;
+    --accent-hover: 0 0% 95.7%;
   }
 }
 
@@ -182,13 +146,13 @@ body {
   }
 }
 
-width ::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 8px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: var(--border);
+  background: hsl(var(--border));
 }
 
 /* Handle */

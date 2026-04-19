@@ -63,9 +63,10 @@ export function DayHeader({
                 listeners={listeners}
                 onDelete={onDeleteWorkout}
               />
-              <div
+              <button
+                type="button"
                 className={cn({
-                  "grid h-6 w-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
+                  "grid size-6 place-content-center rounded-none text-[var(--shell-muted)] transition": true,
                   "bg-[var(--shell-ink)] text-[var(--shell-surface)]":
                     isActiveEditor,
                   "hover:bg-[var(--shell-border)] hover:text-[var(--shell-ink)]":
@@ -74,8 +75,8 @@ export function DayHeader({
                 })}
                 onClick={onToggleEditor}
               >
-                <PencilIcon className="h-3.5 w-3.5" />
-              </div>
+                <PencilIcon className="size-3.5" />
+              </button>
             </>
           ) : (
             <span

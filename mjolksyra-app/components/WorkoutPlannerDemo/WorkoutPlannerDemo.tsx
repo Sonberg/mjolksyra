@@ -89,7 +89,7 @@ export function WorkoutPlannerDemo() {
   if (!ready) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent opacity-40" />
+        <div className="size-6 animate-spin rounded-full border-2 border-current border-t-transparent opacity-40" />
       </div>
     );
   }

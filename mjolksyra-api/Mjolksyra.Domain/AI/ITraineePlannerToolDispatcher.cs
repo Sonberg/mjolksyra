@@ -1,6 +1,6 @@
 namespace Mjolksyra.Domain.AI;
 
-public interface IAIPlannerToolDispatcher : IWorkoutAnalysisToolDispatcher
+public interface ITraineePlannerToolDispatcher : IWorkoutAnalysisToolDispatcher
 {
     Task<string> GetUpcomingWorkoutsAsync(string afterDate, int count, CancellationToken ct);
 

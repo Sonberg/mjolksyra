@@ -59,9 +59,9 @@ export function AIFeaturesSection() {
               AI Planner
             </div>
 
-            <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3 space-y-2">
+            <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3 flex flex-col gap-2">
               {/* User message with file attachment hint */}
-              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2 text-xs text-[var(--home-text)] space-y-1.5">
+              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2 text-xs text-[var(--home-text)] flex flex-col gap-1.5">
                 <p>&quot;Build a 6-week powerlifting peaking block for an intermediate athlete, 4 days/week.&quot;</p>
                 <div className="flex items-center gap-1.5 text-[10px] text-[var(--home-muted)]">
                   <PaperclipIcon className="h-3 w-3 shrink-0" />
@@ -71,7 +71,7 @@ export function AIFeaturesSection() {
               </div>
 
               {/* AI clarifying response */}
-              <div className="border border-[var(--home-border)] bg-[var(--home-accent)] px-2.5 py-2 text-xs text-[var(--home-accent-ink)] space-y-1">
+              <div className="flex flex-col gap-1 border border-[var(--home-border)] bg-[var(--home-accent)] px-2.5 py-2 text-xs text-[var(--home-accent-ink)]">
                 <p className="font-semibold">Got it. Should I keep existing sessions or replace them?</p>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {["Keep existing", "Replace all", "Append only"].map((opt) => (
@@ -86,7 +86,7 @@ export function AIFeaturesSection() {
               </div>
 
               {/* Proposal review */}
-              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2.5 space-y-2.5">
+              <div className="border border-[var(--home-border)] bg-[var(--home-surface)] px-2.5 py-2.5 flex flex-col gap-2.5">
                 {/* Header row */}
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--home-muted)]">
@@ -99,7 +99,7 @@ export function AIFeaturesSection() {
                 </div>
 
                 {/* Week rows */}
-                <div className="space-y-1.5">
+                <div className="flex flex-col gap-1.5">
                   {proposalWeeks.map((w) => (
                     <div key={w.week} className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-2.5 py-2">
                       <div className="flex items-center justify-between mb-1.5">
@@ -151,7 +151,7 @@ export function AIFeaturesSection() {
               Workout Analysis
             </div>
 
-            <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3 space-y-2">
+            <div className="border border-[var(--home-border)] bg-[var(--home-surface-strong)] p-3 flex flex-col gap-2">
               {/* Summary block */}
               <div className="border-l-2 border-[var(--home-accent)] pl-3">
                 <p className="text-xs font-medium text-[var(--home-text)]">
@@ -163,23 +163,23 @@ export function AIFeaturesSection() {
               </div>
 
               {/* Findings / Risks / Suggestions */}
-              <div className="space-y-2 text-[11px] text-[var(--home-muted)]">
+              <div className="flex flex-col gap-2 text-[11px] text-[var(--home-muted)]">
                 <div>
                   <span className="font-semibold uppercase tracking-widest text-[var(--home-text)]">Findings</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     <li>Back squat depth within 1–2 cm at 90% 1RM</li>
                     <li>Bench left elbow flares slightly on descent</li>
                   </ul>
                 </div>
                 <div>
                   <span className="font-semibold uppercase tracking-widest text-[var(--home-text)]">Risks</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     <li>Elbow flare may stress anterior shoulder over time</li>
                   </ul>
                 </div>
                 <div>
                   <span className="font-semibold uppercase tracking-widest text-[var(--home-text)]">Suggestions</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     <li>Add tempo squats (3-1-1) to reinforce depth habit</li>
                     <li>Cue &quot;elbows in&quot; on bench descent for 2 sessions</li>
                   </ul>

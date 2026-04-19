@@ -16,14 +16,14 @@ export const HeroSection = () => {
           </div>
           <h1 className="font-[var(--font-display)] mb-8 max-w-2xl text-4xl leading-tight tracking-tight md:text-5xl xl:text-6xl">
             <span className="text-[var(--home-text)]">
-              Coaching software for strength coaches —{" "}
+              Run more athletes.{" "}
             </span>
-            <span style={{ color: "var(--home-accent)" }}>with AI</span>
+            <span style={{ color: "var(--home-accent)" }}>Spend less time on programming.</span>
           </h1>
           <p className="mb-6 max-w-2xl text-[var(--home-muted)] md:text-lg lg:text-xl">
-            Mjolksyra helps online strength coaches build training blocks,
-            manage athletes, analyze workout video, and deliver structured
-            feedback from one workspace.
+            Save 5+ hours per week on program design. Mjolksyra gives online
+            strength coaches one workspace to build training blocks, manage
+            athletes, review video, and deliver feedback.
           </p>
           <div className="mb-8 flex flex-wrap gap-2">
             {[
@@ -40,7 +40,10 @@ export const HeroSection = () => {
               </span>
             ))}
           </div>
-          <div className="space-y-3 flex gap-4 flex-col sm:flex-row sm:space-x-3 sm:space-y-0 sm:items-center">
+          <p className="mb-8 text-xs italic text-[var(--home-muted)]">
+            Mjölksyra is Swedish for lactic acid — the burn you feel when you push hard.
+          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             {isBeta ? (
               <SignupForm />
             ) : (
@@ -48,7 +51,7 @@ export const HeroSection = () => {
                 <RegisterDialog
                   trigger={
                     <button className="inline-flex items-center justify-center rounded-none border border-transparent bg-[var(--home-accent)] px-6 py-3 md:px-8 md:py-4 text-lg font-semibold text-[var(--home-accent-ink)] transition hover:bg-[var(--home-accent-hover)]">
-                      Sign Up
+                      Start coaching free
                     </button>
                   }
                 />

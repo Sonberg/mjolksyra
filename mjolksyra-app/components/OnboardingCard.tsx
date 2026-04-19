@@ -38,7 +38,7 @@ export function OnboardingCard({
       )}
     >
       {/* Content */}
-      <div className="relative z-10 space-y-4">
+      <div className="relative z-10 flex flex-col gap-4">
         {title && <h3 className={titleStyles}>{title}</h3>}
         {text && (
           <p className="text-base leading-relaxed text-[var(--shell-muted)]">

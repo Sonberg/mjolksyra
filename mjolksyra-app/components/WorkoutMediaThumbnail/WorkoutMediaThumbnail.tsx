@@ -59,15 +59,15 @@ export function WorkoutMediaThumbnail({
 
       {isVideo && !isPending ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[var(--shell-ink)]/35 transition group-hover:bg-[var(--shell-ink)]/45">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--shell-ink)] text-[var(--shell-surface)]">
-            <PlayIcon className="h-4 w-4 translate-x-px" />
+          <div className="flex size-9 items-center justify-center rounded-full bg-[var(--shell-ink)] text-[var(--shell-surface)]">
+            <PlayIcon className="size-4 translate-x-px" />
           </div>
         </div>
       ) : null}
 
       {isPending ? (
         <div className="absolute inset-0 flex items-center justify-center bg-[var(--shell-surface)]/30">
-          <Loader2Icon className="h-5 w-5 animate-spin text-[var(--shell-ink)]" />
+          <Loader2Icon className="size-5 animate-spin text-[var(--shell-ink)]" />
         </div>
       ) : null}
 
@@ -77,10 +77,10 @@ export function WorkoutMediaThumbnail({
 
   const baseClassName = cn(
     size === "xsmall"
-      ? "group relative h-12 w-12 overflow-hidden sm:h-14 sm:w-14"
+      ? "group relative size-12 overflow-hidden sm:size-14"
       : size === "small"
-        ? "group relative h-16 w-16 overflow-hidden sm:h-20 sm:w-20"
-        : "group relative h-24 w-24 overflow-hidden sm:h-32 sm:w-32",
+        ? "group relative size-16 overflow-hidden sm:size-20"
+        : "group relative size-24 overflow-hidden sm:size-32",
     isInteractive
       ? "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
       : "",

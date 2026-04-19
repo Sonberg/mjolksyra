@@ -1,6 +1,6 @@
 namespace Mjolksyra.Domain.AI;
 
-public interface IAIWorkoutPlannerAgent
+public interface ITraineePlannerAgent
 {
     Task<AIPlannerClarifyOutput> ClarifyAsync(AIPlannerClarifyInput input, CancellationToken cancellationToken = default);
 

@@ -71,7 +71,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -112,7 +112,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -162,7 +162,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -276,6 +276,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         var firstWorkoutId = Guid.NewGuid();
         var lastWorkoutId = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;
+        var futureStart = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
+        var futureEnd = futureStart.AddDays(96);
 
         var userContext = new Mock<IUserContext>();
         userContext
@@ -293,7 +295,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -310,13 +312,13 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                         new AIPlannerActionProposal
                         {
                             ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
-                            Summary = "Delete workout on 2026-04-08",
+                            Summary = $"Delete workout on {futureStart:yyyy-MM-dd}",
                             TargetWorkoutId = firstWorkoutId,
                         },
                         new AIPlannerActionProposal
                         {
                             ActionType = AIPlannerProposalActionTypes.DeleteWorkout,
-                            Summary = "Delete workout on 2026-07-16",
+                            Summary = $"Delete workout on {futureEnd:yyyy-MM-dd}",
                             TargetWorkoutId = lastWorkoutId,
                         },
                     ],
@@ -327,7 +329,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         {
             Id = firstWorkoutId,
             TraineeId = traineeId,
-            PlannedAt = new DateOnly(2026, 4, 11),
+            PlannedAt = futureStart,
             PublishedExercises = [],
             CreatedAt = now,
         };
@@ -335,7 +337,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         {
             Id = lastWorkoutId,
             TraineeId = traineeId,
-            PlannedAt = new DateOnly(2026, 7, 16),
+            PlannedAt = futureEnd,
             PublishedExercises = [],
             CreatedAt = now,
         };
@@ -370,8 +372,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
 
         Assert.NotNull(result);
         Assert.NotNull(result.ProposedActionSet);
-        Assert.Equal("2026-04-11", result.ProposedActionSet.AffectedDateFrom);
-        Assert.Equal("2026-07-16", result.ProposedActionSet.AffectedDateTo);
+        Assert.Equal(futureStart.ToString("yyyy-MM-dd"), result.ProposedActionSet.AffectedDateFrom);
+        Assert.Equal(futureEnd.ToString("yyyy-MM-dd"), result.ProposedActionSet.AffectedDateTo);
         Assert.Equal(1, result.ProposedActionSet.CreditCost);
         Assert.All(result.ProposedActionSet.Actions, action =>
         {
@@ -388,6 +390,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         var completedWorkoutId = Guid.NewGuid();
         var openWorkoutId = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;
+        var pastWorkoutDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-2);
+        var futureWorkoutDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(2);
 
         var userContext = new Mock<IUserContext>();
         userContext
@@ -405,7 +409,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -438,7 +442,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         {
             Id = completedWorkoutId,
             TraineeId = traineeId,
-            PlannedAt = new DateOnly(2026, 4, 8),
+            PlannedAt = pastWorkoutDate,
             CreatedAt = now,
             PublishedExercises = [],
         };
@@ -446,7 +450,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         {
             Id = openWorkoutId,
             TraineeId = traineeId,
-            PlannedAt = new DateOnly(2026, 4, 10),
+            PlannedAt = futureWorkoutDate,
             CreatedAt = now,
             PublishedExercises = [],
         };
@@ -483,8 +487,8 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         Assert.NotNull(result.ProposedActionSet);
         Assert.Single(result.ProposedActionSet.Actions);
         Assert.Equal(openWorkoutId, result.ProposedActionSet.Actions.Single().TargetWorkoutId);
-        Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateFrom);
-        Assert.Equal("2026-04-10", result.ProposedActionSet.AffectedDateTo);
+        Assert.Equal(futureWorkoutDate.ToString("yyyy-MM-dd"), result.ProposedActionSet.AffectedDateFrom);
+        Assert.Equal(futureWorkoutDate.ToString("yyyy-MM-dd"), result.ProposedActionSet.AffectedDateTo);
         Assert.Equal(1, result.ProposedActionSet.CreditCost);
     }
 
@@ -510,7 +514,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.ClarifyAsync(It.IsAny<AIPlannerClarifyInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AIPlannerClarifyOutput
@@ -603,7 +607,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
     }
 
     private static ClarifyWorkoutPlanQueryHandler CreateSut(
-        Mock<IAIWorkoutPlannerAgent>? plannerAgent = null,
+        Mock<ITraineePlannerAgent>? plannerAgent = null,
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
@@ -631,7 +635,7 @@ public class ClarifyWorkoutPlanQueryHandlerTests
         }
 
         return new ClarifyWorkoutPlanQueryHandler(
-            (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
+            (plannerAgent ?? new Mock<ITraineePlannerAgent>()).Object,
             workoutRepo.Object,
             new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,

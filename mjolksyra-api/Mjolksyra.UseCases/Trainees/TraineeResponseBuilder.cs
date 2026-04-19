@@ -1,4 +1,5 @@
 using Mjolksyra.Domain.Database;
+using Mjolksyra.Domain.Database.Common;
 using Mjolksyra.Domain.Database.Models;
 using Mjolksyra.Domain.Database.Enum;
 using Stripe;
@@ -16,17 +17,20 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
     private readonly IPlannedWorkoutRepository _plannedWorkoutRepository;
     private readonly IStripeClient _stripeClient;
     private readonly ITraineeTransactionRepository _transactionRepository;
+    private readonly ITraineeInsightsRepository _traineeInsightsRepository;
 
     public TraineeResponseBuilder(
         IUserRepository userRepository,
         IPlannedWorkoutRepository plannedWorkoutRepository,
         IStripeClient stripeClient,
-        ITraineeTransactionRepository transactionRepository)
+        ITraineeTransactionRepository transactionRepository,
+        ITraineeInsightsRepository traineeInsightsRepository)
     {
         _userRepository = userRepository;
         _plannedWorkoutRepository = plannedWorkoutRepository;
         _stripeClient = stripeClient;
         _transactionRepository = transactionRepository;
+        _traineeInsightsRepository = traineeInsightsRepository;
     }
 
     public async Task<TraineeResponse> Build(Trainee trainee, CancellationToken cancellationToken)
@@ -34,8 +38,9 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
         var athleteTask = _userRepository.GetById(trainee.AthleteUserId, cancellationToken);
         var coachTask = _userRepository.GetById(trainee.CoachUserId, cancellationToken);
         var transactionsTask = _transactionRepository.GetByTraineeId(trainee.Id, cancellationToken);
+        var insightsTask = _traineeInsightsRepository.GetByTraineeId(trainee.Id, cancellationToken);
 
-        await Task.WhenAll(athleteTask, coachTask, transactionsTask);
+        await Task.WhenAll(athleteTask, coachTask, transactionsTask, insightsTask);
 
         var athlete = athleteTask.Result;
         var coach = coachTask.Result;
@@ -80,17 +85,17 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
         var billingStatus = hasSubscription && trainee.PaymentFailedAt != null
             ? TraineeBillingStatus.PaymentFailed
             : hasSubscription
-            ? TraineeBillingStatus.SubscriptionActive
-            : !hasPrice
-                ? TraineeBillingStatus.PriceNotSet
-                : !athletePaymentReady
-                    ? TraineeBillingStatus.AwaitingAthletePaymentMethod
-                    : !coachStripeReady
-                        ? TraineeBillingStatus.AwaitingCoachStripeSetup
-                        : TraineeBillingStatus.PriceSet;
+                ? TraineeBillingStatus.SubscriptionActive
+                : !hasPrice
+                    ? TraineeBillingStatus.PriceNotSet
+                    : !athletePaymentReady
+                        ? TraineeBillingStatus.AwaitingAthletePaymentMethod
+                        : !coachStripeReady
+                            ? TraineeBillingStatus.AwaitingCoachStripeSetup
+                            : TraineeBillingStatus.PriceSet;
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var nextWorkoutTask = _plannedWorkoutRepository.Get(new Domain.Database.Common.PlannedWorkoutCursor
+        var nextWorkoutTask = _plannedWorkoutRepository.Get(new PlannedWorkoutCursor
         {
             Page = 0,
             Size = 1,
@@ -101,13 +106,14 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
             Order = SortOrder.Asc,
             DraftOnly = false
         }, cancellationToken);
-        var lastWorkoutTask = _plannedWorkoutRepository.Get(new Domain.Database.Common.PlannedWorkoutCursor
+
+        var lastWorkoutTask = _plannedWorkoutRepository.Get(new PlannedWorkoutCursor
         {
             Page = 0,
             Size = 1,
             TraineeId = trainee.Id,
-            FromDate = null,
-            ToDate = today,
+            FromDate = today,
+            ToDate = null,
             SortBy = ["PlannedAt"],
             Order = SortOrder.Desc,
             DraftOnly = false
@@ -115,13 +121,8 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
 
         await Task.WhenAll(nextWorkoutTask, lastWorkoutTask);
 
-        static DateTimeOffset? ToDateTimeOffset(DateOnly? date) =>
-            date is null
-                ? null
-                : new DateTimeOffset(DateTime.SpecifyKind(date.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc));
-
-        var nextWorkoutAt = nextWorkoutTask.Result.Data.FirstOrDefault()?.PlannedAt;
-        var lastWorkoutAt = lastWorkoutTask.Result.Data.FirstOrDefault()?.PlannedAt;
+        var nextWorkoutAt = nextWorkoutTask.Result.Data.Min(x => x.PlannedAt);
+        var lastWorkoutAt = lastWorkoutTask.Result.Data.Max(x => x.PlannedAt);
 
         return new TraineeResponse
         {
@@ -151,7 +152,13 @@ public class TraineeResponseBuilder : ITraineeResponseBuilder
                     ReceiptUrl = t.ReceiptUrl
                 })
                 .ToList(),
-            CreatedAt = trainee.CreatedAt
+            CreatedAt = trainee.CreatedAt,
+            HasInsightsAlert = insightsTask.Result?.SignificantChangeDetectedAt != null,
         };
+
+        static DateTimeOffset? ToDateTimeOffset(DateOnly? date) =>
+            date is null
+                ? null
+                : new DateTimeOffset(DateTime.SpecifyKind(date.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc));
     }
 }

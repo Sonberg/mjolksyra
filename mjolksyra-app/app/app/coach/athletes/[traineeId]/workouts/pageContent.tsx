@@ -7,6 +7,7 @@ import { getTrainee } from "@/services/trainees/getTrainee";
 import { ChevronLeftIcon, ClipboardCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   traineeId: string;
@@ -32,26 +33,27 @@ export function PageContent({ traineeId, initialTab }: Props) {
         title={athleteName}
         titleClassName="text-xl md:text-2xl"
         leading={
-          <button
+          <Button
             type="button"
-            className="inline-flex items-center text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)]"
+            variant="ghost"
+            size="icon"
+            className="size-8 rounded-none text-[var(--shell-muted)]"
             onClick={() => router.push("/app/coach/athletes")}
             aria-label="Back to athletes"
           >
-            <ChevronLeftIcon className="h-4 w-4" />
-          </button>
+            <ChevronLeftIcon data-icon />
+          </Button>
         }
         actions={
-          <button
+          <Button
             type="button"
             onClick={() =>
               router.push(`/app/coach/athletes/${traineeId}/planner`)
             }
-            className="inline-flex items-center gap-2 rounded-none border border-[var(--shell-border)] bg-[var(--shell-ink)] px-4 py-2 text-sm font-semibold text-[var(--shell-surface)] transition hover:brightness-95"
           >
-            <ClipboardCheckIcon className="h-4 w-4" />
+            <ClipboardCheckIcon data-icon="inline-start" />
             Planner
-          </button>
+          </Button>
         }
       />
 

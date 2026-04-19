@@ -2,15 +2,14 @@
 
 import { ReactNode, useEffect, useRef, useState, useId } from "react";
 import { isAxiosError } from "axios";
+import { SendIcon, CheckIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import {
-  SparklesIcon,
-  SendIcon,
-  XIcon,
-  PaperclipIcon,
-  CheckIcon,
-  RotateCcwIcon,
-  Trash2Icon,
-} from "lucide-react";
+  ChatMessage,
+  ChatMessageAttachmentBar,
+  ChatMessageComposer,
+  ChatMessageTyping,
+} from "@/components/Chat";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
@@ -25,21 +24,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { clarifyWorkoutPlan } from "@/services/aiPlanner/clarifyWorkoutPlan";
-import { applyPlannerProposal } from "@/services/aiPlanner/applyPlannerProposal";
-import { deletePlannerSession } from "@/services/aiPlanner/deletePlannerSession";
-import { discardPlannerProposal } from "@/services/aiPlanner/discardPlannerProposal";
-import { getLatestPlannerSession } from "@/services/aiPlanner/getLatestPlannerSession";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { clarifyWorkoutPlan } from "@/services/traineePlanner/clarifyWorkoutPlan";
+import { applyPlannerProposal } from "@/services/traineePlanner/applyPlannerProposal";
+import { deletePlannerSession } from "@/services/traineePlanner/deletePlannerSession";
+import { discardPlannerProposal } from "@/services/traineePlanner/discardPlannerProposal";
+import { getLatestPlannerSession } from "@/services/traineePlanner/getLatestPlannerSession";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import type {
   PlannerFileContent,
   AIPlannerActionProposal,
   AIPlannerActionSet,
   AIPlannerCreditBreakdownItem,
-  AIPlannerApplyProposalResponse,
   PreviewWorkoutPlanWorkout,
-} from "@/services/aiPlanner/types";
-import { cn } from "@/lib/utils";
+} from "@/services/traineePlanner/types";
+import {
+  ACCEPTED_EXTENSIONS,
+  parseFileToContent,
+} from "@/lib/plannerFileParser";
 
 type Props = {
   traineeId: string;
@@ -51,7 +53,6 @@ type Props = {
     attachedFiles?: PlannerFileContent[];
     proposedActionSet?: AIPlannerActionSet | null;
     previewWorkouts?: PreviewWorkoutPlanWorkout[] | null;
-    generationResult?: GenerationResult | null;
   };
 };
 
@@ -61,65 +62,8 @@ type Message = {
   options?: string[];
 };
 
-type GenerationResult = AIPlannerApplyProposalResponse & {
-  generatedAt: string;
-};
 
-const ACCEPTED_EXTENSIONS =
-  ".json,.txt,.csv,.xlsx,.jpg,.jpeg,.png,.webp,.heic,.heif";
-const IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/jpg",
-  "image/heic",
-  "image/heif",
-]);
-const IMAGE_EXTENSIONS = new Set([
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-]);
-
-function isImageFile(file: File): boolean {
-  if (IMAGE_TYPES.has(file.type)) return true;
-  const ext = "." + (file.name.split(".").pop()?.toLowerCase() ?? "");
-  return IMAGE_EXTENSIONS.has(ext);
-}
-
-async function parseFileToContent(file: File): Promise<PlannerFileContent> {
-  if (isImageFile(file)) {
-    return {
-      name: file.name,
-      type: "image",
-      content: `[Image file: ${file.name} — upload to storage for AI vision analysis]`,
-    };
-  }
-
-  if (
-    file.name.endsWith(".xlsx") ||
-    file.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  ) {
-    const { read, utils } = await import("xlsx");
-    const buffer = await file.arrayBuffer();
-    const workbook = read(buffer);
-    const sheets = workbook.SheetNames.map((name) => {
-      const sheet = workbook.Sheets[name];
-      const json = utils.sheet_to_json(sheet);
-      return `Sheet: ${name}\n${JSON.stringify(json, null, 2)}`;
-    });
-    return { name: file.name, type: "excel", content: sheets.join("\n\n") };
-  }
-
-  const text = await file.text();
-  return { name: file.name, type: file.type || "text", content: text };
-}
-
-export function AIPlannerPanel({
+export function TraineePlannerPanel({
   traineeId,
   onGenerated,
   initialState,
@@ -139,8 +83,6 @@ export function AIPlannerPanel({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(!initialState);
-  const [generationResult, setGenerationResult] =
-    useState<GenerationResult | null>(initialState?.generationResult ?? null);
   const [proposedActionSet, setProposedActionSet] =
     useState<AIPlannerActionSet | null>(
       initialState?.proposedActionSet ?? null,
@@ -154,6 +96,7 @@ export function AIPlannerPanel({
   const [isClearingSession, setIsClearingSession] = useState(false);
   const [proposalError, setProposalError] = useState<string | null>(null);
   const [attachmentDragDepth, setAttachmentDragDepth] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const hasPendingProposal = proposedActionSet?.status === "pending";
@@ -162,8 +105,7 @@ export function AIPlannerPanel({
     hasStarted ||
     attachedFiles.length > 0 ||
     !!description.trim() ||
-    !!proposedActionSet ||
-    !!generationResult;
+    !!proposedActionSet;
 
   useEffect(() => {
     if (initialState) {
@@ -249,8 +191,19 @@ export function AIPlannerPanel({
     }
   }
 
-  async function handleOptionSelect(option: string) {
-    await handleSendFollowUpWithText(option);
+  function toggleOption(option: string) {
+    setSelectedOptions((prev) =>
+      prev.includes(option)
+        ? prev.filter((o) => o !== option)
+        : [...prev, option],
+    );
+  }
+
+  async function handleSendOptions() {
+    if (!selectedOptions.length) return;
+    const text = selectedOptions.join(", ");
+    setSelectedOptions([]);
+    await handleSendFollowUpWithText(text);
   }
 
   async function handleSendFollowUp() {
@@ -262,6 +215,7 @@ export function AIPlannerPanel({
   async function handleSendFollowUpWithText(text: string) {
     if (!text.trim()) return;
 
+    setSelectedOptions([]);
     const userMessage: Message = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
@@ -320,10 +274,16 @@ export function AIPlannerPanel({
         proposalId: proposedActionSet.id,
       });
 
-      setGenerationResult({ ...result, generatedAt: new Date().toISOString() });
       setProposedActionSet(null);
       setPreviewData(null);
       await onGenerated();
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: `Done — ${result.actionsApplied} change${result.actionsApplied !== 1 ? "s" : ""} applied. ${result.summary} What would you like to adjust next?`,
+        },
+      ]);
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 409) {
         setProposalError(
@@ -377,7 +337,6 @@ export function AIPlannerPanel({
     setMessages([]);
     setAttachedFiles([]);
     setUserInput("");
-    setGenerationResult(null);
     setProposedActionSet(null);
     setPreviewData(null);
     setProposalError(null);
@@ -467,62 +426,7 @@ export function AIPlannerPanel({
   if (isBootstrapping) {
     return (
       <div className="flex h-full items-center justify-center">
-        <LoadingDots />
-      </div>
-    );
-  }
-
-  if (generationResult) {
-    return (
-      <div className="flex h-full flex-col gap-4 bg-[var(--shell-surface)] p-4">
-        <Card className="border border-[var(--shell-border)] shadow-none">
-          <CardHeader className="border-b border-[var(--shell-border)] p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-accent)]">
-                <CheckIcon className="h-3.5 w-3.5 text-[var(--shell-accent-ink)]" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                  Planner complete
-                </p>
-                <CardTitle className="mt-1 text-base">
-                  Changes applied
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm">
-                  {generationResult.summary}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-2">
-              <StatTile
-                label="Actions applied"
-                value={`${generationResult.actionsApplied}`}
-              />
-              <StatTile label="Next step" value="Review changes" />
-            </div>
-            <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-              Planned workouts were updated. Review them in the{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                Changes
-              </span>{" "}
-              tab, then publish when ready.
-            </p>
-          </CardContent>
-          <CardFooter className="border-t border-[var(--shell-border)] p-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isClearingSession}
-              className="gap-1.5"
-              onClick={() => void handleClearSession()}
-            >
-              <RotateCcwIcon className="h-3 w-3" />
-              Clear session
-            </Button>
-          </CardFooter>
-        </Card>
+        <ChatMessageTyping />
       </div>
     );
   }
@@ -533,12 +437,9 @@ export function AIPlannerPanel({
         <CardHeader className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <SparklesIcon className="h-3.5 w-3.5 text-[var(--shell-muted)]" />
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
-                  Planning assistant
-                </p>
-              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--shell-muted)]">
+                Planning assistant
+              </p>
               <CardTitle className="mt-1 text-base">
                 Build, adjust, and approve the next block
               </CardTitle>
@@ -553,10 +454,10 @@ export function AIPlannerPanel({
                 variant="outline"
                 size="sm"
                 disabled={isLoading || isClearingSession}
-                className="gap-1.5"
+                className=""
                 onClick={() => void handleClearSession()}
               >
-                <RotateCcwIcon className="h-3 w-3" />
+                <RotateCcwIcon data-icon="inline-start" />
                 Clear session
               </Button>
             )}
@@ -581,37 +482,52 @@ export function AIPlannerPanel({
 
                 return (
                   <div key={index} className="flex flex-col gap-1.5">
-                    <PlannerBubble role={message.role}>
+                    <ChatMessage
+                      align={message.role === "user" ? "end" : "start"}
+                      label={message.role === "user" ? "Coach" : "Planner"}
+                    >
                       {message.content}
-                    </PlannerBubble>
+                    </ChatMessage>
                     {showOptions && (
-                      <div className="flex flex-wrap gap-2">
-                        {message.options!.map((option) => (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          {message.options!.map((option) => {
+                            const isSelected = selectedOptions.includes(option);
+                            return (
+                              <Button
+                                key={option}
+                                type="button"
+                                variant={isSelected ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => toggleOption(option)}
+                              >
+                                {isSelected && (
+                                  <CheckIcon className="mr-1 size-3" />
+                                )}
+                                {option}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                        {selectedOptions.length > 0 && (
                           <Button
-                            key={option}
                             type="button"
-                            variant="outline"
                             size="sm"
-                            onClick={() => void handleOptionSelect(option)}
+                            onClick={() => void handleSendOptions()}
                           >
-                            {option}
+                            <SendIcon data-icon="inline-start" />
+                            {selectedOptions.join(", ")}
                           </Button>
-                        ))}
+                        )}
                       </div>
                     )}
                   </div>
                 );
               })}
               {isLoading && (
-                <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-4 py-3">
-                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                    Planner
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
-                    <LoadingDots />
-                    <span>Thinking through the plan…</span>
-                  </div>
-                </div>
+                <ChatMessage align="start" label="Planner">
+                  <ChatMessageTyping />
+                </ChatMessage>
               )}
             </div>
 
@@ -626,28 +542,24 @@ export function AIPlannerPanel({
               />
             )}
             {insufficientCredits && (
-              <Card className="border border-[var(--shell-border)] shadow-none">
-                <CardContent className="flex items-center justify-between gap-3 p-4">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-[var(--shell-ink)]">
-                      Not enough credits for this proposal.
-                    </p>
-                    <p className="text-xs text-[var(--shell-muted)]">
-                      Buy more credits and then apply this{" "}
-                      {proposedActionSet?.creditCost || 1} credit proposal
-                      again.
-                    </p>
-                  </div>
+              <Alert variant="destructive">
+                <AlertTitle>Not enough credits for this proposal.</AlertTitle>
+                <AlertDescription className="flex items-center justify-between gap-3">
+                  <span>
+                    Buy more credits and then apply this{" "}
+                    {proposedActionSet?.creditCost || 1} credit proposal again.
+                  </span>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
+                    className="shrink-0"
                     onClick={() => setPurchaseDialogOpen(true)}
                   >
                     Buy credits
                   </Button>
-                </CardContent>
-              </Card>
+                </AlertDescription>
+              </Alert>
             )}
           </div>
           <div ref={bottomRef} />
@@ -668,143 +580,70 @@ export function AIPlannerPanel({
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div className="border-t border-[var(--shell-border)]">
-            <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
-              <div className="flex items-end gap-2">
-                <div className="min-h-11 min-w-0 flex-1 px-3">
-                  <textarea
-                    rows={5}
-                    placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                        void handleSendInitial();
-                      }
-                    }}
-                    className="w-full min-h-10 resize-none border-0 bg-transparent py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)]"
-                  />
-                </div>
-                <button
-                  type="button"
-                  disabled={!description.trim() || isLoading}
-                  onClick={() => void handleSendInitial()}
-                  className="shrink-0 self-end border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-                >
-                  {isLoading ? "Sending..." : "Send"}
-                </button>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  id={attachmentInputId}
-                  data-testid="ai-planner-attachment-input"
-                  accept={ACCEPTED_EXTENSIONS}
-                  multiple
-                  onChange={handleFileChange}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  data-testid="ai-planner-attachment-button"
-                  className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <PaperclipIcon className="h-3 w-3" />
-                  {isAttachmentDragActive
-                    ? "Drop files here"
-                    : "Attach context"}
-                </Button>
-                {attachedFiles.map((file, i) => (
-                  <AttachmentPill
-                    key={`${file.name}-${i}`}
-                    fileName={file.name}
-                    onRemove={() => removeFile(i)}
-                  />
-                ))}
-                <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                  Cmd/Ctrl + Enter to send
-                </span>
-              </div>
-            </div>
-          </div>
+          <ChatMessageComposer
+            value={description}
+            onChange={setDescription}
+            onSend={() => void handleSendInitial()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                void handleSendInitial();
+            }}
+            canSend={!!description.trim()}
+            isSending={isLoading}
+            rows={5}
+            placeholder="e.g. Build a 12-week strength block for a powerlifter, 3 days per week, then shift the final two weeks into a taper."
+          >
+            <ChatMessageAttachmentBar
+              fileInputRef={fileInputRef}
+              fileInputId={attachmentInputId}
+              attachedFiles={attachedFiles}
+              isAttachmentDragActive={isAttachmentDragActive}
+              label="Attach context"
+              accept={ACCEPTED_EXTENSIONS}
+              onAttachmentClick={() => fileInputRef.current?.click()}
+              onRemoveFile={removeFile}
+              onFileChange={handleFileChange}
+            />
+          </ChatMessageComposer>
         </div>
       ) : (
         <div
-          className="border-t border-[var(--shell-border)]"
           data-testid="ai-planner-attachment-dropzone"
           onDragEnter={handleAttachmentDragEnter}
           onDragOver={handleAttachmentDragOver}
           onDragLeave={handleAttachmentDragLeave}
           onDrop={(e) => void handleAttachmentDrop(e)}
         >
-          <div className="bg-[var(--shell-surface-strong)] p-2 shadow-[0_-6px_24px_rgba(0,0,0,0.04)]">
-            <div className="flex items-end gap-2">
-              <div className="min-h-11 min-w-0 flex-1 px-3">
-                <textarea
-                  rows={3}
-                  placeholder={
-                    hasPendingProposal
-                      ? "Ask for changes or explain what to revise..."
-                      : "Reply with the next detail..."
-                  }
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                      void handleSendFollowUp();
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="w-full min-h-10 resize-none border-0 bg-transparent py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none placeholder:text-[var(--shell-muted)] disabled:opacity-50"
-                />
-              </div>
-              <button
-                type="button"
-                disabled={!userInput.trim() || isLoading}
-                onClick={() => void handleSendFollowUp()}
-                className="shrink-0 self-end border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
-              >
-                {isLoading ? "Sending..." : "Send"}
-              </button>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                id={attachmentInputId}
-                data-testid="ai-planner-attachment-input"
-                accept={ACCEPTED_EXTENSIONS}
-                multiple
-                onChange={handleFileChange}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                data-testid="ai-planner-attachment-button"
-                className="gap-1.5 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <PaperclipIcon className="h-3 w-3" />
-                {isAttachmentDragActive ? "Drop files here" : "Attach"}
-              </Button>
-              {attachedFiles.map((file, i) => (
-                <AttachmentPill
-                  key={`${file.name}-${i}`}
-                  fileName={file.name}
-                  onRemove={() => removeFile(i)}
-                />
-              ))}
-              <span className="ml-auto text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                Cmd/Ctrl + Enter to send
-              </span>
-            </div>
-          </div>
+          <ChatMessageComposer
+            value={userInput}
+            onChange={setUserInput}
+            onSend={() => void handleSendFollowUp()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                void handleSendFollowUp();
+            }}
+            canSend={!!userInput.trim()}
+            isSending={isLoading}
+            rows={3}
+            placeholder={
+              hasPendingProposal
+                ? "Ask for changes or explain what to revise..."
+                : "Reply with the next detail..."
+            }
+            disabled={isLoading}
+          >
+            <ChatMessageAttachmentBar
+              fileInputRef={fileInputRef}
+              fileInputId={attachmentInputId}
+              attachedFiles={attachedFiles}
+              isAttachmentDragActive={isAttachmentDragActive}
+              label="Attach"
+              accept={ACCEPTED_EXTENSIONS}
+              onAttachmentClick={() => fileInputRef.current?.click()}
+              onRemoveFile={removeFile}
+              onFileChange={handleFileChange}
+            />
+          </ChatMessageComposer>
         </div>
       )}
       <PurchaseCreditsDialog
@@ -865,68 +704,6 @@ function StatTile({ label, value }: { label: string; value: string }) {
       <p className="mt-1 text-sm font-medium text-[var(--shell-ink)]">
         {value}
       </p>
-    </div>
-  );
-}
-
-function AttachmentPill({
-  fileName,
-  onRemove,
-}: {
-  fileName: string;
-  onRemove: () => void;
-}) {
-  return (
-    <Badge
-      variant="secondary"
-      className="gap-1.5 py-1 normal-case tracking-[0.04em]"
-    >
-      <span className="text-[10px] font-medium text-[var(--shell-muted)]">
-        {fileName}
-      </span>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="transition hover:text-[var(--shell-ink)]"
-        aria-label={`Remove attachment ${fileName}`}
-      >
-        <XIcon className="h-3 w-3" />
-      </button>
-    </Badge>
-  );
-}
-
-function PlannerBubble({
-  role,
-  children,
-}: {
-  role: Message["role"];
-  children: ReactNode;
-}) {
-  const isUser = role === "user";
-
-  return (
-    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
-      <div className="max-w-[92%]">
-        <div
-          className={cn(
-            "mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]",
-            isUser && "text-right",
-          )}
-        >
-          {isUser ? "Coach" : "Planner"}
-        </div>
-        <div
-          className={cn(
-            "border px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]",
-            isUser
-              ? "border-[var(--shell-border)] bg-[var(--shell-surface)]"
-              : "border-[var(--shell-border)] bg-[var(--shell-surface-strong)]",
-          )}
-        >
-          {children}
-        </div>
-      </div>
     </div>
   );
 }
@@ -1059,107 +836,106 @@ function ProposalReviewCard({
         </div>
       </CardContent>
 
-      <CardContent className="max-h-[260px] overflow-y-auto border-b border-[var(--shell-border)] p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-          Preview
-        </p>
-        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          {workouts.length === 0
-            ? "No preview workouts were returned for this proposal."
-            : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
-        </p>
-        {workouts.length === 0 ? (
-          <p className="mt-3 text-xs text-[var(--shell-muted)]">
-            Ask the planner to refine the proposal if you want a clearer preview
-            before approving.
-          </p>
-        ) : (
-          <div className="mt-3 flex flex-col gap-3">
-            {weeks.map((week) => (
-              <div
-                key={week.weekLabel}
-                className="border border-[var(--shell-border)] bg-[var(--shell-surface)]"
-              >
-                <div className="border-b border-[var(--shell-border)] px-3 py-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
-                      {week.weekLabel}
-                    </span>
-                    <span className="text-[10px] text-[var(--shell-muted)]">
-                      {week.weekRange}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 p-3">
-                  {week.workouts.map((workout) => (
-                    <div
-                      key={`${workout.plannedAt}-${workout.name ?? "workout"}`}
-                      className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
-                    >
-                      <p className="text-xs font-medium text-[var(--shell-ink)]">
-                        {dayjs(workout.plannedAt).format("ddd, MMM D")}
-                        {workout.name && (
-                          <span className="ml-1.5 font-normal text-[var(--shell-muted)]">
-                            - {workout.name}
-                          </span>
-                        )}
-                      </p>
-                      {workout.note && (
-                        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-                          {workout.note}
-                        </p>
-                      )}
-                      {workout.exercises.length > 0 && (
-                        <ul className="mt-2 space-y-1">
-                          {workout.exercises.map((exercise, i) => {
-                            const prescription = formatPrescription(exercise);
-                            return (
-                              <li
-                                key={`${exercise.name}-${i}`}
-                                className="text-xs text-[var(--shell-muted)]"
-                              >
-                                <span className="font-medium text-[var(--shell-ink)]">
-                                  {exercise.name}
-                                </span>
-                                {prescription ? ` · ${prescription}` : ""}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
+      <CardContent className="border-b border-[var(--shell-border)] p-0">
+        <ScrollArea className="max-h-[260px]">
+          <div className="p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              Preview
+            </p>
+            <p className="mt-1 text-xs text-[var(--shell-muted)]">
+              {workouts.length === 0
+                ? "No preview workouts were returned for this proposal."
+                : `${workouts.length} workout${workouts.length !== 1 ? "s" : ""} across ${weeks.length} week${weeks.length !== 1 ? "s" : ""}`}
+            </p>
+            {workouts.length === 0 ? (
+              <p className="mt-3 text-xs text-[var(--shell-muted)]">
+                Ask the planner to refine the proposal if you want a clearer
+                preview before approving.
+              </p>
+            ) : (
+              <div className="mt-3 flex flex-col gap-3">
+                {weeks.map((week) => (
+                  <div
+                    key={week.weekLabel}
+                    className="border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+                  >
+                    <div className="border-b border-[var(--shell-border)] px-3 py-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
+                          {week.weekLabel}
+                        </span>
+                        <span className="text-[10px] text-[var(--shell-muted)]">
+                          {week.weekRange}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex flex-col gap-2 p-3">
+                      {week.workouts.map((workout) => (
+                        <div
+                          key={`${workout.plannedAt}-${workout.name ?? "workout"}`}
+                          className="border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-2"
+                        >
+                          <p className="text-xs font-medium text-[var(--shell-ink)]">
+                            {dayjs(workout.plannedAt).format("ddd, MMM D")}
+                            {workout.name && (
+                              <span className="ml-1.5 font-normal text-[var(--shell-muted)]">
+                                - {workout.name}
+                              </span>
+                            )}
+                          </p>
+                          {workout.note && (
+                            <p className="mt-1 text-xs text-[var(--shell-muted)]">
+                              {workout.note}
+                            </p>
+                          )}
+                          {workout.exercises.length > 0 && (
+                            <ul className="mt-2 flex flex-col gap-1">
+                              {workout.exercises.map((exercise, i) => {
+                                const prescription =
+                                  formatPrescription(exercise);
+                                return (
+                                  <li
+                                    key={`${exercise.name}-${i}`}
+                                    className="text-xs text-[var(--shell-muted)]"
+                                  >
+                                    <span className="font-medium text-[var(--shell-ink)]">
+                                      {exercise.name}
+                                    </span>
+                                    {prescription ? ` · ${prescription}` : ""}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </ScrollArea>
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-3 p-4 pt-4">
         {error && (
-          <div className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-2 text-xs text-[var(--shell-ink)]">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertTitle>{error}</AlertTitle>
+          </Alert>
         )}
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            disabled={isLoading}
-            className="gap-1.5"
-            onClick={onApply}
-          >
-            <CheckIcon className="h-3 w-3" />
+          <Button type="button" disabled={isLoading} onClick={onApply}>
+            <CheckIcon data-icon="inline-start" />
             {`Apply changes (${creditCost} cr)`}
           </Button>
           <Button
             type="button"
             variant="outline"
             disabled={isLoading}
-            className="gap-1.5"
             onClick={onDiscard}
           >
-            <Trash2Icon className="h-3 w-3" />
+            <Trash2Icon data-icon="inline-start" />
             Discard
           </Button>
         </div>
@@ -1179,7 +955,7 @@ function ProposalActionRow({ action }: { action: AIPlannerActionProposal }) {
           {formatActionType(action.actionType)}
         </Badge>
       </div>
-      <div className="mt-2 space-y-1 text-xs text-[var(--shell-muted)]">
+      <div className="mt-2 flex flex-col gap-1 text-xs text-[var(--shell-muted)]">
         {action.previousDate &&
           action.targetDate &&
           action.previousDate !== action.targetDate && (
@@ -1243,14 +1019,4 @@ function formatDateRange(
   }
 
   return dayjs(dateFrom ?? dateTo ?? "").format("ddd, MMM D");
-}
-
-function LoadingDots() {
-  return (
-    <span className="flex gap-1">
-      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:0ms]" />
-      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:150ms]" />
-      <span className="h-1.5 w-1.5 animate-bounce bg-[var(--shell-muted)] [animation-delay:300ms]" />
-    </span>
-  );
 }

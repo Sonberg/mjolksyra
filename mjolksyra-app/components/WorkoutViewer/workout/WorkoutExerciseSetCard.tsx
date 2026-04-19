@@ -154,7 +154,7 @@ export function WorkoutExerciseSetCard({
             {...listeners}
             aria-label="Drag to reorder set"
           >
-            <GripVerticalIcon className="h-4 w-4" />
+            <GripVerticalIcon className="size-4" />
           </button>
         ) : isEditable ? (
           <button
@@ -169,7 +169,7 @@ export function WorkoutExerciseSetCard({
             title={isDone ? "Mark set incomplete" : "Mark set done"}
           >
             {isDone ? (
-              <CheckCircle2Icon className="h-3.5 w-3.5" />
+              <CheckCircle2Icon className="size-3.5" />
             ) : (
               <span className="text-[10px] font-bold leading-none">{setIndex + 1}</span>
             )}
@@ -183,7 +183,7 @@ export function WorkoutExerciseSetCard({
             }
           >
             {isDone ? (
-              <CheckCircle2Icon className="h-3.5 w-3.5" />
+              <CheckCircle2Icon className="size-3.5" />
             ) : (
               <span className="text-[10px] font-bold leading-none">{setIndex + 1}</span>
             )}
@@ -292,10 +292,10 @@ export function WorkoutExerciseSetCard({
             type="button"
             disabled={isPending}
             onClick={() => onRemoveSetRow({ exerciseId, setIndex })}
-            className="ml-auto inline-flex h-9 w-7 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:border-red-300 hover:text-red-500 disabled:opacity-40"
+            className="ml-auto inline-flex h-9 w-7 shrink-0 items-center justify-center border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-muted)] transition hover:border-destructive hover:text-destructive disabled:opacity-40"
             title="Remove set"
           >
-            <XIcon className="h-3 w-3" />
+            <XIcon className="size-3" />
           </button>
         ) : null}
       </div>

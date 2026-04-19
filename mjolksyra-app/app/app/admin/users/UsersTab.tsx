@@ -3,6 +3,10 @@
 import { useMemo, useState } from "react";
 import { type CoachRevenueItem } from "@/services/admin/schema";
 import { grantCoachCredits } from "@/services/admin/grantCoachCredits";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
   initialCoaches: CoachRevenueItem[];
@@ -109,7 +113,7 @@ export function UsersTab({ initialCoaches }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
         <div>
           <h2 className="text-lg text-[var(--shell-ink)]">Coachs & Athletes</h2>
@@ -124,7 +128,7 @@ export function UsersTab({ initialCoaches }: Props) {
           </p>
         ) : null}
         {error ? (
-          <p className="mt-3 text-xs text-red-600 dark:text-red-400">
+          <p className="mt-3 text-xs text-destructive">
             {error}
           </p>
         ) : null}
@@ -135,7 +139,8 @@ export function UsersTab({ initialCoaches }: Props) {
           <div className="border-b border-[var(--shell-border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
             Coaches
           </div>
-          <ul className="max-h-[36rem] overflow-y-auto">
+          <ScrollArea className="max-h-[36rem]">
+          <ul>
             {sorted.map((coach) => {
               const isActive = selectedCoach?.coachUserId === coach.coachUserId;
               return (
@@ -159,11 +164,12 @@ export function UsersTab({ initialCoaches }: Props) {
               );
             })}
           </ul>
+          </ScrollArea>
         </aside>
 
         <section className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
           {selectedCoach ? (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--shell-border)]/30 pb-3">
                 <div>
                   <h3 className="text-lg text-[var(--shell-ink)]">{selectedCoach.coachName}</h3>
@@ -226,12 +232,12 @@ export function UsersTab({ initialCoaches }: Props) {
                           <p className="text-xs text-[var(--shell-muted)]">{athlete.athleteEmail}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)]">
+                          <Badge variant="secondary" className="rounded-none">
                             {athlete.relationshipStatus}
-                          </span>
-                          <span className="inline-flex rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+                          </Badge>
+                          <Badge variant="outline" className="rounded-none text-[var(--shell-muted)]">
                             {athlete.billingStatus}
-                          </span>
+                          </Badge>
                           {athlete.billingStatus === "Subscription missing" && (
                             <SyncButton
                               onClick={() => void syncAthlete(athlete.athleteUserId)}
@@ -267,16 +273,16 @@ function SyncButton({
   label: string;
   size: "sm" | "md";
 }) {
-  const base =
-    "rounded-none border border-[var(--shell-ink)] bg-[var(--shell-ink)] font-semibold text-[var(--shell-surface)] hover:bg-transparent hover:text-[var(--shell-ink)] transition-colors disabled:opacity-40";
-  const sizes = {
-    sm: "px-2 py-0.5 text-[11px] tracking-[0.08em]",
-    md: "px-3 py-2 text-xs",
-  };
   return (
-    <button type="button" onClick={onClick} disabled={loading} className={`${base} ${sizes[size]}`}>
+    <Button
+      type="button"
+      size={size === "sm" ? "sm" : "default"}
+      onClick={onClick}
+      disabled={loading}
+      className="rounded-none"
+    >
       {loading ? "Syncing..." : label}
-    </button>
+    </Button>
   );
 }
 
@@ -290,11 +296,13 @@ function StatusBox({
   helper: string;
 }) {
   return (
-    <div className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">{label}</p>
-      <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{value}</p>
-      <p className="mt-1 text-xs text-[var(--shell-muted)]">{helper}</p>
-    </div>
+    <Card>
+      <CardContent className="p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">{label}</p>
+        <p className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">{value}</p>
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">{helper}</p>
+      </CardContent>
+    </Card>
   );
 }
 

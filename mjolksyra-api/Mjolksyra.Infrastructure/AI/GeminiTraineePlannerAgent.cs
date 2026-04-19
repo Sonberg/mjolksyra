@@ -9,7 +9,7 @@ using OpenAI;
 
 namespace Mjolksyra.Infrastructure.AI;
 
-public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIWorkoutPlannerAgent
+public class GeminiTraineePlannerAgent(IOptions<GeminiOptions> options) : ITraineePlannerAgent
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -47,6 +47,7 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
                 $"When you have enough information to stage changes, set requiresApproval=true, isReadyToApply=true, and return proposedActionSet plus previewWorkouts.\n\n" +
                 $"When your question has a fixed set of valid answers, include them in the 'options' array so the UI can render clickable choices. " +
                 $"Examples: conflict strategy → [\"Skip\", \"Replace\", \"Append\"], days per week → [\"2\", \"3\", \"4\", \"5\"]. " +
+                $"Options support multi-select: if a question accepts multiple valid answers (e.g. training days of the week), list all valid choices in 'options' and ask once — the coach may select several before sending. For single-value questions (e.g. conflict strategy, number of weeks), list choices as before. " +
                 $"Leave options as [] for open-ended questions (e.g. start date in natural language).\n\n" +
                 $"Always respond with strict JSON only:\n" +
                 $"{{ \"message\": \"string\", \"isReadyToGenerate\": bool, \"isReadyToApply\": bool, \"requiresApproval\": bool, \"options\": [\"string\"], \"suggestedParams\": {{ \"startDate\": \"YYYY-MM-DD\", \"numberOfWeeks\": int, \"conflictStrategy\": \"Skip|Replace|Append\" }} | null, \"proposedActionSet\": {{ \"summary\": \"string\", \"explanation\": \"string | null\", \"actions\": [{{ \"actionType\": \"create_workout | update_workout | move_workout | delete_workout | add_exercise | update_exercise | delete_exercise\", \"summary\": \"string\", \"targetWorkoutId\": \"guid | null\", \"targetExerciseId\": \"guid | null\", \"targetDate\": \"YYYY-MM-DD | null\", \"previousDate\": \"YYYY-MM-DD | null\", \"workout\": {{ \"name\": \"string | null\", \"note\": \"string | null\", \"plannedAt\": \"YYYY-MM-DD\", \"exercises\": [{{ \"id\": \"guid | null\", \"exerciseId\": \"guid | null\", \"name\": \"string\", \"note\": \"string | null\", \"prescriptionType\": \"SetsReps | DurationSeconds | DistanceMeters | null\", \"sets\": [{{ \"reps\": int | null, \"weightKg\": float | null, \"durationSeconds\": int | null, \"distanceMeters\": float | null, \"note\": \"string | null\" }}] }}] }} | null }}] }} | null, \"previewWorkouts\": [{{ \"name\": \"string | null\", \"note\": \"string | null\", \"plannedAt\": \"YYYY-MM-DD\", \"exercises\": [{{ \"name\": \"string\", \"note\": \"string | null\", \"prescriptionType\": \"SetsReps | DurationSeconds | DistanceMeters | null\", \"sets\": [{{ \"reps\": int | null, \"weightKg\": float | null, \"durationSeconds\": int | null, \"distanceMeters\": float | null, \"note\": \"string | null\" }}] }}] }}] }}"),
@@ -124,7 +125,7 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
             .Build();
     }
 
-    private static AIFunction[] BuildClarifyTools(IAIPlannerToolDispatcher dispatcher, CancellationToken ct)
+    private static AIFunction[] BuildClarifyTools(ITraineePlannerToolDispatcher dispatcher, CancellationToken ct)
     {
         [Description("Returns all planned workouts (completed or upcoming) starting from a given date. Use to check what workouts are already scheduled before asking about start date or conflicts.")]
         async Task<string> GetUpcomingWorkouts(
@@ -157,7 +158,7 @@ public class GeminiAIWorkoutPlannerAgent(IOptions<GeminiOptions> options) : IAIW
         ];
     }
 
-    private static AIFunction[] BuildGenerateTools(IAIPlannerToolDispatcher dispatcher, CancellationToken ct)
+    private static AIFunction[] BuildGenerateTools(ITraineePlannerToolDispatcher dispatcher, CancellationToken ct)
     {
         [Description("Returns the N most recently completed workouts. Use to understand the athlete's training load, frequency, exercise selection, and volume patterns.")]
         async Task<string> GetRecentCompletedWorkouts(

@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarHeartIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   onClick: () => void;
@@ -8,11 +9,12 @@ type Props = {
 
 export function TodayButton({ onClick }: Props) {
   return (
-    <div
+    <Button
       onClick={onClick}
-      className="absolute bottom-8 right-8 grid h-10 w-10 cursor-pointer place-items-center rounded-none border border-transparent bg-[var(--shell-accent)] text-sm font-bold text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+      className="absolute bottom-8 right-8 size-10 rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
+      size="icon"
     >
-      <CalendarHeartIcon className="h-4" />
-    </div>
+      <CalendarHeartIcon data-icon />
+    </Button>
   );
 }

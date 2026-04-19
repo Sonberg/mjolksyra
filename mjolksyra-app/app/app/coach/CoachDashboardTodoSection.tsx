@@ -20,7 +20,7 @@ type Props = {
 
 export function CoachDashboardTodoSection({ items }: Props) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <PageSectionHeader
         eyebrow="Coach to-do"
         title="Follow-ups"

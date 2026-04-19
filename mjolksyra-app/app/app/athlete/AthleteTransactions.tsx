@@ -6,6 +6,8 @@ import { ChangePaymentMethodDialog } from "@/components/ChangePaymentMethod/Chan
 import { getTrainee } from "@/services/trainees/getTrainee";
 import { UserTrainee } from "@/services/users/type";
 import { useQuery } from "@tanstack/react-query";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   coach: UserTrainee;
@@ -42,20 +44,23 @@ export function AthleteTransactions({ coach }: Props) {
   const formatBillingDate = (date: Date) => date.toLocaleDateString("sv-SE");
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       {data.billing.status === "PaymentFailed" ? (
-        <div className="flex items-center justify-between rounded-none border border-red-500 bg-red-50 px-4 py-3 dark:bg-red-950">
-          <p className="text-sm font-medium text-red-700 dark:text-red-300">
-            Your last payment failed. Update your payment method to avoid cancellation.
-          </p>
-          <button
-            type="button"
-            onClick={() => setChangeCardOpen(true)}
-            className="ml-4 shrink-0 rounded-none border border-red-500 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
-          >
-            Update payment method
-          </button>
-        </div>
+        <Alert variant="destructive">
+          <AlertTitle>Payment failed</AlertTitle>
+          <AlertDescription className="flex items-center justify-between gap-3">
+            <span>Your last payment failed. Update your payment method to avoid cancellation.</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => setChangeCardOpen(true)}
+            >
+              Update payment method
+            </Button>
+          </AlertDescription>
+        </Alert>
       ) : null}
       <ChangePaymentMethodDialog
         open={changeCardOpen}
@@ -69,14 +74,12 @@ export function AthleteTransactions({ coach }: Props) {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Status */}
         <div className="bg-[var(--shell-surface-strong)] p-4">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Status</p>
           <p className="mt-2 text-xl font-semibold text-[var(--shell-ink)]">{billingStatusValue}</p>
           <p className="mt-1 text-xs text-[var(--shell-muted)]">{billingStatusText}</p>
         </div>
 
-        {/* Monthly cost */}
         <div className="bg-[var(--shell-surface-strong)] p-4">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Monthly cost</p>
           <p className="mt-2 text-xl font-semibold text-[var(--shell-ink)]">
@@ -87,7 +90,6 @@ export function AthleteTransactions({ coach }: Props) {
           <p className="mt-1 text-xs text-[var(--shell-muted)]">Set by your coach</p>
         </div>
 
-        {/* Last charge */}
         <div className="bg-[var(--shell-surface-strong)] p-4">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Last charge</p>
           <p className="mt-2 text-xl font-semibold text-[var(--shell-ink)]">
@@ -96,7 +98,6 @@ export function AthleteTransactions({ coach }: Props) {
           <p className="mt-1 text-xs text-[var(--shell-muted)]">Most recent successful charge</p>
         </div>
 
-        {/* Next charge */}
         <div className="bg-[var(--shell-surface-strong)] p-4">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Next charge</p>
           <p className="mt-2 text-xl font-semibold text-[var(--shell-ink)]">
@@ -106,7 +107,6 @@ export function AthleteTransactions({ coach }: Props) {
         </div>
       </div>
 
-      {/* Payment method */}
       <div className="flex items-center justify-between bg-[var(--shell-surface-strong)] p-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">Payment method</p>
@@ -116,13 +116,14 @@ export function AthleteTransactions({ coach }: Props) {
               : "Card on file with Stripe."}
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={() => setChangeCardOpen(true)}
-          className="shrink-0 border border-[var(--shell-border)] bg-[var(--shell-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
         >
           {data.billing.status === "AwaitingAthletePaymentMethod" ? "Add card" : "Update card"}
-        </button>
+        </Button>
       </div>
 
       <div>
@@ -136,7 +137,7 @@ export function AthleteTransactions({ coach }: Props) {
                 t.status === "Succeeded"
                   ? "font-semibold text-[var(--shell-ink)]"
                   : t.status === "Failed"
-                    ? "text-red-600 dark:text-red-400"
+                    ? "text-destructive"
                     : "text-[var(--shell-muted)]";
               return (
                 <li

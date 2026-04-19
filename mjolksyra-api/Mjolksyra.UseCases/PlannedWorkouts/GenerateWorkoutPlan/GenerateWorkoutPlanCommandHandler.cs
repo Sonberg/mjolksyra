@@ -15,7 +15,7 @@ namespace Mjolksyra.UseCases.PlannedWorkouts.GenerateWorkoutPlan;
 
 public class GenerateWorkoutPlanCommandHandler(
     IMediator mediator,
-    IAIWorkoutPlannerAgent plannerAgent,
+    ITraineePlannerAgent plannerAgent,
     IPlannedWorkoutRepository plannedWorkoutRepository,
     ICompletedWorkoutRepository completedWorkoutRepository,
     IWorkoutMediaAnalysisRepository workoutMediaAnalysisRepository,
@@ -79,7 +79,7 @@ public class GenerateWorkoutPlanCommandHandler(
         try
         {
 
-        var innerDispatcher = new AIPlannerToolDispatcher(
+        var innerDispatcher = new TraineePlannerToolDispatcher(
             plannedWorkoutRepository,
             completedWorkoutRepository,
             workoutMediaAnalysisRepository,
@@ -90,7 +90,7 @@ public class GenerateWorkoutPlanCommandHandler(
             request.TraineeId,
             userId);
 
-        var loggingDispatcher = new LoggingAIPlannerToolDispatcher(innerDispatcher);
+        var loggingDispatcher = new LoggingTraineePlannerToolDispatcher(innerDispatcher);
 
         var workoutOutputs = await plannerAgent.GenerateAsync(new AIPlannerGenerateInput
         {

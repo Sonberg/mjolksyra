@@ -56,6 +56,7 @@ export function NavigationTabs<TKey extends string = string>({
                 shellSectionTabClass(isActive),
                 fullWidth && "flex-1 text-center",
                 tabClassName,
+                "pb-2"
               )}
             >
               {tab.label}

@@ -100,7 +100,7 @@ public class PreviewWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AIPlannerWorkoutOutput>
@@ -179,7 +179,7 @@ public class PreviewWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AIPlannerWorkoutOutput>());
@@ -214,7 +214,7 @@ public class PreviewWorkoutPlanQueryHandlerTests
                 Status = TraineeStatus.Active,
             });
 
-        var plannerAgent = new Mock<IAIWorkoutPlannerAgent>();
+        var plannerAgent = new Mock<ITraineePlannerAgent>();
         plannerAgent
             .Setup(x => x.GenerateAsync(It.IsAny<AIPlannerGenerateInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AIPlannerWorkoutOutput>
@@ -238,7 +238,7 @@ public class PreviewWorkoutPlanQueryHandlerTests
     }
 
     private static PreviewWorkoutPlanQueryHandler CreateSut(
-        Mock<IAIWorkoutPlannerAgent>? plannerAgent = null,
+        Mock<ITraineePlannerAgent>? plannerAgent = null,
         Mock<IPlannedWorkoutRepository>? plannedWorkoutRepository = null,
         Mock<IWorkoutMediaAnalysisRepository>? workoutMediaAnalysisRepository = null,
         Mock<IExerciseRepository>? exerciseRepository = null,
@@ -247,7 +247,7 @@ public class PreviewWorkoutPlanQueryHandlerTests
         Mock<IUserContext>? userContext = null)
     {
         return new PreviewWorkoutPlanQueryHandler(
-            (plannerAgent ?? new Mock<IAIWorkoutPlannerAgent>()).Object,
+            (plannerAgent ?? new Mock<ITraineePlannerAgent>()).Object,
             (plannedWorkoutRepository ?? new Mock<IPlannedWorkoutRepository>()).Object,
             new Mock<ICompletedWorkoutRepository>().Object,
             (workoutMediaAnalysisRepository ?? new Mock<IWorkoutMediaAnalysisRepository>()).Object,

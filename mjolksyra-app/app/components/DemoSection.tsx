@@ -11,10 +11,10 @@ export const DemoSection = () => {
       <div className="mx-auto max-w-screen-xl px-4">
         <div className="mb-12">
           <h2 className="font-[var(--font-display)] mb-4 text-3xl text-[var(--home-text)] md:text-4xl">
-            Try our workout planner
+            See how a coach uses it
           </h2>
           <p className="text-lg text-[var(--home-muted)]">
-            Experience our intuitive drag-and-drop interface
+            Live demo — click and drag to try it yourself
           </p>
         </div>
       </div>

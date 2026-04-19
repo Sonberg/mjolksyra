@@ -42,7 +42,7 @@ function renderPreview(block: Block) {
   const sortedWeeks = [...grouped.entries()].sort((a, b) => a[0] - b[0]).slice(0, 4);
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {sortedWeeks.map(([weekNumber, days]) => {
         const sortedDays = [...days.entries()].sort((a, b) => a[0] - b[0]).slice(0, 4);
         return (
@@ -50,7 +50,7 @@ function renderPreview(block: Block) {
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)]">
               Week {weekNumber}
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               {sortedDays.map(([dayIndex, exercises]) => (
                 <p key={dayIndex} className="text-xs text-[var(--shell-ink)]">
                   <span className="mr-1 text-[var(--shell-muted)]">

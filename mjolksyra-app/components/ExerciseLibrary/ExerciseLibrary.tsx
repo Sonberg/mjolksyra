@@ -25,6 +25,7 @@ import { useUser } from "@clerk/nextjs";
 import { capitalizeFirstLetter } from "@/lib/capitalizeFirstLetter";
 import { cn } from "@/lib/utils";
 import { exerciseSport } from "@/lib/exerciseSport";
+import { ScrollArea } from "../ui/scroll-area";
 
 type Props = {
   exercies: {
@@ -99,9 +100,10 @@ export function ExerciseLibrary({ exercies }: Props) {
               </p>
             </div>
             {searchMode || filterPanelOpen ? (
-              <button
-                style={{ fontSize: "0.7rem" }}
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1 font-semibold uppercase tracking-[0.08em] text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-none text-[0.7rem]"
                 onClick={() => {
                   setSearchMode(false);
                   setFilterPanelOpen(false);
@@ -112,13 +114,13 @@ export function ExerciseLibrary({ exercies }: Props) {
                 }}
               >
                 Close
-              </button>
+              </Button>
             ) : null}
           </div>
 
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--shell-muted)]" />
+              <Search className="absolute left-2.5 top-2.5 size-4 text-[var(--shell-muted)]" />
               <Input
                 placeholder={
                   searchMode ? "Find by name or keyword" : "Search exercises"
@@ -129,20 +131,22 @@ export function ExerciseLibrary({ exercies }: Props) {
                 onChange={(event) => setFreeText(event.target.value)}
               />
             </div>
-            <button
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => {
                 setFilterPanelOpen((prev) => !prev);
                 setSearchMode(true);
               }}
               className={cn(
-                "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[var(--shell-border)] transition",
+                "size-9 flex-shrink-0 rounded-none border border-[var(--shell-border)]",
                 filterPanelOpen || hasActiveFilters
-                  ? "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)]"
-                  : "bg-[var(--shell-surface-strong)] text-[var(--shell-muted)] hover:text-[var(--shell-ink)]",
+                  ? "bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent)]"
+                  : "bg-[var(--shell-surface-strong)] text-[var(--shell-muted)]",
               )}
             >
-              <SlidersHorizontal className="h-4 w-4" />
-            </button>
+              <SlidersHorizontal data-icon />
+            </Button>
           </div>
 
           {filterPanelOpen ? (
@@ -177,7 +181,8 @@ export function ExerciseLibrary({ exercies }: Props) {
             </div>
           ) : null}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-24">
+        <ScrollArea className="min-h-0 flex-1 overscroll-contain">
+        <div className="p-4 pb-24">
           {isSearching ? (
             <ExerciseSearch
               freeText={freeText}
@@ -191,13 +196,14 @@ export function ExerciseLibrary({ exercies }: Props) {
             </>
           )}
         </div>
+        </ScrollArea>
 
         <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-[var(--shell-border)] bg-gradient-to-b from-[var(--shell-surface)]/0 via-[var(--shell-surface)]/90 to-[var(--shell-surface)] px-4 pb-4 pt-3">
           <CreateExerciseDialog
             exercises={exercies}
             trigger={
               <Button className="h-10 w-full rounded-none border border-transparent bg-[var(--shell-accent)] px-4 text-sm font-semibold text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)]">
-                <PlusIcon className="mr-2 h-4 w-4" />
+                <PlusIcon data-icon="inline-start" />
                 New Exercise
               </Button>
             }

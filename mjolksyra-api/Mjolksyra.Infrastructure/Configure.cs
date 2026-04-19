@@ -83,6 +83,7 @@ public static class Configure
         services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
         services.AddScoped<IWorkoutMediaAnalysisRepository, WorkoutMediaAnalysisRepository>();
         services.AddScoped<IPlannerSessionRepository, PlannerSessionRepository>();
+        services.AddScoped<IBlockPlannerSessionRepository, BlockPlannerSessionRepository>();
         services.AddScoped<ITraineeInsightsRepository, TraineeInsightsRepository>();
         services.AddScoped<ICoachInsightsRepository, CoachInsightsRepository>();
         services.AddScoped<IAttachmentIntegrityReportService, AttachmentIntegrityReportService>();
@@ -104,7 +105,8 @@ public static class Configure
         services.AddScoped<ITraineeInsightsRebuildPublisher, MassTransitTraineeInsightsRebuildPublisher>();
         services.AddScoped<ICoachInsightsRebuildPublisher, MassTransitCoachInsightsRebuildPublisher>();
         services.AddScoped<IWorkoutMediaAnalysisAgent, GeminiWorkoutMediaAnalysisAgent>();
-        services.AddScoped<IAIWorkoutPlannerAgent, GeminiAIWorkoutPlannerAgent>();
+        services.AddScoped<ITraineePlannerAgent, GeminiTraineePlannerAgent>();
+        services.AddScoped<IBlockPlannerAgent, GeminiBlockPlannerAgent>();
         services.AddScoped<ITraineeInsightsAgent, GeminiTraineeInsightsAgent>();
         services.AddScoped<ICoachInsightsAgent, GeminiCoachInsightsAgent>();
         services.AddScoped<IStripePriceService>(sp =>

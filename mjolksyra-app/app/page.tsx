@@ -14,6 +14,7 @@ import { BlockBuilderPreviewSection } from "./components/BlockBuilderPreviewSect
 import { MediaUploadSection } from "./components/MediaUploadSection";
 import { StripeSection } from "./components/StripeSection";
 import { CTASection } from "./components/CTASection";
+import { SocialProofSection } from "./components/SocialProofSection";
 import { getPlans } from "@/services/plans/getPlans";
 import { sortPlans } from "./components/calculatorUtils";
 import { getHomeFaqs } from "./components/faqData";
@@ -48,7 +49,7 @@ export default async function Home() {
   const plans = await getPlans().catch(() => []);
   const primaryPlan = sortPlans(plans)[0] ?? null;
   const faqs = getHomeFaqs(plans);
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mjolksyra.com";
   const structuredData = [
     {
       "@context": "https://schema.org",
@@ -121,6 +122,7 @@ export default async function Home() {
 
       <div className="home-content relative z-10">
         <HeroSection />
+        <SocialProofSection />
         <AudienceSection />
         <FeaturesSection />
         <FeatureDemosSection />

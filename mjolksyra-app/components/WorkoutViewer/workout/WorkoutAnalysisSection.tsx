@@ -8,6 +8,10 @@ import { getLatestCompletedWorkoutMediaAnalysis } from "@/services/completedWork
 import { addCompletedWorkoutChatMessage } from "@/services/completedWorkouts/addCompletedWorkoutChatMessage";
 import { PurchaseCreditsDialog } from "@/dialogs/PurchaseCreditsDialog/PurchaseCreditsDialog";
 import { WorkoutMediaAnalysis } from "@/services/plannedWorkouts/type";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   traineeId: string;
@@ -16,20 +20,18 @@ type Props = {
 
 function AnalysisSkeleton() {
   return (
-    <div className="space-y-3" aria-label="Loading analysis" aria-busy>
-      <div className="border-l-2 border-[var(--shell-accent)] pl-3 space-y-2">
-        <div className="h-3 w-3/4 rounded bg-[var(--shell-border)] animate-pulse" />
-        <div className="h-2.5 w-1/2 rounded bg-[var(--shell-border)] animate-pulse" />
+    <div className="flex flex-col gap-3" aria-label="Loading analysis" aria-busy>
+      <div className="flex flex-col gap-2 pl-3">
+        <Skeleton className="h-3 w-3/4 rounded-none" />
+        <Skeleton className="h-2.5 w-1/2 rounded-none" />
       </div>
       {[3, 2, 3].map((rows, i) => (
-        <div key={i} className="space-y-1.5">
-          <div className="h-2 w-14 rounded bg-[var(--shell-border)] animate-pulse" />
+        <div key={i} className="flex flex-col gap-1.5">
+          <Skeleton className="h-2 w-14 rounded-none" />
           {Array.from({ length: rows }).map((_, j) => (
-            <div
+            <Skeleton
               key={j}
-              className={`h-2 rounded bg-[var(--shell-border)] animate-pulse ${
-                j === 0 ? "w-full" : j === 1 ? "w-5/6" : "w-4/6"
-              }`}
+              className={`h-2 rounded-none ${j === 0 ? "w-full" : j === 1 ? "w-5/6" : "w-4/6"}`}
             />
           ))}
         </div>
@@ -57,18 +59,18 @@ function WorkoutAnalysisTrigger({
   }, [pricing.data]);
 
   return (
-    <section className="space-y-3" data-testid="workout-analysis-section">
-      <label className="block space-y-2">
+    <section className="flex flex-col gap-3" data-testid="workout-analysis-section">
+      <label className="flex flex-col gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--shell-muted)]">
           Analysis context
         </span>
-        <textarea
+        <Textarea
           value={context}
           onChange={(event) => setContext(event.target.value)}
           rows={4}
           placeholder="Optional context for analysis..."
           data-testid="workout-analysis-context"
-          className="min-h-28 w-full resize-y border border-[var(--shell-border)] bg-[var(--shell-card)] px-3 py-2 text-sm leading-6 text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)] focus:bg-[var(--shell-background)] placeholder:text-[var(--shell-muted)]"
+          className="min-h-28 resize-y"
         />
       </label>
 
@@ -76,14 +78,14 @@ function WorkoutAnalysisTrigger({
         <p className="text-xs text-[var(--shell-muted)]">
           Uses latest chat media.{analyzeCost ? ` ${analyzeCost} credits.` : ""}
         </p>
-        <button
+        <Button
           type="button"
+          size="sm"
           disabled={isPending}
           onClick={() => onAnalyze(context)}
-          className="shrink-0 border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-[11px] font-semibold text-[var(--shell-accent-ink)] transition hover:brightness-95 disabled:opacity-60"
         >
           {isPending ? "Analyzing..." : analyzeCost ? `Analyze (${analyzeCost} credits)` : "Analyze"}
-        </button>
+        </Button>
       </div>
     </section>
   );
@@ -134,13 +136,13 @@ export function WorkoutAnalysisSection({
   return (
     <>
       {latestAnalysis.isError && !analysis ? (
-        <p className="text-xs text-red-500">Could not load previous analysis.</p>
+        <p className="text-xs text-destructive">Could not load previous analysis.</p>
       ) : null}
 
       {isPending && !analysis ? (
         <AnalysisSkeleton />
       ) : analysis ? (
-        <article className="space-y-3" data-testid="workout-analysis-outcome">
+        <article className="flex flex-col gap-3" data-testid="workout-analysis-outcome">
           <div className="border-l-2 border-[var(--shell-accent)] pl-3">
             <p className="text-sm font-medium text-[var(--shell-ink)]">{analysis.summary}</p>
             <p className="mt-1 text-[11px] text-[var(--shell-muted)]" data-testid="workout-analysis-timestamp">
@@ -148,11 +150,11 @@ export function WorkoutAnalysisSection({
             </p>
           </div>
           {(analysis.keyFindings.length > 0 || analysis.techniqueRisks.length > 0 || analysis.coachSuggestions.length > 0) ? (
-            <div className="space-y-2 text-xs text-[var(--shell-muted)]">
+            <div className="flex flex-col gap-2 text-xs text-[var(--shell-muted)]">
               {analysis.keyFindings.length > 0 ? (
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Findings</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     {analysis.keyFindings.map((f: string, i: number) => <li key={i}>{f}</li>)}
                   </ul>
                 </div>
@@ -160,7 +162,7 @@ export function WorkoutAnalysisSection({
               {analysis.techniqueRisks.length > 0 ? (
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Risks</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     {analysis.techniqueRisks.map((r: string, i: number) => <li key={i}>{r}</li>)}
                   </ul>
                 </div>
@@ -168,7 +170,7 @@ export function WorkoutAnalysisSection({
               {analysis.coachSuggestions.length > 0 ? (
                 <div>
                   <span className="font-semibold uppercase tracking-widest">Suggestions</span>
-                  <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1 list-disc pl-4 flex flex-col gap-0.5">
                     {analysis.coachSuggestions.map((s: string, i: number) => <li key={i}>{s}</li>)}
                   </ul>
                 </div>
@@ -259,7 +261,7 @@ export function WorkoutAnalysis({ traineeId, completedWorkoutId }: Props) {
   }, [shareSuccess]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <WorkoutAnalysisSection
         traineeId={traineeId}
         completedWorkoutId={completedWorkoutId}
@@ -267,7 +269,9 @@ export function WorkoutAnalysis({ traineeId, completedWorkoutId }: Props) {
       />
 
       {latestAnalysis.data ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--shell-border)] pt-3">
+        <>
+        <Separator />
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[var(--shell-muted)]">
             Share this analysis directly in the athlete chat for this workout.
           </p>
@@ -277,17 +281,19 @@ export function WorkoutAnalysis({ traineeId, completedWorkoutId }: Props) {
                 {shareSuccess}
               </span>
             ) : null}
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               disabled={shareToChat.isPending}
               onClick={() => shareToChat.mutate()}
-              className="inline-flex items-center gap-1.5 border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-[11px] font-semibold text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-60"
             >
-              <MessageSquareShareIcon className="h-3.5 w-3.5" />
+              <MessageSquareShareIcon data-icon="inline-start" />
               {shareToChat.isPending ? "Sharing..." : "Share in chat"}
-            </button>
+            </Button>
           </div>
         </div>
+        </>
       ) : null}
 
       {analyze.isError ? (
@@ -324,16 +330,18 @@ function AnalysisError({ error, onBuyCredits }: { error: Error; onBuyCredits: ()
     return (
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-[var(--shell-muted)]">Not enough credits.</p>
-        <button
+        <Button
           type="button"
+          variant="link"
+          size="sm"
+          className="shrink-0 px-0"
           onClick={onBuyCredits}
-          className="shrink-0 text-xs font-semibold text-[var(--shell-accent)] underline-offset-2 hover:underline"
         >
           Buy credits
-        </button>
+        </Button>
       </div>
     );
   }
 
-  return <p className="text-xs text-red-500">Could not analyze this check-in right now.</p>;
+  return <p className="text-xs text-destructive">Could not analyze this check-in right now.</p>;
 }

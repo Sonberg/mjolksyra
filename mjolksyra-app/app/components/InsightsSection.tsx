@@ -8,9 +8,11 @@ function Badge({
   variant: "emerald" | "amber" | "red" | "neutral";
 }) {
   const colors = {
-    emerald: "bg-emerald-900/20 text-emerald-400",
-    amber: "bg-amber-900/20 text-amber-400",
-    red: "bg-red-900/20 text-red-400",
+    emerald:
+      "border border-[var(--home-border)] bg-[var(--home-surface-strong)] text-[var(--home-muted)]",
+    amber:
+      "border border-[var(--home-border)] bg-[var(--home-surface-strong)] text-[var(--home-text)]",
+    red: "border-transparent bg-[var(--home-text)] text-[var(--home-surface)]",
     neutral:
       "border border-[var(--home-border)] bg-[var(--home-surface-strong)] text-[var(--home-muted)]",
   };
@@ -98,11 +100,11 @@ export function InsightsSection() {
                 badge={<Badge variant="amber">Medium</Badge>}
                 open
               >
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-3">
                     <div className="h-1.5 flex-1 overflow-hidden bg-[var(--home-surface)]">
                       <div
-                        className="h-full bg-amber-500"
+                        className="h-full bg-[var(--home-text)]"
                         style={{ width: "58%" }}
                       />
                     </div>
@@ -124,7 +126,7 @@ export function InsightsSection() {
                 badge={<Badge variant="emerald">Improving</Badge>}
                 open
               >
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-xs text-[var(--home-muted)]">
                     All main lifts are trending upward over the past 8 weeks.
                     Squat and bench show consistent load increases with good
@@ -177,7 +179,7 @@ export function InsightsSection() {
 
               {/* Recommendations — open */}
               <AccordionRow label="Recommendations" open>
-                <ul className="space-y-3">
+                <ul className="flex flex-col gap-3">
                   {[
                     {
                       priority: "high" as const,
@@ -228,7 +230,7 @@ export function InsightsSection() {
                 athlete or keep for your own use.
               </p>
 
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-4 flex flex-col gap-3">
                 {[
                   {
                     label: "Fatigue risk score",

@@ -64,7 +64,7 @@ export function NavigationUser({ user, isAdmin, completedRoles = [] }: Navigatio
           className="inline-flex h-10 items-center gap-2 rounded-none bg-transparent px-2 pr-2.5 text-left text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface-strong)]"
           aria-label="Open user menu"
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="size-8">
             <AvatarImage src={url} alt={resolvedUser.name ?? "User"} />
             <AvatarFallback className="rounded-none bg-[var(--shell-surface-strong)] text-[var(--shell-ink)]">
               {initial.toUpperCase()}
@@ -75,7 +75,7 @@ export function NavigationUser({ user, isAdmin, completedRoles = [] }: Navigatio
               {resolvedUser.givenName ?? resolvedUser.name ?? "User"}
             </div>
           </div>
-          <ChevronDownIcon className="h-4 w-4 text-[var(--shell-muted)]" />
+          <ChevronDownIcon className="size-4 text-[var(--shell-muted)]" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

@@ -9,6 +9,7 @@ import { offboardCoach } from "@/services/stripe/offboardCoach";
 import { cancelTrainee } from "@/services/trainees/cancelTrainee";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -76,7 +77,7 @@ function ProfileCard() {
   return (
     <SectionCard title="Account">
       <div className="flex items-center gap-4 pb-5">
-        <Avatar className="h-14 w-14 rounded-none border border-[var(--shell-border)]">
+        <Avatar className="size-14 rounded-none border border-[var(--shell-border)]">
           <AvatarImage src={clerkUser?.imageUrl} alt={auth.name ?? "User"} />
           <AvatarFallback className="rounded-none bg-[var(--shell-surface-strong)] text-lg text-[var(--shell-ink)]">
             {initial.toUpperCase()}
@@ -134,13 +135,13 @@ function CoachCard({ user }: { user: User }) {
 
       <Dialog>
         <DialogTrigger asChild>
-          <button
-            type="button"
+          <Button
+            variant="outline"
             disabled={offboard.isPending}
-            className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)] disabled:opacity-50"
+            className="rounded-none"
           >
             {offboard.isPending ? "Offboarding…" : "Offboard as coach"}
-          </button>
+          </Button>
         </DialogTrigger>
         <DialogContent className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
           <DialogHeader>
@@ -155,22 +156,16 @@ function CoachCard({ user }: { user: User }) {
           </DialogHeader>
           <DialogFooter className="gap-2">
             <DialogClose asChild>
-              <button
-                type="button"
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
-              >
-                Cancel
-              </button>
+              <Button variant="outline" className="rounded-none">Cancel</Button>
             </DialogClose>
             <DialogClose asChild>
-              <button
-                type="button"
+              <Button
                 disabled={offboard.isPending}
-                className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-50"
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
                 onClick={() => offboard.mutate()}
               >
                 Yes, offboard me
-              </button>
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
@@ -203,13 +198,14 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
       </span>
       <Dialog>
         <DialogTrigger asChild>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             disabled={cancel.isPending}
-            className="rounded-none border border-[var(--shell-border)] px-2.5 py-1 text-xs font-medium text-[var(--shell-muted)] transition hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)] disabled:opacity-50"
+            className="rounded-none text-[var(--shell-muted)]"
           >
             {cancel.isPending ? "Cancelling…" : "Cancel"}
-          </button>
+          </Button>
         </DialogTrigger>
         <DialogContent className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-ink)]">
           <DialogHeader>
@@ -226,22 +222,16 @@ function CancelCoachRow({ coach }: { coach: UserTrainee }) {
           </DialogHeader>
           <DialogFooter className="gap-2">
             <DialogClose asChild>
-              <button
-                type="button"
-                className="rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)] transition hover:bg-[var(--shell-surface)]"
-              >
-                Keep
-              </button>
+              <Button variant="outline" className="rounded-none">Keep</Button>
             </DialogClose>
             <DialogClose asChild>
-              <button
-                type="button"
+              <Button
                 disabled={cancel.isPending}
-                className="rounded-none border border-transparent bg-[var(--shell-accent)] px-3 py-1.5 text-sm font-medium text-[var(--shell-accent-ink)] transition hover:bg-[var(--shell-accent-hover)] disabled:opacity-50"
+                className="rounded-none border border-transparent bg-[var(--shell-accent)] text-[var(--shell-accent-ink)] hover:bg-[var(--shell-accent-hover)]"
                 onClick={() => cancel.mutate()}
               >
                 Yes, cancel
-              </button>
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
@@ -330,7 +320,7 @@ export function ProfilePageContent({ user }: Props) {
     user.invitations.length > 0;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 md:py-10">
+    <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 md:py-10">
       <PageSectionHeader
         title="Profile"
         titleClassName="text-2xl md:text-3xl"

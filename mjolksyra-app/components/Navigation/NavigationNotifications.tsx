@@ -18,6 +18,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 
 type NavigationNotificationsProps = {
   forceVisible?: boolean;
@@ -209,21 +211,23 @@ export function NavigationNotifications({
   return (
     <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
           className={cn(
-            "relative inline-flex h-10 w-10 items-center justify-center rounded-none transition",
+            "relative size-10 rounded-none",
             open
-              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-              : "bg-transparent text-[var(--shell-ink)] hover:bg-[var(--shell-surface-strong)]",
+              ? "bg-[var(--shell-ink)] text-[var(--shell-surface)] hover:bg-[var(--shell-ink)]"
+              : "",
           )}
           aria-label="Open notifications"
         >
           <BellIcon
             className={cn(
-              "h-4 w-4 origin-top",
+              "size-4 origin-top",
               showBellRing ? "animate-bell-ring" : "",
             )}
+            data-icon
           />
           {unreadCount > 0 ? (
             <span className="absolute right-1 top-1 inline-flex h-2.5 w-2.5">
@@ -241,7 +245,7 @@ export function NavigationNotifications({
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           ) : null}
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -253,20 +257,21 @@ export function NavigationNotifications({
           <DropdownMenuLabel className="p-0 text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
             Notifications
           </DropdownMenuLabel>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             disabled={unreadCount === 0 || isMarkingAll}
             onClick={() => void handleMarkAllRead()}
-            className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] transition hover:text-[var(--shell-ink)] disabled:opacity-40"
+            className="h-auto rounded-none px-0 py-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--shell-muted)] hover:bg-transparent hover:text-[var(--shell-ink)]"
           >
             Mark all read
-          </button>
+          </Button>
         </div>
 
         {/* Body */}
-        <div className="max-h-[28rem] overflow-y-auto">
+        <ScrollArea className="max-h-[28rem]">
           {isLoading && items.length === 0 ? (
-            <div className="space-y-3 px-4 py-4">
+            <div className="flex flex-col gap-3 px-4 py-4">
               <div className="skeleton h-3 w-32" />
               <div className="skeleton h-3 w-48" />
               <div className="skeleton h-3 w-40" />
@@ -302,7 +307,7 @@ export function NavigationNotifications({
               )}
             </>
           )}
-        </div>
+        </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
   );

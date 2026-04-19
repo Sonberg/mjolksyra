@@ -25,8 +25,7 @@ export function BlockBuilderPreviewSection() {
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="mb-3 inline-flex items-center gap-2 rounded-none border border-[var(--home-border)] bg-[var(--home-surface-strong)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--home-text)]">
-              <span className="h-1.5 w-1.5 rounded-none bg-[var(--home-accent)]" />
-              New Preview
+              Training Blocks
             </p>
             <h2 className="font-[var(--font-display)] text-3xl text-[var(--home-text)] md:text-4xl">
               Create Reusable Training Blocks
@@ -53,7 +52,7 @@ export function BlockBuilderPreviewSection() {
                     {item.focus}
                   </span>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {item.sessions.map((session) => (
                     <div
                       key={session}

@@ -14,9 +14,9 @@ export function shellRoleLinkClass(isActive: boolean) {
 
 export function shellSectionTabClass(isActive: boolean) {
   return cn(
-    "inline-flex h-10 items-center justify-center whitespace-nowrap rounded-none px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)] focus-visible:ring-offset-1",
+    "inline-flex h-10 items-center justify-center whitespace-nowrap rounded-none px-4 text-sm font-semibold transition-colors border-b-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)] focus-visible:ring-offset-1",
     isActive
-      ? "bg-[var(--shell-ink)] text-[var(--shell-surface)]"
-      : "bg-[var(--shell-surface)] text-[var(--shell-muted)] hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
+      ? "border-[var(--shell-ink)] text-[var(--shell-ink)]"
+      : "border-transparent bg-transparent text-[var(--shell-muted)] hover:text-[var(--shell-ink)]",
   );
 }

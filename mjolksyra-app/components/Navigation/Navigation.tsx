@@ -124,12 +124,6 @@ export function Navigation({ initialAuth }: NavigationProps) {
           >
             {roleLabels[currentRole]}
           </Link>
-          <div
-            className={cn(
-              "w-px self-stretch",
-              isOnRoleRoute ? "bg-[var(--shell-border)]" : "bg-[var(--shell-border)]",
-            )}
-          />
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
@@ -141,7 +135,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
                     : "hover:bg-[var(--shell-surface-strong)] hover:text-[var(--shell-ink)]",
                 )}
               >
-                <ChevronDownIcon className="h-3.5 w-3.5" />
+                <ChevronDownIcon className="size-3.5" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -185,7 +179,7 @@ export function Navigation({ initialAuth }: NavigationProps) {
         )}
         aria-label="Open onboarding"
       >
-        <HandshakeIcon className="h-4 w-4" />
+        <HandshakeIcon className="size-4" />
         <span className="hidden sm:inline">Onboarding</span>
       </Link>
     ) : null;

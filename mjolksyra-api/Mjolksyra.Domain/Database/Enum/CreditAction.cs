@@ -4,5 +4,6 @@ public enum CreditAction
 {
     AnalyzeCompletedWorkout,
     GenerateWorkoutPlan,
+    GenerateBlockPlan,
     RebuildTraineeInsights
 }
