@@ -2,8 +2,7 @@
 
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PlusIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PageSectionHeader } from "@/components/Navigation/PageSectionHeader";
 import { SelectionTabs } from "@/components/Navigation/SelectionTabs";
@@ -17,7 +16,7 @@ import { CompletedWorkoutCard } from "./CompletedWorkoutCard";
 type Props = {
   traineeId: string;
   mode?: "athlete" | "coach";
-  initialTab?: "planned" | "completed";
+  initialTab?: "planned" | "completed" | "missed";
   focusWorkoutId?: string | null;
 };
 
@@ -30,11 +29,10 @@ export function WorkoutViewer({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [mode, setMode] = useState<"planned" | "completed">(initialTab);
+  const [mode, setMode] = useState<"planned" | "completed" | "missed">(initialTab);
   const [newSessionOpen, setNewSessionOpen] = useState(false);
   const [endNode, setEndNode] = useState<HTMLDivElement | null>(null);
   const [isEndIntersecting, setIsEndIntersecting] = useState(false);
-  const [missedExpanded, setMissedExpanded] = useState(true);
 
   const planned = useWorkouts({
     id: "planned",
@@ -42,7 +40,7 @@ export function WorkoutViewer({
     fromDate: dayjs().startOf("day").subtract(12, "weeks"),
     sortBy: "PlannedAt",
     order: "asc",
-    enabled: mode === "planned",
+    enabled: true,
   });
 
   const completed = useCompletedWorkouts({
@@ -54,7 +52,7 @@ export function WorkoutViewer({
   });
 
   const hasNextPage =
-    mode === "planned" ? planned.hasNextPage : completed.hasNextPage;
+    mode === "completed" ? completed.hasNextPage : planned.hasNextPage;
 
   const endRef = useCallback((node: HTMLDivElement | null) => {
     setEndNode(node);
@@ -79,12 +77,12 @@ export function WorkoutViewer({
       return;
     }
 
-    if (mode === "planned") {
-      void planned.fetchNextPage();
+    if (mode === "completed") {
+      void completed.fetchNextPage();
       return;
     }
 
-    void completed.fetchNextPage();
+    void planned.fetchNextPage();
   }, [completed, hasNextPage, isEndIntersecting, mode, planned]);
 
   const emptyState = useMemo(() => {
@@ -95,13 +93,20 @@ export function WorkoutViewer({
       };
     }
 
+    if (mode === "missed") {
+      return {
+        title: "No missed workouts",
+        body: "Past workouts that need a decision will appear here.",
+      };
+    }
+
     return {
       title: "No completed workouts",
       body: "Finished and ad hoc workout sessions will appear here.",
     };
   }, [mode]);
 
-  function setModeWithUrl(nextMode: "planned" | "completed") {
+  function setModeWithUrl(nextMode: "planned" | "completed" | "missed") {
     setMode(nextMode);
 
     const params = new URLSearchParams(searchParams.toString());
@@ -151,8 +156,7 @@ export function WorkoutViewer({
     });
   }, [plannedData, today]);
 
-  const hasPlannedContent =
-    missedWorkouts.length > 0 || upcomingWorkouts.length > 0;
+  const hasPlannedContent = upcomingWorkouts.length > 0;
 
   return (
     <>
@@ -168,7 +172,7 @@ export function WorkoutViewer({
       <PageSectionHeader
         className="mb-4"
         titleClassName="text-xl md:text-2xl"
-        title={mode === "planned" ? "Planned workouts" : "Completed workouts"}
+        title={mode === "planned" ? "Planned workouts" : mode === "missed" ? "Missed workouts" : "Completed workouts"}
         actions={
           <div className="flex w-full items-center gap-3">
             <SelectionTabs
@@ -178,16 +182,25 @@ export function WorkoutViewer({
                   label: "Completed",
                   onSelect: () => setModeWithUrl("completed"),
                 },
-                  {
+                {
                   key: "planned",
                   label: "Planned",
                   onSelect: () => setModeWithUrl("planned"),
                 },
+                ...(viewerMode === "athlete" && missedWorkouts.length > 0
+                  ? [
+                      {
+                        key: "missed" as const,
+                        label: `Missed (${missedWorkouts.length})`,
+                        onSelect: () => setModeWithUrl("missed"),
+                      },
+                    ]
+                  : []),
               ]}
               activeKey={mode}
               size="md"
-              fullWidth={viewerMode !== "coach"}
-              className="w-full max-w-[24rem]"
+              fullWidth={false}
+              className=""
             />
             {viewerMode === "athlete" ? (
               <button
@@ -215,51 +228,37 @@ export function WorkoutViewer({
               </p>
             </section>
           ) : (
-            <>
-              {missedWorkouts.length > 0 ? (
-                <div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setMissedExpanded((prev) => !prev)}
-                    className="mb-3 flex h-auto w-full items-center justify-between rounded-none border border-[var(--shell-border)] bg-[var(--shell-surface-strong)] px-4 py-2.5 text-left"
-                  >
-                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                      Missed ({missedWorkouts.length})
-                    </span>
-                    {missedExpanded ? (
-                      <ChevronUpIcon className="size-4 text-[var(--shell-muted)]" />
-                    ) : (
-                      <ChevronDownIcon className="size-4 text-[var(--shell-muted)]" />
-                    )}
-                  </Button>
-                  {missedExpanded ? (
-                    <div className="grid gap-4 sm:gap-8">
-                      {missedWorkouts.map((workout) => (
-                        <MissedWorkoutCard
-                          key={workout.id}
-                          workout={workout}
-                          traineeId={traineeId}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {upcomingWorkouts.map((workout) =>
-                workout.publishedExercises.length > 0 ? (
-                  <WorkoutCard
-                    key={workout.id}
-                    workout={workout}
-                    viewerMode={viewerMode}
-                    traineeId={traineeId}
-                    isHighlighted={focusWorkoutId === workout.id}
-                    backTab="planned"
-                  />
-                ) : null,
-              )}
-            </>
+            upcomingWorkouts.map((workout) =>
+              workout.publishedExercises.length > 0 ? (
+                <WorkoutCard
+                  key={workout.id}
+                  workout={workout}
+                  viewerMode={viewerMode}
+                  traineeId={traineeId}
+                  isHighlighted={focusWorkoutId === workout.id}
+                  backTab="planned"
+                />
+              ) : null,
+            )
+          )
+        ) : mode === "missed" ? (
+          missedWorkouts.length === 0 ? (
+            <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
+              <p className="text-lg font-semibold text-[var(--shell-ink)]">
+                {emptyState.title}
+              </p>
+              <p className="mt-2 text-sm text-[var(--shell-muted)]">
+                {emptyState.body}
+              </p>
+            </section>
+          ) : (
+            missedWorkouts.map((workout) => (
+              <MissedWorkoutCard
+                key={workout.id}
+                workout={workout}
+                traineeId={traineeId}
+              />
+            ))
           )
         ) : completed.data.length === 0 ? (
           <section className="border border-[var(--shell-border)] bg-[var(--shell-surface)] px-6 py-8 text-center">
@@ -285,12 +284,15 @@ export function WorkoutViewer({
       </div>
 
       {((mode === "planned" && hasPlannedContent) ||
+        (mode === "missed" && missedWorkouts.length > 0) ||
         (mode === "completed" && completed.data.length > 0)) &&
       !hasNextPage ? (
         <div className="mt-8 text-center text-lg text-muted">
           {mode === "planned"
             ? "No more planned workouts"
-            : "No more completed workouts"}
+            : mode === "missed"
+              ? "No more missed workouts"
+              : "No more completed workouts"}
         </div>
       ) : null}
 
