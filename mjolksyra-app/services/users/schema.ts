@@ -11,6 +11,7 @@ export const userTraineeSchema = z.object({
   givenName: z.string().nullable(),
   familyName: z.string().nullable(),
   status: z.enum(["Active", "PendingInvitation"]),
+  isAiCoach: z.boolean().default(false),
 });
 
 export const userInvitationSchema = z.object({
@@ -30,6 +31,7 @@ export const userSchema = z.object({
   onboarding: z.object({
     athlete: userOnboardingStatus,
     coach: userOnboardingStatus,
+    aiCoach: userOnboardingStatus.default("NotStarted"),
     coachTrialEndsAt: z.coerce.date().nullable().optional(),
     coachPlanId: z.string().nullable().optional(),
   }),

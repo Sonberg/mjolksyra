@@ -10,10 +10,15 @@ export default async function OnboardPage() {
 
   const coachDone = user.onboarding.coach === "Completed";
   const athleteDone = user.onboarding.athlete === "Completed";
+  const aiCoachDone = user.onboarding.aiCoach === "Completed";
 
-  // Both done — should not be here
   if (coachDone && athleteDone) {
     redirect("/app/coach/dashboard");
+  }
+
+  if (aiCoachDone) {
+    const aiTrainee = user.coaches.find((c) => c.isAiCoach);
+    if (aiTrainee) redirect(`/app/adaptive/${aiTrainee.traineeId}`);
   }
 
   return (
@@ -32,7 +37,7 @@ export default async function OnboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {!coachDone && (
           <Link href="/app/onboard/coach" className="group block">
             <div className="h-full flex flex-col gap-4 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 transition-colors hover:bg-[var(--shell-surface-strong)]">
@@ -79,6 +84,32 @@ export default async function OnboardPage() {
                   className="pointer-events-none rounded-none"
                 >
                   Set up as athlete
+                </Button>
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {!aiCoachDone && (
+          <Link href="/app/adaptive/onboarding" className="group block">
+            <div className="h-full flex flex-col gap-4 border border-[var(--shell-border)] bg-[var(--shell-surface)] p-8 transition-colors hover:bg-[var(--shell-surface-strong)]">
+              <div className="flex flex-col gap-1">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--shell-muted)]">
+                  New
+                </p>
+                <h2 className="text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+                  AI Coach
+                </h2>
+              </div>
+              <p className="text-sm leading-relaxed text-[var(--shell-muted)]">
+                Get a personalized powerlifting program built and adapted by AI — no human coach required.
+              </p>
+              <div className="pt-2">
+                <Button
+                  variant="outline"
+                  className="pointer-events-none rounded-none"
+                >
+                  Start with AI Coach
                 </Button>
               </div>
             </div>

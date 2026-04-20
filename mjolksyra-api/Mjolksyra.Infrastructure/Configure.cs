@@ -112,6 +112,7 @@ public static class Configure
         services.AddScoped<IBlockPlannerAgent, GeminiBlockPlannerAgent>();
         services.AddScoped<ITraineeInsightsAgent, GeminiTraineeInsightsAgent>();
         services.AddScoped<ICoachInsightsAgent, GeminiCoachInsightsAgent>();
+        services.AddScoped<ISurpriseBlockAgent, GeminiSurpriseBlockAgent>();
         services.AddScoped<IStripePriceService>(sp =>
             new StripePriceServiceAdapter(sp.GetRequiredService<IStripeClient>()));
         services.AddScoped<IStripeSubscriptionService>(sp =>

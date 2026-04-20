@@ -1,4 +1,5 @@
 using MediatR;
+using Mjolksyra.Domain.Constants;
 using Mjolksyra.Domain.Database;
 using Mjolksyra.Domain.Database.Enum;
 
@@ -50,6 +51,9 @@ public class GetUserRequestHandler(
                     { AccountId: not null } => UserOnboardingStatus.Started,
                     _ => UserOnboardingStatus.NotStarted
                 },
+                AiCoach = activeTrainees.Any(x => x.CoachUserId == AiCoachConstants.UserId && x.AthleteUserId == request.UserId)
+                    ? UserOnboardingStatus.Completed
+                    : UserOnboardingStatus.NotStarted,
                 CoachTrialEndsAt = user.Coach?.Stripe?.TrialEndsAt,
                 CoachPlanId = user.Coach?.Stripe?.PlanId,
             },
@@ -77,7 +81,8 @@ public class GetUserRequestHandler(
                     TraineeId = x.Id,
                     GivenName = traineeUsersLookup[x.CoachUserId].GivenName,
                     FamilyName = traineeUsersLookup[x.CoachUserId].FamilyName,
-                    Status = UserTraineeStatus.Active
+                    Status = UserTraineeStatus.Active,
+                    IsAiCoach = x.CoachUserId == AiCoachConstants.UserId
                 })
                 .ToList(),
             Invitations = invitations
