@@ -23,7 +23,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "";
 
-  if (!pathname.startsWith("/app/onboard")) {
+  if (!pathname.startsWith("/app/onboard") && !pathname.startsWith("/app/adaptive")) {
     const { getToken } = await auth();
     const accessToken = (await getToken()) ?? "";
 

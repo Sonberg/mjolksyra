@@ -9,4 +9,6 @@ public class UserTraineeResponse
     public required string? FamilyName { get; set; }
 
     public required UserTraineeStatus Status { get; set; }
+
+    public bool IsAiCoach { get; set; }
 }

@@ -35,6 +35,10 @@ public class User
 
     public bool IsAdmin { get; set; }
 
+    public bool IsAiCoach { get; set; }
+
+    public AthleteTrainingProfile? AthleteProfile { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }

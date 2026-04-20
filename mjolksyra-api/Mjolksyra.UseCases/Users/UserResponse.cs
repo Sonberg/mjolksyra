@@ -13,6 +13,8 @@ public class UserOnboardingResponse
 
     public required UserOnboardingStatus Athlete { get; set; }
 
+    public required UserOnboardingStatus AiCoach { get; set; }
+
     public DateTimeOffset? CoachTrialEndsAt { get; set; }
 
     public Guid? CoachPlanId { get; set; }
