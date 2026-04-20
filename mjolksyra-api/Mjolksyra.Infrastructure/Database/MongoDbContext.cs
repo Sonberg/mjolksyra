@@ -52,6 +52,10 @@ public interface IMongoDbContext
     IMongoCollection<TraineeInsights> TraineeInsights { get; }
 
     IMongoCollection<CoachInsights> CoachInsights { get; }
+
+    IMongoCollection<EquipmentProfile> EquipmentProfiles { get; }
+
+    IMongoCollection<BlockCompletionContext> BlockCompletionContexts { get; }
 }
 
 public class MongoDbContext : IMongoDbContext
@@ -105,6 +109,10 @@ public class MongoDbContext : IMongoDbContext
     public IMongoCollection<TraineeInsights> TraineeInsights => Database.GetCollection<TraineeInsights>("trainee-insights");
 
     public IMongoCollection<CoachInsights> CoachInsights => Database.GetCollection<CoachInsights>("coach-insights");
+
+    public IMongoCollection<EquipmentProfile> EquipmentProfiles => Database.GetCollection<EquipmentProfile>("equipment-profiles");
+
+    public IMongoCollection<BlockCompletionContext> BlockCompletionContexts => Database.GetCollection<BlockCompletionContext>("block-completion-contexts");
 
     public MongoDbContext(IOptions<MongoOptions> options)
     {

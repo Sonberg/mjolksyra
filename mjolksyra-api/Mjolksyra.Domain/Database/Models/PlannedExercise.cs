@@ -27,6 +27,10 @@ public class PlannedExercise
     public ExerciseAddedBy? AddedBy { get; set; }
 
     public ExercisePrescription? Prescription { get; set; }
+
+    public RepStyle? RepStyle { get; set; }
+
+    public int? EccentricTempoSeconds { get; set; }
 }
 
 [BsonIgnoreExtraElements]
@@ -55,6 +59,10 @@ public class ExercisePrescriptionSetTarget
     public double? DistanceMeters { get; set; }
 
     public double? WeightKg { get; set; }
+
+    public float? RpeTarget { get; set; }
+
+    public int? RirTarget { get; set; }
 
     public string? Note { get; set; }
 }

@@ -86,10 +86,13 @@ public static class Configure
         services.AddScoped<IBlockPlannerSessionRepository, BlockPlannerSessionRepository>();
         services.AddScoped<ITraineeInsightsRepository, TraineeInsightsRepository>();
         services.AddScoped<ICoachInsightsRepository, CoachInsightsRepository>();
+        services.AddScoped<IEquipmentProfileRepository, EquipmentProfileRepository>();
+        services.AddScoped<IBlockCompletionContextRepository, BlockCompletionContextRepository>();
         services.AddScoped<IAttachmentIntegrityReportService, AttachmentIntegrityReportService>();
         services.AddHostedService<PlanSeeder>();
         services.AddHostedService<CreditActionPricingSeeder>();
         services.AddHostedService<CreditPackSeeder>();
+        services.AddHostedService<AiCoachSeeder>();
         services.AddHostedService<FfmpegInitializer>();
         services.AddScoped<BrevoEmailSender>();
         services.AddKeyedScoped<IEmailSender, BrevoEmailSender>("direct");

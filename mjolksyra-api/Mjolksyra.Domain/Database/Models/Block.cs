@@ -2,6 +2,14 @@ using Mjolksyra.Domain.Database.Common;
 
 namespace Mjolksyra.Domain.Database.Models;
 
+public enum BlockType
+{
+    BuildPower,
+    Stretch,
+    CompetitionReady,
+    Recovery
+}
+
 public class Block : IDocument
 {
     public Guid Id { get; set; }
@@ -11,6 +19,8 @@ public class Block : IDocument
     public required string Name { get; set; }
 
     public int NumberOfWeeks { get; set; }
+
+    public BlockType? BlockType { get; set; }
 
     public required ICollection<BlockWorkout> Workouts { get; set; }
 
@@ -45,4 +55,8 @@ public class BlockExercise
     public string? Note { get; set; }
 
     public ExercisePrescription? Prescription { get; set; }
+
+    public RepStyle? RepStyle { get; set; }
+
+    public int? EccentricTempoSeconds { get; set; }
 }
